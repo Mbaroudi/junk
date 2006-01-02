@@ -1,25 +1,21 @@
 \documentclass[12pt,a4paper]{article}
-%\usepackage[unicode,a4paper=true,ps2pdf=true,pagebackref=true,bookmarks=true]{hyperref}
 \usepackage{epsfig}
 \usepackage{amssymb,amsmath}
 \usepackage[T2A]{fontenc}
 \usepackage[koi8-r]{inputenc}
 \usepackage[russian]{babel}
 
-\usepackage{indentfirst}				%отступ в начале параграфа
-\usepackage{caption2}				%подписи к рисункам
-\renewcommand{\captionlabeldelim}{.}			%не ":", а "."
-
-\frenchspacing						%пробелы между словами
-\renewcommand{\baselinestretch}{1.25}	%интервал между строк
-
 \textwidth=16.5cm
 \textheight=24cm
 \oddsidemargin=0cm
 \topmargin=-1.5cm
-%%\parindent=24pt
-%%\parskip=0pt
-%%\flushbottom
+
+\usepackage{indentfirst}				%отступ в начале параграфа
+\frenchspacing						%пробелы между словами
+\renewcommand{\baselinestretch}{1.25}	%интервал между строк
+
+\usepackage[footnotesize]{caption2}				%подписи к рисункам
+\renewcommand{\captionlabeldelim}{.}			%не ":", а "."
 
 \makeatletter						%точка после номера раздела
 \renewcommand \thesection {\@arabic\c@section.}
@@ -148,7 +144,7 @@ S(p,q,t)=-\frac{1}{2}q^{2}t-qX_{\omega }(t)+\alpha (q)-\frac{\pi }{2}-qpt,\quad
 
 \begin{figure}[hb]
 \begin{center}
-	\epsfig{figure=03.eps,width=0.45\textwidth}	\caption{\small Пример марковского скачкообразного процесса}	\label{fig_Mark}
+	\epsfig{figure=03.eps,width=0.45\textwidth}	\caption{Пример марковского скачкообразного процесса}	\label{fig_Mark}
 \end{center}
 \end{figure}
 
@@ -209,11 +205,11 @@ $
 \begin{figure}[hb]
 \centering
 \begin{minipage}[b]{0.4\textwidth}
-\epsfig{figure=example_x0p0v1.eps,width=\linewidth}\caption{\small Характерный вид зависимости $\Delta p(F)$ при $x_0=0$}\label{fig_Re_p_Im_p}
+\epsfig{figure=example_x0p0v1.eps,width=\linewidth}\caption{Характерный вид зависимости $\Delta p(F)$ при $x_0=0$}\label{fig_Re_p_Im_p}
 \end{minipage}
 \hspace{0.05\textwidth}
 \begin{minipage}[b]{0.4\textwidth}
-\epsfig{figure=sigma_x0p0.eps,width=\linewidth}\caption{\small Зависимость $Re\Delta p(F)$ для различных значений $\sigma$ при $x_0=0$}\label{fig_Re_p_sigma}
+\epsfig{figure=sigma_x0p0.eps,width=\linewidth}\caption{Зависимость $Re\Delta p(F)$ для различных значений $\sigma$ при $x_0=0$}\label{fig_Re_p_sigma}
 \end{minipage}
 \end{figure}
 
@@ -223,22 +219,22 @@ $
 \begin{figure}[hb]
 \centering
 \begin{minipage}[b]{0.4\textwidth}
-\epsfig{figure=t_x0.eps,width=\linewidth}\caption{\small Зависимость $Re\Delta p(F)$ для различных значений $t$ при $x_0=0$}\label{fig_Re_p_t0}
+\epsfig{figure=t_x0.eps,width=\linewidth}\caption{Зависимость $Re\Delta p(F)$ для различных значений $t$ при $x_0=0$}\label{fig_Re_p_t0}
 \end{minipage}
 \hspace{0.05\textwidth}
 \begin{minipage}[b]{0.4\textwidth}
-\epsfig{figure=t_x1.eps,width=\linewidth}\caption{\small Зависимость $Re\Delta p(F)$ для различных значений $t$ при $x_0=1$}\label{fig_Re_p_t1}
+\epsfig{figure=t_x1.eps,width=\linewidth}\caption{Зависимость $Re\Delta p(F)$ для различных значений $t$ при $x_0=1$}\label{fig_Re_p_t1}
 \end{minipage}
 \end{figure}
 
 \begin{figure}[hb]
 \centering
 \begin{minipage}[b]{0.4\textwidth}
-\epsfig{figure=t_x0_3d.eps,width=\linewidth}\caption{\small Зависимость $Re\Delta p(F,t)$ при $x_0=0$}\label{fig_Re_p_t}
+\epsfig{figure=t_x0_3d.eps,width=\linewidth}\caption{Зависимость $Re\Delta p(F,t)$ при $x_0=0$}\label{fig_Re_p_t}
 \end{minipage}
 \hspace{0.05\textwidth}
 \begin{minipage}[b]{0.4\textwidth}
-\epsfig{figure=V0_x0p0.eps,width=\linewidth}\caption{\small Зависимость $Re\Delta p(F)$ для различных значений $V_0$ при $x_0=0$ }\label{fig_Re_p_V}
+\epsfig{figure=V0_x0p0.eps,width=\linewidth}\caption{Зависимость $Re\Delta p(F)$ для различных значений $V_0$ при $x_0=0$ }\label{fig_Re_p_V}
 \end{minipage}
 \end{figure}
 
@@ -269,7 +265,6 @@ Chebotarev~A.~M., Maslov~V.~P., Processus de sauts et leurs applications dans la
 
 \bibitem{bib_shrod4} 
 Chebotarev~A.~M., Quezada-Batalla~R., Stochastic approach to time-dependent quantum tunneling. Russian J. Math. Phys., {\bf 4}, N3, 1996, 275--286.
-
 
 \end{thebibliography}
 
