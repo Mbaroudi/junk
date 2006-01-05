@@ -1,26 +1,41 @@
 #include <curses.h>
+#include <string.h>
 #define BASEWIN_COLOR 1
 #define PLAYLIST_COLOR 2
 #define SONG_INFO_COLOR 3
 
-void draw_window(WINDOW *window,int size_y,int size_x,int y,int x,int color_pair,int attrib,char *titleText);
+void draw_window(WINDOW *window,int color_pair,int attrib,char *titleText);
 
-int main(int argc, char *argv) {
+int main(int argc, char *argv[]) {
 	initscr();
 	touchwin(stdscr);
 	wrefresh(stdscr); 	//I don't know why this is necessary, but it is!
 	start_color(); 		//colors initialization
 	init_pair(BASEWIN_COLOR, COLOR_BLUE, COLOR_BLACK);
 	init_pair(PLAYLIST_COLOR, COLOR_RED, COLOR_BLACK);
-	init_pair(SONG_INFO_COLOR, COLOR_WHITE, COLOR_BLACK);	
+	init_pair(SONG_INFO_COLOR, COLOR_YELLOW, COLOR_BLACK);	
 
-	int x, maxy, maxx;
+	int maxy, maxx;
 	getmaxyx(stdscr,maxy,maxx);
 	
 	WINDOW *base_win, *playlist_win, *song_info_win;
-	draw_window(base_win, maxy, maxx, 0, 0, BASEWIN_COLOR, WA_BOLD, "Zoldatoff media player");
-	draw_window(playlist_win, maxy-2, (3*maxx)/4 - 1, 1, maxx/4, PLAYLIST_COLOR, WA_BOLD, "Playlist");
-	draw_window(song_info_win, maxy-2, maxx/4 - 1, 1, 1, SONG_INFO_COLOR, WA_BOLD, "Song info");
+	base_win = newwin(maxy, maxx, 0, 0);
+	draw_window(base_win, BASEWIN_COLOR, WA_BOLD, "Z");
+	playlist_win = newwin(maxy-2, (3*maxx)/4 - 1, 1, maxx/4);
+	draw_window(playlist_win, PLAYLIST_COLOR, WA_BOLD, "P");
+	song_info_win = newwin(maxy-2, maxx/4 - 1, 1, 1);
+	draw_window(song_info_win, SONG_INFO_COLOR, WA_BOLD, "S");
+	
+	wattrset(song_info_win, COLOR_PAIR(SONG_INFO_COLOR) | WA_BOLD);
+	mvwprintw(song_info_win,4,1,"zaebis");
+	//touchwin(base_win);
+	wrefresh(base_win);
+	//touchwin(playlist_win);
+	wrefresh(playlist_win);
+	touchline(song_info_win,1,maxy-3);
+	//touchwin(song_info_win);
+	wrefresh(song_info_win);
+	refresh();
 	
 	getch();
 	delwin(playlist_win); 	//kill all windows
@@ -44,8 +59,7 @@ void wprintTitleCentered(WINDOW *window, const char *titleText) {
 	mvwprintw(window,0,x,"| %s |",titleText);
 }
 
-void draw_window(WINDOW *window,int size_y,int size_x,int y,int x,int color_pair,int attrib,char *titleText) {
-	window = newwin(size_y, size_x, y, x);
+void draw_window(WINDOW *window,int color_pair,int attrib,char *titleText) {
 	wattrset(window, COLOR_PAIR(color_pair) | attrib);
 	wclrscr(window);
 	box(window, 0, 0);
