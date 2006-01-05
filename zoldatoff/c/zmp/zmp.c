@@ -1,10 +1,14 @@
 #include <curses.h>
+#include <sys/types.h>
+#include <dirent.h>
 #include <string.h>
+
 #define BASEWIN_COLOR 1
 #define PLAYLIST_COLOR 2
 #define SONG_INFO_COLOR 3
 
 void draw_window(WINDOW *window,int color_pair,int attrib,char *titleText);
+void listDir(WINDOW *window, char *directory);
 
 int main(int argc, char *argv[]) {
 	initscr();
@@ -26,18 +30,14 @@ int main(int argc, char *argv[]) {
 	song_info_win = newwin(maxy-2, maxx/4 - 1, 1, 1);
 	draw_window(song_info_win, SONG_INFO_COLOR, WA_BOLD, "S");
 	
-	wattrset(song_info_win, COLOR_PAIR(SONG_INFO_COLOR) | WA_BOLD);
-	mvwprintw(song_info_win,4,1,"zaebis");
-	//touchwin(base_win);
-	wrefresh(base_win);
-	//touchwin(playlist_win);
+//	mvwprintw(song_info_win,4,1,"zaebis");
+//	wrefresh(song_info_win);
+
+	listDir(playlist_win,"/");
 	wrefresh(playlist_win);
-	touchline(song_info_win,1,maxy-3);
-	//touchwin(song_info_win);
-	wrefresh(song_info_win);
-	refresh();
 	
 	getch();
+	delwin(base_win); 	//kill all windows
 	delwin(playlist_win); 	//kill all windows
 	delwin(song_info_win); 	//kill all windows
 	endwin(); 		//end curses environment
@@ -68,3 +68,19 @@ void draw_window(WINDOW *window,int color_pair,int attrib,char *titleText) {
 	wrefresh(window);
 }
 
+void listDir(WINDOW *window, char *directory) {
+	DIR *dp;
+	struct dirent *ep;
+	int i=0;
+	
+	dp = opendir (directory);
+	if (dp != NULL) {
+		while (ep=readdir(dp)) {
+			i++;
+			mvwprintw(window,i,1,"%s",ep->d_name);
+		}
+		(void) closedir (dp);
+	}
+	else
+	mvwprintw(window,1,1,"No such dir");
+}
