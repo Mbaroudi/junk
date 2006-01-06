@@ -16,6 +16,7 @@
 #define ESC 0x1b               	//Escape key
 #define TAB 0x09               	//Tab key
 #define SPACE ' '
+#define PG_UP 0x153
 //#define LF 0x0a               //Line feed
 //#define BACKSPACE 0x08        //Backspace
 //#define SAVE 0x13             //Ctrl-S for Save
@@ -105,16 +106,6 @@ int main(int argc, char *argv[])
                         if (show_explorer)
 				drawExplorer(explorer_win,dir_list,explorer_item,max_explorer_item);
                         break;
-                case KEY_LEFT: 		//???
-                        mvwprintw(song_info_win,i,1,"KEY_LEFT");
-                        wrefresh(song_info_win);
-                        i++;
-                        break;
-                case KEY_RIGHT: 	//???
-                        mvwprintw(song_info_win,i,1,"KEY_RIGHT");
-                        wrefresh(song_info_win);
-                        i++;
-                        break;
                 case TAB: 		//switch between playlist & explorer
                         if (!show_explorer) {
                                 drawExplorer(explorer_win,dir_list,explorer_item,max_explorer_item);
@@ -133,7 +124,8 @@ int main(int argc, char *argv[])
                         wrefresh(song_info_win);
                         i++;
                         break;
-                case ENTER: 		//add to playlist //play selected song
+                case KEY_RIGHT:
+                case ENTER: 		//add to playlist //play selected song //go to folder
 			if (show_explorer) {
 				strcat(current_dir, dir_list[explorer_item]);
 				strcat(current_dir, "/");
@@ -142,8 +134,8 @@ int main(int argc, char *argv[])
 				drawExplorer(explorer_win,dir_list,explorer_item,max_explorer_item);
 			}
                         break;
-		case 'u':
-		case KEY_PPAGE: 	//go up one dir
+                case KEY_LEFT:
+		case PG_UP: 	//go up one dir
 			if (show_explorer) {
 				strcpy(current_dir, upDir(current_dir));
         			max_explorer_item = listDir(current_dir, dir_list);
@@ -170,7 +162,7 @@ int main(int argc, char *argv[])
                         wrefresh(song_info_win);
                         i++;
                 default: 		//what is this doing here?!
-                        mvwprintw(song_info_win,i,1,"%c",key);
+                        mvwprintw(song_info_win,i,1,"%x",key);
                         wrefresh(song_info_win);
                         i++;
                         break;
