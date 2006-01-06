@@ -22,9 +22,10 @@
 //#define HELP 0x08             //Ctrl-H for Help
 //#define QUIT 0x11             //Ctrl-Q for Quit
 
-void draw_window(WINDOW *window,int color_pair,char *titleText);
+void drawWindow(WINDOW *window,int color_pair,char *titleText);
 int listDir(char *directory, char dir_list[MAX_LIST][MAX_FILE_NAME+1]);
-void draw_explorer(WINDOW *window, char dir_list[MAX_LIST][MAX_FILE_NAME+1], int explorer_item, int max_explorer_item);
+void drawExplorer(WINDOW *window, char dir_list[MAX_LIST][MAX_FILE_NAME+1], int explorer_item, int max_explorer_item);
+char *upDir(char directory[]);
 
 int main(int argc, char *argv[])
 {
@@ -50,13 +51,13 @@ int main(int argc, char *argv[])
 	// Draw windows
         getmaxyx(stdscr,maxy,maxx);
         base_win = newwin(maxy, maxx, 0, 0);
-        draw_window(base_win, BASEWIN_COLOR, "Zoldatoff Media Player");
+        drawWindow(base_win, BASEWIN_COLOR, "Zoldatoff Media Player");
         explorer_win = newwin(maxy-2, maxx-2, 1, 1);
-        draw_window(explorer_win, EXPLORER_COLOR, "Explorer");
+        drawWindow(explorer_win, EXPLORER_COLOR, "Explorer");
         playlist_win = newwin(maxy-2, (3*maxx)/4 - 1, 1, maxx/4);
-        draw_window(playlist_win, PLAYLIST_COLOR, "Playlist");
+        drawWindow(playlist_win, PLAYLIST_COLOR, "Playlist");
         song_info_win = newwin(maxy-2, maxx/4 - 1, 1, 1);
-        draw_window(song_info_win, SONG_INFO_COLOR, "Song");
+        drawWindow(song_info_win, SONG_INFO_COLOR, "Song");
         keypad(playlist_win,TRUE);
         keypad(song_info_win,TRUE);
         keypad(base_win,TRUE);
@@ -76,7 +77,7 @@ int main(int argc, char *argv[])
                 if (key=='q')
                         break;
                 switch (key) {
-                case KEY_DOWN:
+                case KEY_DOWN: 		//scroll list down
                         if (show_explorer)
                                 explorer_item++;
                         else
@@ -88,9 +89,9 @@ int main(int argc, char *argv[])
                                 playlist_item=0;
 
                         if (show_explorer) 
-				draw_explorer(explorer_win,dir_list,explorer_item,max_explorer_item);
+				drawExplorer(explorer_win,dir_list,explorer_item,max_explorer_item);
                         break;
-                case KEY_UP:
+                case KEY_UP: 		//scroll list up
                         if (show_explorer)
                                 explorer_item--;
                         else
@@ -102,21 +103,21 @@ int main(int argc, char *argv[])
                                 playlist_item=max_playlist_item;
 
                         if (show_explorer)
-				draw_explorer(explorer_win,dir_list,explorer_item,max_explorer_item);
+				drawExplorer(explorer_win,dir_list,explorer_item,max_explorer_item);
                         break;
-                case KEY_LEFT:
+                case KEY_LEFT: 		//???
                         mvwprintw(song_info_win,i,1,"KEY_LEFT");
                         wrefresh(song_info_win);
                         i++;
                         break;
-                case KEY_RIGHT:
+                case KEY_RIGHT: 	//???
                         mvwprintw(song_info_win,i,1,"KEY_RIGHT");
                         wrefresh(song_info_win);
                         i++;
                         break;
-                case TAB:
+                case TAB: 		//switch between playlist & explorer
                         if (!show_explorer) {
-                                draw_explorer(explorer_win,dir_list,explorer_item,max_explorer_item);
+                                drawExplorer(explorer_win,dir_list,explorer_item,max_explorer_item);
                                 show_explorer=1;
                         } 
 			else {
@@ -127,35 +128,48 @@ int main(int argc, char *argv[])
                                 show_explorer=0;
                         }
                         break;
-                case SPACE:
+                case SPACE: 		//mark files and playlist items or .......
                         mvwprintw(song_info_win,i,1,"Space");
                         wrefresh(song_info_win);
                         i++;
                         break;
-                case ENTER:
+                case ENTER: 		//add to playlist //play selected song
 			if (show_explorer) {
 				strcat(current_dir, dir_list[explorer_item]);
 				strcat(current_dir, "/");
         			max_explorer_item = listDir(current_dir, dir_list);
 				explorer_item=0;
-				draw_explorer(explorer_win,dir_list,explorer_item,max_explorer_item);
+				drawExplorer(explorer_win,dir_list,explorer_item,max_explorer_item);
 			}
                         break;
-                case ESC:
+		case 'u':
+		case KEY_PPAGE: 	//go up one dir
+			if (show_explorer) {
+				strcpy(current_dir, upDir(current_dir));
+        			max_explorer_item = listDir(current_dir, dir_list);
+				explorer_item=0;
+				drawExplorer(explorer_win,dir_list,explorer_item,max_explorer_item);
+				/*mvwprintw(song_info_win,i,1,"%s",current_dir);
+				mvwprintw(song_info_win,i+1,1,"%s",upDir(current_dir));
+				touchwin(song_info_win);
+                        	wrefresh(song_info_win);*/
+			}
+			break;
+                case ESC: 		//do you want to exit?
                         mvwprintw(song_info_win,i,1,"ESC");
                         wrefresh(song_info_win);
                         i++;
                         break;
-                case KEY_F(1):
+                case KEY_F(1): 		//help & something else .............
                         mvwprintw(song_info_win,i,1,"F1");
                         wrefresh(song_info_win);
                         i++;
                         break;
-                case 'w':
+                case 'w': 		//write configuration (what configuration?)
                         mvwprintw(song_info_win,i,1,"w");
                         wrefresh(song_info_win);
                         i++;
-                default:
+                default: 		//what is this doing here?!
                         mvwprintw(song_info_win,i,1,"%c",key);
                         wrefresh(song_info_win);
                         i++;
@@ -170,7 +184,7 @@ int main(int argc, char *argv[])
         return 0;
 }
 
-void wclrscr(WINDOW *window)
+void wclrscr(WINDOW *window) 		//clear the space inside the window
 {
         int y, x, maxy, maxx;
         getmaxyx(window, maxy, maxx);
@@ -179,7 +193,7 @@ void wclrscr(WINDOW *window)
                         mvwaddch(window, y, x, ' ');
 }
 
-void wprintTitleCentered(WINDOW *window, const char *titleText)
+void wprintTitleCentered(WINDOW *window, const char *titleText) 	//print the title of the window
 {
         int x, maxy, maxx;
         getmaxyx(window,maxy,maxx);
@@ -187,7 +201,7 @@ void wprintTitleCentered(WINDOW *window, const char *titleText)
         mvwprintw(window,0,x,"| %s |",titleText);
 }
 
-void draw_window(WINDOW *window,int color_pair,char *titleText)
+void drawWindow(WINDOW *window,int color_pair,char *titleText) 	//initial drawing of the empty window
 {
         wattrset(window, COLOR_PAIR(color_pair) | WA_BOLD);
         wclrscr(window);
@@ -197,7 +211,8 @@ void draw_window(WINDOW *window,int color_pair,char *titleText)
         wrefresh(window);
 }
 
-int listDir(char *directory, char dir_list[MAX_LIST][MAX_FILE_NAME+1])
+//SCANDIR!!!!!!!!!!!!!!!!!!!!!!!!!!1
+int listDir(char *directory, char dir_list[MAX_LIST][MAX_FILE_NAME+1]) 	//the array of files in folder
 {
         DIR *dp;
         struct dirent *ep;
@@ -215,7 +230,8 @@ int listDir(char *directory, char dir_list[MAX_LIST][MAX_FILE_NAME+1])
         return i;
 }
 
-void draw_explorer(WINDOW *window,char dir_list[MAX_LIST][MAX_FILE_NAME+1],int explorer_item,int max_explorer_item)
+//draw the list of files in the explorer window
+void drawExplorer(WINDOW *window,char dir_list[MAX_LIST][MAX_FILE_NAME+1],int explorer_item,int max_explorer_item)
 {
         int i, tmp, maxy, maxx;
         getmaxyx(window, maxy, maxx);
@@ -240,4 +256,18 @@ void draw_explorer(WINDOW *window,char dir_list[MAX_LIST][MAX_FILE_NAME+1],int e
         }
         touchwin(window);
         wrefresh(window);
+}
+
+char *upDir(char directory[]) {
+	int i, len;
+	if (!strcmp(directory, "/")) 
+		return directory;
+	
+	len = strlen(directory);
+	for (i=len-2; i>=0; i--)
+		if (directory[i] == '/') {
+			directory[i+1]='\0';
+			break;
+		}
+	return directory;
 }
