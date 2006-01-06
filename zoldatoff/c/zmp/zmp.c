@@ -22,50 +22,55 @@
 //#define HELP 0x08             //Ctrl-H for Help
 //#define QUIT 0x11             //Ctrl-Q for Quit
 
-void draw_window(WINDOW *window,int color_pair,int attrib,char *titleText);
+void draw_window(WINDOW *window,int color_pair,char *titleText);
 int listDir(char *directory, char dir_list[MAX_LIST][MAX_FILE_NAME+1]);
-void draw_explorer(WINDOW *window, char dir_list[MAX_LIST][MAX_FILE_NAME+1], int explorer_item);
+void draw_explorer(WINDOW *window, char dir_list[MAX_LIST][MAX_FILE_NAME+1], int explorer_item, int max_explorer_item);
 
 int main(int argc, char *argv[])
 {
         initscr();
         noecho(); 	//no output to terminal
         raw(); 		//no buffering
+	curs_set(0);
         keypad(stdscr,TRUE);
         touchwin(stdscr);
         wrefresh(stdscr); 	//I don't know why this is necessary, but it is!
-        start_color(); 		//colors initialization
+	
+	//Colors initialization
+        start_color();
         init_pair(BASEWIN_COLOR, COLOR_BLUE, COLOR_BLACK);
         init_pair(PLAYLIST_COLOR, COLOR_RED, COLOR_BLACK);
         init_pair(SONG_INFO_COLOR, COLOR_YELLOW, COLOR_BLACK);
         init_pair(EXPLORER_COLOR, COLOR_GREEN, COLOR_BLACK);
-        init_pair(EXPLORER_SEL_COLOR, COLOR_BLACK, COLOR_GREEN);
+        init_pair(EXPLORER_SEL_COLOR, COLOR_GREEN, COLOR_BLUE);
 
-        int i, maxy, maxx;
-        getmaxyx(stdscr,maxy,maxx);
-
+        int maxy, maxx;
         WINDOW *base_win, *playlist_win, *song_info_win, *explorer_win;
+	
+	// Draw windows
+        getmaxyx(stdscr,maxy,maxx);
         base_win = newwin(maxy, maxx, 0, 0);
-        draw_window(base_win, BASEWIN_COLOR, WA_BOLD, "Zoldatoff Media Player");
+        draw_window(base_win, BASEWIN_COLOR, "Zoldatoff Media Player");
         explorer_win = newwin(maxy-2, maxx-2, 1, 1);
-        draw_window(explorer_win, EXPLORER_COLOR, WA_BOLD, "Explorer");
+        draw_window(explorer_win, EXPLORER_COLOR, "Explorer");
         playlist_win = newwin(maxy-2, (3*maxx)/4 - 1, 1, maxx/4);
-        draw_window(playlist_win, PLAYLIST_COLOR, WA_BOLD, "Playlist");
+        draw_window(playlist_win, PLAYLIST_COLOR, "Playlist");
         song_info_win = newwin(maxy-2, maxx/4 - 1, 1, 1);
-        draw_window(song_info_win, SONG_INFO_COLOR, WA_BOLD, "Song");
-
-        char dir_list[MAX_LIST][MAX_FILE_NAME+1], playlist[MAX_LIST][MAX_FILE_NAME+1];
-        int key, playlist_item=0, max_playlist_item=0, explorer_item=0, max_explorer_item=0, show_explorer=0;
-        char *current_dir="/";
-
-        max_explorer_item = listDir(current_dir, dir_list);
-        mvwprintw(song_info_win,1,1,"max_expl=%d",max_explorer_item);
-        wrefresh(song_info_win);
-
-        i=2;
+        draw_window(song_info_win, SONG_INFO_COLOR, "Song");
         keypad(playlist_win,TRUE);
         keypad(song_info_win,TRUE);
         keypad(base_win,TRUE);
+	
+	//Arrays of directory listing and playlist
+        char dir_list[MAX_LIST][MAX_FILE_NAME+1], playlist[MAX_LIST][MAX_FILE_NAME+1];
+        char current_dir[MAX_FILE_NAME]="/";
+        int playlist_item=0, max_playlist_item=0;
+        int explorer_item=0, max_explorer_item=0, show_explorer=0;
+
+        max_explorer_item = listDir(current_dir, dir_list);
+
+        int key, i=2;
+	
         while (1) {
                 key = wgetch(playlist_win);
                 if (key=='q')
@@ -82,7 +87,8 @@ int main(int argc, char *argv[])
                         if (playlist_item==max_playlist_item+1)
                                 playlist_item=0;
 
-                        draw_explorer(explorer_win,dir_list,explorer_item);
+                        if (show_explorer) 
+				draw_explorer(explorer_win,dir_list,explorer_item,max_explorer_item);
                         break;
                 case KEY_UP:
                         if (show_explorer)
@@ -95,7 +101,8 @@ int main(int argc, char *argv[])
                         if (playlist_item==-1)
                                 playlist_item=max_playlist_item;
 
-                        draw_explorer(explorer_win,dir_list,explorer_item);
+                        if (show_explorer)
+				draw_explorer(explorer_win,dir_list,explorer_item,max_explorer_item);
                         break;
                 case KEY_LEFT:
                         mvwprintw(song_info_win,i,1,"KEY_LEFT");
@@ -109,9 +116,10 @@ int main(int argc, char *argv[])
                         break;
                 case TAB:
                         if (!show_explorer) {
-                                draw_explorer(explorer_win,dir_list,explorer_item);
+                                draw_explorer(explorer_win,dir_list,explorer_item,max_explorer_item);
                                 show_explorer=1;
-                        } else {
+                        } 
+			else {
                                 touchwin(song_info_win);
                                 touchwin(playlist_win);
                                 wrefresh(song_info_win);
@@ -125,9 +133,13 @@ int main(int argc, char *argv[])
                         i++;
                         break;
                 case ENTER:
-                        mvwprintw(song_info_win,i,1,"Enter");
-                        wrefresh(song_info_win);
-                        i++;
+			if (show_explorer) {
+				strcat(current_dir, dir_list[explorer_item]);
+				strcat(current_dir, "/");
+        			max_explorer_item = listDir(current_dir, dir_list);
+				explorer_item=0;
+				draw_explorer(explorer_win,dir_list,explorer_item,max_explorer_item);
+			}
                         break;
                 case ESC:
                         mvwprintw(song_info_win,i,1,"ESC");
@@ -135,7 +147,7 @@ int main(int argc, char *argv[])
                         i++;
                         break;
                 case KEY_F(1):
-                                                mvwprintw(song_info_win,i,1,"F1");
+                        mvwprintw(song_info_win,i,1,"F1");
                         wrefresh(song_info_win);
                         i++;
                         break;
@@ -175,9 +187,9 @@ void wprintTitleCentered(WINDOW *window, const char *titleText)
         mvwprintw(window,0,x,"| %s |",titleText);
 }
 
-void draw_window(WINDOW *window,int color_pair,int attrib,char *titleText)
+void draw_window(WINDOW *window,int color_pair,char *titleText)
 {
-        wattrset(window, COLOR_PAIR(color_pair) | attrib);
+        wattrset(window, COLOR_PAIR(color_pair) | WA_BOLD);
         wclrscr(window);
         box(window, 0, 0);
         wprintTitleCentered(window, titleText);
@@ -198,23 +210,31 @@ int listDir(char *directory, char dir_list[MAX_LIST][MAX_FILE_NAME+1])
                         if (i>=0)
                                 strcpy(dir_list[i],ep->d_name);
                 }
-                (void) closedir (dp);
+                closedir(dp);
         }
         return i;
 }
 
-void draw_explorer(WINDOW *window, char dir_list[MAX_LIST][MAX_FILE_NAME+1], int explorer_item)
+void draw_explorer(WINDOW *window,char dir_list[MAX_LIST][MAX_FILE_NAME+1],int explorer_item,int max_explorer_item)
 {
-        int i;
-
+        int i, tmp, maxy, maxx;
+        getmaxyx(window, maxy, maxx);
+        wattrset(window, COLOR_PAIR(EXPLORER_COLOR) | WA_BOLD);
         wclrscr(window);
-        for (i=0; i<MAX_LIST; i++) {
+
+	if (explorer_item>maxy-3)
+		tmp=explorer_item-maxy+3;
+	else
+		tmp=0;
+	
+        for (i=tmp; (i<=max_explorer_item)&&(i<tmp+maxy-2); i++) {
                 if (i==explorer_item)
                         wattrset(window, COLOR_PAIR(EXPLORER_SEL_COLOR) | WA_BOLD);
                 else
                         wattrset(window, COLOR_PAIR(EXPLORER_COLOR) | WA_BOLD);
+		
                 if (dir_list[i]!="")
-                        mvwprintw(window,i+1,1,"%s",dir_list[i]);
+                        mvwprintw(window,i+1-tmp,1,"  %s  ",dir_list[i]);
                 else
                         break;
         }
