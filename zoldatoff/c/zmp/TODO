@@ -1,0 +1,14 @@
+Feature request:
+1. Home, end, insert, del
+2. Enter adds files to playlist and begins to play them
+3. Program can resize windows and work with other signals.
+4. A status string on the bottom of the main window
+5. Playlist sorting
+6. Playlist randomizing
+
+TODO:
+1. File info (from id3 tag - libid3tag or ... see also id3tool)
+2. Play mp3 :))
+3. Volume control
+4. Song seeking
+
