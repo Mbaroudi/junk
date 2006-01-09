@@ -2,6 +2,7 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <string.h>
+#include <ctype.h>
 #include <stdlib.h>
 
 #include <sys/types.h>
@@ -87,9 +88,10 @@ void addtoPlaylist(struct filelist *dir_list[],
 		char current_dir[],
 		int *max_playlist_item);
 
-void delfromPlaylist(struct playlist *play_list[], 
-		int playlist_item, 
-		int *max_playlist_item);
+int delfromPlaylist(struct playlist *play_list[], 
+		int del_item, 
+		int *max_playlist_item,
+		int playlist_item);
 					
 char *upDir(char directory[]);
 
@@ -274,17 +276,17 @@ int main(int argc, char *argv[])
 			if (!show_explorer && play_list[playlist_item]) {
 				if (playlist_sel) {
 					int k;
-					for (k=0; k<=max_playlist_item; k++) {
+					for (k=0; k<=max_playlist_item;) {
 						if (play_list[k]->is_selected)
-							delfromPlaylist(play_list, k, &max_playlist_item);	
-						play_list[k]->is_selected = 0;
+							playlist_item = delfromPlaylist(play_list, k, &max_playlist_item, playlist_item);	
+						else 
+							k++;
 					}
 				}
 				else
-					delfromPlaylist(play_list, playlist_item, &max_playlist_item);
+					playlist_item = delfromPlaylist(play_list, playlist_item, &max_playlist_item,playlist_item);
 			
-				//do something with playlist_item!!!	
-				drawPlaylist(playlist_win,play_list,playlist_item,max_playlist_item);
+				drawPlaylist(playlist_win, play_list, playlist_item, max_playlist_item);
 				playlist_sel = 0;
 			}
 			break;
@@ -553,6 +555,7 @@ void addFile(struct playlist *play_list[],
 	strcpy(tmp,current_dir);
 	strcat(tmp,dir_list[explorer_item]->f_name);
 	strcpy(play_list[max_playlist_item]->path, tmp);
+	play_list[max_playlist_item]->is_selected=0;
 }//addFile
 
 //================================================================================
@@ -603,8 +606,20 @@ void addtoPlaylist(struct filelist *dir_list[],
 //================================================================================
 
 //Delete item from playlist
-void delfromPlaylist(struct playlist *play_list[], 
-		int playlist_item, 
-		int *max_playlist_item)
+int delfromPlaylist(struct playlist *play_list[], 
+		int del_item, 
+		int *max_playlist_item,
+		int playlist_item)
 {
+	int i, item;
+	for (i=del_item; i<(*max_playlist_item); i++)
+		play_list[i]=play_list[i+1];
+
+	play_list[*max_playlist_item]=NULL;
+	(*max_playlist_item)--;
+	
+	item = del_item<playlist_item ? playlist_item-1 : playlist_item;
+	if (item<0) item = 0;
+	if (item>*max_playlist_item) item = *max_playlist_item;
+	return item;
 }
