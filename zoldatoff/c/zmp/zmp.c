@@ -14,6 +14,10 @@
 #define SONG_INFO_COLOR 4
 #define EXPLORER_COLOR 5
 #define EXPLORER_SEL_COLOR 6
+#define EXPLORER_DIR_COLOR 7
+#define EXPLORER_DIR_SEL_COLOR 8
+#define EXPLORER_MEDIA_COLOR 9
+#define EXPLORER_MEDIA_SEL_COLOR 10
 
 #define MAX_FILE_NAME 256
 #define MAX_LIST 1024
@@ -30,6 +34,7 @@
 //#define HELP 0x08             //Ctrl-H for Help
 //#define QUIT 0x11             //Ctrl-Q for Quit
 
+//================================================================================
 struct filelist {
 	char f_name[MAX_FILE_NAME];
 	char f_type;
@@ -44,29 +49,35 @@ struct playlist {
 	char album[MAX_TAG];
 };
 
+//================================================================================
 void wclrscr(WINDOW *window);
 
 void drawWindow(WINDOW *window,int color_pair,char *titleText);
 
-int listDir(char *directory, struct filelist *dir_list[]);
+void redrawWindow(WINDOW* window);
+
+int listDir(const char *directory, struct filelist *dir_list[]);
 
 void drawExplorer(WINDOW *window, 
 		struct filelist *dir_list[], 
-		int explorer_item, 
-		int max_explorer_item);
+		int item, 
+		int max_item);
 
 void drawPlaylist(WINDOW *window, 
 		struct playlist *play_list[], 
 		int item, 
-		int max_item); 		//change to simply item, please....
+		int max_item); 		
 
-addtoPlaylist(struct playlist play_list,
-		struct dirlist dir_list,
+void addtoPlaylist(struct playlist *play_list[],
+		struct filelist *dir_list[],
 		char current_dir[],
 		int explorer_item,
 		int max_playlist_item);
 
 char *upDir(char directory[]);
+
+int incItem(int item, int max_item);
+int decItem(int item, int max_item);
 //==============================================================
 int main(int argc, char *argv[])
 {
@@ -75,8 +86,7 @@ int main(int argc, char *argv[])
         raw(); 		//no buffering
 	curs_set(0);
         keypad(stdscr,TRUE);
-        touchwin(stdscr);
-        wrefresh(stdscr); 	//I don't know why this is necessary, but it is!
+        redrawWindow(stdscr);
 	
 	//Colors initialization
         start_color();
@@ -86,6 +96,10 @@ int main(int argc, char *argv[])
         init_pair(SONG_INFO_COLOR, COLOR_YELLOW, COLOR_BLACK);
         init_pair(EXPLORER_COLOR, COLOR_GREEN, COLOR_BLACK);
         init_pair(EXPLORER_SEL_COLOR, COLOR_GREEN, COLOR_BLUE);
+        init_pair(EXPLORER_DIR_COLOR, COLOR_WHITE, COLOR_BLACK);
+        init_pair(EXPLORER_DIR_SEL_COLOR, COLOR_WHITE, COLOR_BLUE);
+        init_pair(EXPLORER_MEDIA_COLOR, COLOR_RED, COLOR_BLACK);
+        init_pair(EXPLORER_MEDIA_SEL_COLOR, COLOR_RED, COLOR_BLUE);
 
         int maxy, maxx;
         WINDOW *base_win, *playlist_win, *song_info_win, *explorer_win;
@@ -126,36 +140,24 @@ int main(int argc, char *argv[])
                         break;
                 switch (key) {
                 case KEY_DOWN: 		//scroll list down (done)
-                        if (show_explorer)
-                                explorer_item++;
-                        else
-                                playlist_item++;
-
-                        if (explorer_item==max_explorer_item+1)
-                                explorer_item=0;
-                        if (playlist_item==max_playlist_item+1)
-                                playlist_item=0;
-
-                        if (show_explorer) 
+                        if (show_explorer) {
+                                explorer_item = incItem(explorer_item, max_explorer_item);
 				drawExplorer(explorer_win,dir_list,explorer_item,max_explorer_item);
-			else
+			}
+                        else {
+                                playlist_item = incItem(playlist_item, max_playlist_item);
 				drawPlaylist(playlist_win,play_list,playlist_item,max_playlist_item);
-                        break;
+			}
+			break;
                 case KEY_UP: 		//scroll list up (done)
-                        if (show_explorer)
-                                explorer_item--;
-                        else
-                                playlist_item--;
-
-                        if (explorer_item==-1)
-                                explorer_item=max_explorer_item;
-                        if (playlist_item==-1)
-                                playlist_item=max_playlist_item;
-
-                        if (show_explorer)
+                        if (show_explorer) {
+                                explorer_item = decItem(explorer_item, max_explorer_item);
 				drawExplorer(explorer_win,dir_list,explorer_item,max_explorer_item);
-			else
+			}
+                        else {
+                                playlist_item = decItem(playlist_item, max_playlist_item);
 				drawPlaylist(playlist_win,play_list,playlist_item,max_playlist_item);
+			}
                         break;
                 case TAB: 		//switch between playlist & explorer (done)
                         if (!show_explorer) {
@@ -164,8 +166,7 @@ int main(int argc, char *argv[])
                         } 
 			else {
 				drawPlaylist(playlist_win,play_list,playlist_item,max_playlist_item);
-                                touchwin(song_info_win);
-                                wrefresh(song_info_win);
+                                redrawWindow(song_info_win);
                                 show_explorer=0;
                         }
                         break;
@@ -184,8 +185,8 @@ int main(int argc, char *argv[])
 				drawExplorer(explorer_win,dir_list,explorer_item,max_explorer_item);
 			}
                         break;
-                case KEY_LEFT: 	//go up one dir (done)
-		case PG_UP: 	//go up one dir (done)
+                case KEY_LEFT: 		//go up one dir (done)
+		case PG_UP: 		//go up one dir (done)
 			if (show_explorer) {
 				strcpy(current_dir, upDir(current_dir));
         			max_explorer_item = listDir(current_dir, dir_list);
@@ -195,10 +196,11 @@ int main(int argc, char *argv[])
 			break;
 		case 'a': 		//add files to playlist
 			if (show_explorer && dir_list[explorer_item]) {
-				addtoPlaylist(play_list,dir_list,current_dir,explorer_item,max_playlist_item);
-                                explorer_item++;
-                        	if (explorer_item==max_explorer_item+1)
-                                	explorer_item=max_explorer_item;
+				if (dir_list[explorer_item]->f_type != 'f') {
+					max_playlist_item++;
+					addtoPlaylist(play_list,dir_list,current_dir,explorer_item,max_playlist_item);
+				}
+				explorer_item = explorer_item<max_explorer_item ? ++explorer_item : max_explorer_item;
 				drawExplorer(explorer_win,dir_list,explorer_item,max_explorer_item);
 			}
 			break;
@@ -238,6 +240,9 @@ int main(int argc, char *argv[])
         return 0;
 }
 
+//================================================================================
+
+//Clear the window (box remains)
 void wclrscr(WINDOW *window) 		//clear the space inside the window
 {
         int y, x, maxy, maxx;
@@ -245,108 +250,138 @@ void wclrscr(WINDOW *window) 		//clear the space inside the window
         for(y=1; y < maxy-1; y++)
                 for(x=1; x < maxx-1; x++)
                         mvwaddch(window, y, x, ' ');
-}
+}//wclrscr
 
+//================================================================================
+
+//Print centered title
 void wprintTitleCentered(WINDOW *window, const char *titleText) 	//print the title of the window
 {
         int x, maxy, maxx;
         getmaxyx(window,maxy,maxx);
         x = (maxx - 4 - strlen(titleText))/2;
         mvwprintw(window,0,x,"| %s |",titleText);
-}
+}//wprintTitleCentered
 
+//================================================================================
+
+//Initial drawing of window with box & title
 void drawWindow(WINDOW *window,int color_pair,char *titleText) 	//initial drawing of the empty window
 {
         wattrset(window, COLOR_PAIR(color_pair) | WA_BOLD);
         wclrscr(window);
         box(window, 0, 0);
         wprintTitleCentered(window, titleText);
-        touchwin(window);
-        wrefresh(window);
-}
+        redrawWindow(window);
+}//drawWindow
 
+//================================================================================
+
+//For sorting directories in ascending order
 int dircmp(const void *f1, const void *f2)
 {
 	return strcmp(*(int *)f1, *(int *)f2);
-}
+}//dircmp
 
-int listDir(char *directory, struct filelist *dir_list[]) 	//the array of files in folder
+//================================================================================
+
+//List contents of directory
+int listDir(const char *directory, struct filelist *dir_list[]) 	//the array of files in folder
 {
         DIR *dp;
         struct dirent *ep;
 	int i;
 	
 	for (i=0; i<MAX_LIST; i++)
-			dir_list[i]=NULL;
+		dir_list[i]=NULL;
 	
-        i=-3; 		//it's not good...
+        i=-1;
 
         dp = opendir (directory);
         if (dp != NULL) {
                 while (ep=readdir(dp)) {
 			if (i==MAX_LIST-1) 
 				break;
-                        i++;
-                        if (i>=0) {
+			if ( (ep->d_name)[0]=='.' )
+				continue;
+                        
+			char tmp[MAX_FILE_NAME]; 		//TODO: is's not good to use tmp in such a way...
+			strcpy(tmp,directory);
+			strcat(tmp,ep->d_name);
+			struct stat *buf;
+			buf = malloc(sizeof(struct stat));
+			lstat(tmp, buf);
+			
+			tmp[1] = 'x';
+			if (S_ISLNK(buf->st_mode))
+				tmp[1] = 'l';
+			if (S_ISDIR(buf->st_mode))
+				tmp[1] = 'd';
+			if (S_ISREG(buf->st_mode))
+				tmp[1] = 'f';
+			if (tmp[1]!='d') { 		//a VERY bad if....
+				char *string;
+				string=& (ep->d_name[strlen(ep->d_name)-4]);
+				if ( (string[0]=='.') && (tolower(string[1])=='m') && (tolower(string[2])=='p') && (string[3]=='3') )
+					tmp[1] = 'm';
+			}
+
+			if (tmp[1]!='x') {
+				i++;
 				dir_list[i]=malloc(sizeof(struct filelist));
-                                strcpy(dir_list[i]->f_name, ep->d_name);
-				//
-				char tmp[MAX_FILE_NAME];
-				strcpy(tmp,directory);
-				strcat(tmp,ep->d_name);
-				struct stat *buf;
-				buf = malloc(sizeof(struct stat));
-				lstat(tmp, buf);
-				dir_list[i]->f_type = 'x';
-				if (S_ISLNK(buf->st_mode))
-					dir_list[i]->f_type = 'l';
-				if (S_ISDIR(buf->st_mode))
-					dir_list[i]->f_type = 'd';
-				if (S_ISREG(buf->st_mode))
-					dir_list[i]->f_type = 'f';
-				//
+				strcpy(dir_list[i]->f_name, ep->d_name);
+				dir_list[i]->f_type = tmp[1];
 			}
                 }
                 closedir(dp);
         }
-	if (i<0) 		//it's not good......
+	if (i<0)
 		return -1;
 	qsort(dir_list, i+1, sizeof(struct filelist *), dircmp);
         return i; 
-}
-					 
+}//listDir
+
+//================================================================================					 
+
 //draw the list of files in the explorer window
 void drawExplorer(WINDOW *window,
 		struct filelist *dir_list[],
-		int explorer_item,
-		int max_explorer_item)
+		int item,
+		int max_item)
 {
         int i, tmp, maxy, maxx;
         getmaxyx(window, maxy, maxx);
         wattrset(window, COLOR_PAIR(EXPLORER_COLOR) | WA_BOLD);
         wclrscr(window);
 
-	if (explorer_item>maxy-3)
-		tmp=explorer_item-maxy+3;
-	else
-		tmp=0;
+	tmp = item>maxy-3 ? item-maxy+3 : 0;
 	
-        for (i=tmp; (i<=max_explorer_item)&&(i<tmp+maxy-2); i++) {
-                if (i==explorer_item)
-                        wattrset(window, COLOR_PAIR(EXPLORER_SEL_COLOR) | WA_BOLD);
-                else
-                        wattrset(window, COLOR_PAIR(EXPLORER_COLOR) | WA_BOLD);
-		
-                //if (dir_list[i]!="")
-                        mvwprintw(window,i+1-tmp,1,"  %s  ",dir_list[i]->f_name);
-                        mvwprintw(window,i+1-tmp,30,"%c",dir_list[i]->f_type);
-                //else
-                //        break;
+        for (i=tmp; (i<=max_item)&&(i<tmp+maxy-2); i++) {
+		switch (dir_list[i]->f_type) {
+			case 'd':
+				if (i==item) wattrset(window, COLOR_PAIR(EXPLORER_DIR_SEL_COLOR) | WA_BOLD);
+				else wattrset(window, COLOR_PAIR(EXPLORER_DIR_COLOR) | WA_BOLD);
+                		mvwprintw(window,i+1-tmp,1, "  /%s  ",dir_list[i]->f_name);
+				break;
+			case 'f':
+				if (i==item) wattrset(window, COLOR_PAIR(EXPLORER_SEL_COLOR) | WA_BOLD);
+				else wattrset(window, COLOR_PAIR(EXPLORER_COLOR) | WA_BOLD);
+                		mvwprintw(window,i+1-tmp,1, "  %s  ",dir_list[i]->f_name);
+				break;
+			case 'm':
+				if (i==item) wattrset(window, COLOR_PAIR(EXPLORER_MEDIA_SEL_COLOR) | WA_BOLD);
+				else wattrset(window, COLOR_PAIR(EXPLORER_MEDIA_COLOR) | WA_BOLD);
+                		mvwprintw(window,i+1-tmp,1, "  %s  ",dir_list[i]->f_name);
+				break;
+		}
+                mvwprintw(window,i+1-tmp,60,"  %c  ",dir_list[i]->f_type);
         }
-        touchwin(window);
-        wrefresh(window);
-}
+        redrawWindow(window);
+}//drawExplorer
 
+//================================================================================
+
+//Go one directory up
 char *upDir(char directory[]) 
 {
 	int i, len;
@@ -360,8 +395,11 @@ char *upDir(char directory[])
 			break;
 		}
 	return directory;
-}
+}//upDir
 
+//================================================================================
+
+//Draw playlist window
 void drawPlaylist(WINDOW *window, 
 		struct playlist *play_list[], 
 		int item, 
@@ -372,10 +410,7 @@ void drawPlaylist(WINDOW *window,
         wattrset(window, COLOR_PAIR(PLAYLIST_COLOR) | WA_BOLD);
         wclrscr(window);
 
-	if (item>maxy-3)
-		tmp=item-maxy+3;
-	else
-		tmp=0;
+	tmp = item>maxy-3 ? item-maxy+3 : 0;
 	
         for (i=tmp; (i<=max_item)&&(i<tmp+maxy-2); i++) {
                 if (i==item)
@@ -386,21 +421,44 @@ void drawPlaylist(WINDOW *window,
                 mvwprintw(window,i+1-tmp,1,"  %s  ",play_list[i]->f_name);
                 mvwprintw(window,i+1-tmp,30,"%s",play_list[i]->path);
         }
-        touchwin(window);
-        wrefresh(window);
-}	
+        redrawWindow(window);
+}//drawPlaylist
 
-addtoPlaylist(struct playlist play_list,
-		struct dirlist dir_list,
+//================================================================================
+
+//Add files to playlist
+void addtoPlaylist(struct playlist *play_list[],
+		struct filelist *dir_list[],
 		char current_dir[],
 		int explorer_item,
 		int max_playlist_item)
 {
 	char tmp[MAX_FILE_NAME];
-	max_playlist_item++;
 	play_list[max_playlist_item]=malloc(sizeof(struct playlist));
 	strcpy(play_list[max_playlist_item]->f_name, dir_list[explorer_item]->f_name);
 	strcpy(tmp,current_dir);
 	strcat(tmp,dir_list[explorer_item]->f_name);
 	strcpy(play_list[max_playlist_item]->path, tmp);
+}//addtoPlaylist
+
+//================================================================================
+
+int incItem(int item, int max_item)
+{
+	return item<max_item ? ++item : 0;
+}
+
+//================================================================================
+
+int decItem(int item, int max_item)
+{
+	return item>0 ? --item : max_item;
+}
+
+//================================================================================
+
+void redrawWindow(WINDOW* window)
+{
+	touchwin(window);
+	wrefresh(window);
 }
