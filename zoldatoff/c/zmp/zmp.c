@@ -20,7 +20,7 @@
 #define EXPLORER_MEDIA_SEL_COLOR 10
 
 #define MAX_FILE_NAME 256
-#define MAX_LIST 1024
+#define MAX_LIST 30000
 #define MAX_TAG 128
 
 #define ENTER '\n'           	//carriage return (enter key)
@@ -73,6 +73,10 @@ void addtoPlaylist(struct playlist *play_list[],
 		char current_dir[],
 		int explorer_item,
 		int max_playlist_item);
+
+void addSubfolders(char dir[], 
+		struct playlist *play_list[], 
+		int *max_item);
 
 char *upDir(char directory[]);
 
@@ -196,10 +200,19 @@ int main(int argc, char *argv[])
 			break;
 		case 'a': 		//add files to playlist
 			if (show_explorer && dir_list[explorer_item]) {
-				if (dir_list[explorer_item]->f_type != 'f') {
+				if (dir_list[explorer_item]->f_type == 'm') {
 					max_playlist_item++;
 					addtoPlaylist(play_list,dir_list,current_dir,explorer_item,max_playlist_item);
 				}
+
+				if (dir_list[explorer_item]->f_type == 'd') {
+					char tmp[MAX_FILE_NAME];
+					strcpy(tmp,current_dir);
+					strcat(tmp,dir_list[explorer_item]->f_name);
+					strcat(tmp,"/");
+					addSubfolders(tmp, play_list, & max_playlist_item);
+				}
+					
 				explorer_item = explorer_item<max_explorer_item ? ++explorer_item : max_explorer_item;
 				drawExplorer(explorer_win,dir_list,explorer_item,max_explorer_item);
 			}
@@ -343,6 +356,31 @@ int listDir(const char *directory, struct filelist *dir_list[]) 	//the array of 
 
 //================================================================================					 
 
+void addSubfolders(char dir[], 
+		struct playlist *play_list[], 
+		int *max_item)
+{
+	int num, i;
+	struct filelist *list[MAX_LIST];
+	num = listDir(dir, list);
+	for (i=0; i<=num; i++) {
+		if ( list[i]->f_type == 'm' ) {
+			(*max_item)++;
+			addtoPlaylist(play_list, list, dir, i, *max_item);
+		}
+
+		if ( list[i]->f_type == 'd' ) {
+			char tmp[MAX_FILE_NAME];
+			strcpy(tmp,dir);
+			strcat(tmp,list[i]->f_name);
+			strcat(tmp,"/");
+			addSubfolders(tmp, play_list, max_item);
+		}
+	}
+}
+
+//================================================================================					 
+
 //draw the list of files in the explorer window
 void drawExplorer(WINDOW *window,
 		struct filelist *dir_list[],
@@ -419,7 +457,7 @@ void drawPlaylist(WINDOW *window,
                         wattrset(window, COLOR_PAIR(PLAYLIST_COLOR) | WA_BOLD);
 		
                 mvwprintw(window,i+1-tmp,1,"  %s  ",play_list[i]->f_name);
-                mvwprintw(window,i+1-tmp,30,"%s",play_list[i]->path);
+                //mvwprintw(window,i+1-tmp,30,"%s",play_list[i]->path);
         }
         redrawWindow(window);
 }//drawPlaylist
