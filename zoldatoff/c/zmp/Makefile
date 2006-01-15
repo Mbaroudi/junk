@@ -1,8 +1,5 @@
 zmp: main.o interface.o explorer.o playlist.o idtag.o
-	gcc -O2 -Wall -lncursesw -o zmp main.o interface.o explorer.o playlist.o
-
-main.o: main.c interface.h explorer.h playlist.h idtag.h
-	gcc -g -Wall -c main.c
+	gcc -O2 -Wall -lncursesw -lid3tag -o zmp main.o interface.o explorer.o playlist.o idtag.o
 
 interface.o: interface.c zmp.h
 	gcc -g -Wall -c interface.c
@@ -15,3 +12,8 @@ playlist.o: playlist.c zmp.h
 
 idtag.o: idtag.c zmp.h
 	gcc -g -Wall -c idtag.c
+
+main.o: main.c interface.o explorer.o playlist.o idtag.o zmp.h
+	gcc -g -Wall -c main.c
+
+

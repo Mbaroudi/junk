@@ -1,2 +1,2 @@
-void readTag(struct playlist *play_list);
+void readTag(struct playlist *list);
 

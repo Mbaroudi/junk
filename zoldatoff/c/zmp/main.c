@@ -24,6 +24,8 @@ int main(int argc, char *argv[])
         init_pair(PLAYLIST_COLOR, COLOR_RED, COLOR_BLACK);
         init_pair(PLAYLIST_SEL_COLOR, COLOR_RED, COLOR_BLUE);
         init_pair(SONG_INFO_COLOR, COLOR_YELLOW, COLOR_BLACK);
+        init_pair(SONG_INFO_PLAYING_COLOR, COLOR_GREEN, COLOR_BLACK);
+        init_pair(SONG_INFO_SEL_COLOR, COLOR_WHITE, COLOR_BLACK);
         init_pair(EXPLORER_COLOR, COLOR_GREEN, COLOR_BLACK);
         init_pair(EXPLORER_SEL_COLOR, COLOR_GREEN, COLOR_BLUE);
         init_pair(EXPLORER_DIR_COLOR, COLOR_WHITE, COLOR_BLACK);
@@ -57,7 +59,7 @@ int main(int argc, char *argv[])
 		dir_list[t] = NULL;
 	
         char current_dir[MAX_FILE_NAME]="/home/media/music/";
-        int playlist_item=0, max_playlist_item=-1;
+        int playlist_item=0, max_playlist_item=-1, playing_item=0;
         int explorer_item=0, max_explorer_item=0, show_explorer=0;
 
         max_explorer_item = listDir(current_dir, dir_list);
@@ -78,6 +80,7 @@ int main(int argc, char *argv[])
                         else {
                                 playlist_item = incItem(playlist_item, max_playlist_item);
 				drawPlaylist(playlist_win,play_list,playlist_item,max_playlist_item);
+				drawSong(song_info_win, play_list[playing_item], play_list[playlist_item]);
 			}
 			break;
 		case KEY_UP: 		//DONE: scroll list up
@@ -88,6 +91,7 @@ int main(int argc, char *argv[])
                         else {
                                 playlist_item = decItem(playlist_item, max_playlist_item);
 				drawPlaylist(playlist_win,play_list,playlist_item,max_playlist_item);
+				drawSong(song_info_win, play_list[playing_item], play_list[playlist_item]);
 			}
 			break;
                  case PG_DOWN:
@@ -98,6 +102,7 @@ int main(int argc, char *argv[])
 			else {
 				playlist_item = (playlist_item<max_playlist_item-(maxy/2)) ? playlist_item+(maxy/2) : max_playlist_item;
 				drawPlaylist(playlist_win,play_list,playlist_item,max_playlist_item);
+				drawSong(song_info_win, play_list[playing_item], play_list[playlist_item]);
 			}
 			break;
 		case PG_UP:
@@ -108,6 +113,7 @@ int main(int argc, char *argv[])
 			else {
 				playlist_item -= (playlist_item>(maxy/2)) ? (maxy/2) : playlist_item;
 				drawPlaylist(playlist_win,play_list,playlist_item,max_playlist_item);
+				drawSong(song_info_win, play_list[playing_item], play_list[playlist_item]);
 			}
 			break;
 		case TAB: 		//DONE: switch between playlist & explorer
@@ -117,7 +123,7 @@ int main(int argc, char *argv[])
                         } 
 			else {
 				drawPlaylist(playlist_win,play_list,playlist_item,max_playlist_item);
-                                redrawWindow(song_info_win);
+				drawSong(song_info_win, play_list[playing_item], play_list[playlist_item]);
                                 show_explorer=0;
                         }
                         break;
@@ -145,6 +151,7 @@ int main(int argc, char *argv[])
 				}
 				playlist_item = playlist_item<max_playlist_item ? ++playlist_item : max_playlist_item;
 				drawPlaylist(playlist_win,play_list,playlist_item,max_playlist_item);
+				drawSong(song_info_win, play_list[playing_item], play_list[playlist_item]);
 			}
                         break;
                 case KEY_RIGHT: 	//as Enter....
@@ -198,6 +205,7 @@ int main(int argc, char *argv[])
 					playlist_item = delfromPlaylist(play_list, playlist_item, &max_playlist_item,playlist_item);
 			
 				drawPlaylist(playlist_win, play_list, playlist_item, max_playlist_item);
+				drawSong(song_info_win, play_list[playing_item], play_list[playlist_item]);
 				playlist_sel = 0;
 			}
 			break;

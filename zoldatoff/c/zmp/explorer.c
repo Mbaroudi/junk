@@ -149,7 +149,7 @@ void addFile(struct playlist *play_list[],
 	strcpy(tmp,current_dir);
 	strcat(tmp,dir_list[explorer_item]->f_name);
 	strcpy(play_list[playlist_item]->path, tmp);
-	//readTag(play_list);
+	readTag(play_list[playlist_item]);
 	play_list[playlist_item]->is_selected=0;
 }//addFile
 

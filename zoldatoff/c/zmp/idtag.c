@@ -91,11 +91,11 @@ char *id3_get_tag (struct id3_tag const *tag, char const *what, unsigned int max
 
 
 
-void readTag(struct playlist *play_list)
+void readTag(struct playlist *list)
 {
         struct id3_file *file;
         struct id3_tag *tag;
-        file = id3_file_open(play_list->path, ID3_FILE_MODE_READONLY);
+        file = id3_file_open(list->path, ID3_FILE_MODE_READONLY);
         tag = id3_file_tag (file);
 
         /*struct {
@@ -111,9 +111,15 @@ void readTag(struct playlist *play_list)
         { 5,    ID3_FRAME_GENRE,  "  Genre : "  }
         };*/
 
-        char *name;
-        name=id3_get_tag(tag, "Artist", 30);
-        strcpy(play_list->artist, name);
-        name=id3_get_tag(tag, "Year", 4);
-        strcpy(play_list->year, name);
+        char *str;
+        str=id3_get_tag(tag, ID3_FRAME_TITLE, 30);
+        if (str) strcpy(list->title, str);
+        str=id3_get_tag(tag, ID3_FRAME_ARTIST, 30);
+        if (str) strcpy(list->artist, str);
+        str=id3_get_tag(tag, ID3_FRAME_ALBUM, 30);
+        if (str) strcpy(list->album, str);
+        str=id3_get_tag(tag, ID3_FRAME_GENRE, 30);
+        if (str) strcpy(list->genre, str);
+        str=id3_get_tag(tag, ID3_FRAME_YEAR, 4);
+        if (str) strcpy(list->year, str);
 }

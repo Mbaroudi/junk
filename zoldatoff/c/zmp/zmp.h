@@ -4,12 +4,14 @@
 #define PLAYLIST_COLOR 2
 #define PLAYLIST_SEL_COLOR 3
 #define SONG_INFO_COLOR 4
-#define EXPLORER_COLOR 5
-#define EXPLORER_SEL_COLOR 6
-#define EXPLORER_DIR_COLOR 7
-#define EXPLORER_DIR_SEL_COLOR 8
-#define EXPLORER_MEDIA_COLOR 9
-#define EXPLORER_MEDIA_SEL_COLOR 10
+#define SONG_INFO_PLAYING_COLOR 5
+#define SONG_INFO_SEL_COLOR 6
+#define EXPLORER_COLOR 7
+#define EXPLORER_SEL_COLOR 8
+#define EXPLORER_DIR_COLOR 9
+#define EXPLORER_DIR_SEL_COLOR 10
+#define EXPLORER_MEDIA_COLOR 11
+#define EXPLORER_MEDIA_SEL_COLOR 12
 
 #define MAX_FILE_NAME 256
 #define MAX_LIST 30000
@@ -37,11 +39,11 @@ struct filelist {
 struct playlist {
 	char f_name[MAX_FILE_NAME];
 	char path[MAX_FILE_NAME];
-	char song[30];
-	char artist[30];
-	char genre[30];
-	char album[30];
-	char year[4];
+	char title[31];
+	char artist[31];
+	char genre[31];
+	char album[31];
+	char year[5];
 	int  is_selected;
 };
 
