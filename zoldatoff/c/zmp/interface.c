@@ -1,4 +1,4 @@
-#include <curses.h>
+#include <ncursesw/ncurses.h>
 #include <string.h>
 
 
@@ -20,7 +20,7 @@ void wclrscr(WINDOW *window) 		//clear the space inside the window
 
 
 //Print centered title
-void wprintTitleCentered(WINDOW *window, const char *titleText) 	//print the title of the window
+void wprintTitleCentered(WINDOW *window, char *titleText) 	//print the title of the window
 {
         int x, maxy, maxx;
         getmaxyx(window,maxy,maxx);

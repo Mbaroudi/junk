@@ -1,4 +1,4 @@
-#include <curses.h>
+#include <ncursesw/ncurses.h>
 
 #define BASEWIN_COLOR 1
 #define PLAYLIST_COLOR 2
@@ -37,10 +37,11 @@ struct filelist {
 struct playlist {
 	char f_name[MAX_FILE_NAME];
 	char path[MAX_FILE_NAME];
-	char song[MAX_TAG];
-	char artist[MAX_TAG];
-	char genre[MAX_TAG];
-	char album[MAX_TAG];
+	char song[30];
+	char artist[30];
+	char genre[30];
+	char album[30];
+	char year[4];
 	int  is_selected;
 };
 

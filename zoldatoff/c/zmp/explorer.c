@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <ctype.h>
 #include <string.h>
+#include <wchar.h>
 
 #include "zmp.h"
 #include "interface.h"
