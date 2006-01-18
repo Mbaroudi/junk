@@ -64,6 +64,7 @@ int listDir(const char *directory, struct filelist *dir_list[]) 	//the array of 
 				dir_list[i]=malloc(sizeof(struct filelist));
 				strcpy(dir_list[i]->f_name, ep->d_name);
 				dir_list[i]->f_type = tmp[1];
+				dir_list[i]->is_selected = 0;
 			}
                 }
                 closedir(dp);
