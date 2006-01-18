@@ -23,3 +23,4 @@ void addtoPlaylist(struct filelist *dir_list[],
 
 char *upDir(char directory[]);
 
+void message(WINDOW *window, char *mess);

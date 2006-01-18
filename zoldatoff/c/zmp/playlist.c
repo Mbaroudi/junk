@@ -63,31 +63,31 @@ void drawSong (WINDOW *window,
 	if (playlist_play) {
 		i=3;
 		wattrset(window, COLOR_PAIR(SONG_INFO_PLAYING_COLOR) | WA_BOLD);
-		if (playlist_play->title) {
+		if (playlist_play->title!="") {
 			mvwprintw(window, i, 2, "Title:");
 			i++;
 			mvwprintw(window, i, 2, " %s", playlist_play->title);
 			i++;
 		}
-		if (playlist_play->artist) {
+		if (playlist_play->artist!="") {
 			mvwprintw(window, i, 2, "Artist:");
 			i++;
 			mvwprintw(window, i, 2, " %s", playlist_play->artist);
 			i++;
 		}
-		if (playlist_play->genre) {
+		if (playlist_play->genre!="") {
 			mvwprintw(window, i, 2, "Genre:");
 			i++;
 			mvwprintw(window, i, 2, " %s", playlist_play->genre);
 			i++;
 		}
-		if (playlist_play->album) {
+		if (playlist_play->album!="") {
 			mvwprintw(window, i, 2, "Album:");
 			i++;
 			mvwprintw(window, i, 2, " %s", playlist_play->album);
 			i++;
 		}
-		if (playlist_play->year) {
+		if (playlist_play->year!="") {
 			mvwprintw(window, i, 2, "Year: %s", playlist_play->year);
 			i++;
 		}
@@ -96,31 +96,31 @@ void drawSong (WINDOW *window,
 	if (playlist_sel) {
 		i+=10;
 		wattrset(window, COLOR_PAIR(SONG_INFO_SEL_COLOR) | WA_BOLD);
-		if (playlist_sel->title) {
+		if (playlist_sel->title!="") {
 			mvwprintw(window, i, 2, "Title:");
 			i++;
 			mvwprintw(window, i, 2, " %s", playlist_sel->title);
 			i++;
 		}
-		if (playlist_sel->artist) {
+		if (playlist_sel->artist!="") {
 			mvwprintw(window, i, 2, "Artist:");
 			i++;
 			mvwprintw(window, i, 2, " %s", playlist_sel->artist);
 			i++;
 		}
-		if (playlist_sel->genre) {
+		if (playlist_sel->genre!="") {
 			mvwprintw(window, i, 2, "Genre:");
 			i++;
 			mvwprintw(window, i, 2, " %s", playlist_sel->genre);
 			i++;
 		}
-		if (playlist_sel->album) {
+		if (playlist_sel->album!="") {
 			mvwprintw(window, i, 2, "Album:");
 			i++;
 			mvwprintw(window, i, 2, " %s", playlist_sel->album);
 			i++;
 		}
-		if (playlist_sel->year) {
+		if (playlist_sel->year!="") {
 			mvwprintw(window, i, 2, "Year: %s", playlist_sel->year);
 			i++;
 		}

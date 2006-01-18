@@ -1,5 +1,5 @@
 zmp: main.o interface.o explorer.o playlist.o idtag.o
-	gcc -O2 -Wall -lncursesw -lid3tag -o zmp main.o interface.o explorer.o playlist.o idtag.o
+	gcc -O2 -Wall -lncursesw -lid3tag -lSDL_mixer -o zmp main.o interface.o explorer.o playlist.o idtag.o
 
 interface.o: interface.c zmp.h
 	gcc -g -Wall -c interface.c

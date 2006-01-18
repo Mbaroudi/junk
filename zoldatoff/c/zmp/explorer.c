@@ -202,3 +202,11 @@ void addtoPlaylist(struct filelist *dir_list[],
 	}
 }
 
+void message(WINDOW *window, char *mess)
+{
+	int maxy, maxx;
+        getmaxyx(window, maxy, maxx);
+	mvwprintw(window, 2, 2, "                                                                    ");
+	mvwprintw(window, 2, 2, "%s", mess);
+	redrawWindow(window);
+}
