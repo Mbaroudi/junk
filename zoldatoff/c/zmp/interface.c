@@ -39,3 +39,12 @@ void drawWindow(WINDOW *window,int color_pair,char *titleText) 	//initial drawin
         redrawWindow(window);
 }//drawWindow
 
+void message(WINDOW *window, char *mess)
+{
+	int maxy, maxx;
+	getmaxyx(window, maxy, maxx);
+	mvwprintw(window, 2, 2, "                                     ");
+	mvwprintw(window, 2, 2, "%s", mess);
+	redrawWindow(window);
+}
+
