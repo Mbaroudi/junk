@@ -56,6 +56,8 @@ int main(int argc, char *argv[])
         keypad(song_info_win,TRUE);
         keypad(base_win,TRUE);
 	
+	wtimeout(playlist_win,10);
+	
 	//Arrays of directory listing and playlist
         struct playlist *play_list[MAX_LIST];
 	struct filelist *dir_list[MAX_LIST];
@@ -84,7 +86,25 @@ int main(int argc, char *argv[])
 	
 	int key;
         while (1) {
+		if (!musicPlaying) {
+			playing_item++;
+			if (playing_item>max_playlist_item)
+				playing_item = max_playlist_item;
+			else {
+				musicPlaying = 1;
+				Mix_HaltMusic();
+				music = Mix_LoadMUS(play_list[playing_item]->path);
+				Mix_PlayMusic(music, 0);
+				Mix_HookMusicFinished(musicFinished);
+				if (!show_explorer)
+					drawSong(song_info_win, play_list[playing_item], play_list[playlist_item]);
+				message(status_win, "...playing next song...");
+			}	
+		}
+			
                 key = wgetch(playlist_win);
+		if (key==ERR)
+			continue;
                 if (key=='q')
                         break;
                 switch (key) {
@@ -284,18 +304,6 @@ int main(int argc, char *argv[])
                         //mvwprintw(song_info_win,i,1,"%x",key);
                         //wrefresh(song_info_win);
                         //i++;
-			if (!musicPlaying) {
-				playing_item++;
-				if (playing_item>max_playlist_item)
-					playing_item = max_playlist_item;
-				else {
-					Mix_HaltMusic();
-					music = Mix_LoadMUS(play_list[playing_item]->path);
-					Mix_PlayMusic(music, 0);
-					Mix_HookMusicFinished(musicFinished);
-					message(status_win, "...playing next song...");
-				}	
-			}
                         break;
                 }
         }

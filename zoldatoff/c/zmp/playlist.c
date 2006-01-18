@@ -24,10 +24,10 @@ void drawPlaylist(WINDOW *window,
                 	mvwprintw(window,i+1-tmp,1," <%s> ",play_list[i]->title);
 		else
                 	mvwprintw(window,i+1-tmp,1,"  %s  ",play_list[i]->title);
-                mvwprintw(window,i+1-tmp,40,"| %s",play_list[i]->artist); //it's only for debug....maybe
-                mvwprintw(window,i+1-tmp,60,"| %s",play_list[i]->album); //it's only for debug....maybe
-                mvwprintw(window,i+1-tmp,80,"| %s",play_list[i]->genre); //it's only for debug....maybe
-                mvwprintw(window,i+1-tmp,100,"| %s",play_list[i]->year); //it's only for debug....maybe
+                mvwprintw(window,i+1-tmp,30,"| %s",play_list[i]->artist); //it's only for debug....maybe
+                mvwprintw(window,i+1-tmp,45,"| %s",play_list[i]->album); //it's only for debug....maybe
+                mvwprintw(window,i+1-tmp,60,"| %s",play_list[i]->genre); //it's only for debug....maybe
+                mvwprintw(window,i+1-tmp,75,"| %s",play_list[i]->year); //it's only for debug....maybe
         }
         redrawWindow(window);
 }//drawPlaylist
