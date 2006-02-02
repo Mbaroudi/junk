@@ -1,19 +1,19 @@
 #!/bin/bash
 
-
+HOST_CONF_DIR="/etc/hosting"
 
 case $1 in
 	### start the specified host.......
-	start)	if [[ ! -e $2 ]]; then
+	start)	if [[ $2 ]]; then
 			echo "* You must specify an ip address or 'all'"
 			exit 1
 		fi
 
-		if [[ "$2" -eq "any" ]]; then
+		if [[ "$2" -eq "all" ]]; then
 			echo "Starting all hosts..."
-			for i in /etc/hosting/; do
+			for i in $HOST_CONF_DIR; do
 				if [[ $i == 172.16.0.* ]]; then
-					/usr/sbin/apache -D SSL -D PHP4 -D GZIP -f /etc/hosting/$i/httpd.conf && \
+					/usr/sbin/apache -D SSL -D PHP4 -D GZIP -f $HOST_CONF_DIR/$i/httpd.conf && \
 					echo "Host $i started" && continue
                 			echo "* Couldn't start host $i"
 				fi
@@ -21,33 +21,32 @@ case $1 in
 			exit 0
 		fi
 
-		if [[ ! -f /etc/hosting/$2 && $2 == 172.16.0.* ]]; then
+		if [[ ! -d $HOST_CONF_DIR/$2 && $2 == 172.16.0.* ]]; then
 			echo "* Such host does not exist. Please check the ip address"
 			exit 1
 		fi
 
-		if [[ -f /etc/hosting/$2/apache.pid ]]; then
+		if [[ -f $HOST_CONF_DIR/$2/apache.pid ]]; then
 			echo "* This server has been already started"
 			exit 1
 		fi
 
-		/usr/sbin/apache -D SSL -D PHP4 -D GZIP -f /etc/hosting/$2/httpd.conf && echo "Host $2 started" && exit 0
+		/usr/sbin/apache -D SSL -D PHP4 -D GZIP -f $HOST_CONF_DIR/$2/httpd.conf && echo "Host $2 started" && exit 0
 		echo "* Couldn't start apache on ip $2"
 		exit 1;;
 
 	### stop the specified host.......
-	stop) 	if [[ ! -e $2 ]]; then
+	stop) 	if [[ $2 ]]; then
                         echo "* You must specify an ip address or 'all'"
                         exit 2
                 fi
 
-
-                if [[ "$2" -eq "any" ]]; then
+                if [[ "$2" -eq "all" ]]; then
                         echo "Stopping all hosts..."
-                        for i in /etc/hosting/; do
+                        for i in $HOST_CONF_DIR; do
                                 if [[ $i == 172.16.0.* ]]; then
-					PID=`cat /etc/hosting/$i/apache.pid`
-			                kill -STOP $PID && rm /etc/hosting/$i/apache.pid && \
+					PID=`cat $HOST_CONF_DIR/$i/apache.pid`
+			                kill -STOP $PID && rm $HOST_CONF_DIR/$i/apache.pid && \
 					echo "Host $i stopped" && continue
                                         echo "* Couldn't stop host $i"
                                 fi
@@ -55,34 +54,90 @@ case $1 in
                         exit 0
                 fi
 
-                if [[ ! -f /etc/hosting/$2 ]]; then
+                if [[ ! -d $HOST_CONF_DIR/$2 ]]; then
                         echo "* Such host does not exist. Please check the ip address"
                         exit 2
                 fi
 
-                if [[ ! -f /etc/hosting/$2/apache.pid ]]; then
+                if [[ ! -f $HOST_CONF_DIR/$2/apache.pid ]]; then
                         echo "* This server has not been started yet"
                         exit 2
                 fi
 
-		PID=`cat /etc/hosting/$2/apache.pid`
-		kill -STOP $PID && rm /etc/hosting/$2/apache.pid && echo "Host $2 stopped" && exit 0
+		PID=`cat $HOST_CONF_DIR/$2/apache.pid`
+		kill -STOP $PID && rm $HOST_CONF_DIR/$2/apache.pid && echo "Host $2 stopped" && exit 0
 		echo "* Couldn't stop apache on ip $2"
 		exit 2;;
 
 	### restart the specified host.......
-	restart) $0 stop $2; 
+	restart) $0 stop $2
 		$0 start $2;;
 
 	add);;
 #	remove);;
-	show);;
-	*)	echo "Hosting script usage"
-                echo "hosting start <ip_address | all>"
-                echo "hosting stop <ip_address | all>"
-                echo "hosting restart <ip_address | all>"
-                echo "hosting add -user <username> -group <groupname>"
-                echo "hosting show <ip_address | all>";;
+	### show info on specified host
+	show)
+		if [[ $2 = "" ]]; then
+                        echo "* You must specify an ip address or 'all'"
+                        exit 2
+                fi
 
+                if [[ "$2" -eq "all" ]]; then
+                        echo "Showing info on all hosts..."
+                        for i in $HOST_CONF_DIR; do
+                                if [[ $i == 172.16.0.* ]]; then
+					echo "-==Info on host $i==-"
+					if [[ -f $HOST_CONF_DIR/$i/apache.pid ]]; then
+						echo "Host is running"
+					else
+						echo "Host is down"
+					fi
+					echo "Admin host name: `cat $HOST_CONF_DIR/hosts | grep $i | awk '{print $2}'`"
+					echo "DNS host names:"
+					for name in `cat $HOST_CONF_DIR/hosts | grep $i`; do
+						if [[ $name != 172.16.0.* && $name != host*.webber.rubin.ru ]]; then
+							echo "  $name"
+						fi
+					done
+					echo "Owner user: `cat $HOST_CONF_DIR/$i/httpd.conf|grep "User "|awk '{print $2}'`"
+					echo "Owner group: `cat $HOST_CONF_DIR/$i/httpd.conf|grep "Group"|awk '{print $2}'`"
+					echo
+
+                                fi
+                        done
+                        exit 0
+                fi
+
+                if [[ ! -d $HOST_CONF_DIR/$2 ]]; then
+                        echo "* Such host does not exist. Please check the ip address"
+                        exit 2
+                fi
+		
+		echo "-==Info on host $2==-"
+		if [[ -f $HOST_CONF_DIR/$2/apache.pid ]]; then 
+			echo "Host is running"
+		else
+			echo "Host is down"
+		fi
+		echo "Admin host name: `cat $HOST_CONF_DIR/hosts | grep $2 | awk '{print $2}'`"
+		echo "DNS host names:"
+		for name in `cat $HOST_CONF_DIR/hosts | grep $2`; do
+			if [[ $name != 172.16.0.* && $name != host*.webber.rubin.ru ]]; then
+				echo "	$name"
+			fi
+		done
+		echo "Owner user: `cat $HOST_CONF_DIR/$2/httpd.conf | grep "User " | awk '{print $2}'`"
+		echo "Owner group: `cat $HOST_CONF_DIR/$2/httpd.conf | grep "Group " | awk '{print $2}'`"
+		exit 0;;
+
+	
+	### show help screen...........
+	*)	echo "===Hosting script usage==="
+                echo "Start the host: 	hosting start <ip_address | all>"
+                echo "Stop the host:  	hosting stop <ip_address | all>"
+                echo "Restart the host: hosting restart <ip_address | all>"
+                echo "Add new host:	hosting add -user <username> -group <groupname>"
+                echo "Show host info:	hosting show <ip_address | all>"
+		exit 0;;
 esac
 
