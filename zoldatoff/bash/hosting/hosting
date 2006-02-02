@@ -1,10 +1,13 @@
 #!/bin/bash
 
 HOST_CONF_DIR="/etc/hosting"
+HOST_LOG_DIR="/var/log/apache"
 
 case $1 in
+########################################################
 	### start the specified host.......
-	start)	if [[ $2 ]]; then
+	start)	
+		if [[ $2 ]]; then
 			echo "* You must specify an ip address or 'all'"
 			exit 1
 		fi
@@ -34,9 +37,10 @@ case $1 in
 		/usr/sbin/apache -D SSL -D PHP4 -D GZIP -f $HOST_CONF_DIR/$2/httpd.conf && echo "Host $2 started" && exit 0
 		echo "* Couldn't start apache on ip $2"
 		exit 1;;
-
+########################################################
 	### stop the specified host.......
-	stop) 	if [[ $2 ]]; then
+	stop) 	
+		if [[ $2 ]]; then
                         echo "* You must specify an ip address or 'all'"
                         exit 2
                 fi
@@ -69,12 +73,48 @@ case $1 in
 		echo "* Couldn't stop apache on ip $2"
 		exit 2;;
 
+########################################################
 	### restart the specified host.......
-	restart) $0 stop $2
+	restart)
+		$0 stop $2
 		$0 start $2;;
 
-	add);;
+########################################################
+	add)
+		if [[ $4 == "" ]]; then
+			echo "You must specify user name, group name and host name"
+			exit 3
+		fi
+		USER=$2
+		GROUP=$3
+		HOST=$4
+
+		IP=172.16.0.0
+		for i in $HOST_CONF_DIR; do
+			if [[ $i > $IP ]]; then
+				$IP=$i
+			fi
+		done
+		count=`echo $IP | awk --field-separator '.' '{print $4}'`
+		count=$((count+1))
+		IP=172.16.0.$count
+		if [[ `cat $HOST_CONF_DIR/hosts | grep $IP | grep -v "^#"` != "" ]]; then
+			echo "You must check your hosts file: it contains unused address $IP"
+			cat $HOST_CONF_DIR/hosts | grep $IP
+			exit 3
+		fi
+
+		echo "Adding host $IP...."
+		mkdir $HOST_LOG_DIR/$IP && chown $USER:$GROUP $HOST_LOG_DIR/$IP
+		cp -R $HOST_CONF_DIR/default $HOST_CONF_DIR/$IP && chown -R $USER:$GROUP $HOST_CONF_DIR/$IP
+		sed 's/$IP/'$IP'/' $HOST_CONF_DIR/default/httpd.conf | sed -e 's/$HOST'$HOST'/' | \
+			sed -e 's/$USER/'$USER'/' | sed -e 's/$GROUP/'$GROUP'/' > $HOST_CONF_DIR/$IP/httpd.conf
+		echo `cat $HOST_CONF_DIR/default/host.conf` > $HOST_CONF_DIR/$IP/host.conf
+		echo "$IP	host$count.webber.rubin.ru	$HOST" >> $HOST_CONF_DIR/hosts
+		/usr/sbin/squid -k reconfigure
+		;;
 #	remove);;
+########################################################
 	### show info on specified host
 	show)
 		if [[ $2 = "" ]]; then
@@ -131,6 +171,7 @@ case $1 in
 		exit 0;;
 
 	
+########################################################
 	### show help screen...........
 	*)	echo "===Hosting script usage==="
                 echo "Start the host: 	hosting start <ip_address | all>"
