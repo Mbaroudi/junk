@@ -1,0 +1,6 @@
+This is a script for managing web hosts. Configs are located in /etc/hosting, web content - in /var/www.
+Now the script can only start, stop and restart the servers.
+
+--This line, and those below, will be ignored--
+
+A    .

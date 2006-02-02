@@ -1,0 +1,88 @@
+#!/bin/bash
+
+
+
+case $1 in
+	### start the specified host.......
+	start)	if [[ ! -e $2 ]]; then
+			echo "* You must specify an ip address or 'all'"
+			exit 1
+		fi
+
+		if [[ "$2" -eq "any" ]]; then
+			echo "Starting all hosts..."
+			for i in /etc/hosting/; do
+				if [[ $i == 172.16.0.* ]]; then
+					/usr/sbin/apache -D SSL -D PHP4 -D GZIP -f /etc/hosting/$i/httpd.conf && \
+					echo "Host $i started" && continue
+                			echo "* Couldn't start host $i"
+				fi
+			done
+			exit 0
+		fi
+
+		if [[ ! -f /etc/hosting/$2 && $2 == 172.16.0.* ]]; then
+			echo "* Such host does not exist. Please check the ip address"
+			exit 1
+		fi
+
+		if [[ -f /etc/hosting/$2/apache.pid ]]; then
+			echo "* This server has been already started"
+			exit 1
+		fi
+
+		/usr/sbin/apache -D SSL -D PHP4 -D GZIP -f /etc/hosting/$2/httpd.conf && echo "Host $2 started" && exit 0
+		echo "* Couldn't start apache on ip $2"
+		exit 1;;
+
+	### stop the specified host.......
+	stop) 	if [[ ! -e $2 ]]; then
+                        echo "* You must specify an ip address or 'all'"
+                        exit 2
+                fi
+
+
+                if [[ "$2" -eq "any" ]]; then
+                        echo "Stopping all hosts..."
+                        for i in /etc/hosting/; do
+                                if [[ $i == 172.16.0.* ]]; then
+					PID=`cat /etc/hosting/$i/apache.pid`
+			                kill -STOP $PID && rm /etc/hosting/$i/apache.pid && \
+					echo "Host $i stopped" && continue
+                                        echo "* Couldn't stop host $i"
+                                fi
+                        done
+                        exit 0
+                fi
+
+                if [[ ! -f /etc/hosting/$2 ]]; then
+                        echo "* Such host does not exist. Please check the ip address"
+                        exit 2
+                fi
+
+                if [[ ! -f /etc/hosting/$2/apache.pid ]]; then
+                        echo "* This server has not been started yet"
+                        exit 2
+                fi
+
+		PID=`cat /etc/hosting/$2/apache.pid`
+		kill -STOP $PID && rm /etc/hosting/$2/apache.pid && echo "Host $2 stopped" && exit 0
+		echo "* Couldn't stop apache on ip $2"
+		exit 2;;
+
+	### restart the specified host.......
+	restart) $0 stop $2; 
+		$0 start $2;;
+
+	add);;
+#	remove);;
+	show);;
+	*)	echo "Hosting script usage"
+                echo "hosting start <ip_address | all>"
+                echo "hosting stop <ip_address | all>"
+                echo "hosting restart <ip_address | all>"
+                echo "hosting add -user <username> -group <groupname>"
+                echo "hosting show <ip_address | all>";;
+
+esac
+
