@@ -36,7 +36,8 @@ case $1 in
 
 		/usr/sbin/apache -D SSL -D PHP4 -D GZIP -f $HOST_CONF_DIR/$2/httpd.conf && echo "Host $2 started" && exit 0
 		echo "* Couldn't start apache on ip $2"
-		exit 1;;
+		exit 1
+		;;
 ########################################################
 	### stop the specified host.......
 	stop) 	
@@ -71,13 +72,15 @@ case $1 in
 		PID=`cat $HOST_CONF_DIR/$2/apache.pid`
 		kill -STOP $PID && rm $HOST_CONF_DIR/$2/apache.pid && echo "Host $2 stopped" && exit 0
 		echo "* Couldn't stop apache on ip $2"
-		exit 2;;
+		exit 2
+		;;
 
 ########################################################
 	### restart the specified host.......
 	restart)
 		$0 stop $2
-		$0 start $2;;
+		$0 start $2
+		;;
 
 ########################################################
 	add)
@@ -109,17 +112,37 @@ case $1 in
 		cp -R $HOST_CONF_DIR/default $HOST_CONF_DIR/$IP && chown -R $USER:$GROUP $HOST_CONF_DIR/$IP
 		sed 's/$IP/'$IP'/' $HOST_CONF_DIR/default/httpd.conf | sed -e 's/$HOST'$HOST'/' | \
 			sed -e 's/$USER/'$USER'/' | sed -e 's/$GROUP/'$GROUP'/' > $HOST_CONF_DIR/$IP/httpd.conf
-		echo `cat $HOST_CONF_DIR/default/host.conf` > $HOST_CONF_DIR/$IP/host.conf
+		sed 's/$IP/'$IP'/' $HOST_CONF_DIR/default/host.conf | sed -e 's/$HOST'$HOST'/' | \
+			sed -e 's/$USER/'$USER'/' | sed -e 's/$GROUP/'$GROUP'/' > $HOST_CONF_DIR/$IP/host.conf
 		echo "$IP	host$count.webber.rubin.ru	$HOST" >> $HOST_CONF_DIR/hosts
 		/usr/sbin/squid -k reconfigure
+		echo "Host added successfully"
 		;;
-#	remove);;
+########################################################
+	### show info on specified host
+	remove)
+		if [[ $2 = "" ]]; then
+                        echo "* You must specify an ip address of the host"
+                        exit 4
+                fi
+
+		if [[ ! -d $HOST_CONF_DIR/$2 ]]; then
+                        echo "* Such host does not exist. Please check the ip address"
+                        exit 4
+                fi
+
+		echo "Removing host $2"
+		$0 stop $2 && rm -rf $HOST_CONF_DIR/$2 && rm -rf $HOST_LOG_DIR/$2 && \
+			cat $HOST_CONF_DIR/hosts | grep -v $2 > $HOST_CONF_DIR/hosts && exit 0
+		echo "Cannot remove the host. Please try to do it manually."
+		exit 4
+		;;
 ########################################################
 	### show info on specified host
 	show)
 		if [[ $2 = "" ]]; then
                         echo "* You must specify an ip address or 'all'"
-                        exit 2
+                        exit 5
                 fi
 
                 if [[ "$2" -eq "all" ]]; then
@@ -150,7 +173,7 @@ case $1 in
 
                 if [[ ! -d $HOST_CONF_DIR/$2 ]]; then
                         echo "* Such host does not exist. Please check the ip address"
-                        exit 2
+                        exit 5
                 fi
 		
 		echo "-==Info on host $2==-"
@@ -168,9 +191,9 @@ case $1 in
 		done
 		echo "Owner user: `cat $HOST_CONF_DIR/$2/httpd.conf | grep "User " | awk '{print $2}'`"
 		echo "Owner group: `cat $HOST_CONF_DIR/$2/httpd.conf | grep "Group " | awk '{print $2}'`"
-		exit 0;;
+		exit 0
+		;;
 
-	
 ########################################################
 	### show help screen...........
 	*)	echo "===Hosting script usage==="
@@ -179,6 +202,7 @@ case $1 in
                 echo "Restart the host: hosting restart <ip_address | all>"
                 echo "Add new host:	hosting add -user <username> -group <groupname>"
                 echo "Show host info:	hosting show <ip_address | all>"
-		exit 0;;
+		exit 0
+		;;
 esac
 
