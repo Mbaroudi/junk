@@ -358,6 +358,7 @@ case $1 in
 		USER=host`echo $2 | awk --field-separator '.' '{print $4}'`
 
                 if [[ `grep $USER /etc/passwd | wc | awk '{print $1}'` > 0 ]]; then
+			$0 stop $2
                         usermod -L $USER && echo "User $USER locked" && exit 0
                         echo "Error locking user $USER" && exit 9
                 else
