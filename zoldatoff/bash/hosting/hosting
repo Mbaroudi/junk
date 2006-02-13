@@ -95,15 +95,17 @@ case $1 in
 ########################################################
 	### add new host........
 	add)
-		if [[ $4 == "" ]]; then
-			echo "You must specify user name, group name and host name"
+		if [[ $2 == "" ]]; then
+			echo "* You must specify host name when adding a new host."
 			exit 3
 		fi
-		USER=$2
-		GROUP=$3
-		HOST=$4
+	
+		HOST=$2
 
 		#this is a part of script to check an empty ip by scanning /etc/hosts directory
+		#USER=$2
+		#GROUP=$3
+		#HOST=$4
 		#IP=172.16.0.0
 		#list=`ls -1 $HOST_CONF_DIR`
 		#for i in $list; do
@@ -123,7 +125,7 @@ case $1 in
 		#this is the end....
 
 		IP=0
-		for ((count=1; count<=254; count++)); do
+		for ((count=1; count<255; count++)); do
 			if [[ `grep 172.16.0.$count /etc/hosting/hosts | wc | awk '{print $1}'` == 0 ]]; then
 				IP=172.16.0.$count
 				break
@@ -139,27 +141,48 @@ case $1 in
 			exit 3
 		fi
 
-		echo "Adding host $IP named $HOST. It belongs to $USER:$GROUP"
-		echo "Building directory trees in $HOST_ROOT_DIR and $HOST_ROOT_DIR"
+		USER=host$count
+
+		echo "Adding host $IP named $HOST. It will belong to $USER:$USER"
+		if [[ `grep $USER /etc/group | wc | awk '{print $1}'` > 0 ]]; then
+			echo "* Group $USER already exists. Remove it before continuing."
+			exit 3
+		fi
+
+		if [[ `grep $USER /etc/passwd | wc | awk '{print $1}'` > 0 ]]; then
+			echo "* User $USER already exists. Remove him before continuing."
+			exit 3
+		fi
+
+		echo "...Creating user and group '$USER'"
+		groupadd $USER
+		useradd -g $USER -G ftpusers,sshusers -c "WWW user" -d $HOST_ROOT_DIR/$IP $USER
+
+		echo "...Building directory trees in $HOST_ROOT_DIR and $HOST_CONF_DIR"
 		mkdir -p $HOST_ROOT_DIR/$IP/public_html/htdocs
 		mkdir -p $HOST_ROOT_DIR/$IP/public_html/cgi-bin
 		mkdir -p $HOST_ROOT_DIR/$IP/public_html/tmp
 		mkdir -p $HOST_ROOT_DIR/$IP/logs
 		mkdir -p $HOST_ROOT_DIR/$IP/my_files
 		mkdir -p $HOST_CONF_DIR/$IP/my_files
-		chown -R $USER:$GROUP $HOST_ROOT_DIR/$IP
+		chown -R $USER:$USER $HOST_ROOT_DIR/$IP
+		chmod -R 770 $HOST_ROOT_DIR/$IP
+		chown -R $USER:$USER $HOST_CONF_DIR/$IP
+		chmod -R 770 $HOST_CONF_DIR/$IP
 
-		echo "Making config files for new host"
-		cp -R $HOST_CONF_DIR/default $HOST_CONF_DIR/$IP && chown -R $USER:$GROUP $HOST_CONF_DIR/$IP
+		echo "...Making config files for new host"
+		cp -R $HOST_CONF_DIR/default $HOST_CONF_DIR/$IP && chown -R $USER:$USER $HOST_CONF_DIR/$IP
 		sed 's/$IP/'$IP'/' $HOST_CONF_DIR/default/httpd.conf | sed -e 's/$HOST/'$HOST'/' | \
 			sed -e 's/$USER/'$USER'/' | sed -e 's/$GROUP/'$GROUP'/' > $HOST_CONF_DIR/$IP/httpd.conf
 		sed 's/$IP/'$IP'/' $HOST_CONF_DIR/default/host.conf | sed -e 's/$HOST/'$HOST'/' | \
 			sed -e 's/$USER/'$USER'/' | sed -e 's/$GROUP/'$GROUP'/' > $HOST_CONF_DIR/$IP/host.conf
-		echo "$IP	host$count.webber.rubin.ru	$HOST" >> $HOST_CONF_DIR/hosts
+		echo "$IP	$USER.webber.rubin.ru	$HOST	$3" >> $HOST_CONF_DIR/hosts
 
-		echo "Reconfiguring squid"
+		echo "...Reconfiguring squid"
 		/usr/sbin/squid -k reconfigure
-		echo "Host added successfully"
+		echo "Host added successfully. Please enter password for user $USER"
+		passwd $USER
+		exit 0
 		;;
 ########################################################
 	### show info on specified host
@@ -177,71 +200,194 @@ case $1 in
 		echo "Removing host $2"
 		if [[ -f $HOST_CONF_DIR/$2/apache.pid ]]; then
 			$0 stop $2
+			sleep 1
 		fi
+		
 
+		count=`echo $2 | awk --field-separator '.' '{print $4}'`
+		USER=host$count
+		userdel $USER && groupdel $USER && \
 		rm -rf $HOST_CONF_DIR/$2 && \ 
 		cat $HOST_CONF_DIR/hosts | grep -v $2 > $HOST_CONF_DIR/hosts && \
 		echo "Host $2 succesfully removed" && \
 		exit 0
 		
-		echo "* Couldn't remove host."
-		echo "* Please, delete directory $HOST_CONF_DIR/$2 manually and remove the host from $HOST_CONF_DIR/hosts"
+		echo "* Couldn't remove host $2."
+		echo "* Check if the user&group $USER were deleted"
+		echo "* Delete directory $HOST_CONF_DIR/$2 manually and remove the host $2 from $HOST_CONF_DIR/hosts"
 		exit 4
+		;;
+########################################################
+	### uncomment specified host
+	enable)
+		if [[ $2 == "" ]]; then
+                        echo "* You must specify an ip address"
+                        exit 5
+                fi
+		
+		if [[ `grep $2 $HOST_CONF_DIR/hosts | wc | awk '{print $1}'` == 0 ]]; then
+			echo "* Address $2 not found in $HOST_CONF_DIR/hosts"
+			exit 5
+		fi
+
+		if [[ `grep $2 $HOST_CONF_DIR/hosts | wc | awk '{print $1}'` > 1 ]]; then
+			echo "* Address $2 was found more than once in $HOST_CONF_DIR/hosts"
+			echo "* You must manually edit $HOST_CONF_DIR/hosts to remove all duplications"
+			exit 5
+		fi
+		
+		if [[ `grep $2 $HOST_CONF_DIR/hosts | grep "^\s*#" | wc | awk '{print $1}'` == 1 ]]; then
+			cat $HOST_CONF_DIR/hosts | grep -v $2 > $HOST_CONF_DIR/temp
+			cat $HOST_CONF_DIR/hosts | grep $2 | awk --field-separator '#' '{print $2}' >> $HOST_CONF_DIR/temp
+			cat $HOST_CONF_DIR/temp | grep -v "^$" | sort -n > $HOST_CONF_DIR/hosts
+			echo "Succesfully uncommented address $2 in $HOST_CONF_DIR/hosts"
+		else
+			echo "* Address $2 is already uncommented in $HOST_CONF_DIR/hosts"
+		fi
+
+		rm -f $HOST_CONF_DIR/temp
+		squid -k reconfigure
+		echo
+		echo "NB: You may want to enable associated user using command:"
+		echo "     $0 enable_user $2"
+		exit 0
+		;;
+########################################################
+	### comment specified host
+	disable)
+		if [[ $2 == "" ]]; then
+                        echo "* You must specify an ip address"
+                        exit 6
+                fi
+		
+		if [[ `grep $2 $HOST_CONF_DIR/hosts | wc | awk '{print $1}'` == 0 ]]; then
+                        echo "* Address $2 not found in $HOST_CONF_DIR/hosts"
+                        exit 6
+                fi
+
+                if [[ `grep $2 $HOST_CONF_DIR/hosts | wc | awk '{print $1}'` > 1 ]]; then
+                        echo "* Address $2 was found more than once in $HOST_CONF_DIR/hosts"
+                        echo "* You must manually edit $HOST_CONF_DIR/hosts to remove all duplications"
+                        exit 6
+                fi
+
+		if [[ `grep $2 $HOST_CONF_DIR/hosts | grep -v "^\s*#" | wc | awk '{print $1}'` == 1 ]]; then
+                        cat $HOST_CONF_DIR/hosts | grep -v $2 > $HOST_CONF_DIR/temp
+                        echo "#`cat $HOST_CONF_DIR/hosts | grep $2`" >> $HOST_CONF_DIR/temp
+                        cat $HOST_CONF_DIR/temp | grep -v "^$" | sort -n > $HOST_CONF_DIR/hosts
+                        echo "Succesfully commented address $2 in $HOST_CONF_DIR/hosts"
+                else
+                        echo "* Address $2 is already commented in $HOST_CONF_DIR/hosts"
+                fi
+
+		rm -f $HOST_CONF_DIR/temp
+		squid -k reconfigure
+		echo
+		echo "NB: You may want to disable associated user using command:"
+		echo "   $0 disable_user $2"
+		exit 0
 		;;
 ########################################################
 	### show info on specified host
 	show)
 		if [[ $2 == "" ]]; then
                         echo "* You must specify an ip address or 'all'"
-                        exit 5
+                        exit 7
                 fi
 
                 if [[ $2 == "all" ]]; then
                         echo "Showing info on all hosts..."
-			list=`ls -1 $HOST_CONF_DIR`
-                        for i in $list; do
-                                if [[ $i == *172.16.0.* ]]; then
+                        for ((i=1; i<255; i++)); do
+				IP=172.16.0.$i
+                                if [[ `grep $IP $HOST_CONF_DIR/hosts | wc | awk '{print $1}'` > 0 ]]; then
 					echo
-					$0 show $i
+					$0 show $IP
 				fi
                         done
                         exit 0
                 fi
 
                 if [[ ! -d $HOST_CONF_DIR/$2 ]]; then
-                        echo "* Host $2 does not exist. Please check the ip address"
-                        exit 5
+                        echo "* Config for host $2 does not exist. Please check the ip address"
+                        exit 7
                 fi
 		
-		echo "-=<Info on host $2>=-"
-		if [[ -d $HOST_CONF_DIR/$i && -f $HOST_CONF_DIR/$2/apache.pid ]]; then 
+		echo "Info on host $2: "
+		echo "  Status:"
+		if [[ -f $HOST_CONF_DIR/$2/apache.pid ]]; then 
 			PID=`cat $HOST_CONF_DIR/$2/apache.pid`
-			echo "Host is running, apache PID $PID"
+			echo "     host is running, apache PID $PID"
 		else
-			echo "Host is down"
+			echo "     !!! host is down"
 		fi
-		echo "Admin host name:"
-		echo "   `cat $HOST_CONF_DIR/hosts | grep $2 | grep -v "^#" | awk '{print $2}'`"
-		echo "DNS host names:"
-		for name in `cat $HOST_CONF_DIR/hosts | grep $2 | grep -v "^#"`; do
-			if [[ $name != 172.16.0.* && $name != host*.webber.rubin.ru ]]; then
-				echo "  $name"
-			fi
-		done
-		echo "Owner user :  `cat $HOST_CONF_DIR/$2/httpd.conf | grep "User " | awk '{print $2}'`"
-		echo "Owner group:  `cat $HOST_CONF_DIR/$2/httpd.conf | grep "Group " | awk '{print $2}'`"
+
+		echo "  Host aliases ('#' in the beginning of the string means that host is disabled):"
+		echo "     `cat $HOST_CONF_DIR/hosts | grep $2`"
+
+		echo "  Owner user :  `cat $HOST_CONF_DIR/$2/httpd.conf | grep "User " | awk '{print $2}'`"
+		echo "  Owner group:  `cat $HOST_CONF_DIR/$2/httpd.conf | grep "Group " | awk '{print $2}'`"
 		exit 0
+		;;
+########################################################
+	### show info on specified host
+	enable_user)
+		if [[ $2 == "" ]]; then
+                        echo "* You must specify an ip address"
+                        exit 8
+                fi
+		
+		USER=host`echo $2 | awk --field-separator '.' '{print $4}'`
+
+		if [[ `grep $USER /etc/passwd | wc | awk '{print $1}'` > 0 ]]; then
+			usermod -U $USER && echo "User $USER unlocked" && exit 0
+			echo "Error unlocking user $USER" && exit 8
+		else
+			echo "No such user $USER"
+			exit 8
+		fi
 		;;
 
 ########################################################
+        ### show info on specified host
+        disable_user)
+                if [[ $2 == "" ]]; then
+                        echo "* You must specify an ip address"
+                        exit 9
+                fi
+
+		USER=host`echo $2 | awk --field-separator '.' '{print $4}'`
+
+                if [[ `grep $USER /etc/passwd | wc | awk '{print $1}'` > 0 ]]; then
+                        usermod -L $USER && echo "User $USER locked" && exit 0
+                        echo "Error locking user $USER" && exit 9
+                else
+                        echo "No such user $USER"
+                        exit 9
+                fi
+                ;;
+
+########################################################
 	### show help screen...........
-	*)	echo "===Hosting script usage==="
-                echo "Start the host: 	hosting start <ip_address | all>"
-                echo "Stop the host:  	hosting stop <ip_address | all>"
-                echo "Restart the host: hosting restart <ip_address | all>"
-                echo "Add new host:	hosting add <username> <groupname> <hostname>"
-                echo "Delete host:	hosting remove <ip_address>"
-                echo "Show host info:	hosting show <ip_address | all>"
+	*)
+		echo "usage: $0"
+		echo "(start|stop|restart|add|remove|enable|disable|enable_user|disable_user|show)"
+		echo
+                echo "start   <ip_address | all> - start apache on 'ip'-address or on all available addresses"
+                echo "stop    <ip_address | all> - stop apache on 'ip'-address or on all available addresses"
+                echo "restart <ip_address | all> - restart apache on 'ip'-address or on all available addresses"
+		echo
+                echo "add <hostname> [alias] - create user, group and a host, owned by them and named 'hostname'"
+                #echo "addip <my.ip.ad.dr> <hostname> [alias] - add such a host on specified ip address"
+		#echo
+                echo "remove <ip_address> - remove user, group; remove the host from hosts file and from $HOST_CONF_DIR dir"
+		echo
+		echo "enable <ip_address> - enable specified ip in $HOST_CONF_DIR/hosts file"
+		echo "disable <ip_address> - disable specified ip in $HOST_CONF_DIR/hosts file"
+		echo
+		echo "enable_user <user> - unlock specified user"
+		echo "disable_user <user> - lock specified user"
+		echo
+                echo "show <ip_address | all> - show info on specified host or on all available hosts"
 		exit 0
 		;;
 esac
