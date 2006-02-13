@@ -1,7 +1,7 @@
 #!/bin/bash
 
 HOST_CONF_DIR="/etc/hosting"
-HOST_LOG_DIR="/var/log/apache"
+HOST_ROOT_DIR="/var/www"
 
 case $1 in
 ########################################################
@@ -14,18 +14,20 @@ case $1 in
 
 		if [[ $2 == "all" ]]; then
 			echo "Starting all hosts..."
+			echo
 			list=`ls -1 $HOST_CONF_DIR`
 			for i in $list; do
 				if [[ -d $HOST_CONF_DIR/$i &&  $i == 172.16.0.* ]]; then
-					$0 start $i && continue
-                			echo "* Couldn't start host $i"
+					$0 start $i && echo && continue
+                			# echo "* Couldn't start host $i"
 				fi
 			done
 			exit 0
 		fi
 
 		if [[ ! -d $HOST_CONF_DIR/$2 && $2 == 172.16.0.* ]]; then
-			echo "* Such host does not exist. Please check the ip address you entered"
+			echo "* The config dir for host $2 does not exist."
+			echo "* Please check the ip address you entered or run 'hosting add ...'"
 			exit 1
 		fi
 
@@ -34,11 +36,15 @@ case $1 in
 			echo "* Server $2 is already running on PID $PID"
 			exit 1
 		fi
-
+		
+		echo "Starting host $2"
 		count=`echo $2 | awk --field-separator '.' '{print $4}'`
 		ifconfig dummy$count $2 up && \
-		/usr/sbin/apache -D SSL -D PHP4 -D GZIP -f $HOST_CONF_DIR/$2/httpd.conf && echo "Host $2 started" && exit 0
+		/usr/sbin/apache -D SSL -D PHP4 -D GZIP -f $HOST_CONF_DIR/$2/httpd.conf && sleep 1 && \
+		PID=`cat $HOST_CONF_DIR/$2/apache.pid` && \
+		echo "Host $2 started, process PID $PID" && exit 0
 		echo "* Couldn't start apache on ip $2"
+		echo "* Please check dummy$count interface and your config files in $HOST_CONF_DIR/$2"
 		exit 1
 		;;
 ########################################################
@@ -51,18 +57,19 @@ case $1 in
 
                 if [[ $2 == "all" ]]; then
                         echo "Stopping all hosts..."
+			echo
 			list=`ls -1 $HOST_CONF_DIR`
                         for i in $list; do
                                 if [[ -d $HOST_CONF_DIR/$i && $i == 172.16.0.* ]]; then
-					$0 stop $i && continue
-                                        echo "* Couldn't stop host $i"
+					$0 stop $i && echo && continue
+                                        # echo "* Couldn't stop host $i"
                                 fi
                         done
                         exit 0
                 fi
 
                 if [[ ! -d $HOST_CONF_DIR/$2 ]]; then
-                        echo "* Host $2 does not exist. Please check the ip address"
+                        echo "* Config dir for host $2 does not exist. Please check the ip address"
                         exit 2
                 fi
 
@@ -73,8 +80,9 @@ case $1 in
                 fi
 
 		PID=`cat $HOST_CONF_DIR/$2/apache.pid`
-		kill $PID && rm $HOST_CONF_DIR/$2/apache.pid && echo "Host $2 stopped" && exit 0
-		echo "* Couldn't stop apache on ip $2"
+		kill $PID && echo "Host $2 stopped" && exit 0
+		echo "* Couldn't stop apache on ip $2."
+		echo "* Please stop apache process with PID $PID manually or remove file $HOST_CONF_DIR/$2/apache.pid"
 		exit 2
 		;;
 
@@ -106,19 +114,30 @@ case $1 in
 		count=$((count+1))
 		IP=172.16.0.$count
 		if [[ `cat $HOST_CONF_DIR/hosts | grep $IP | grep -v "^#"` != "" ]]; then
-			echo "You must check your hosts file: it contains unused address $IP"
+			echo "You must check your hosts file: it contains unused address $IP:"
 			cat $HOST_CONF_DIR/hosts | grep $IP
 			exit 3
 		fi
 
 		echo "Adding host $IP named $HOST. It belongs to $USER:$GROUP"
-		mkdir $HOST_LOG_DIR/$IP && chown $USER:$GROUP $HOST_LOG_DIR/$IP
+		echo "Building directory trees in $HOST_ROOT_DIR and $HOST_ROOT_DIR"
+		mkdir -p $HOST_ROOT_DIR/$IP/public_html/htdocs
+		mkdir -p $HOST_ROOT_DIR/$IP/public_html/cgi-bin
+		mkdir -p $HOST_ROOT_DIR/$IP/public_html/tmp
+		mkdir -p $HOST_ROOT_DIR/$IP/logs
+		mkdir -p $HOST_ROOT_DIR/$IP/my_files
+		mkdir -p $HOST_CONF_DIR/$IP/my_files
+		chown -R $USER:$GROUP $HOST_ROOT_DIR/$IP
+
+		echo "Making config files for new host"
 		cp -R $HOST_CONF_DIR/default $HOST_CONF_DIR/$IP && chown -R $USER:$GROUP $HOST_CONF_DIR/$IP
 		sed 's/$IP/'$IP'/' $HOST_CONF_DIR/default/httpd.conf | sed -e 's/$HOST/'$HOST'/' | \
 			sed -e 's/$USER/'$USER'/' | sed -e 's/$GROUP/'$GROUP'/' > $HOST_CONF_DIR/$IP/httpd.conf
 		sed 's/$IP/'$IP'/' $HOST_CONF_DIR/default/host.conf | sed -e 's/$HOST/'$HOST'/' | \
 			sed -e 's/$USER/'$USER'/' | sed -e 's/$GROUP/'$GROUP'/' > $HOST_CONF_DIR/$IP/host.conf
 		echo "$IP	host$count.webber.rubin.ru	$HOST" >> $HOST_CONF_DIR/hosts
+
+		echo "Reconfiguring squid"
 		/usr/sbin/squid -k reconfigure
 		echo "Host added successfully"
 		;;
@@ -136,11 +155,18 @@ case $1 in
                 fi
 
 		echo "Removing host $2"
-		$0 stop $2 2>&1>/dev/null 
-		rm -rf $HOST_CONF_DIR/$2 
-		rm -rf $HOST_LOG_DIR/$2
-		cat $HOST_CONF_DIR/hosts | grep -v $2 > $HOST_CONF_DIR/hosts
+		if [[ -f $HOST_CONF_DIR/$2/apache.pid ]]; then
+			$0 stop $2
+		fi
+
+		rm -rf $HOST_CONF_DIR/$2 && \ 
+		cat $HOST_CONF_DIR/hosts | grep -v $2 > $HOST_CONF_DIR/hosts && \
+		echo "Host $2 succesfully removed" && \
 		exit 0
+		
+		echo "* Couldn't remove host."
+		echo "* Please, delete directory $HOST_CONF_DIR/$2 manually and remove the host from $HOST_CONF_DIR/hosts"
+		exit 4
 		;;
 ########################################################
 	### show info on specified host
@@ -155,35 +181,37 @@ case $1 in
 			list=`ls -1 $HOST_CONF_DIR`
                         for i in $list; do
                                 if [[ $i == *172.16.0.* ]]; then
-					echo "-== Info on host $i ==-"
-					if [[ -d $HOST_CONF_DIR/$i && -f $HOST_CONF_DIR/$i/apache.pid ]]; then
-						PID=`cat $HOST_CONF_DIR/$i/apache.pid`
-						echo "Host is running, apache PID $PID"
-					else
-						echo "Host is down"
-					fi
-					echo "Admin host name: "
-					echo "  `cat $HOST_CONF_DIR/hosts | grep $i | grep -v "^#" | awk '{print $2}'`"
-					echo "DNS host names:"
-					for name in `cat $HOST_CONF_DIR/hosts | grep $i | grep -v "^#"`; do
-						if [[ $name != 172.16.0.* && $name != host*.webber.rubin.ru ]]; then
-							echo "  $name"
-						fi
-					done
-					echo "Owner user: `cat $HOST_CONF_DIR/$i/httpd.conf|grep "User "|awk '{print $2}'`"
-					echo "Owner group: `cat $HOST_CONF_DIR/$i/httpd.conf|grep "Group"|awk '{print $2}'`"
 					echo
+					$0 show $i
+					#echo "-=< Info on host $i >=-"
+					#if [[ -d $HOST_CONF_DIR/$i && -f $HOST_CONF_DIR/$i/apache.pid ]]; then
+					#	PID=`cat $HOST_CONF_DIR/$i/apache.pid`
+					#	echo "Host is running, apache PID $PID"
+					#else
+					#	echo "Host is down"
+					#fi
+					##echo "Admin host name: "
+					#echo "  `cat $HOST_CONF_DIR/hosts | grep $i | grep -v "^#" | awk '{print $2}'`"
+					#echo "DNS host names:"
+					#for name in `cat $HOST_CONF_DIR/hosts | grep $i | grep -v "^#"`; do
+					#	if [[ $name != 172.16.0.* && $name != host*.webber.rubin.ru ]]; then
+					#		echo "  $name"
+					#	fi
+					#done
+					#echo "Owner user: `cat $HOST_CONF_DIR/$i/httpd.conf|grep "User "|awk '{print $2}'`"
+					#echo "Owner group:`cat $HOST_CONF_DIR/$i/httpd.conf|grep "Group"|awk '{print $2}'`"
+					#echo
 				fi
                         done
                         exit 0
                 fi
 
                 if [[ ! -d $HOST_CONF_DIR/$2 ]]; then
-                        echo "* Such host does not exist. Please check the ip address"
+                        echo "* Host $2 does not exist. Please check the ip address"
                         exit 5
                 fi
 		
-		echo "-==Info on host $2==-"
+		echo "-=<Info on host $2>=-"
 		if [[ -d $HOST_CONF_DIR/$i && -f $HOST_CONF_DIR/$2/apache.pid ]]; then 
 			PID=`cat $HOST_CONF_DIR/$2/apache.pid`
 			echo "Host is running, apache PID $PID"
@@ -198,8 +226,8 @@ case $1 in
 				echo "  $name"
 			fi
 		done
-		echo "Owner user: `cat $HOST_CONF_DIR/$2/httpd.conf | grep "User " | awk '{print $2}'`"
-		echo "Owner group: `cat $HOST_CONF_DIR/$2/httpd.conf | grep "Group " | awk '{print $2}'`"
+		echo "Owner user :  `cat $HOST_CONF_DIR/$2/httpd.conf | grep "User " | awk '{print $2}'`"
+		echo "Owner group:  `cat $HOST_CONF_DIR/$2/httpd.conf | grep "Group " | awk '{print $2}'`"
 		exit 0
 		;;
 
