@@ -14,10 +14,10 @@ case $1 in
 
 		if [[ $2 == "all" ]]; then
 			echo "Starting all hosts..."
-			for i in $HOST_CONF_DIR; do
-				if [[ $i == 172.16.0.* ]]; then
-					/usr/sbin/apache -D SSL -D PHP4 -D GZIP -f $HOST_CONF_DIR/$i/httpd.conf && \
-					echo "Host $i started" && continue
+			list=`ls -1 $HOST_CONF_DIR`
+			for i in $list; do
+				if [[ -d $HOST_CONF_DIR/$i &&  $i == 172.16.0.* ]]; then
+					$0 start $i && continue
                 			echo "* Couldn't start host $i"
 				fi
 			done
@@ -25,12 +25,13 @@ case $1 in
 		fi
 
 		if [[ ! -d $HOST_CONF_DIR/$2 && $2 == 172.16.0.* ]]; then
-			echo "* Such host does not exist. Please check the ip address"
+			echo "* Such host does not exist. Please check the ip address you entered"
 			exit 1
 		fi
 
 		if [[ -f $HOST_CONF_DIR/$2/apache.pid ]]; then
-			echo "* This server has been already started"
+			PID=`cat $HOST_CONF_DIR/$2/apache.pid`
+			echo "* Server $2 is already running on PID $PID"
 			exit 1
 		fi
 
@@ -48,11 +49,10 @@ case $1 in
 
                 if [[ $2 == "all" ]]; then
                         echo "Stopping all hosts..."
-                        for i in $HOST_CONF_DIR; do
-                                if [[ $i == 172.16.0.* ]]; then
-					PID=`cat $HOST_CONF_DIR/$i/apache.pid`
-			                kill -STOP $PID && rm $HOST_CONF_DIR/$i/apache.pid && \
-					echo "Host $i stopped" && continue
+			list=`ls -1 $HOST_CONF_DIR`
+                        for i in $list; do
+                                if [[ -d $HOST_CONF_DIR/$i && $i == 172.16.0.* ]]; then
+					$0 stop $i && continue
                                         echo "* Couldn't stop host $i"
                                 fi
                         done
@@ -60,13 +60,13 @@ case $1 in
                 fi
 
                 if [[ ! -d $HOST_CONF_DIR/$2 ]]; then
-                        echo "* Such host does not exist. Please check the ip address"
+                        echo "* Host $2 does not exist. Please check the ip address"
                         exit 2
                 fi
 
                 if [[ ! -f $HOST_CONF_DIR/$2/apache.pid ]]; then
 			echo $2
-                        echo "* This server has not been started yet"
+                        echo "* Server $2 has not been started yet"
                         exit 2
                 fi
 
@@ -79,11 +79,11 @@ case $1 in
 ########################################################
 	### restart the specified host.......
 	restart)
-		$0 stop $2
-		$0 start $2
+		$0 stop $2 && $0 start $2
 		;;
 
 ########################################################
+	### add new host........
 	add)
 		if [[ $4 == "" ]]; then
 			echo "You must specify user name, group name and host name"
@@ -155,7 +155,8 @@ case $1 in
                                 if [[ $i == *172.16.0.* ]]; then
 					echo "-== Info on host $i ==-"
 					if [[ -d $HOST_CONF_DIR/$i && -f $HOST_CONF_DIR/$i/apache.pid ]]; then
-						echo "Host is running"
+						PID=`cat $HOST_CONF_DIR/$i/apache.pid`
+						echo "Host is running, apache PID $PID"
 					else
 						echo "Host is down"
 					fi
@@ -182,7 +183,8 @@ case $1 in
 		
 		echo "-==Info on host $2==-"
 		if [[ -d $HOST_CONF_DIR/$i && -f $HOST_CONF_DIR/$2/apache.pid ]]; then 
-			echo "Host is running"
+			PID=`cat $HOST_CONF_DIR/$2/apache.pid`
+			echo "Host is running, apache PID $PID"
 		else
 			echo "Host is down"
 		fi
@@ -205,7 +207,8 @@ case $1 in
                 echo "Start the host: 	hosting start <ip_address | all>"
                 echo "Stop the host:  	hosting stop <ip_address | all>"
                 echo "Restart the host: hosting restart <ip_address | all>"
-                echo "Add new host:	hosting add -user <username> -group <groupname>"
+                echo "Add new host:	hosting add <username> <groupname> <hostname>"
+                echo "Delete host:	hosting remove <ip_address>"
                 echo "Show host info:	hosting show <ip_address | all>"
 		exit 0
 		;;
