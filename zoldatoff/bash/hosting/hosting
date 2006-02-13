@@ -35,6 +35,8 @@ case $1 in
 			exit 1
 		fi
 
+		count=`echo $2 | awk --field-separator '.' '{print $4}'`
+		ifconfig dummy$count $2 up && \
 		/usr/sbin/apache -D SSL -D PHP4 -D GZIP -f $HOST_CONF_DIR/$2/httpd.conf && echo "Host $2 started" && exit 0
 		echo "* Couldn't start apache on ip $2"
 		exit 1
