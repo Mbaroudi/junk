@@ -7,12 +7,12 @@ case $1 in
 ########################################################
 	### start the specified host.......
 	start)	
-		if [[ $2 ]]; then
+		if [[ $2 == "" ]]; then
 			echo "* You must specify an ip address or 'all'"
-			exit 1
+			exit 0
 		fi
 
-		if [[ "$2" -eq "all" ]]; then
+		if [[ $2 == "all" ]]; then
 			echo "Starting all hosts..."
 			for i in $HOST_CONF_DIR; do
 				if [[ $i == 172.16.0.* ]]; then
@@ -41,12 +41,12 @@ case $1 in
 ########################################################
 	### stop the specified host.......
 	stop) 	
-		if [[ $2 ]]; then
+		if [[ $2 == "" ]]; then
                         echo "* You must specify an ip address or 'all'"
-                        exit 2
+                        exit 0
                 fi
 
-                if [[ "$2" -eq "all" ]]; then
+                if [[ $2 == "all" ]]; then
                         echo "Stopping all hosts..."
                         for i in $HOST_CONF_DIR; do
                                 if [[ $i == 172.16.0.* ]]; then
@@ -65,12 +65,13 @@ case $1 in
                 fi
 
                 if [[ ! -f $HOST_CONF_DIR/$2/apache.pid ]]; then
+			echo $2
                         echo "* This server has not been started yet"
                         exit 2
                 fi
 
 		PID=`cat $HOST_CONF_DIR/$2/apache.pid`
-		kill -STOP $PID && rm $HOST_CONF_DIR/$2/apache.pid && echo "Host $2 stopped" && exit 0
+		kill $PID && rm $HOST_CONF_DIR/$2/apache.pid && echo "Host $2 stopped" && exit 0
 		echo "* Couldn't stop apache on ip $2"
 		exit 2
 		;;
@@ -93,9 +94,10 @@ case $1 in
 		HOST=$4
 
 		IP=172.16.0.0
-		for i in $HOST_CONF_DIR; do
-			if [[ $i > $IP ]]; then
-				$IP=$i
+		list=`ls -1 $HOST_CONF_DIR`
+		for i in $list; do
+			if [[ -d $HOST_CONF_DIR/$i && $i == 172.16.0.* && $i > $IP ]]; then
+				IP="$i"
 			fi
 		done
 		count=`echo $IP | awk --field-separator '.' '{print $4}'`
@@ -107,12 +109,12 @@ case $1 in
 			exit 3
 		fi
 
-		echo "Adding host $IP...."
+		echo "Adding host $IP named $HOST. It belongs to $USER:$GROUP"
 		mkdir $HOST_LOG_DIR/$IP && chown $USER:$GROUP $HOST_LOG_DIR/$IP
 		cp -R $HOST_CONF_DIR/default $HOST_CONF_DIR/$IP && chown -R $USER:$GROUP $HOST_CONF_DIR/$IP
-		sed 's/$IP/'$IP'/' $HOST_CONF_DIR/default/httpd.conf | sed -e 's/$HOST'$HOST'/' | \
+		sed 's/$IP/'$IP'/' $HOST_CONF_DIR/default/httpd.conf | sed -e 's/$HOST/'$HOST'/' | \
 			sed -e 's/$USER/'$USER'/' | sed -e 's/$GROUP/'$GROUP'/' > $HOST_CONF_DIR/$IP/httpd.conf
-		sed 's/$IP/'$IP'/' $HOST_CONF_DIR/default/host.conf | sed -e 's/$HOST'$HOST'/' | \
+		sed 's/$IP/'$IP'/' $HOST_CONF_DIR/default/host.conf | sed -e 's/$HOST/'$HOST'/' | \
 			sed -e 's/$USER/'$USER'/' | sed -e 's/$GROUP/'$GROUP'/' > $HOST_CONF_DIR/$IP/host.conf
 		echo "$IP	host$count.webber.rubin.ru	$HOST" >> $HOST_CONF_DIR/hosts
 		/usr/sbin/squid -k reconfigure
@@ -121,7 +123,7 @@ case $1 in
 ########################################################
 	### show info on specified host
 	remove)
-		if [[ $2 = "" ]]; then
+		if [[ $2 == "" ]]; then
                         echo "* You must specify an ip address of the host"
                         exit 4
                 fi
@@ -132,32 +134,35 @@ case $1 in
                 fi
 
 		echo "Removing host $2"
-		$0 stop $2 && rm -rf $HOST_CONF_DIR/$2 && rm -rf $HOST_LOG_DIR/$2 && \
-			cat $HOST_CONF_DIR/hosts | grep -v $2 > $HOST_CONF_DIR/hosts && exit 0
-		echo "Cannot remove the host. Please try to do it manually."
-		exit 4
+		$0 stop $2 2>&1>/dev/null 
+		rm -rf $HOST_CONF_DIR/$2 
+		rm -rf $HOST_LOG_DIR/$2
+		cat $HOST_CONF_DIR/hosts | grep -v $2 > $HOST_CONF_DIR/hosts
+		exit 0
 		;;
 ########################################################
 	### show info on specified host
 	show)
-		if [[ $2 = "" ]]; then
+		if [[ $2 == "" ]]; then
                         echo "* You must specify an ip address or 'all'"
                         exit 5
                 fi
 
-                if [[ "$2" -eq "all" ]]; then
+                if [[ $2 == "all" ]]; then
                         echo "Showing info on all hosts..."
-                        for i in $HOST_CONF_DIR; do
-                                if [[ $i == 172.16.0.* ]]; then
-					echo "-==Info on host $i==-"
-					if [[ -f $HOST_CONF_DIR/$i/apache.pid ]]; then
+			list=`ls -1 $HOST_CONF_DIR`
+                        for i in $list; do
+                                if [[ $i == *172.16.0.* ]]; then
+					echo "-== Info on host $i ==-"
+					if [[ -d $HOST_CONF_DIR/$i && -f $HOST_CONF_DIR/$i/apache.pid ]]; then
 						echo "Host is running"
 					else
 						echo "Host is down"
 					fi
-					echo "Admin host name: `cat $HOST_CONF_DIR/hosts | grep $i | awk '{print $2}'`"
+					echo "Admin host name: "
+					echo "  `cat $HOST_CONF_DIR/hosts | grep $i | grep -v "^#" | awk '{print $2}'`"
 					echo "DNS host names:"
-					for name in `cat $HOST_CONF_DIR/hosts | grep $i`; do
+					for name in `cat $HOST_CONF_DIR/hosts | grep $i | grep -v "^#"`; do
 						if [[ $name != 172.16.0.* && $name != host*.webber.rubin.ru ]]; then
 							echo "  $name"
 						fi
@@ -165,8 +170,7 @@ case $1 in
 					echo "Owner user: `cat $HOST_CONF_DIR/$i/httpd.conf|grep "User "|awk '{print $2}'`"
 					echo "Owner group: `cat $HOST_CONF_DIR/$i/httpd.conf|grep "Group"|awk '{print $2}'`"
 					echo
-
-                                fi
+				fi
                         done
                         exit 0
                 fi
@@ -177,16 +181,17 @@ case $1 in
                 fi
 		
 		echo "-==Info on host $2==-"
-		if [[ -f $HOST_CONF_DIR/$2/apache.pid ]]; then 
+		if [[ -d $HOST_CONF_DIR/$i && -f $HOST_CONF_DIR/$2/apache.pid ]]; then 
 			echo "Host is running"
 		else
 			echo "Host is down"
 		fi
-		echo "Admin host name: `cat $HOST_CONF_DIR/hosts | grep $2 | awk '{print $2}'`"
+		echo "Admin host name:"
+		echo "   `cat $HOST_CONF_DIR/hosts | grep $2 | grep -v "^#" | awk '{print $2}'`"
 		echo "DNS host names:"
-		for name in `cat $HOST_CONF_DIR/hosts | grep $2`; do
+		for name in `cat $HOST_CONF_DIR/hosts | grep $2 | grep -v "^#"`; do
 			if [[ $name != 172.16.0.* && $name != host*.webber.rubin.ru ]]; then
-				echo "	$name"
+				echo "  $name"
 			fi
 		done
 		echo "Owner user: `cat $HOST_CONF_DIR/$2/httpd.conf | grep "User " | awk '{print $2}'`"
