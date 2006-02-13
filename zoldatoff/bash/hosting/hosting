@@ -103,19 +103,39 @@ case $1 in
 		GROUP=$3
 		HOST=$4
 
-		IP=172.16.0.0
-		list=`ls -1 $HOST_CONF_DIR`
-		for i in $list; do
-			if [[ -d $HOST_CONF_DIR/$i && $i == 172.16.0.* && $i > $IP ]]; then
-				IP="$i"
+		#this is a part of script to check an empty ip by scanning /etc/hosts directory
+		#IP=172.16.0.0
+		#list=`ls -1 $HOST_CONF_DIR`
+		#for i in $list; do
+		#	if [[ -d $HOST_CONF_DIR/$i && $i == 172.16.0.* && $i > $IP ]]; then
+		#		IP="$i"
+		#	fi
+		#done
+		#count=`echo $IP | awk --field-separator '.' '{print $4}'`
+		#count=$((count+1))
+		#IP=172.16.0.$count
+
+		#if [[ `cat $HOST_CONF_DIR/hosts | grep $IP | grep -v "^#"` != "" ]]; then
+		#	echo "You must check your hosts file: it contains unused address $IP:"
+		#	cat $HOST_CONF_DIR/hosts | grep $IP
+		#	exit 3
+		#fi
+		#this is the end....
+
+		IP=0
+		for ((count=1; count<=254; count++)); do
+			if [[ `grep 172.16.0.$count /etc/hosting/hosts | wc | awk '{print $1}'` == 0 ]]; then
+				IP=172.16.0.$count
+				break
 			fi
 		done
-		count=`echo $IP | awk --field-separator '.' '{print $4}'`
-		count=$((count+1))
-		IP=172.16.0.$count
-		if [[ `cat $HOST_CONF_DIR/hosts | grep $IP | grep -v "^#"` != "" ]]; then
-			echo "You must check your hosts file: it contains unused address $IP:"
-			cat $HOST_CONF_DIR/hosts | grep $IP
+
+		if [[ $IP == 0 ]]; then
+			echo "* Couldn't find any free ip address for new host"
+			exit 3		
+		elif [[ -d $HOST_CONF_DIR/$IP ]]; then
+			echo "* Config dir for an empty ip $IP already exists"
+			echo "* Remove the directory $HOST_CONF_DIR/$IP or add a string '#$IP ...' to $HOST_CONF_DIR/hosts"
 			exit 3
 		fi
 
@@ -183,24 +203,6 @@ case $1 in
                                 if [[ $i == *172.16.0.* ]]; then
 					echo
 					$0 show $i
-					#echo "-=< Info on host $i >=-"
-					#if [[ -d $HOST_CONF_DIR/$i && -f $HOST_CONF_DIR/$i/apache.pid ]]; then
-					#	PID=`cat $HOST_CONF_DIR/$i/apache.pid`
-					#	echo "Host is running, apache PID $PID"
-					#else
-					#	echo "Host is down"
-					#fi
-					##echo "Admin host name: "
-					#echo "  `cat $HOST_CONF_DIR/hosts | grep $i | grep -v "^#" | awk '{print $2}'`"
-					#echo "DNS host names:"
-					#for name in `cat $HOST_CONF_DIR/hosts | grep $i | grep -v "^#"`; do
-					#	if [[ $name != 172.16.0.* && $name != host*.webber.rubin.ru ]]; then
-					#		echo "  $name"
-					#	fi
-					#done
-					#echo "Owner user: `cat $HOST_CONF_DIR/$i/httpd.conf|grep "User "|awk '{print $2}'`"
-					#echo "Owner group:`cat $HOST_CONF_DIR/$i/httpd.conf|grep "Group"|awk '{print $2}'`"
-					#echo
 				fi
                         done
                         exit 0
