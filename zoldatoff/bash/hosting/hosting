@@ -4,15 +4,15 @@ HOST_CONF_DIR="/etc/hosting"
 HOST_ROOT_DIR="/var/www"
 
 echo_error () {
-	echo -e "\033[01;31m$1\033[0;30m"
+	echo -e "\033[01;31m$1\033[1;30m"
 }
 
 echo_warning () {
-	echo -e "\033[0;35m$1\033[0;30m"
+	echo -e "\033[0;35m$1\033[1;30m"
 }
 
 echo_info () {
-	echo -e "\033[01;34m$1\033[0;30m"
+	echo -e "\033[01;34m$1\033[1;30m"
 }
 
 case $1 in
@@ -303,19 +303,19 @@ case $1 in
                 fi
 		
 		echo_error "Info on host $2: "
-		echo_info "  Status:"
+		echo_warning "  Status:"
 		if [[ -f $HOST_CONF_DIR/$2/apache.pid ]]; then 
 			PID=`cat $HOST_CONF_DIR/$2/apache.pid`
-			echo "     host is running, apache PID $PID"
+			echo_info "     host is running, apache PID $PID"
 		else
 			echo_error "     !!! host is down"
 		fi
 
-		echo_info "  Host aliases ('#' in the beginning of the line means that host is disabled):"
-		echo "     `cat $HOST_CONF_DIR/hosts | grep $2`"
+		echo_warning "  Host aliases ('#' in the beginning of the line means that host is disabled):"
+		echo_info "     `cat $HOST_CONF_DIR/hosts | grep $2`"
 
-		echo_info "  Owner user :  `cat $HOST_CONF_DIR/$2/httpd.conf | grep "User " | awk '{print $2}'`"
-		echo_info "  Owner group:  `cat $HOST_CONF_DIR/$2/httpd.conf | grep "Group " | awk '{print $2}'`"
+		echo_warning "  Owner user :  `cat $HOST_CONF_DIR/$2/httpd.conf | grep "User " | awk '{print $2}'`"
+		echo_warning "  Owner group:  `cat $HOST_CONF_DIR/$2/httpd.conf | grep "Group " | awk '{print $2}'`"
 		exit 0
 		;;
 ########################################################
