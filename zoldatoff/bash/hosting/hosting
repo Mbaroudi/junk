@@ -43,7 +43,7 @@ case $1 in
 			exit 0
 		fi
 
-		if [[ ! -d $HOST_CONF_DIR/$2 && $2 == 172.16.0.* ]]; then
+		if [[ ! -d $HOST_CONF_DIR/$2 ]] || [[ $2 != 172.16.0.* ]]; then
 			echo_warning "* The config dir for host $2 does not exist."
 			echo_warning "* Please check the ip address you entered or run 'hosting add ...'"
 			exit 1
