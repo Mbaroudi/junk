@@ -57,8 +57,10 @@ case $1 in
 		
 		echo_info "Starting host $2"
 		count=`echo $2 | awk --field-separator '.' '{print $4}'`
-		ifconfig dummy$count $2 up && \
-		/usr/sbin/apache -D SSL -D PHP4 -D GZIP -f $HOST_CONF_DIR/$2/httpd.conf && sleep 5 && \
+		ifconfig dummy$count $2 && \
+		ifconfig dummy$count up 
+
+		/usr/sbin/apache -D SSL -D PHP4 -D GZIP -f $HOST_CONF_DIR/$2/httpd.conf && sleep 7 && \
 		PID=`cat $HOST_CONF_DIR/$2/apache.pid` && \
 		echo_info "Host $2 started, process PID $PID" && exit 0
 
