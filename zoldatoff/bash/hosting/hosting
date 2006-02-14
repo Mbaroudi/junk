@@ -164,18 +164,18 @@ case $1 in
 		mkdir -p $HOST_ROOT_DIR/$IP/public_html/tmp
 		mkdir -p $HOST_ROOT_DIR/$IP/logs
 		mkdir -p $HOST_ROOT_DIR/$IP/my_files
-		mkdir -p $HOST_CONF_DIR/$IP/my_files
+		mkdir -p $HOST_CONF_DIR/$IP
 		chown -R $USER:$USER $HOST_ROOT_DIR/$IP
 		chmod -R 770 $HOST_ROOT_DIR/$IP
 		chown -R $USER:$USER $HOST_CONF_DIR/$IP
 		chmod -R 770 $HOST_CONF_DIR/$IP
 
 		echo "...Making config files for new host"
-		cp -R $HOST_CONF_DIR/default $HOST_CONF_DIR/$IP && chown -R $USER:$USER $HOST_CONF_DIR/$IP
+		cp -R $HOST_CONF_DIR/default/* $HOST_CONF_DIR/$IP && chown -R $USER:$USER $HOST_CONF_DIR/$IP
 		sed 's/$IP/'$IP'/' $HOST_CONF_DIR/default/httpd.conf | sed -e 's/$HOST/'$HOST'/' | \
-			sed -e 's/$USER/'$USER'/' | sed -e 's/$GROUP/'$GROUP'/' > $HOST_CONF_DIR/$IP/httpd.conf
+			sed -e 's/$USER/'$USER'/' | sed -e 's/$GROUP/'$USER'/' > $HOST_CONF_DIR/$IP/httpd.conf
 		sed 's/$IP/'$IP'/' $HOST_CONF_DIR/default/host.conf | sed -e 's/$HOST/'$HOST'/' | \
-			sed -e 's/$USER/'$USER'/' | sed -e 's/$GROUP/'$GROUP'/' > $HOST_CONF_DIR/$IP/host.conf
+			sed -e 's/$USER/'$USER'/' | sed -e 's/$GROUP/'$USER'/' > $HOST_CONF_DIR/$IP/host.conf
 		echo "$IP	$USER.webber.rubin.ru	$HOST	$3" >> $HOST_CONF_DIR/hosts
 
 		echo "...Reconfiguring squid"
@@ -206,9 +206,10 @@ case $1 in
 
 		count=`echo $2 | awk --field-separator '.' '{print $4}'`
 		USER=host$count
-		userdel $USER && groupdel $USER && \
-		rm -rf $HOST_CONF_DIR/$2 && \ 
-		cat $HOST_CONF_DIR/hosts | grep -v $2 > $HOST_CONF_DIR/hosts && \
+		userdel $USER && groupdel $USER && echo "...User&group $USER were deleted" && \
+		rm -rf $HOST_CONF_DIR/$2 && echo "...Config directory removed" && \
+		grep -v "$2" $HOST_CONF_DIR/hosts | grep -v "^$" > $HOST_CONF_DIR/hosts && \
+		echo "...Hosts file succesfully edited" && \
 		echo "Host $2 succesfully removed" && \
 		exit 0
 		
@@ -239,7 +240,7 @@ case $1 in
 		if [[ `grep $2 $HOST_CONF_DIR/hosts | grep "^\s*#" | wc | awk '{print $1}'` == 1 ]]; then
 			cat $HOST_CONF_DIR/hosts | grep -v $2 > $HOST_CONF_DIR/temp
 			cat $HOST_CONF_DIR/hosts | grep $2 | awk --field-separator '#' '{print $2}' >> $HOST_CONF_DIR/temp
-			cat $HOST_CONF_DIR/temp | grep -v "^$" | sort -n > $HOST_CONF_DIR/hosts
+			cat $HOST_CONF_DIR/temp | grep -v "^$" > $HOST_CONF_DIR/hosts
 			echo "Succesfully uncommented address $2 in $HOST_CONF_DIR/hosts"
 		else
 			echo "* Address $2 is already uncommented in $HOST_CONF_DIR/hosts"
@@ -274,7 +275,7 @@ case $1 in
 		if [[ `grep $2 $HOST_CONF_DIR/hosts | grep -v "^\s*#" | wc | awk '{print $1}'` == 1 ]]; then
                         cat $HOST_CONF_DIR/hosts | grep -v $2 > $HOST_CONF_DIR/temp
                         echo "#`cat $HOST_CONF_DIR/hosts | grep $2`" >> $HOST_CONF_DIR/temp
-                        cat $HOST_CONF_DIR/temp | grep -v "^$" | sort -n > $HOST_CONF_DIR/hosts
+                        cat $HOST_CONF_DIR/temp | grep -v "^$" > $HOST_CONF_DIR/hosts
                         echo "Succesfully commented address $2 in $HOST_CONF_DIR/hosts"
                 else
                         echo "* Address $2 is already commented in $HOST_CONF_DIR/hosts"
