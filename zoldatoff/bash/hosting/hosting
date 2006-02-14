@@ -9,7 +9,7 @@ case $1 in
 	start)	
 		if [[ $2 == "" ]]; then
 			echo "* You must specify an ip address or 'all'"
-			exit 0
+			exit 1
 		fi
 
 		if [[ $2 == "all" ]]; then
@@ -19,7 +19,6 @@ case $1 in
 			for i in $list; do
 				if [[ -d $HOST_CONF_DIR/$i &&  $i == 172.16.0.* ]]; then
 					$0 start $i && echo && continue
-                			# echo "* Couldn't start host $i"
 				fi
 			done
 			exit 0
@@ -43,6 +42,7 @@ case $1 in
 		/usr/sbin/apache -D SSL -D PHP4 -D GZIP -f $HOST_CONF_DIR/$2/httpd.conf && sleep 1 && \
 		PID=`cat $HOST_CONF_DIR/$2/apache.pid` && \
 		echo "Host $2 started, process PID $PID" && exit 0
+
 		echo "* Couldn't start apache on ip $2"
 		echo "* Please check dummy$count interface and your config files in $HOST_CONF_DIR/$2"
 		exit 1
@@ -52,7 +52,7 @@ case $1 in
 	stop) 	
 		if [[ $2 == "" ]]; then
                         echo "* You must specify an ip address or 'all'"
-                        exit 0
+                        exit 2
                 fi
 
                 if [[ $2 == "all" ]]; then
@@ -62,7 +62,6 @@ case $1 in
                         for i in $list; do
                                 if [[ -d $HOST_CONF_DIR/$i && $i == 172.16.0.* ]]; then
 					$0 stop $i && echo && continue
-                                        # echo "* Couldn't stop host $i"
                                 fi
                         done
                         exit 0
@@ -74,13 +73,13 @@ case $1 in
                 fi
 
                 if [[ ! -f $HOST_CONF_DIR/$2/apache.pid ]]; then
-			echo $2
                         echo "* Server $2 has not been started yet"
                         exit 2
                 fi
 
 		PID=`cat $HOST_CONF_DIR/$2/apache.pid`
 		kill $PID && echo "Host $2 stopped" && exit 0
+
 		echo "* Couldn't stop apache on ip $2."
 		echo "* Please stop apache process with PID $PID manually or remove file $HOST_CONF_DIR/$2/apache.pid"
 		exit 2
@@ -101,29 +100,6 @@ case $1 in
 		fi
 	
 		HOST=$2
-
-		#this is a part of script to check an empty ip by scanning /etc/hosts directory
-		#USER=$2
-		#GROUP=$3
-		#HOST=$4
-		#IP=172.16.0.0
-		#list=`ls -1 $HOST_CONF_DIR`
-		#for i in $list; do
-		#	if [[ -d $HOST_CONF_DIR/$i && $i == 172.16.0.* && $i > $IP ]]; then
-		#		IP="$i"
-		#	fi
-		#done
-		#count=`echo $IP | awk --field-separator '.' '{print $4}'`
-		#count=$((count+1))
-		#IP=172.16.0.$count
-
-		#if [[ `cat $HOST_CONF_DIR/hosts | grep $IP | grep -v "^#"` != "" ]]; then
-		#	echo "You must check your hosts file: it contains unused address $IP:"
-		#	cat $HOST_CONF_DIR/hosts | grep $IP
-		#	exit 3
-		#fi
-		#this is the end....
-
 		IP=0
 		for ((count=1; count<255; count++)); do
 			if [[ `grep 172.16.0.$count /etc/hosting/hosts | wc | awk '{print $1}'` == 0 ]]; then
@@ -211,6 +187,7 @@ case $1 in
 		grep -v "$2" $HOST_CONF_DIR/hosts | grep -v "^$" > $HOST_CONF_DIR/hosts && \
 		echo "...Hosts file succesfully edited" && \
 		echo "Host $2 succesfully removed" && \
+		/usr/sbin/squid -k reconfigure && \
 		exit 0
 		
 		echo "* Couldn't remove host $2."
@@ -249,7 +226,7 @@ case $1 in
 		rm -f $HOST_CONF_DIR/temp
 		squid -k reconfigure
 		echo
-		echo "NB: You may want to enable associated user using command:"
+		echo "NB: Maybe you want to enable associated user using command:"
 		echo "     $0 enable_user $2"
 		exit 0
 		;;
@@ -284,7 +261,7 @@ case $1 in
 		rm -f $HOST_CONF_DIR/temp
 		squid -k reconfigure
 		echo
-		echo "NB: You may want to disable associated user using command:"
+		echo "NB: Maybe you want to disable associated user using command:"
 		echo "   $0 disable_user $2"
 		exit 0
 		;;
@@ -322,7 +299,7 @@ case $1 in
 			echo "     !!! host is down"
 		fi
 
-		echo "  Host aliases ('#' in the beginning of the string means that host is disabled):"
+		echo "  Host aliases ('#' in the beginning of the line means that host is disabled):"
 		echo "     `cat $HOST_CONF_DIR/hosts | grep $2`"
 
 		echo "  Owner user :  `cat $HOST_CONF_DIR/$2/httpd.conf | grep "User " | awk '{print $2}'`"
