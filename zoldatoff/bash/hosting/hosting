@@ -3,85 +3,97 @@
 HOST_CONF_DIR="/etc/hosting"
 HOST_ROOT_DIR="/var/www"
 
+echo_error () {
+	echo -e "\033[01;31m$1\033[0;30m"
+}
+
+echo_warning () {
+	echo -e "\033[0;35m$1\033[0;30m"
+}
+
+echo_info () {
+	echo -e "\033[01;34m$1\033[0;30m"
+}
+
 case $1 in
 ########################################################
 	### start the specified host.......
 	start)	
 		if [[ $2 == "" ]]; then
-			echo "* You must specify an ip address or 'all'"
+			echo_warning "* You must specify an ip address or 'all'"
 			exit 1
 		fi
 
 		if [[ $2 == "all" ]]; then
-			echo "Starting all hosts..."
-			echo
+			echo_info "Starting all hosts..."
 			list=`ls -1 $HOST_CONF_DIR`
 			for i in $list; do
 				if [[ -d $HOST_CONF_DIR/$i &&  $i == 172.16.0.* ]]; then
-					$0 start $i && echo && continue
+					echo
+					$0 start $i && continue
 				fi
 			done
 			exit 0
 		fi
 
 		if [[ ! -d $HOST_CONF_DIR/$2 && $2 == 172.16.0.* ]]; then
-			echo "* The config dir for host $2 does not exist."
-			echo "* Please check the ip address you entered or run 'hosting add ...'"
+			echo_warning "* The config dir for host $2 does not exist."
+			echo_warning "* Please check the ip address you entered or run 'hosting add ...'"
 			exit 1
 		fi
 
 		if [[ -f $HOST_CONF_DIR/$2/apache.pid ]]; then
 			PID=`cat $HOST_CONF_DIR/$2/apache.pid`
-			echo "* Server $2 is already running on PID $PID"
+			echo_warning "* Server $2 is already running on PID $PID"
 			exit 1
 		fi
 		
-		echo "Starting host $2"
+		echo_info "Starting host $2"
 		count=`echo $2 | awk --field-separator '.' '{print $4}'`
 		ifconfig dummy$count $2 up && \
 		/usr/sbin/apache -D SSL -D PHP4 -D GZIP -f $HOST_CONF_DIR/$2/httpd.conf && sleep 1 && \
 		PID=`cat $HOST_CONF_DIR/$2/apache.pid` && \
-		echo "Host $2 started, process PID $PID" && exit 0
+		echo_info "Host $2 started, process PID $PID" && exit 0
 
-		echo "* Couldn't start apache on ip $2"
-		echo "* Please check dummy$count interface and your config files in $HOST_CONF_DIR/$2"
+		echo_error "* Couldn't start apache on ip $2"
+		echo_error "* Please check dummy$count interface and your config files in $HOST_CONF_DIR/$2"
 		exit 1
 		;;
 ########################################################
 	### stop the specified host.......
 	stop) 	
 		if [[ $2 == "" ]]; then
-                        echo "* You must specify an ip address or 'all'"
+                        echo_info "* You must specify an ip address or 'all'"
                         exit 2
                 fi
 
                 if [[ $2 == "all" ]]; then
-                        echo "Stopping all hosts..."
-			echo
+                        echo_info "Stopping all hosts..."
 			list=`ls -1 $HOST_CONF_DIR`
                         for i in $list; do
                                 if [[ -d $HOST_CONF_DIR/$i && $i == 172.16.0.* ]]; then
-					$0 stop $i && echo && continue
+					echo
+					$0 stop $i && continue
                                 fi
                         done
                         exit 0
                 fi
 
                 if [[ ! -d $HOST_CONF_DIR/$2 ]]; then
-                        echo "* Config dir for host $2 does not exist. Please check the ip address"
+                        echo_warning "* Config dir for host $2 does not exist. Please check the ip address"
                         exit 2
                 fi
 
                 if [[ ! -f $HOST_CONF_DIR/$2/apache.pid ]]; then
-                        echo "* Server $2 has not been started yet"
+                        echo_warning "* Server $2 has not been started yet"
                         exit 2
                 fi
 
 		PID=`cat $HOST_CONF_DIR/$2/apache.pid`
-		kill $PID && echo "Host $2 stopped" && exit 0
+		kill $PID && echo_info "Host $2 stopped" && exit 0
 
-		echo "* Couldn't stop apache on ip $2."
-		echo "* Please stop apache process with PID $PID manually or remove file $HOST_CONF_DIR/$2/apache.pid"
+		echo_error "* Couldn't stop apache on ip $2."
+		echo_error "* Please stop apache process with PID $PID manually or remove file $HOST_CONF_DIR/$2/apache.pid"
 		exit 2
 		;;
 
@@ -95,7 +107,7 @@ case $1 in
 	### add new host........
 	add)
 		if [[ $2 == "" ]]; then
-			echo "* You must specify host name when adding a new host."
+			echo_info "* You must specify host name when adding a new host."
 			exit 3
 		fi
 	
@@ -109,28 +121,28 @@ case $1 in
 		done
 
 		if [[ $IP == 0 ]]; then
-			echo "* Couldn't find any free ip address for new host"
+			echo_error "* Couldn't find any free ip address for new host"
 			exit 3		
 		elif [[ -d $HOST_CONF_DIR/$IP ]]; then
-			echo "* Config dir for an empty ip $IP already exists"
-			echo "* Remove the directory $HOST_CONF_DIR/$IP or add a string '#$IP ...' to $HOST_CONF_DIR/hosts"
+			echo_error "* Config dir for an empty ip $IP already exists"
+			echo_error "* Remove the directory $HOST_CONF_DIR/$IP or add a string '#$IP ...' to $HOST_CONF_DIR/hosts"
 			exit 3
 		fi
 
 		USER=host$count
 
-		echo "Adding host $IP named $HOST. It will belong to $USER:$USER"
+		echo_info "Adding host $IP named $HOST. It will belong to $USER:$USER"
 		if [[ `grep $USER /etc/group | wc | awk '{print $1}'` > 0 ]]; then
-			echo "* Group $USER already exists. Remove it before continuing."
+			echo_warning "* Group $USER already exists. Remove it before continuing."
 			exit 3
 		fi
 
 		if [[ `grep $USER /etc/passwd | wc | awk '{print $1}'` > 0 ]]; then
-			echo "* User $USER already exists. Remove him before continuing."
+			echo_warning "* User $USER already exists. Remove him before continuing."
 			exit 3
 		fi
 
-		echo "...Creating user and group '$USER'"
+		echo_info "...Creating user and group '$USER'"
 		groupadd $USER
 		useradd -g $USER -G ftpusers,sshusers -c "WWW user" -d $HOST_ROOT_DIR/$IP $USER
 
@@ -156,7 +168,7 @@ case $1 in
 
 		echo "...Reconfiguring squid"
 		/usr/sbin/squid -k reconfigure
-		echo "Host added successfully. Please enter password for user $USER"
+		echo_info "Host added successfully. Please enter password for user $USER"
 		passwd $USER
 		exit 0
 		;;
@@ -164,16 +176,16 @@ case $1 in
 	### show info on specified host
 	remove)
 		if [[ $2 == "" ]]; then
-                        echo "* You must specify an ip address of the host"
+                        echo_info "* You must specify an ip address of the host"
                         exit 4
                 fi
 
 		if [[ ! -d $HOST_CONF_DIR/$2 ]]; then
-                        echo "* Such host does not exist. Please check the ip address"
+                        echo_warning "* Such host does not exist. Please check the ip address"
                         exit 4
                 fi
 
-		echo "Removing host $2"
+		echo_info "Removing host $2"
 		if [[ -f $HOST_CONF_DIR/$2/apache.pid ]]; then
 			$0 stop $2
 			sleep 1
@@ -186,31 +198,31 @@ case $1 in
 		rm -rf $HOST_CONF_DIR/$2 && echo "...Config directory removed" && \
 		grep -v "$2" $HOST_CONF_DIR/hosts | grep -v "^$" > $HOST_CONF_DIR/hosts && \
 		echo "...Hosts file succesfully edited" && \
-		echo "Host $2 succesfully removed" && \
+		echo_info "Host $2 succesfully removed" && \
 		/usr/sbin/squid -k reconfigure && \
 		exit 0
 		
-		echo "* Couldn't remove host $2."
-		echo "* Check if the user&group $USER were deleted"
-		echo "* Delete directory $HOST_CONF_DIR/$2 manually and remove the host $2 from $HOST_CONF_DIR/hosts"
+		echo_error "* Couldn't remove host $2."
+		echo_error "* Check if the user&group $USER were deleted"
+		echo_error "* Delete directory $HOST_CONF_DIR/$2 manually and remove the host $2 from $HOST_CONF_DIR/hosts"
 		exit 4
 		;;
 ########################################################
 	### uncomment specified host
 	enable)
 		if [[ $2 == "" ]]; then
-                        echo "* You must specify an ip address"
+                        echo_info "* You must specify an ip address"
                         exit 5
                 fi
 		
 		if [[ `grep $2 $HOST_CONF_DIR/hosts | wc | awk '{print $1}'` == 0 ]]; then
-			echo "* Address $2 not found in $HOST_CONF_DIR/hosts"
+			echo_warning "* Address $2 not found in $HOST_CONF_DIR/hosts"
 			exit 5
 		fi
 
 		if [[ `grep $2 $HOST_CONF_DIR/hosts | wc | awk '{print $1}'` > 1 ]]; then
-			echo "* Address $2 was found more than once in $HOST_CONF_DIR/hosts"
-			echo "* You must manually edit $HOST_CONF_DIR/hosts to remove all duplications"
+			echo_warning "* Address $2 was found more than once in $HOST_CONF_DIR/hosts"
+			echo_warning "* You must manually edit $HOST_CONF_DIR/hosts to remove all duplications"
 			exit 5
 		fi
 		
@@ -218,9 +230,9 @@ case $1 in
 			cat $HOST_CONF_DIR/hosts | grep -v $2 > $HOST_CONF_DIR/temp
 			cat $HOST_CONF_DIR/hosts | grep $2 | awk --field-separator '#' '{print $2}' >> $HOST_CONF_DIR/temp
 			cat $HOST_CONF_DIR/temp | grep -v "^$" > $HOST_CONF_DIR/hosts
-			echo "Succesfully uncommented address $2 in $HOST_CONF_DIR/hosts"
+			echo_info "Succesfully uncommented address $2 in $HOST_CONF_DIR/hosts"
 		else
-			echo "* Address $2 is already uncommented in $HOST_CONF_DIR/hosts"
+			echo_warning "* Address $2 is already uncommented in $HOST_CONF_DIR/hosts"
 		fi
 
 		rm -f $HOST_CONF_DIR/temp
@@ -234,18 +246,18 @@ case $1 in
 	### comment specified host
 	disable)
 		if [[ $2 == "" ]]; then
-                        echo "* You must specify an ip address"
+                        echo_info "* You must specify an ip address"
                         exit 6
                 fi
 		
 		if [[ `grep $2 $HOST_CONF_DIR/hosts | wc | awk '{print $1}'` == 0 ]]; then
-                        echo "* Address $2 not found in $HOST_CONF_DIR/hosts"
+                        echo_warning "* Address $2 not found in $HOST_CONF_DIR/hosts"
                         exit 6
                 fi
 
                 if [[ `grep $2 $HOST_CONF_DIR/hosts | wc | awk '{print $1}'` > 1 ]]; then
-                        echo "* Address $2 was found more than once in $HOST_CONF_DIR/hosts"
-                        echo "* You must manually edit $HOST_CONF_DIR/hosts to remove all duplications"
+                        echo_warning "* Address $2 was found more than once in $HOST_CONF_DIR/hosts"
+                        echo_warning "* You must manually edit $HOST_CONF_DIR/hosts to remove all duplications"
                         exit 6
                 fi
 
@@ -253,9 +265,9 @@ case $1 in
                         cat $HOST_CONF_DIR/hosts | grep -v $2 > $HOST_CONF_DIR/temp
                         echo "#`cat $HOST_CONF_DIR/hosts | grep $2`" >> $HOST_CONF_DIR/temp
                         cat $HOST_CONF_DIR/temp | grep -v "^$" > $HOST_CONF_DIR/hosts
-                        echo "Succesfully commented address $2 in $HOST_CONF_DIR/hosts"
+                        echo_info "Succesfully commented address $2 in $HOST_CONF_DIR/hosts"
                 else
-                        echo "* Address $2 is already commented in $HOST_CONF_DIR/hosts"
+                        echo_warning "* Address $2 is already commented in $HOST_CONF_DIR/hosts"
                 fi
 
 		rm -f $HOST_CONF_DIR/temp
@@ -269,12 +281,12 @@ case $1 in
 	### show info on specified host
 	show)
 		if [[ $2 == "" ]]; then
-                        echo "* You must specify an ip address or 'all'"
+                        echo_info "* You must specify an ip address or 'all'"
                         exit 7
                 fi
 
                 if [[ $2 == "all" ]]; then
-                        echo "Showing info on all hosts..."
+                        echo_info "Showing info on all hosts..."
                         for ((i=1; i<255; i++)); do
 				IP=172.16.0.$i
                                 if [[ `grep $IP $HOST_CONF_DIR/hosts | wc | awk '{print $1}'` > 0 ]]; then
@@ -286,41 +298,41 @@ case $1 in
                 fi
 
                 if [[ ! -d $HOST_CONF_DIR/$2 ]]; then
-                        echo "* Config for host $2 does not exist. Please check the ip address"
+                        echo_warning "* Config for host $2 does not exist. Please check the ip address"
                         exit 7
                 fi
 		
-		echo "Info on host $2: "
-		echo "  Status:"
+		echo_error "Info on host $2: "
+		echo_info "  Status:"
 		if [[ -f $HOST_CONF_DIR/$2/apache.pid ]]; then 
 			PID=`cat $HOST_CONF_DIR/$2/apache.pid`
 			echo "     host is running, apache PID $PID"
 		else
-			echo "     !!! host is down"
+			echo_error "     !!! host is down"
 		fi
 
-		echo "  Host aliases ('#' in the beginning of the line means that host is disabled):"
+		echo_info "  Host aliases ('#' in the beginning of the line means that host is disabled):"
 		echo "     `cat $HOST_CONF_DIR/hosts | grep $2`"
 
-		echo "  Owner user :  `cat $HOST_CONF_DIR/$2/httpd.conf | grep "User " | awk '{print $2}'`"
-		echo "  Owner group:  `cat $HOST_CONF_DIR/$2/httpd.conf | grep "Group " | awk '{print $2}'`"
+		echo_info "  Owner user :  `cat $HOST_CONF_DIR/$2/httpd.conf | grep "User " | awk '{print $2}'`"
+		echo_info "  Owner group:  `cat $HOST_CONF_DIR/$2/httpd.conf | grep "Group " | awk '{print $2}'`"
 		exit 0
 		;;
 ########################################################
 	### show info on specified host
 	enable_user)
 		if [[ $2 == "" ]]; then
-                        echo "* You must specify an ip address"
+                        echo_info "* You must specify an ip address"
                         exit 8
                 fi
 		
 		USER=host`echo $2 | awk --field-separator '.' '{print $4}'`
 
 		if [[ `grep $USER /etc/passwd | wc | awk '{print $1}'` > 0 ]]; then
-			usermod -U $USER && echo "User $USER unlocked" && exit 0
-			echo "Error unlocking user $USER" && exit 8
+			usermod -U $USER && echo_info "User $USER unlocked" && exit 0
+			echo_error "Error unlocking user $USER" && exit 8
 		else
-			echo "No such user $USER"
+			echo_warning "No such user $USER"
 			exit 8
 		fi
 		;;
@@ -329,7 +341,7 @@ case $1 in
         ### show info on specified host
         disable_user)
                 if [[ $2 == "" ]]; then
-                        echo "* You must specify an ip address"
+                        echo_info "* You must specify an ip address"
                         exit 9
                 fi
 
@@ -337,10 +349,10 @@ case $1 in
 
                 if [[ `grep $USER /etc/passwd | wc | awk '{print $1}'` > 0 ]]; then
 			$0 stop $2
-                        usermod -L $USER && echo "User $USER locked" && exit 0
-                        echo "Error locking user $USER" && exit 9
+                        usermod -L $USER && echo_info "User $USER locked" && exit 0
+                        echo_error "Error locking user $USER" && exit 9
                 else
-                        echo "No such user $USER"
+                        echo_warning "No such user $USER"
                         exit 9
                 fi
                 ;;
@@ -348,8 +360,8 @@ case $1 in
 ########################################################
 	### show help screen...........
 	*)
-		echo "usage: $0"
-		echo "(start|stop|restart|add|remove|enable|disable|enable_user|disable_user|show)"
+		echo_info "usage: $0"
+		echo_info "(start|stop|restart|add|remove|enable|disable|enable_user|disable_user|show)"
 		echo
                 echo "start   <ip_address | all> - start apache on 'ip'-address or on all available addresses"
                 echo "stop    <ip_address | all> - stop apache on 'ip'-address or on all available addresses"
