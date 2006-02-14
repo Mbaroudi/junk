@@ -3,6 +3,11 @@
 HOST_CONF_DIR="/etc/hosting"
 HOST_ROOT_DIR="/var/www"
 
+CONF_BACKUP_DIR=/var/backup/www/config
+WEB_BACKUP_DIR=/var/backup/www/web
+##Color support#######################################
+#http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/x329.html
+
 echo_error () {
 	echo -e "\033[01;31m$1\033[1;30m"
 }
@@ -15,8 +20,10 @@ echo_info () {
 	echo -e "\033[01;34m$1\033[1;30m"
 }
 
+#######################################################
+#######################################################
+
 case $1 in
-########################################################
 	### start the specified host.......
 	start)	
 		if [[ $2 == "" ]]; then
@@ -51,7 +58,7 @@ case $1 in
 		echo_info "Starting host $2"
 		count=`echo $2 | awk --field-separator '.' '{print $4}'`
 		ifconfig dummy$count $2 up && \
-		/usr/sbin/apache -D SSL -D PHP4 -D GZIP -f $HOST_CONF_DIR/$2/httpd.conf && sleep 1 && \
+		/usr/sbin/apache -D SSL -D PHP4 -D GZIP -f $HOST_CONF_DIR/$2/httpd.conf && sleep 5 && \
 		PID=`cat $HOST_CONF_DIR/$2/apache.pid` && \
 		echo_info "Host $2 started, process PID $PID" && exit 0
 
@@ -100,7 +107,7 @@ case $1 in
 ########################################################
 	### restart the specified host.......
 	restart)
-		$0 stop $2 && $0 start $2
+		$0 stop $2 && sleep 5 && $0 start $2
 		;;
 
 ########################################################
@@ -194,8 +201,18 @@ case $1 in
 
 		count=`echo $2 | awk --field-separator '.' '{print $4}'`
 		USER=host$count
-		userdel $USER && groupdel $USER && echo "...User&group $USER were deleted" && \
-		rm -rf $HOST_CONF_DIR/$2 && echo "...Config directory removed" && \
+		SITE=`grep $2 $HOST_CONF_DIR/hosts | awk '{print $3}'`
+		userdel $USER && groupdel $USER && \
+		echo "...User&group $USER were deleted" && \
+
+		tar -czf $CONF_BACKUP_DIR/`date +%F_%H%M`_$SITE.tar.gz $HOST_CONF_DIR/$2 && \
+		rm -r $HOST_CONF_DIR/$2 && \
+		echo "...Config directory backupped" && \
+		tar -czf $WEB_BACKUP_DIR/`date +%F_%H%M`_$SITE.tar.gz $HOST_ROOT_DIR/$2 && \
+		rm -r $HOST_ROOT_DIR/$2 && \
+		echo "...Web content backupped" && \
+
+		cp $HOST_CONF_DIR/hosts $HOST_CONF_DIR/hosts.backup
 		grep -v "$2" $HOST_CONF_DIR/hosts | grep -v "^$" > $HOST_CONF_DIR/hosts && \
 		echo "...Hosts file succesfully edited" && \
 		echo_info "Host $2 succesfully removed" && \
