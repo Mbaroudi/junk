@@ -330,11 +330,14 @@ case $1 in
 			echo_error "     !!! host is down"
 		fi
 
+		count=`echo $2 | awk --field-separator '.' '{print $4}'`
+
 		echo_warning "  Host aliases ('#' in the beginning of the line means that host is disabled):"
-		echo_info "     `cat $HOST_CONF_DIR/hosts | grep $2`"
+		echo_info "     `cat $HOST_CONF_DIR/hosts | grep "host$count.webber.rubin.ru"`"
 
 		echo_warning "  Owner user :  `cat $HOST_CONF_DIR/$2/httpd.conf | grep "User " | awk '{print $2}'`"
 		echo_warning "  Owner group:  `cat $HOST_CONF_DIR/$2/httpd.conf | grep "Group " | awk '{print $2}'`"
+		echo "=========================================================="
 		exit 0
 		;;
 ########################################################
