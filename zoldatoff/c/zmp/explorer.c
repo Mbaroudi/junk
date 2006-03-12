@@ -23,17 +23,20 @@ int listDir(const char *directory, struct filelist *dir_list[]) 	//the array of 
 {
         DIR *dp;
         struct dirent *ep;
-	int i;
+	struct filelist *dirs[MAX_LIST];
+	struct filelist *files[MAX_LIST];
+	int i, i_dirs, i_files;
 	
 	for (i=0; i<MAX_LIST; i++)
-		dir_list[i]=NULL;
+		if (dir_list[i]!=NULL)
+			dir_list[i]=NULL;
 	
-        i=-1;
+        i_dirs=i_files=-1;
 
         dp = opendir (directory);
         if (dp != NULL) {
                 while (ep=readdir(dp)) {
-			if (i==MAX_LIST-1) 
+			if (i_files+i_dirs==MAX_LIST-2) 
 				break;
 			if ( (ep->d_name)[0]=='.' )
 				continue;
@@ -58,21 +61,37 @@ int listDir(const char *directory, struct filelist *dir_list[]) 	//the array of 
 				if ( (string[0]=='.') && (tolower(string[1])=='m') && (tolower(string[2])=='p') && (string[3]=='3') )
 					tmp[1] = 'm';
 			}
-
-			if (tmp[1]!='x') {
-				i++;
-				dir_list[i]=malloc(sizeof(struct filelist));
-				strcpy(dir_list[i]->f_name, ep->d_name);
-				dir_list[i]->f_type = tmp[1];
-				dir_list[i]->is_selected = 0;
+			
+			if (tmp[1]=='d') {
+				i_dirs++;
+				dirs[i_dirs]=malloc(sizeof(struct filelist));
+				strcpy(dirs[i_dirs]->f_name,ep->d_name);
+				dirs[i_dirs]->f_type = tmp[1];
+				dirs[i_dirs]->is_selected = 0;
+			}
+			else if (tmp[1]!='x') {
+				i_files++;
+				files[i_files]=malloc(sizeof(struct filelist));
+				strcpy(files[i_files]->f_name, ep->d_name);
+				files[i_files]->f_type = tmp[1];
+				files[i_files]->is_selected = 0;
 			}
                 }
                 closedir(dp);
         }
-	if (i<0)
-		return -1;
-	qsort(dir_list, i+1, sizeof(struct filelist *), dircmp);
-        return i; 
+	//if (i_dirs+i_files<0)
+	//	return 0;
+//	qsort(dir_list, i+1, sizeof(struct filelist *), dircmp);
+	qsort(dirs, i_dirs+1, sizeof(struct filelist *), dircmp);
+	qsort(files, i_files+1, sizeof(struct filelist *), dircmp);
+	
+	for (i=0; i<=i_dirs; i++)
+		dir_list[i] = dirs[i];
+	for (i=0; i<=i_files; i++)
+		dir_list[i+i_dirs+1] = files[i];
+	//if (i_files<0) i_files=0;
+	//if (i_dirs<0) i_dirs=0;
+        return i_dirs+i_files+1; 
 }//listDir
 
 //================================================================================					 
@@ -88,7 +107,7 @@ void drawExplorer(WINDOW *window,
         wattrset(window, COLOR_PAIR(EXPLORER_COLOR) | WA_BOLD);
         wclrscr(window);
 
-	tmp = item>maxy-3 ? item-maxy+3 : 0;
+	tmp = item>maxy-15 ? item-maxy+15 : 0;
 	
         for (i=tmp; (i<=max_item)&&(i<tmp+maxy-2); i++) {
 		switch (dir_list[i]->f_type) {
@@ -145,13 +164,16 @@ void addFile(struct playlist *play_list[],
 		int explorer_item)
 {
 	char tmp[MAX_FILE_NAME];
-	play_list[playlist_item]=malloc(sizeof(struct playlist));
-	strcpy(play_list[playlist_item]->f_name, dir_list[explorer_item]->f_name);
-	strcpy(tmp,current_dir);
-	strcat(tmp,dir_list[explorer_item]->f_name);
-	strcpy(play_list[playlist_item]->path, tmp);
-	readTag(play_list[playlist_item]);
-	play_list[playlist_item]->is_selected=0;
+	if (playlist_item<MAX_LIST) {
+		play_list[playlist_item]=malloc(sizeof(struct playlist));
+		strcpy(play_list[playlist_item]->f_name, dir_list[explorer_item]->f_name);
+		strcpy(tmp,current_dir);
+		strcat(tmp,dir_list[explorer_item]->f_name);
+		strcpy(play_list[playlist_item]->path, tmp);
+		readTag(play_list[playlist_item]);
+		play_list[playlist_item]->is_selected=0;
+		play_list[playlist_item]->is_playing=0;
+	}
 }//addFile
 
 
@@ -167,7 +189,10 @@ void addFolder(char dir[],
 	num = listDir(dir, list);
 	for (i=0; i<=num; i++) {
 		if ( list[i]->f_type == 'm' ) {
-			(*max_item)++;
+			if ((*max_item)<MAX_LIST-1) 
+				(*max_item)++;
+			else
+				break;
 			addFile(play_list, list, dir,*max_item,i);
 		}
 
@@ -180,9 +205,10 @@ void addFolder(char dir[],
 		}
 	}
 }
+
+//================================================================================					 
+
 //Add file or folder to playlist
-//
-//
 void addtoPlaylist(struct filelist *dir_list[],
 		struct playlist *play_list[],
 		int explorer_item,

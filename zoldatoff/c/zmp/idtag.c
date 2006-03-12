@@ -96,30 +96,32 @@ void readTag(struct playlist *list)
         struct id3_file *file;
         struct id3_tag *tag;
         file = id3_file_open(list->path, ID3_FILE_MODE_READONLY);
-        tag = id3_file_tag (file);
+	if (file!=NULL) {
+		tag = id3_file_tag (file);
 
-        /*struct {
-        	int index;
-        	char const *id;
-        	char const *name;
-        } const info[] = {
-        { 0,    ID3_FRAME_TITLE,  "Title  : "   },
-        { 1,    ID3_FRAME_ARTIST, "  Artist: "  },
-        { 2,    ID3_FRAME_ALBUM,  "Album  : "   },
-        { 3,    ID3_FRAME_YEAR,   "  Year  : "  },
-        { 4,    ID3_FRAME_COMMENT,"Comment: "   },
-        { 5,    ID3_FRAME_GENRE,  "  Genre : "  }
-        };*/
+		/*struct {
+			int index;
+			char const *id;
+			char const *name;
+		} const info[] = {
+		{ 0,    ID3_FRAME_TITLE,  "Title  : "   },
+		{ 1,    ID3_FRAME_ARTIST, "  Artist: "  },
+		{ 2,    ID3_FRAME_ALBUM,  "Album  : "   },
+		{ 3,    ID3_FRAME_YEAR,   "  Year  : "  },
+		{ 4,    ID3_FRAME_COMMENT,"Comment: "   },
+		{ 5,    ID3_FRAME_GENRE,  "  Genre : "  }
+		};*/
 
-        char *str;
-        str=id3_get_tag(tag, ID3_FRAME_TITLE, 30);
-        if (str) strcpy(list->title, str);
-        str=id3_get_tag(tag, ID3_FRAME_ARTIST, 30);
-        if (str) strcpy(list->artist, str);
-        str=id3_get_tag(tag, ID3_FRAME_ALBUM, 30);
-        if (str) strcpy(list->album, str);
-        str=id3_get_tag(tag, ID3_FRAME_GENRE, 30);
-        if (str) strcpy(list->genre, str);
-        str=id3_get_tag(tag, ID3_FRAME_YEAR, 4);
-        if (str) strcpy(list->year, str);
+		char *str;
+		str=id3_get_tag(tag, ID3_FRAME_TITLE, 30);
+		if (str) strcpy(list->title, str);
+		str=id3_get_tag(tag, ID3_FRAME_ARTIST, 30);
+		if (str) strcpy(list->artist, str);
+		str=id3_get_tag(tag, ID3_FRAME_ALBUM, 30);
+		if (str) strcpy(list->album, str);
+		str=id3_get_tag(tag, ID3_FRAME_GENRE, 30);
+		if (str) strcpy(list->genre, str);
+		str=id3_get_tag(tag, ID3_FRAME_YEAR, 4);
+		if (str) strcpy(list->year, str);
+	}
 }

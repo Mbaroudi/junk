@@ -14,7 +14,7 @@
 #define EXPLORER_MEDIA_COLOR 12
 #define EXPLORER_MEDIA_SEL_COLOR 13
 
-#define MAX_FILE_NAME 256
+#define MAX_FILE_NAME 1024
 #define MAX_LIST 30000
 #define MAX_TAG 128
 
@@ -24,6 +24,8 @@
 #define SPACE ' '
 #define PG_UP 0x153
 #define PG_DOWN 0x152
+#define HOME 0x106
+#define END 0x168
 //#define LF 0x0a               //Line feed
 //#define BACKSPACE 0x08        //Backspace
 //#define SAVE 0x13             //Ctrl-S for Save
@@ -46,5 +48,6 @@ struct playlist {
 	char album[31];
 	char year[5];
 	int  is_selected;
+	int  is_playing;
 };
 
