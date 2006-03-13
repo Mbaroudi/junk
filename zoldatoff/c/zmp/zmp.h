@@ -26,6 +26,8 @@
 #define PG_DOWN 0x152
 #define HOME 0x106
 #define END 0x168
+#define DEL 0x14a
+#define INS 0x14b
 //#define LF 0x0a               //Line feed
 //#define BACKSPACE 0x08        //Backspace
 //#define SAVE 0x13             //Ctrl-S for Save

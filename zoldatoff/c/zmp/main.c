@@ -45,13 +45,13 @@ int main(int argc, char *argv[])
         getmaxyx(stdscr,maxy,maxx);
         base_win = newwin(maxy, maxx, 0, 0);
         drawWindow(base_win, BASEWIN_COLOR, "Zoldatoff Media Player");
-        explorer_win = newwin(maxy-5, maxx-2, 1, 1);
+        explorer_win = newwin(maxy-4, maxx-2, 1, 1);
         drawWindow(explorer_win, EXPLORER_COLOR, "Explorer");
-        playlist_win = newwin(maxy-5, (3*maxx)/4, 1, maxx/4);
+        playlist_win = newwin(maxy-4, (3*maxx)/4, 1, maxx/4);
         drawWindow(playlist_win, PLAYLIST_COLOR, "Playlist");
-        song_info_win = newwin(maxy-5, maxx/4 - 1, 1, 1);
+        song_info_win = newwin(maxy-4, maxx/4 - 1, 1, 1);
         drawWindow(song_info_win, SONG_INFO_COLOR, "Song");
-        status_win = newwin(3, maxx-2, maxy-4, 1);
+        status_win = newwin(2, maxx-2, maxy-3, 1);
         keypad(playlist_win,TRUE);
         keypad(song_info_win,TRUE);
         keypad(base_win,TRUE);
@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
         Uint16 audio_format = AUDIO_S16SYS;
         int audio_channels = 2;
         int audio_buffers = 4096;
-	int volume = SDL_MIX_MAXVOLUME;
+	int volume = SDL_MIX_MAXVOLUME/2;
 	SDL_Init(SDL_INIT_AUDIO);
 	Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers);
 	//End audio init
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
 	int key;
         while (1) {
 		if (!musicPlaying) {
-			play_list[playing_item]->is_playing = 0;
+			if (playing_item>=0) play_list[playing_item]->is_playing = 0;
 			playing_item++;
 			if (playing_item>max_playlist_item)
 				playing_item = max_playlist_item;
@@ -204,6 +204,7 @@ int main(int argc, char *argv[])
 				message(status_win,"...playlist...");
                         }
                         break;
+		case INS:
 		case SPACE: 		//TODO: mark files and playlist items
 			if (show_explorer) {
 				if ( dir_list[explorer_item]->is_selected ) {
@@ -236,19 +237,39 @@ int main(int argc, char *argv[])
 				Mix_SetMusicPosition(+5);
 				drawPlaylist(playlist_win,play_list,playlist_item,max_playlist_item);
                         	drawSong(song_info_win, play_list[playing_item], play_list[playlist_item]);
+				message(status_win, "...scrolling song...");
 			}
-			message(status_win, "...scrolling song...");
 			break;
 		case ENTER: 		//add to playlist & play selected song //DONE: open folder
 			if (show_explorer && dir_list[explorer_item]) {
-				strcat(current_dir, dir_list[explorer_item]->f_name);
-				strcat(current_dir, "/");
-        			max_explorer_item = listDir(current_dir, dir_list);
-				explorer_item = explorer_sel = 0;
-				drawExplorer(explorer_win,dir_list,explorer_item,max_explorer_item);
+				if (dir_list[explorer_item]->f_type == 'd') {
+					strcat(current_dir, dir_list[explorer_item]->f_name);
+					strcat(current_dir, "/");
+        				max_explorer_item = listDir(current_dir, dir_list);
+					explorer_item = explorer_sel = 0;
+					drawExplorer(explorer_win,dir_list,explorer_item,max_explorer_item);
+				}
+				else if (dir_list[explorer_item]->f_type == 'm') {
+					addtoPlaylist(dir_list, play_list, explorer_item, current_dir, &max_playlist_item);
+					play_list[playing_item]->is_playing = 0;
+					playing_item = max_playlist_item;
+					play_list[playing_item]->is_playing = 1;
+					//message(status_win,play_list[playing_item]->path);
+					if (Mix_PlayingMusic()) 
+						Mix_HaltMusic();
+					music = Mix_LoadMUS(play_list[playing_item]->path);
+					if (music!=NULL) {
+						musicPlaying = 1;
+						Mix_PlayMusic(music, 1); 
+						Mix_HookMusicFinished(musicFinished);
+						message(status_win, "...playing selected song...");
+					}
+					else
+						message(status_win,"Cannot load music");
+				}
 			}
 			else {
-				play_list[playing_item]->is_playing = 0;
+				if (playing_item>=0) play_list[playing_item]->is_playing = 0;
 				playing_item = playlist_item;
 				play_list[playing_item]->is_playing = 1;
 				//message(status_win,play_list[playing_item]->path);
@@ -303,11 +324,13 @@ int main(int argc, char *argv[])
 				message(status_win,"...files & folders are added...");
 			}
 			break;
+		case DEL:
 		case 'd': 		//delete items from playlist
 			if (!show_explorer && play_list[playlist_item]) {
 				if (playlist_sel) {
 					for (k=0; k<=max_playlist_item;) {
 						if (play_list[k]->is_selected) {
+							free(play_list[k]);
 							playlist_item = delfromPlaylist(play_list, k, &max_playlist_item, playlist_item);	
 							if (playing_item>=k)
 								playing_item--;
@@ -317,6 +340,7 @@ int main(int argc, char *argv[])
 					}
 				}
 				else {
+					free(play_list[playlist_item]);
 					playlist_item = delfromPlaylist(play_list, playlist_item, &max_playlist_item,playlist_item);
 					if (playing_item>=playlist_item)
 						playing_item--;

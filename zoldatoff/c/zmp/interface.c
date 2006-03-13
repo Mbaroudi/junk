@@ -44,8 +44,8 @@ void message(WINDOW *window, char *mess)
 	int maxy, maxx, x;
 	getmaxyx(window, maxy, maxx);
 	//mvwprintw(window, 2, 2, "                                                                                                                                            ");
-	for(x=1; x < maxx-1; x++) mvwaddch(window, 2, x, ' ');
-	mvwprintw(window, 2, 2, "%s", mess);
+	for(x=1; x < maxx-1; x++) mvwaddch(window, 1, x, ' ');
+	mvwprintw(window, 1, 1, "%s", mess);
 	redrawWindow(window);
 }
 

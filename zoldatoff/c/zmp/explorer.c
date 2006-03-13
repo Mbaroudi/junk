@@ -56,9 +56,10 @@ int listDir(const char *directory, struct filelist *dir_list[]) 	//the array of 
 			if (S_ISREG(buf->st_mode))
 				tmp[1] = 'f';
 			if (tmp[1]!='d') { 		//a VERY bad if....i think
-				char *string;
-				string=& (ep->d_name[strlen(ep->d_name)-4]);
-				if ( (string[0]=='.') && (tolower(string[1])=='m') && (tolower(string[2])=='p') && (string[3]=='3') )
+				char string[4];
+				for (i=0; i<4; i++) string[i] = tolower(ep->d_name[strlen(ep->d_name)-4+i]);
+				string[4]='\0';
+				if (!strcmp(string, ".mp3") || !strcmp(string, ".ogg"))
 					tmp[1] = 'm';
 			}
 			
@@ -69,7 +70,7 @@ int listDir(const char *directory, struct filelist *dir_list[]) 	//the array of 
 				dirs[i_dirs]->f_type = tmp[1];
 				dirs[i_dirs]->is_selected = 0;
 			}
-			else if (tmp[1]!='x') {
+			else if (tmp[1]!='x' && tmp[1]!='l') {
 				i_files++;
 				files[i_files]=malloc(sizeof(struct filelist));
 				strcpy(files[i_files]->f_name, ep->d_name);
@@ -130,8 +131,8 @@ void drawExplorer(WINDOW *window,
 				else mvwprintw(window,i+1-tmp,1, "  %s  ",dir_list[i]->f_name);
 				break;
 		}
-                mvwprintw(window,i+1-tmp,60,"  %c  ",dir_list[i]->f_type);   //for debug only!!
-                mvwprintw(window,i+1-tmp,70,"  %d  ",dir_list[i]->is_selected);   //for debug only!!
+                //mvwprintw(window,i+1-tmp,60,"  %c  ",dir_list[i]->f_type);   //for debug only!!
+                //mvwprintw(window,i+1-tmp,70,"  %d  ",dir_list[i]->is_selected);   //for debug only!!
         }
         redrawWindow(window);
 }//drawExplorer
