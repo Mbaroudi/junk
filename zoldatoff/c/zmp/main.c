@@ -1,4 +1,6 @@
+#include <stdlib.h>
 #include <string.h>
+#include <locale.h>
 
 #include "zmp.h"
 #include "explorer.h"
@@ -15,6 +17,7 @@ int musicPlaying = 1;
 //==============================================================
 int main(int argc, char *argv[])
 {
+	setlocale(LC_ALL, "");
         initscr();
         noecho(); 	//no output to terminal
         raw(); 		//no buffering
