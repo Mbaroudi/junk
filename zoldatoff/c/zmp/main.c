@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
 
 	//Audio init
 	Mix_Music *music;
-        int audio_rate = 44100;
+        int audio_rate = 48000;
         Uint16 audio_format = AUDIO_S16SYS;
         int audio_channels = 2;
         int audio_buffers = 4096;
@@ -221,7 +221,7 @@ int main(int argc, char *argv[])
 				explorer_item = explorer_item<max_explorer_item ? ++explorer_item : max_explorer_item;
 				drawExplorer(explorer_win,dir_list,explorer_item,max_explorer_item);
 			}
-			else {
+			else if (play_list[playlist_item]) {
 				if ( play_list[playlist_item]->is_selected ) {
 				       play_list[playlist_item]->is_selected = 0;
 				       playlist_sel--;
@@ -248,6 +248,7 @@ int main(int argc, char *argv[])
 				if (dir_list[explorer_item]->f_type == 'd') {
 					strcat(current_dir, dir_list[explorer_item]->f_name);
 					strcat(current_dir, "/");
+					for (k=0; k<=max_explorer_item; k++) free(dir_list[k]);
         				max_explorer_item = listDir(current_dir, dir_list);
 					explorer_item = explorer_sel = 0;
 					drawExplorer(explorer_win,dir_list,explorer_item,max_explorer_item);
@@ -271,7 +272,7 @@ int main(int argc, char *argv[])
 						message(status_win,"Cannot load music");
 				}
 			}
-			else {
+			else if (play_list[playlist_item]) {
 				if (playing_item>=0) play_list[playing_item]->is_playing = 0;
 				playing_item = playlist_item;
 				play_list[playing_item]->is_playing = 1;
@@ -301,6 +302,7 @@ int main(int argc, char *argv[])
 		case KEY_LEFT: 		//DONE: go up one dir
 			if (show_explorer) {
 				strcpy(current_dir, upDir(current_dir));
+				for (k=0; k<=max_explorer_item; k++) free(dir_list[k]);
         			max_explorer_item = listDir(current_dir, dir_list);
 				explorer_item = explorer_sel = 0;
 				drawExplorer(explorer_win,dir_list,explorer_item,max_explorer_item);

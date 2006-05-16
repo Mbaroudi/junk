@@ -54,6 +54,8 @@ int listDir(const char *directory, struct filelist *dir_list[]) 	//the array of 
 				tmp[1] = 'd';
 			if (S_ISREG(buf->st_mode))
 				tmp[1] = 'f';
+			free(buf);
+			
 			if (tmp[1]!='d') { 		//a VERY bad if....i think
 				char string[4];
 				for (i=0; i<4; i++) string[i] = tolower(ep->d_name[strlen(ep->d_name)-4+i]);
