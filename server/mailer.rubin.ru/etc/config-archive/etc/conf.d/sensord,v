@@ -1,0 +1,46 @@
+head	1.1;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.1
+date	2006.04.27.11.03.18;	author root;	state Exp;
+branches
+	1.1.1.1;
+next	;
+
+1.1.1.1
+date	2006.04.27.11.03.18;	author root;	state Exp;
+branches;
+next	;
+
+
+desc
+@Archived config file.
+@
+
+
+1.1
+log
+@dispatch-conf update.
+@
+text
+@# Copyright 1999-2005 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/lm_sensors/files/lm_sensors-2.9.2-sensord-conf.d,v 1.1 2005/09/06 21:06:02 brix Exp $
+
+# Extra options to pass to the sensord daemon,
+# see sensord(8) for more information
+SENSORD_OPTIONS=""
+@
+
+
+1.1.1.1
+log
+@dispatch-conf update.
+@
+text
+@d1 4
+@

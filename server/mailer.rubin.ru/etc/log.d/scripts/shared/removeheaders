@@ -1,0 +1,28 @@
+
+##########################################################################
+# $Id: removeheaders,v 1.12 2005/02/24 17:08:05 kirk Exp $
+##########################################################################
+
+########################################################
+# This was written and is maintained by:
+#    Kirk Bauer <kirk@kaybee.org>
+#
+# Please send all comments, suggestions, bug reports,
+#    etc, to kirk@kaybee.org.
+#
+########################################################
+
+# Removes the beginning of each line of a standard /var/log/messages-style
+# logfile.
+
+while (defined($ThisLine = <STDIN>)) {
+    #First line is Solaris ID tag style -mgt
+    $ThisLine =~ s/^... .. ..:..:.. ([^ ]*) [^ ]*\[[0123456789]*\]: \[ID [0-9]+ [[:alpha:]]+\.[[:alpha:]]+\] //;
+    $ThisLine =~ s/^... .. ..:..:.. ([^ ]*) [^ ]*: \[ID [0-9]+ [[:alpha:]]+\.[[:alpha:]]+\] //;
+    $ThisLine =~ s/^... .. ..:..:.. ([^ ]*) [^ ]*\[[0123456789]*\]: \[ID [0-9]+\]//;
+    $ThisLine =~ s/^... .. ..:..:.. ([^ ]*) [^ ]*\[[0123456789]*\]: //;
+    $ThisLine =~ s/^... .. ..:..:.. ([^ ]*) [^ ]*: //;
+    print $ThisLine;
+}
+
+# vi: shiftwidth=3 syntax=perl tabstop=3 et

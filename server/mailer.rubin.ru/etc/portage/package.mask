@@ -1,0 +1,4 @@
+>=net-www/apache-2.0
+>=www-apache/mod_perl-2.0
+>=dev-lang/php-5
+#>=net-fs/samba-3.0.20

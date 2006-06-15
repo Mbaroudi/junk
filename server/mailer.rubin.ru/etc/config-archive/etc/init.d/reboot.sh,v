@@ -1,0 +1,49 @@
+head	1.1;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.1
+date	2006.01.23.06.52.57;	author zoldatoff;	state Exp;
+branches
+	1.1.1.1;
+next	;
+
+1.1.1.1
+date	2006.01.23.06.53.20;	author zoldatoff;	state Exp;
+branches;
+next	;
+
+
+desc
+@Archived config file.
+@
+
+
+1.1
+log
+@dispatch-conf update.
+@
+text
+@# Copyright 1999-2005 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+
+/sbin/reboot -idp
+
+# hmm, if the above failed, that's kind of odd ...
+# so let's force a reboot
+/sbin/reboot -f
+@
+
+
+1.1.1.1
+log
+@dispatch-conf update.
+@
+text
+@d4 1
+a4 1
+/sbin/reboot -idpk
+@

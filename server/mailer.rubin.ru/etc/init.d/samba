@@ -1,0 +1,56 @@
+#!/sbin/runscript
+# Copyright 1999-2004 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License, v2 or later
+# $Header: /var/cvsroot/gentoo/src/patchsets/samba/configs/samba-init,v 1.1 2005/08/09 12:56:26 seemant Exp $
+
+opts="${opts} reload"
+
+depend() {
+	after slapd
+	need net
+	use cupsd
+}
+
+function signal_do {
+	local signal
+	signal="$1"
+	if [ -n "${signal}" ]; then
+		result=0
+		last_result=0
+		for daemon in ${daemon_list}
+		do
+			cmd=${daemon}_${signal}
+			cmd_exec="${!cmd}" 
+			if [ -n "${cmd_exec}" ]; then
+				ebegin "${my_service_name} -> ${signal}: ${daemon}"
+				#echo ${cmd} '->' ${!cmd}
+				${cmd_exec} > /dev/null
+				last_result=$?
+				eend ${last_result}
+			fi
+			result=$(( ${result} + ${last_result} ))
+		done
+	fi
+	return ${result}
+}
+start() {
+	${my_service_PRE}
+	signal_do start
+	result_start=$?
+	if [ ${result_start} -gt 0 ]; then
+		ewarn "Error: stopping services (see system logs)"
+		signal_do stop
+	fi
+	eend ${result_start}
+}
+stop() {
+	${my_service_PRE}
+	signal_do stop
+	${my_service_POST}
+	eend $?
+}
+reload() {
+	${my_service_PRE}
+	signal_do reload
+	eend $?
+}

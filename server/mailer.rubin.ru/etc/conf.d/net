@@ -1,0 +1,10 @@
+config_eth0=( "212.248.100.17 netmask 255.255.255.192 broadcast 212.248.100.63" )
+config_eth1=( "null" )
+
+vlans_eth1="1 5"
+vconfig_eth1=( "set_name_type DEV_PLUS_VID_NO_PAD" )
+
+ifconfig_eth1_1=( "192.168.9.19  netmask 255.255.255.0 broadcast 192.168.9.255" )
+ifconfig_eth1_5=( "192.168.10.17 netmask 255.255.255.0 broadcast 192.168.10.255" )
+
+routes_eth0=("default gw 212.248.100.1")

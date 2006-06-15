@@ -1,0 +1,24 @@
+##########################################################################
+# $Id: sendmail-largeboxes,v 1.6 2005/02/24 17:08:05 kirk Exp $
+##########################################################################
+
+if (-e "/var/mail") {
+	$SPOOLDIR = "/var/mail";
+	} elsif ( -e "/var/spool/mail") {
+	$SPOOLDIR = "/var/spool/mail";
+	} else {
+	print "Can't find spool directory\n";
+}
+
+if ($SPOOLDIR) {
+	opendir(DIR, "$SPOOLDIR") || die "Can not opendir $SPOOLDIR: $!\n";
+	my @files = grep {!/^\./} readdir(DIR);
+	closedir DIR;
+
+	for my $filename (@files) {
+		my $checksize = (stat("$SPOOLDIR/$filename"))[7];
+		if ($checksize > 40960000) { #This is 40MBish should probably be a configurable -mgt
+			print "Warning: Large mailbox: $filename ($checksize)\n";
+		}
+	}
+}

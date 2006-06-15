@@ -1,0 +1,29 @@
+head	1.1;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.1
+date	2006.01.23.06.52.57;	author zoldatoff;	state Exp;
+branches;
+next	;
+
+
+desc
+@Archived config file.
+@
+
+
+1.1
+log
+@dispatch-conf update.
+@
+text
+@# /etc/conf.d/local.start
+
+# This is a good place to load any misc programs
+# on startup ( use 1>&2 to hide output)
+		
+@

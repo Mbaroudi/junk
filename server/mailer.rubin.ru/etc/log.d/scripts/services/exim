@@ -1,0 +1,156 @@
+
+##########################################################################
+# $Id: exim,v 1.12 2005/02/24 17:08:04 kirk Exp $
+##########################################################################
+
+########################################################
+# This module requires Date::Calc and Tie::IxHash!!
+# To install, run this as root:
+# root> perl -MCPAN -eshell
+# cpan> install Date::Calc
+# cpan> install Tie::IxHash
+########################################################
+
+########################################################
+# This was written and is maintained by:
+#    Dariusz Nierada <dnierada@kat.supermedia.pl>
+########################################################
+
+# aby hashe wychodzily w tej kolejnosci co wchodza
+eval "require Tie::IxHash" or exit 0;
+eval "require Date::Calc qw(Delta_Days)" or exit 0;
+use Time::localtime; # czas dla wyswietlania tylko wczorajszych logow
+
+my $Detail = $ENV{'LOGWATCH_DETAIL_LEVEL'} || 0;
+
+# procedura sortujaca tak jak ja chce (bo tamta sotrowala po ASCII)
+sub wedlug_liczb {
+    ($aa) = ($a =~ /^(\d+).+/);
+    ($bb) = ($b =~ /^(\d+).+/);
+    $aa <=> $bb;
+}
+
+# START
+
+tie(%mmsg, Tie::IxHash); # dla normalnego (w kolejnosci wpisywania) wypisywania haszy
+
+# jaki dzis dzien?
+$tm = localtime;
+($day2, $month2, $year2) = ($tm->mday, $tm->mon, $tm->year);
+$month2++; $year2 += 1900;
+
+while (defined($ThisLine = <STDIN>)) {
+   chomp($ThisLine);
+    # pobierz dzisiejsza date z 2002-03-31 22:13:48 ...
+   do {
+      $BadFormat{$ThisLine}++;
+      next;
+   } unless ($year1,$month1,$day1) = ($ThisLine =~ /^(\d+)\-(\d+)\-(\d+)\s.+/);
+    # a jaka jest roznica czasu?
+   $days = Delta_Days( $year1, $month1, $day1, $year2, $month2, $day2);
+
+  if ($days == 1) { # TYLKO Z WCZORAJ
+        		#   if ( $ThisLine =~ s/^modprobe: Can\'t locate module (\w+)\s*$/$1/ ) {
+   if ( $ThisLine =~ /End queue run\:/ ) {
+      $EndQueue++;
+   }
+   elsif ( $ThisLine =~ /Start queue run\:/ ) {
+      $StartQueue++;
+   }
+   elsif ( $ThisLine =~ /refused relay/ || $ThisLine =~ /rejected RCPT/ ) {
+      $Relay++;
+      @RelayH = (@RelayH, $ThisLine);
+   }
+   elsif ( $ThisLine =~ /^\d+\-\d+\-\d+\s\d+\:\d+\:\d+\s\w+\-\w+\-\w+\s/ ) { # inne wiadomosci przesylane przez EXIMA
+    ($mdate,$mtime,$mid,$mrest) = ($ThisLine =~ /^(\d+\-\d+\-\d+)\s(\d+\:\d+\:\d+)\s(\w+\-\w+\-\w+)(.+)/);
+    $licze++;         # Dodaje taki licznik aby potem przy wypisaniu posortowac po nim, bo wypisywal nie po kolei
+    $mmsg{$mid}{$licze.$mrest} = "$mdate $mtime";
+
+   }
+   else 
+   {
+      $OtherList{$ThisLine}++;
+   }
+ } #end tylko z wczoraj
+} #end while
+
+if (%BadFormat) {
+   print "\n***** BAD FORMAT (Possible data corruption or Exim bug) *****\n";
+   foreach $ThisOne (keys %BadFormat) {
+      print "$ThisOne\n";
+   }
+}
+
+if ($Detail >= 5) {
+   # Start Queue
+   $StartQueue and print "\nStart queue run: $StartQueue Time(s)\n";
+   # End Queue
+   $EndQueue and print "End queue run: $EndQueue Time(s)\n";
+
+   # Relaye!
+   if (@RelayH) {
+      print "\n--- Refused Relays \n";
+      print "--- \(eg. spam try\): $Relay  Time(s)\n\n";
+   
+      foreach $ThisOne (@RelayH) {
+         print "$ThisOne\n";
+      }
+   }
+}
+
+# Messages by ID
+if (keys %mmsg and ($Detail >= 10)) {
+   my $tmsgcount=0;
+   my $tmsgrcpts=0;
+   print "\n--- Messages history ---\n\n";
+   foreach $tmsg (keys %mmsg) {
+     my @tmsgkeys = sort {wedlug_liczb} keys %{$mmsg{$tmsg}};
+     my $immed_deliv = 1;
+     $immed_deliv = 0 unless $tmsgkeys[0] =~ /^\d+ <=/;
+     foreach my $key (@tmsgkeys[1..$#tmsgkeys-1]) {
+     	$immed_deliv = 0 unless $key =~ /^\d+ [-=]>/;
+     }
+     $immed_deliv = 0 unless $tmsgkeys[$#tmsgkeys] =~ /^\d+ Completed/;
+     my $qttmsgcount = 0;
+     my $oldqttmsg = '';
+     if (!$immed_deliv) {
+      print "\-MsgID: $tmsg\: \n";
+      foreach $ttmsg (@tmsgkeys) {
+          $qttmsg = $ttmsg;
+          $qttmsg =~ s/^\d+//; # wywal licznik na poczatku (te od sortowania)
+          $qttmsg =~ s/P\=e*smtp S.+//; # wywal koncowki typu:  P=smtp S=372023 id=
+          if ($oldqttmsg eq $qttmsg) {
+     	$qttmsgcount++;
+          } else {
+     	$oldqttmsg = $qttmsg;
+     	if ($qttmsgcount > 0) {
+     	   print "\tlast message repeated $qttmsgcount times\n";
+     	   $qttmsgcount = 0;
+     	}
+     	print "\t$mmsg{$tmsg}{$ttmsg}$qttmsg\n";
+          }
+      }
+      if ($qttmsgcount > 0) {
+         print "\tlast message repeated $qttmsgcount times\n";
+      }
+     } else {
+      $tmsgcount++;
+      $tmsgrcpts+=$#tmsgkeys-1;
+     }
+   }
+   print "$tmsgcount messages delivered immediately ";
+   print "to $tmsgrcpts total recipients\n";
+}
+
+# INNE Badziewia
+if (keys %OtherList) {
+   print "\n**Unmatched Entries**\n";
+   foreach $line (sort {$a cmp $b} keys %OtherList) {
+      print "$line: $OtherList{$line} Time(s)\n";
+   }
+}
+
+exit(0);
+
+# vi: shiftwidth=3 tabstop=3 syntax=perl et
+

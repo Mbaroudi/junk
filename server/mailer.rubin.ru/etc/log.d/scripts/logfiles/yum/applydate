@@ -1,0 +1,40 @@
+##########################################################################
+# $Id: applydate,v 1.1 2005/02/24 17:08:28 kirk Exp $
+##########################################################################
+
+use POSIX qw(strftime);
+
+# I plan to add a *lot* more date flexibility at a later time...
+
+my $time = time;
+
+if ( $ENV{'LOGWATCH_DATE_RANGE'} eq 'yesterday') {
+   $SearchDate = strftime("%m/%d/%y", localtime($time-86400));
+   $SearchNewDate = strftime("%b %d", localtime($time-86400));
+}
+elsif ( $ENV{'LOGWATCH_DATE_RANGE'} eq 'today') {
+   $SearchDate = strftime("%m/%d/%y", localtime($time));
+   $SearchNewDate = strftime("%b %d", localtime($time));
+}
+elsif ( $ENV{'LOGWATCH_DATE_RANGE'} eq 'all') {
+   $SearchDate = '..\/..\/..';
+   $SearchNewDate = "... ..";
+}
+
+# Make sure '01' becomes '.1' so it will match ' 1' or '01' (yum 2.1 uses 01)
+$SearchNewDate =~ s/0(\d)/.$1/;
+
+if ( $ENV{'LOGWATCH_DEBUG'} > 5 ) {
+   print STDERR "DEBUG: Inside ApplyDate (yum)...\n";
+   print STDERR "DEBUG: Range: " . $ENV{'LOGWATCH_DATE_RANGE'} . "\n";
+   print STDERR "DEBUG: Looking For: " . $SearchDate . " or " . $SearchNewDate . "\n";
+}
+
+while (defined($ThisLine = <STDIN>)) {
+    # Convert new (yum 2.1) format to old, as yum service script expects that
+    if ($ThisLine =~ s/$SearchNewDate (..:..:..) /$SearchDate $1 /o ||
+        $ThisLine =~ m/$SearchDate ..:..:.. /o) {
+      print $ThisLine;
+    }
+}
+

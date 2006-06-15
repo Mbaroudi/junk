@@ -1,0 +1,23 @@
+CFLAGS="-O2 -march=pentium4 -pipe -mfpmath=sse -fomit-frame-pointer"
+CHOST="i686-pc-linux-gnu"
+CXXFLAGS="${CFLAGS}"
+
+CC=gcc
+CXX=g++
+
+USE="acl apache apache1 bash-completion bzip2 cgi chroot cvs cvsgraph dhcp
+     enscript ftp gd glibc-omitfp iconv kerberos ldap lm_sensors logrotate mmx
+     mppe-mppc mysql nagios-dns nagios-ntp nagios-ping nptlonly radius rss
+     samba sasl sensord snmp sse swat syslog test unicode ups usb utf8 winbind
+     -X -alsa -apache2 -arts -gnome -gtk -ipv6 -kde -oss -qt"
+
+FEATURES="buildpkg ccache parallel-fetch"
+PORT_LOGDIR=/var/log/portage
+CCACHE_SIZE="3G"
+MAKEOPTS="-j2"
+
+GENTOO_MIRRORS="http://mirror.aiya.ru/pub/gentoo/ ftp://mirror.aiya.ru/pub/gentoo/ http://ftp.citkit.ru/pub/Linux/gentoo ftp://ftp.citkit.ru/pub/Linux/gentoo"
+
+PORTAGE_ELOG_SYSTEM="save syslog mail"
+PORTAGE_ELOG_MAILURI="soldatov@rubin.ru stalker.rubin.ru"
+PORTAGE_ELOG_MAILFROM="asus@rubin.ru"

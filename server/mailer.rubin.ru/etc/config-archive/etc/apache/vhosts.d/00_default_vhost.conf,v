@@ -1,0 +1,55 @@
+head	1.1;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.1
+date	2006.04.10.07.15.10;	author root;	state Exp;
+branches;
+next	;
+
+
+desc
+@Archived config file.
+@
+
+
+1.1
+log
+@dispatch-conf update.
+@
+text
+@NameVirtualHost *:80
+#
+#<VirtualHost *:80>
+#    ServerAdmin webmaster@@dummy-host.example.com
+#    DocumentRoot /www/docs/dummy-host.example.com
+#    ServerName dummy-host.example.com
+#    ErrorLog logs/dummy-host.example.com-error_log
+#    CustomLog logs/dummy-host.example.com-access_log common
+#</VirtualHost>
+
+<VirtualHost *:80>
+
+	DocumentRoot "/var/www/localhost/htdocs"
+	
+	<Directory "/var/www/localhost/htdocs">
+		Options Indexes FollowSymLinks MultiViews
+		AllowOverride None
+		Order allow,deny
+		Allow from all
+	</Directory>
+
+	<Location /phpmyadmin>
+	    Redirect        /       https://mailer.rubin.ru/
+        </Location>
+         
+        <Location /nagios>
+	    Redirect        /       https://mailer.rubin.ru/
+	</Location>
+				      
+</VirtualHost>
+
+@
