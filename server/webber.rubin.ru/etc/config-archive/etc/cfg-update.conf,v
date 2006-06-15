@@ -1,0 +1,299 @@
+head	1.1;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.1
+date	2006.01.17.13.05.30;	author zoldatoff;	state Exp;
+branches
+	1.1.1.1;
+next	;
+
+1.1.1.1
+date	2006.01.17.13.06.02;	author zoldatoff;	state Exp;
+branches;
+next	;
+
+
+desc
+@Archived config file.
+@
+
+
+1.1
+log
+@dispatch-conf update.
+@
+text
+@# +----------------+
+# | CFG-UPDATE INFO \
+# +------------------+-------------------------------------------------------+
+# | The script handles your configuration file updates in 5 stages:          |
+# +---------+----------------------------------------------------------------+
+# | STAGE 1 | Automatic overwriting of unmodified configuration files        |
+# | STAGE 2 | Automatic (diff3) merging of modified configuration files      |
+# | STAGE 3 | Manual 3-way merging of modified configuration files           |
+# | STAGE 4 | Manual 2-way merging of modified configuration files           |
+# | STAGE 5 | Manual update of files that can't be updated in stages 1,2,3,4 |
+# +---------+----------------------------------------------------------------+
+# | Stage 1 and 2 will safely update all files that can be handled without   |
+# | user input and leaves the files that do need imput for manual updating.  |
+# | Stage 3 will only work if enabled and a tool with 3-way merge support is |
+# | selected. Stage 4 works with all supported tools, it allows you to merge |
+# | the two files manually with the tool of your choice. Stage 5 handles the |
+# | updates that couldn't be updated in the other stages.                    |
+# +--------------------------------------------------------------------------+
+# | The state of the file determines in which stage(s) it can be updated:    |
+# +-------------------+----+-----------------+-------------------------------+
+# | Modified File     | MF | STAGE -,2,3,4,- | Can have custom settings      |
+# | Modified Binary   | MB | STAGE -,-,-,-,5 | Has been replaced (virus?)    |
+# | Unmodified File   | UF | STAGE 1,2,3,4,- | Does not have custom settings |
+# | Unmodified Binary | UB | STAGE 1,-,-,-,5 | Does not have custom functions|
+# | Custom File       | CF | STAGE -,2,3,4,- | Not installed with Portage    |
+# | Custom Binary     | CB | STAGE -,-,-,-,5 | Not installed with Portage    |
+# | Link to File      | LF | STAGE -,-,-,-,5 | Link will be replaced by file |
+# | File to Link      | FL | STAGE -,-,-,-,5 | File will be replaced by link |
+# | Link to Link      | LL | STAGE -,-,-,-,5 | Link will be replaced by link |
+# +-------------------+----+-----------------+-------------------------------+
+# | As you can see in the table above, if you for example disable STAGE 5    |
+# | cfg-update will not be able to update files with states MB,CB,LF,FL,LL.  |
+# | If you don't trust the automatic 3-way merging you can disable STAGE 2   |
+# | to update those files manually in STAGE 3. If your tool doesn't support  |
+# | 3-way merging, STAGE 3 will be skipped and updating will take place in   |
+# | STAGE 4.                                                                 |
+# | If you want to use cfg-update as a cronjob you can use the "-a" option   |
+# | to force cfg-update to only do the "automatic" stages (1,2) and skip the |
+# | updates that need manual input so you can do them later...               |
+# +--------------------------------------------------------------------------+
+
+
+# +----------+
+# | MERGETOOL \
+# +------------+-------------------------------------------------------------+
+# | The recommended tool for merging is xxdiff but you can also use other    |
+# | tools if you don't like xxdiff.  The Supported tools are listed below:   |
+# +---------+-----+--------------------------+-------------------------------+
+# | xxdiff  | GUI | KDE   (or Gnome with QT) |                               |
+# | kdiff3  | GUI | KDE   (or Gnome with QT) |                               |
+# | kompare | GUI | KDE   (or Gnome with QT) | STAGE 3 not supported!        |
+# | meld    | GUI | Gnome (or KDE with GTK)  |                               |
+# | gtkdiff | GUI | Gnome (or KDE with GTK)  | STAGE 3 not supported!        |
+# | tkdiff  | GUI | Gnome (or KDE with TK)   |                               |
+# | sdiff   | CLI | Shell                    | STAGE 3 not supported!        |
+# +---------+-----+--------------------------+-------------------------------+
+MERGETOOL = /usr/bin/xxdiff
+
+
+# +--------+
+# | BACKUPS \
+# +----------+---------------------------------------------------------------+
+# | You should leave the backups enabled because cfg-update uses the backups |
+# | for automatic 3-way merging! If you have your own backup solution for    |
+# | your configuration files, don't want the extra (hidden) files in your    |
+# | protected directories, don't want to use the restore function and don't  |
+# | want to use the 3-way merging functionality of cfg-update, then you can  |
+# | disable the backups. It's highly recommended to have this enabled.       |
+# +--------------------------------------------------------------------------+
+ENABLE_BACKUPS = yes
+
+
+# +--------+
+# | STAGE 1 \
+# +----------+---------------------------------------------------------------+
+# | Automatic overwriting of unmodified configuration files...               |
+# | Portage stores MD5 checksums of files during installation of packages.   |
+# | The checksums can be used to determine if a file has been modified after |
+# | installation. If it hasn't been modified it contains default settings    |
+# | and it can be safely overwritten with a newer version.                   |
+# +--------------------------------------------------------------------------+
+# | unmodified files    - unmodified files do not contain custom settings and|
+# |                       it's safe to overwrite these files with the new    |
+# |                       version which will also contain default settings   |
+# |                       provided by the Gentoo developers.                 |
+# | unmodified binaries - unmodified binaries can be safely overwritten with |
+# |                       the new version.                                   |
+# +--------------------------------------------------------------------------+
+ENABLE_STAGE1 = yes
+
+
+# +--------+
+# | STAGE 2 \
+# +----------+---------------------------------------------------------------+
+# | Automatic (diff3) merging of modified configuration files...             |
+# | cfg-update saves backups of the updated files. These backups can be used |
+# | for 3-way merges. All files that have been updated at least one time are |
+# | candidates for this type of automatic update. diff3 will use the backup  |
+# | of the previous update as the ancestor file to determine which lines     |
+# | contain custom settings. If cfg-update encounters a merge-conflict       |
+# | (ancestor, current and new file have 3 different values) it will abort   |
+# | the update so you can solve the conflict manually with the MERGETOOL.    |
+# +--------------------------------------------------------------------------+
+# | modified files    - modified files can contain custom settings and should|
+# | with backup of      not be overwritten with the new version. cfg-update  |
+# | previous update     will do a (diff3) 3-way merge and check if the merged|
+# |                     result contains merge-conflicts. If conflicts are    |
+# |                     found it will safely cancel the update so you can    |
+# |                     solve the conflicts manually in STAGE3.              |
+# | custom files      - the current version was not installed with Portage   |
+# | with backup of      but some package wants to install it now. This can   |
+# | previous update     occur when post-install configuration scripts are    |
+# |                     used to generate configuration files. You should     |
+# |                     check if the new version has proper settings in it.  |
+# +--------------------------------------------------------------------------+
+ENABLE_STAGE2 = no  # still testing 3-way merging with manual tool in stage3
+
+
+# +--------+
+# | STAGE 3 \
+# +----------+---------------------------------------------------------------+
+# | Manual 3-way merging of modified configuration files...                  |
+# | If a merge-conflict has been detected in STAGE 2, you can now solve it   |
+# | manually in the MERGETOOL. Simply click the line(s) you need. When you   |
+# | are done, cfg-update will replace the current configuration file with the|
+# | merged result.                                                           |
+# +--------------------------------------------------------------------------+
+# | modified files    - modified files can contain custom settings and should|
+# | with backup of      not be overwritten with the new version. If you have |
+# | previous update     disabled STAGE2 or merge-conflicts were found after  |
+# | possibly with       the automatic (diff3) 3-way merge, cfg-update will   |
+# | merge-conflicts     load the three files in the MERGETOOL so you can     |
+# |                     manually merge the three files and save the result.  |
+# | custom files      - The current version was not installed with Portage   |
+# | with backup of      but some package wants to install it now. This can   |
+# | previous update     occur when post-install configuration scripts are    |
+# |                     used to generate configuration files. You should     |
+# |                     check if the new version has proper settings in it.  |
+# +--------------------------------------------------------------------------+
+ENABLE_STAGE3 = yes
+
+
+# +--------+
+# | STAGE 4 \
+# +----------+---------------------------------------------------------------+
+# | Manual 2-way merging of modified configuration files...                  |
+# | If no backups of previous updates are found, you must merge the current  |
+# | configuration file with the update in the MERGETOOL. Simply click the    |
+# | line(s) you need. When you are done, cfg-update will replace the current |
+# | configuration file with the merged result.                               |
+# +--------------------------------------------------------------------------+
+# | modified files    - modified files can contain custom settings and should|
+# | without backup of   not be overwritten with the new version. If there are|
+# | previous update     no backups from an earlier update or you've disabled |
+# | or files with       STAGE2 and STAGE3, cfg-update will load both files   |
+# | merge-conflicts     in the MERGETOOL so you can merge the two files and  |
+# |                     save the result.                                     |
+# | custom files      - The current version was not installed with Portage   |
+# | without backup of   but some package wants to install it now. This can   |
+# | previous update     occur when post-install configuration scripts are    |
+# |                     used to generate configuration files. You should     |
+# |                     check if the new version has proper settings in it.  |
+# +--------------------------------------------------------------------------+
+ENABLE_STAGE4 = yes
+
+
+# +--------+
+# | STAGE 5 \
+# +----------+---------------------------------------------------------------+
+# | Manual updating of files that can't be updated in the other stages...    |
+# | These updates will need your full attention! There are several ways to   |
+# | deal with these updates. cfg-update will present you with a number of    |
+# | options depending on the situation.                                      |
+# +--------------------------------------------------------------------------+
+# | modified binaries - maybe you've replaced the binary with another binary |
+# |                     but it could also be infected with a virus, worm or  |
+# |                     backdoor or it could belong to a rootkit. You should |
+# |                     investigate the situation if you haven't changed the |
+# |                     binary yourself.                                     |
+# | custom binaries   - The current binary was not installed with Portage    |
+# |                     but some package wants to install it now. You should |
+# |                     investigate the situation first if you don't know how|
+# |                     the binary got there.                                |
+# | file-to-link      - the current version is a file but the new version is |
+# |                     a link. This is a rare situation but you should check|
+# |                     if the new link points to an existing file with      |
+# |                     proper settings in it.                               |
+# | link-to-file      - the current version is a link but the new version is |
+# |                     a file. This is a rare situation but you should check|
+# |                     if the new file has proper settings in it.           |
+# | link-to-link      - You should check if the new link points to an        |
+# |                     existing file with proper settings in it.            |
+# +--------------------------------------------------------------------------+
+ENABLE_STAGE5 = yes
+
+
+##############################################################################
+### DO NOT CHANGE THE SETTINGS BELOW THIS LINE, THEY WILL BREAK CFG-UPDATE ###
+##############################################################################
+#
+# ALIASFILE     = /root/.bash_profile
+# ALIASCMD      = "emerge_with_indexing_for_cfg-update"
+# PORTAGECONFIG = /etc/make.conf
+# PROGDIR       = /usr/lib/cfg-update
+# INDEXFILE     = /usr/lib/cfg-update/checksum.index
+#
+# CONFIG_NEW    = "._cfg????_*"         # search string used to find the config file updates
+# RM_NEW        = "\\._cfg...._"        # regular expression to strip CONFIG_NEW from filename (perl needs double slash!)
+# TEMP_NEW      = "._temp-new-cfg_*"    # filename format for temporary storage of config file update during merging
+# BACKUP_NEW    = "._new-cfg_*"         # filename format for backup new config file
+# RESTORE_NEW   = "._cfg0000_*"         # filename format for restoring the new config file
+# RM_OLD        = "\\._old-cfg_"        # regular expression to strip BACKUP_OLD from filename (perl needs double slash!)
+# TEMP_OLD      = "._temp-old-cfg_*"    # filename format for temporary storage of current config file during merging
+# BACKUP_OLD    = "._old-cfg_*"         # filename format for backup current config file
+# RESTORE_OLD   = "*"                   # filename format for restoring the old config file
+# MERGED        = "*.merge"             # filename format for storage of the merged result
+#
+@
+
+
+1.1.1.1
+log
+@dispatch-conf update.
+@
+text
+@d6 4
+a9 4
+# | STAGE 1 | Automatic overwriting of unmodified files and binaries         |
+# | STAGE 2 | Automatic (diff3) merging of modified files (if backup exists) |
+# | STAGE 3 | Manual 3-way merging of modified files (if backup exists)      |
+# | STAGE 4 | Manual 2-way merging of modified files                         |
+d68 1
+a68 1
+# | disable the backups. It's highly recommended to leave this enabled.      |
+d76 1
+a76 1
+# | Automatic overwriting of unmodified configuration files and binaries...  |
+d82 7
+d104 13
+a116 1
+ENABLE_STAGE2 = yes
+d128 12
+d152 12
+d175 19
+d198 1
+a198 1
+###     ONLY CHANGE THE SETTINGS BELOW THIS LINE IF YOU REALLY HAVE TO     ###
+d201 5
+a205 8
+# ALIASFILE     = /root/.bashrc           # this file contains the alias for the emerge command
+# PORTAGECONFIG = /etc/make.conf          # this file contains PORT_LOGDIR and is used to find the portage logfile
+# INDEXFILE     = /usr/lib/cfg-update/checksum.index  # this file contains all MD5 checksums
+# XXDIFF_STYLE  = "--style Keramik"       # this variable controls the style of xxdiff
+#
+##############################################################################
+### DO NOT CHANGE THE SETTINGS BELOW THIS LINE, THEY WILL BREAK CFG-UPDATE ###
+##############################################################################
+d207 10
+a216 10
+# CONFIG_NEW    = "._cfg????_*"           # search string used to find the config file updates
+# RM_NEW        = "\._cfg...._"           # regular expression to strip CONFIG_NEW from filename
+# TEMP_NEW      = "._temp-new-cfg_*"      # filename format for temporary storage of config file update during merging
+# BACKUP_NEW    = "._new-cfg_*"           # filename format for backup new config file
+# RESTORE_NEW   = "._cfg0000_*"           # filename format for restoring the new config file
+# RM_OLD        = "\._old-cfg_"           # regular expression to strip BACKUP_OLD from filename
+# TEMP_OLD      = "._temp-old-cfg_*"      # filename format for temporary storage of current config file during merging
+# BACKUP_OLD    = "._old-cfg_*"           # filename format for backup current config file
+# RESTORE_OLD   = "*"                     # filename format for restoring the old config file
+# MERGED        = "*.merge"               # filename format for storage of the merged result
+@

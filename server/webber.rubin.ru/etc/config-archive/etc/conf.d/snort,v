@@ -1,0 +1,99 @@
+head	1.2;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+expand	@o@;
+
+
+1.2
+date	2006.05.03.12.01.35;	author root;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2006.05.03.06.08.15;	author root;	state Exp;
+branches
+	1.1.1.1;
+next	;
+
+1.1.1.1
+date	2006.05.03.06.08.42;	author root;	state Exp;
+branches;
+next	1.1.1.2;
+
+1.1.1.2
+date	2006.05.03.12.01.35;	author root;	state Exp;
+branches;
+next	;
+
+
+desc
+@Archived config file.
+@
+
+
+1.2
+log
+@dispatch-conf update.
+@
+text
+@# Config file for /etc/init.d/snort
+
+# This tell snort which interface to listen on (any for every interface)
+IFACE=eth0
+
+# Make sure this matches your IFACE
+PIDFILE=/var/run/snort_$IFACE.pid
+
+# You probably don't want to change this, but in case you do
+LOGDIR="/var/log/snort"
+
+# Probably not this either
+CONF=/etc/snort/snort.conf
+
+# This pulls in the options above
+SNORT_OPTS="-D -u snort -i $IFACE -l $LOGDIR -c $CONF"
+@
+
+
+1.1
+log
+@dispatch-conf update.
+@
+text
+@d10 1
+a10 1
+LOGDIR="/var/lib/sguil/webber"
+d16 1
+a16 1
+SNORT_OPTS="-D -m 122 -u snort -g snort -A none -i $IFACE -l $LOGDIR -c $CONF"
+@
+
+
+1.1.1.1
+log
+@dispatch-conf update.
+@
+text
+@d10 1
+a10 1
+LOGDIR="/var/log/snort"
+d16 1
+a16 1
+SNORT_OPTS="-D -u snort -i $IFACE -l $LOGDIR -c $CONF"
+@
+
+
+1.1.1.2
+log
+@dispatch-conf update.
+@
+text
+@d10 1
+a10 1
+LOGDIR="/var/lib/sguil/webber"
+d16 1
+a16 1
+SNORT_OPTS="-D -m 122 -u sguil -g sguil -A none -i $IFACE -l $LOGDIR -c $CONF"
+@

@@ -1,0 +1,10 @@
+# $Header: /var/cvsroot/gentoo-src/rc-scripts/etc/networks,v 1.4 2002/11/18 19:39:22 azarah Exp $
+
+#
+# networks	This file describes a number of netname-to-adress
+#		mappings for the TCP/IP subsytem. It is mostly
+#		used at boot time, when no name servers are running.
+
+loopback	127.0.0.0
+
+# End.

@@ -1,0 +1,720 @@
+head	1.2;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+expand	@o@;
+
+
+1.2
+date	2006.04.27.05.53.12;	author root;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2006.01.17.13.05.30;	author zoldatoff;	state Exp;
+branches
+	1.1.1.1;
+next	;
+
+1.1.1.1
+date	2006.01.17.13.05.30;	author zoldatoff;	state Exp;
+branches;
+next	1.1.1.2;
+
+1.1.1.2
+date	2006.04.27.05.53.12;	author root;	state Exp;
+branches;
+next	;
+
+
+desc
+@Archived config file.
+@
+
+
+1.2
+log
+@dispatch-conf update.
+@
+text
+@## Sample initialization file for GNU nano
+## Please note that you must have configured nano with --enable-nanorc
+## for this file to be read!  Also note that characters specially
+## interpreted by the shell should not be escaped here.
+##
+## To make sure a value is not enabled, use "unset <option>"
+##
+## For the options that take parameters, the default value is given.
+## Other options are unset by default.
+
+## Use auto-indentation.
+# set autoindent
+
+## Backup files to filename~.
+# set backup
+
+## The directory to put unique backup files in.
+# set backupdir ""
+
+## Do backwards searches by default.
+# set backwards
+
+## The characters treated as closing brackets.  They cannot contain
+## blank characters.  Only closing punctuation, optionally followed by
+## closing brackets, can end sentences.
+##
+# set brackets "'")}]>"
+
+## Do case sensitive searches by default.
+# set casesensitive
+
+## Constantly display the cursor position in the statusbar.  Note that
+## this cancels out "quickblank".
+# set const
+
+## Use cut to end of line by default.
+# set cut
+
+## Set the line length for wrapping text and justifying paragraphs.
+## If fill is 0 or less, the line length will be the screen width less
+## this number.
+##
+# set fill -8
+
+## Enable ~/.nano_history for saving and reading search/replace strings.
+# set historylog
+
+## Use the blank line below the titlebar as extra editing space.
+# set morespace
+
+## Enable mouse support, so that mouse clicks can be used to set the
+## mark and run shortcuts.
+# set mouse
+
+## Allow multiple file buffers (inserting a file will put it into a
+## separate buffer).  You must have configured with --enable-multibuffer
+## for this to work.
+##
+# set multibuffer
+
+## Don't convert files from DOS/Mac format.
+# set noconvert
+
+## Don't follow symlinks when writing files.
+# set nofollow
+
+## Don't display the helpful shortcut lists at the bottom of the screen.
+# set nohelp
+
+## Don't wrap text at all.
+# set nowrap
+
+## Set operating directory.  nano will not read or write files outside
+## this directory and its subdirectories.  Also, the current directory
+## is changed to here, so files are inserted from this dir.  A blank
+## string means the operating directory feature is turned off.
+##
+# set operatingdir ""
+
+## Preserve the XON and XOFF keys (^Q and ^S).
+# set preserve
+
+## The characters treated as closing punctuation.  They cannot contain
+## blank characters.  Only closing punctuation, optionally followed by
+## closing brackets, can end sentences.
+##
+# set punct ".?!"
+
+## Do quick statusbar blanking.  Statusbar messages will disappear after
+## 1 keystroke instead of 25.  Note that "const" cancels this out.
+##
+# set quickblank
+
+## The email-quote string, used to justify email-quoted paragraphs.
+## This is an extended regular expression if your system supports them,
+## otherwise a literal string.  Default:
+# set quotestr "^([ 	]*[\|>:}#])+"
+## if you have regexps, otherwise:
+# set quotestr "> "
+## You can get old nano quoted-justify behavior via:
+# set quotestr "(> )+"
+
+## Fix Backspace/Delete confusion problem.
+# set rebinddelete
+
+## Fix numeric keypad key confusion problem.
+# set rebindkeypad
+
+## Do extended regular expression searches by default.
+# set regexp
+
+## Make the Home key smarter.  When Home is pressed anywhere but at the
+## very beginning of non-whitespace characters on a line, the cursor
+## will jump to that beginning (either forwards or backwards).  If the
+## cursor is already at that position, it will jump to the true
+## beginning of the line.
+# set smarthome
+
+## Use smooth scrolling as the default.
+# set smooth
+
+## Use this spelling checker instead of the internal one.  This option
+## does not properly have a default value.
+##
+# set speller "aspell -x -c"
+
+## Allow nano to be suspended.
+# set suspend
+
+## Use this tab size instead of the default; it must be greater than 0.
+# set tabsize 8
+
+## Convert typed tabs to spaces.
+# set tabstospaces
+
+## Save automatically on exit, don't prompt.
+# set tempfile
+
+## Disallow file modification; why would you want this in an rcfile? ;)
+# set view
+
+## The two single-column characters used to display the first characters
+## of tabs and spaces.  187 decimal (00BB hexadecimal) and 183 decimal
+## (00B7 hexadecimal) seem to be good values for these.
+# set whitespace "  "
+
+## Detect word boundaries more accurately by treating punctuation
+## characters as part of a word.
+# set wordbounds
+
+## Color setup
+##
+## Format:
+##
+## syntax "short description" ["filename regex" ...]
+##
+## (The "none" syntax is reserved; specifying it on the command line is
+## the same as not having a syntax at all.  The "default" syntax is
+## special: it takes no filename regexes, and applies to files that
+## don't match any other syntax's filename regexes.)
+##
+## color foreground,background "regex" ["regex"...]
+## or
+## icolor foreground,background "regex" ["regex"...]
+##
+## ("color" will do case sensitive matches, while "icolor" will do case
+## insensitive matches.)
+##
+## Legal colors: white, black, red, blue, green, yellow, magenta, cyan.
+## You may use the prefix "bright" to mean a stronger color highlight
+## for the foreground.
+##
+## To use multi-line regexes, use the start="regex" end="regex" format.
+##
+## If your system supports transparency, not specifying a background
+## color will use a transparent color.  If you don't want this, be sure
+## to set the background color to black or white.
+##
+# syntax "c-file" "\.(c|C|cc|cpp|cxx|h|H|hh|hpp|hxx)$"
+# color brightred "\<[A-Z_][A-Z_0-9]+\>" 
+# color green "\<(float|double|bool|char|int|short|long|sizeof|enum|void|static|const|struct|union|typedef|extern|signed|unsigned|inline)\>"
+# color green "\<(u_?)?int(8|16|32|64|ptr)_t\>"
+# color green "\<(class|namespace|template|public|protected|private|typename|this|friend|virtual|using|mutable|volatile|register|explicit)\>"
+# color brightyellow "\<(for|if|while|do|else|case|default|switch)\>"
+# color brightyellow "\<(try|throw|catch|operator|new|delete)\>"
+# color magenta "\<(goto|continue|break|return)\>"
+# color brightcyan "^[[:space:]]*#[[:space:]]*(define|undef|include|ifn?def|endif|elif|else|if|warning|error)"
+# color brightmagenta "'([^\]|(\\['abfnrtv\\]))'" "'\\(([0-7][0-7]?)|([0-3][0-7][0-7]))'" "'\\x[0-9A-Fa-f][0-9A-Fa-f]?'"
+##
+## GCC builtins
+##
+# color cyan "__attribute__[[:space:]]*\(\([^)]*\)\)" "__(aligned|asm|builtin|hidden|inline|packed|restrict|section|typeof|weak)__"
+##
+## You will in general want your comments and strings to come last,
+## because syntax highlighting rules will be applied in the order they
+## are read in.
+##
+# color brightyellow "<[^= 	]*>" ""(\\.|[^\"])*""
+##
+## This string is VERY resource intensive!
+# color brightyellow start=""(\\.|[^\"])*\\[[:space:]]*$" end="^(\\.|[^\"])*""
+##
+## And we want to have some nice comment highlighting too
+# color brightblue "//.*"
+# color brightblue start="/\*" end="\*/"
+
+## Here is a short example for HTML
+# syntax "HTML" "\.html$"
+# color blue start="<" end=">"
+# color red "&[^;[[:space:]]]*;"
+
+## Here is a short example for TeX files
+# syntax "TeX" "\.tex$"
+# icolor green "\\.|\\[A-Z]*"
+# color magenta "[{}]"
+# color blue "%.*"
+
+## Here is an example for quoted emails (under e.g. mutt)
+# syntax "mutt"
+# color green "^>.*"
+
+## Here is an example for groff
+##
+# syntax "groff" "\.m[ems]$" "\.tmac$" "^tmac." ".rof"
+## The argument of .nr or .ds
+# color cyan "^\.ds [^[[:space:]]]*"
+# color cyan "^\.nr [^[[:space:]]]*"
+## Single character escapes
+# color brightmagenta "\\."
+## Highlight the argument of \f or \s in the same color
+# color brightmagenta "\\f."
+# color brightmagenta "\\f\(.."
+# color brightmagenta "\\s(\+|\-)?[0-9]"
+## \n
+# color cyan "(\\|\\\\)n."
+# color cyan "(\\|\\\\)n\(.."
+# color cyan start="(\\|\\\\)n\[" end="]"
+## Requests
+# color brightgreen "^\.[[:space:]]*[^[[:space:]]]*"
+## Comments
+# color yellow "^\.\\\".*$"
+## Strings
+# color green "(\\|\\\\)\*."
+# color green "(\\|\\\\)\*\(.."
+# color green start="(\\|\\\\)\*\[" end="]"
+## Characters
+# color brightred "\\\(.."
+# color brightred start="\\\[" end="]"
+## Macro arguments
+# color brightcyan "\\\\\$[1-9]"
+
+## Here is an example for perl
+##
+# syntax "perl" "\.p[lm]$"
+# color red "\<(accept|alarm|atan2|bin(d|mode)|c(aller|h(dir|mod|op|own|root)|lose(dir)?|onnect|os|rypt)|d(bm(close|open)|efined|elete|ie|o|ump)|e(ach|of|val|x(ec|ists|it|p))|f(cntl|ileno|lock|ork))\>" "\<(get(c|login|peername|pgrp|ppid|priority|pwnam|(host|net|proto|serv)byname|pwuid|grgid|(host|net)byaddr|protobynumber|servbyport)|([gs]et|end)(pw|gr|host|net|proto|serv)ent|getsock(name|opt)|gmtime|goto|grep|hex|index|int|ioctl|join)\>" "\<(keys|kill|last|length|link|listen|local(time)?|log|lstat|m|mkdir|msg(ctl|get|snd|rcv)|next|oct|open(dir)?|ord|pack|pipe|pop|printf?|push|q|qq|qx|rand|re(ad(dir|link)?|cv|do|name|quire|set|turn|verse|winddir)|rindex|rmdir|s|scalar|seek(dir)?)\>" "\<(se(lect|mctl|mget|mop|nd|tpgrp|tpriority|tsockopt)|shift|shm(ctl|get|read|write)|shutdown|sin|sleep|socket(pair)?|sort|spli(ce|t)|sprintf|sqrt|srand|stat|study|substr|symlink|sys(call|read|tem|write)|tell(dir)?|time|tr(y)?|truncate|umask)\>" "\<(un(def|link|pack|shift)|utime|values|vec|wait(pid)?|wantarray|warn|write)\>"
+# color magenta "\<(continue|else|elsif|do|for|foreach|if|unless|until|while|eq|ne|lt|gt|le|ge|cmp|x|my|sub|use|package|can|isa)\>"
+# color cyan start="[$@@%]" end="( |\\W|-)"
+# color yellow "".*"|qq\|.*\|"
+# color white "[sm]/.*/"
+# color white start="(^use| = new)" end=";"
+# color green "#.*"
+# color yellow start="<< 'STOP'" end="STOP"
+
+## Here is an example for Java source
+##
+# syntax "Java source" "\.java$"
+# color green "\<(boolean|byte|char|double|float|int|long|new|short|this|transient|void)\>"
+# color red "\<(break|case|catch|continue|default|do|else|finally|for|if|return|switch|throw|try|while)\>"
+# color cyan "\<(abstract|class|extends|final|implements|import|instanceof|interface|native|package|private|protected|public|static|strictfp|super|synchronized|throws|volatile)\>"
+# color red ""[^\"]*""
+# color yellow "\<(true|false|null)\>"
+# color blue "//.*"
+# color blue start="/\*" end="\*/"
+# color brightblue start="/\*\*" end="\*/"
+# color brightgreen,green "[[:space:]]+$"
+
+## Here is an example for patch files
+##
+# syntax "patch" "\.(patch|diff)$"
+# color brightgreen "^\+.*"
+# color green "^\+\+\+.*"
+# color brightblue "^ .*"
+# color brightred "^-.*"
+# color red "^---.*"
+# color brightyellow "^@@@@.*"
+# color magenta "^diff.*"
+
+## Here is an example for manpages
+##
+# syntax "manpage" "\.[1-9]x?$"
+# color green "\.(S|T)H.*$"
+# color brightgreen "\.(S|T)H" "\.TP"
+# color brightred "\.(BR?|I[PR]?).*$"
+# color brightblue "\.(BR?|I[PR]?|PP)"
+# color brightwhite "\\f[BIPR]"
+# color yellow "\.(br|DS|RS|RE|PD)"
+
+## Here is an example for assembler
+##
+# syntax "asm-file" "\.(S|s|asm)$"
+# color red "\<[A-Z_]{2,}\>"
+# color brightgreen "\.(data|subsection|text)"
+# color green "\.(align|file|globl|global|hidden|section|size|type|weak)"
+# color brightyellow "\.(ascii|asciz|byte|double|float|hword|int|long|short|single|struct|word)"
+# icolor brightred "^[[:space:]]*[._A-Z0-9]*:"
+# color brightcyan "^[[:space:]]*#[[:space:]]*(define|undef|include|ifn?def|endif|elif|else|if|warning|error)"
+## Highlight strings (note: VERY resource intensive)
+# color brightyellow "<[^= 	]*>" ""(\\.|[^\"])*""
+# color brightyellow start=""(\\.|[^\"])*\\[[:space:]]*$" end="^(\\.|[^\"])*""
+## Highlight comments
+# color brightblue "//.*"
+# color brightblue start="/\*" end="\*/"
+
+## Here is an example for Bourne shell scripts
+##
+# syntax "shellscript" "\.sh$"
+# icolor brightgreen "^[_A-Z0-9]+\(\)"
+# color green "\<(case|do|done|elif|else|esac|exit|fi|for|function|if|in|local|read|return|select|shift|then|time|until|while)\>"
+# color green "(\{|\}|\(|\)|\;|\]|\[|`|\\|\$|<|>|!|=|&|\|)"
+# color green "-(L|d|e|f|g|r|u|w|x)\>"
+# color green "-(eq|ne|gt|lt|ge|le|s|n|z)\>"
+# color brightblue "\<(cat|cd|chmod|chown|cp|echo|env|export|grep|install|let|ln|make|mkdir|mv|rm|sed|set|tar|touch|umask|unset)\>"
+# icolor brightred "\$\{?[_A-Z0-9]+\}?"
+# color yellow "#.*$"
+# color brightyellow ""(\\.|[^\"])*"" "'(\\.|[^'])*'"
+
+## Here is an example for your .nanorc
+##
+# syntax "nanorc" "(\.|/|)nanorc$"
+## highlight possible errors and parameters
+# icolor brightwhite "^[[:space:]]*(set|unset|syntax|i?color).*$"
+## set, unset and syntax
+# icolor cyan "^[[:space:]]*(set|unset)[[:space:]]+(autoindent|backup|backupdir|backwards|brackets|casesensitive|const|cut|fill|historylog|morespace|mouse|multibuffer|noconvert|nofollow|nohelp|nowrap|operatingdir|preserve|punct|quickblank|quotestr|rebinddelete)\>" "^[[:space:]]*(set|unset)[[:space:]]+(rebindkeypad|regexp|smarthome|smooth|speller|suspend|tabsize|tabstospaces|tempfile|view|whitespace|wordbounds)\>"
+# icolor green "^[[:space:]]*(set|unset|syntax)\>"
+## colors
+# icolor yellow "^[[:space:]]*i?color[[:space:]]*(bright)?(white|black|red|blue|green|yellow|magenta|cyan)?(,(white|black|red|blue|green|yellow|magenta|cyan))?\>"
+# icolor magenta "^[[:space:]]*i?color\>" "\<(start|end)="
+## strings
+# icolor white "\"(\\.|[^\"])*\""
+## comments
+# icolor blue "^[[:space:]]*#.*$"
+
+## Here is an example for ebuilds/eclasses
+##
+syntax "ebuild" "\.e(build|class)$"
+## All the standard portage functions
+color brightgreen "^src_(unpack|compile|install|test)" "^pkg_(config|nofetch|setup|(pre|post)(inst|rm))"
+## Highlight bash related syntax
+color green "\<(case|do|done|elif|else|esac|exit|fi|for|function|if|in|local|read|return|select|shift|then|time|until|while)\>"
+color green "(\{|\}|\(|\)|\;|\]|\[|`|\\|\$|<|>|!|=|&|\|)"
+color green "-(e|d|f|r|g|u|w|x|L)\>"
+color green "-(eq|ne|gt|lt|ge|le|s|n|z)\>"
+## Highlight variables ... official portage ones in red, all others in bright red
+color brightred "\$\{?[a-zA-Z_0-9]+\}?"
+color red "\<(ARCH|HOMEPAGE|DESCRIPTION|IUSE|SRC_URI|LICENSE|SLOT|KEYWORDS|FILESDIR|WORKDIR|(P|R)?DEPEND|PROVIDE|DISTDIR|RESTRICT|USERLAND)\>"
+color red "\<(S|D|T|PV|PF|P|PN|A)\>" "\<C(XX)?FLAGS\>" "\<LDFLAGS\>" "\<C(HOST|TARGET|BUILD)\>"
+## Highlight portage commands
+color magenta "\<use(_(with|enable))?\> [!a-zA-Z0-9_+ -]*" "inherit.*"
+color brightblue "e(begin|end|conf|install|make|warn|infon?|error|patch)"
+color brightblue "\<die\>" "\<use(_(with|enable))?\>" "\<inherit\>" "\<has\>" "\<(has|best)_version\>" "\<unpack\>"
+color brightblue "\<(do|new)(ins|s?bin|doc|lib(|\.so|\.a)|man|info|exe|initd|confd|envd|pam|menu|icon)\>"
+color brightblue "\<do(python|sed|dir|hard|sym|html|jar|mo)\>" "\<keepdir\>"
+color brightblue "prepall(|docs|info|man|strip)" "prep(info|lib|lib\.(so|a)|man|strip)"
+color brightblue "\<(|doc|ins|exe)into\>" "\<f(owners|perms)\>" "\<(exe|ins|dir)opts\>"
+## Highlight common commands used in ebuilds
+color blue "\<make\>" "\<(cat|cd|chmod|chown|cp|echo|env|export|grep|let|ln|mkdir|mv|rm|sed|set|tar|touch|unset)\>"
+## Highlight comments (doesnt work that well)
+# color yellow "#.*$"
+## Highlight strings (doesnt work that well)
+# color brightyellow ""(\\.|[^\"])*"" "'(\\.|[^'])*'"
+
+## Here is an example for shell scripts
+##
+# syntax "shellscript" "\.sh$"
+# color brightgreen "^[a-zA-Z_0-9]+\(\)"
+# color green "\<(case|do|done|elif|else|esac|exit|fi|for|function|if|in|local|read|return|select|shift|then|time|until|while)\>"
+# color green "(\{|\}|\(|\)|\;|\]|\[|`|\\|\$|<|>|!|=|&|\|)"
+# color green "-(e|d|f|r|g|u|w|x|L)\>"
+# color green "-(eq|ne|gt|lt|ge|le|s|n|z)\>"
+# color brightblue "\<make\>" "\<(cat|cd|chmod|chown|cp|echo|env|export|grep|install|let|ln|mkdir|mv|rm|sed|set|tar|touch|umask|unset)\>"
+# color brightred "\$\{?[a-zA-Z_0-9]+\}?"
+# color yellow "#.*$"
+# color brightyellow ""(\\.|[^\"])*"" "'(\\.|[^'])*'"
+@
+
+
+1.1
+log
+@dispatch-conf update.
+@
+text
+@d17 1
+a17 1
+## The directory to put the backup files in.
+d20 6
+a25 3
+## The characters treated as closing brackets.  They cannot contain tabs
+## or spaces.  Only closing punctuation, optionally followed by closing
+## brackets, can end sentences.
+d29 5
+a33 1
+## Constantly display the cursor position in the status bar.
+d40 1
+a40 1
+## If fill is negative, the line length will be the screen width less
+d57 1
+a57 1
+## or --enable-extra for this to work.
+d84 1
+a84 1
+## tabs or spaces.  Only closing punctuation, optionally followed by
+d89 5
+d106 3
+d133 3
+d147 4
+d152 1
+d154 1
+d156 6
+d163 5
+d170 2
+a171 1
+## You may use the prefix "bright" to mean a stronger color highlight.
+d173 1
+a173 1
+## To use multi-line regexes use the start="regex" end="regex" format.
+d179 2
+a180 2
+# syntax "c-file" "\.(c|C|cc|cpp|h|H|hh|hpp)$"
+# color red "\<[A-Z_]{2,}\>" 
+d182 1
+d184 1
+a184 1
+# color brightyellow "\<(for|if|while|do|else|case|default|switch|goto|continue|break|return)\>"
+d186 2
+a187 1
+# color brightcyan "^ *# *(define|undef|include|ifn?def|endif|elif|else|if)"
+d190 4
+d198 1
+a198 1
+# color brightyellow "<[^= ]*>" ""(\\.|[^\"])*""
+d200 2
+a201 2
+## This string is VERY resource intensive!!!
+# color brightyellow start=""(\\.|[^\"])*\\ *$" end="^(\\.|[^\"])*""
+d210 1
+a210 1
+# color red "&[^; ]*;"
+d214 1
+a214 1
+# color green "\\.|\\[A-Za-z]*"
+d224 1
+a224 1
+# syntax "groff" "\.ms$" "\.mm$" "\.me$" "\.tmac$" "^tmac." ".rof"
+d226 2
+a227 2
+# color cyan "^\.ds [^ ]*"
+# color cyan "^\.nr [^ ]*"
+d239 1
+a239 1
+# color brightgreen "^\. *[^ ]*"
+d255 1
+a255 5
+# color red "\<(accept|alarm|atan2|bin(d|mode)|c(aller|h(dir|mod|op|own|root)|lose(dir)?|onnect|os|rypt)|d(bm(close|open)|efined|elete|ie|o|ump)|e(ach|of|val|x(ec|ists|it|p))|f(cntl|ileno|lock|ork))\>"
+# color red "\<(get(c|login|peername|pgrp|ppid|priority|pwnam|(host|net|proto|serv)byname|pwuid|grgid|(host|net)byaddr|protobynumber|servbyport)|([gs]et|end)(pw|gr|host|net|proto|serv)ent|getsock(name|opt)|gmtime|goto|grep|hex|index|int|ioctl|join)\>"
+# color red "\<(keys|kill|last|length|link|listen|local(time)?|log|lstat|m|mkdir|msg(ctl|get|snd|rcv)|next|oct|open(dir)?|ord|pack|pipe|pop|printf?|push|q|qq|qx|rand|re(ad(dir|link)?|cv|do|name|quire|set|turn|verse|winddir)|rindex|rmdir|s|scalar|seek(dir)?)\>"
+# color red "\<(se(lect|mctl|mget|mop|nd|tpgrp|tpriority|tsockopt)|shift|shm(ctl|get|read|write)|shutdown|sin|sleep|socket(pair)?|sort|spli(ce|t)|sprintf|sqrt|srand|stat|study|substr|symlink|sys(call|read|tem|write)|tell(dir)?|time|tr(y)?|truncate|umask)\>"
+# color red "\<(un(def|link|pack|shift)|utime|values|vec|wait(pid)?|wantarray|warn|write)\>"
+d275 1
+a275 1
+# color brightgreen,green " +$"
+d298 29
+d331 1
+a331 1
+# color brightwhite "^ *(set|unset|syntax|color).*$"
+d333 2
+a334 3
+# color cyan "^ *(set|unset) +(autoindent|backup|backupdir|brackets|const|cut|fill|historylog|morespace|mouse|multibuffer|noconvert|nofollow|nohelp|nowrap|operatingdir|preserve|punct|quotestr|rebinddelete|regexp|smarthome|smooth|speller|suspend|tabsize|tempfile)\>"
+# color cyan "^ *(set|unset) +(view|whitespace)"
+# color green "^ *(set|unset|syntax)\>"
+d336 2
+a337 2
+# color yellow "^ *color +(bright)?(white|black|red|blue|green|yellow|magenta|cyan)(,(white|black|red|blue|green|yellow|magenta|cyan))?\>"
+# color magenta "^ *color\>" "\<(start|end)="
+d339 1
+a339 1
+# color white "\"(\\.|[^\"])*\""
+d341 1
+a341 1
+# color blue "^ *#.*$"
+@
+
+
+1.1.1.1
+log
+@dispatch-conf update.
+@
+text
+@d17 1
+a17 1
+## The directory to put unique backup files in.
+d20 3
+a22 6
+## Do backwards searches by default.
+# set backwards
+
+## The characters treated as closing brackets.  They cannot contain
+## blank characters.  Only closing punctuation, optionally followed by
+## closing brackets, can end sentences.
+d26 1
+a26 5
+## Do case sensitive searches by default.
+# set casesensitive
+
+## Constantly display the cursor position in the statusbar.  Note that
+## this cancels out "quickblank".
+d33 1
+a33 1
+## If fill is 0 or less, the line length will be the screen width less
+d50 1
+a50 1
+## for this to work.
+d77 1
+a77 1
+## blank characters.  Only closing punctuation, optionally followed by
+a81 5
+## Do quick statusbar blanking.  Statusbar messages will disappear after
+## 1 keystroke instead of 25.  Note that "const" cancels this out.
+##
+# set quickblank
+
+a93 3
+## Fix numeric keypad key confusion problem.
+# set rebindkeypad
+
+a117 3
+## Convert typed tabs to spaces.
+# set tabstospaces
+
+a128 4
+## Detect word boundaries more accurately by treating punctuation
+## characters as part of a word.
+# set wordbounds
+
+a129 1
+##
+a130 1
+##
+a131 6
+##
+## (The "none" syntax is reserved; specifying it on the command line is
+## the same as not having a syntax at all.  The "default" syntax is
+## special: it takes no filename regexes, and applies to files that
+## don't match any other syntax's filename regexes.)
+##
+a132 5
+## or
+## icolor foreground,background "regex" ["regex"...]
+##
+## ("color" will do case sensitive matches, while "icolor" will do case
+## insensitive matches.)
+d135 1
+a135 2
+## You may use the prefix "bright" to mean a stronger color highlight
+## for the foreground.
+d137 1
+a137 1
+## To use multi-line regexes, use the start="regex" end="regex" format.
+d143 2
+a144 2
+# syntax "c-file" "\.(c|C|cc|cpp|cxx|h|H|hh|hpp|hxx)$"
+# color brightred "\<[A-Z_][A-Z_0-9]+\>" 
+a145 1
+# color green "\<(u_?)?int(8|16|32|64|ptr)_t\>"
+d147 1
+a147 1
+# color brightyellow "\<(for|if|while|do|else|case|default|switch)\>"
+d149 1
+a149 2
+# color magenta "\<(goto|continue|break|return)\>"
+# color brightcyan "^[[:space:]]*#[[:space:]]*(define|undef|include|ifn?def|endif|elif|else|if|warning|error)"
+a151 4
+## GCC builtins
+##
+# color cyan "__attribute__[[:space:]]*\(\([^)]*\)\)" "__(aligned|asm|builtin|hidden|inline|packed|restrict|section|typeof|weak)__"
+##
+d156 1
+a156 1
+# color brightyellow "<[^= 	]*>" ""(\\.|[^\"])*""
+d158 2
+a159 2
+## This string is VERY resource intensive!
+# color brightyellow start=""(\\.|[^\"])*\\[[:space:]]*$" end="^(\\.|[^\"])*""
+d168 1
+a168 1
+# color red "&[^;[[:space:]]]*;"
+d172 1
+a172 1
+# icolor green "\\.|\\[A-Z]*"
+d182 1
+a182 1
+# syntax "groff" "\.m[ems]$" "\.tmac$" "^tmac." ".rof"
+d184 2
+a185 2
+# color cyan "^\.ds [^[[:space:]]]*"
+# color cyan "^\.nr [^[[:space:]]]*"
+d197 1
+a197 1
+# color brightgreen "^\.[[:space:]]*[^[[:space:]]]*"
+d213 5
+a217 1
+# color red "\<(accept|alarm|atan2|bin(d|mode)|c(aller|h(dir|mod|op|own|root)|lose(dir)?|onnect|os|rypt)|d(bm(close|open)|efined|elete|ie|o|ump)|e(ach|of|val|x(ec|ists|it|p))|f(cntl|ileno|lock|ork))\>" "\<(get(c|login|peername|pgrp|ppid|priority|pwnam|(host|net|proto|serv)byname|pwuid|grgid|(host|net)byaddr|protobynumber|servbyport)|([gs]et|end)(pw|gr|host|net|proto|serv)ent|getsock(name|opt)|gmtime|goto|grep|hex|index|int|ioctl|join)\>" "\<(keys|kill|last|length|link|listen|local(time)?|log|lstat|m|mkdir|msg(ctl|get|snd|rcv)|next|oct|open(dir)?|ord|pack|pipe|pop|printf?|push|q|qq|qx|rand|re(ad(dir|link)?|cv|do|name|quire|set|turn|verse|winddir)|rindex|rmdir|s|scalar|seek(dir)?)\>" "\<(se(lect|mctl|mget|mop|nd|tpgrp|tpriority|tsockopt)|shift|shm(ctl|get|read|write)|shutdown|sin|sleep|socket(pair)?|sort|spli(ce|t)|sprintf|sqrt|srand|stat|study|substr|symlink|sys(call|read|tem|write)|tell(dir)?|time|tr(y)?|truncate|umask)\>" "\<(un(def|link|pack|shift)|utime|values|vec|wait(pid)?|wantarray|warn|write)\>"
+d237 1
+a237 1
+# color brightgreen,green "[[:space:]]+$"
+a259 29
+## Here is an example for assembler
+##
+# syntax "asm-file" "\.(S|s|asm)$"
+# color red "\<[A-Z_]{2,}\>"
+# color brightgreen "\.(data|subsection|text)"
+# color green "\.(align|file|globl|global|hidden|section|size|type|weak)"
+# color brightyellow "\.(ascii|asciz|byte|double|float|hword|int|long|short|single|struct|word)"
+# icolor brightred "^[[:space:]]*[._A-Z0-9]*:"
+# color brightcyan "^[[:space:]]*#[[:space:]]*(define|undef|include|ifn?def|endif|elif|else|if|warning|error)"
+## Highlight strings (note: VERY resource intensive)
+# color brightyellow "<[^= 	]*>" ""(\\.|[^\"])*""
+# color brightyellow start=""(\\.|[^\"])*\\[[:space:]]*$" end="^(\\.|[^\"])*""
+## Highlight comments
+# color brightblue "//.*"
+# color brightblue start="/\*" end="\*/"
+
+## Here is an example for Bourne shell scripts
+##
+# syntax "shellscript" "\.sh$"
+# icolor brightgreen "^[_A-Z0-9]+\(\)"
+# color green "\<(case|do|done|elif|else|esac|exit|fi|for|function|if|in|local|read|return|select|shift|then|time|until|while)\>"
+# color green "(\{|\}|\(|\)|\;|\]|\[|`|\\|\$|<|>|!|=|&|\|)"
+# color green "-(L|d|e|f|g|r|u|w|x)\>"
+# color green "-(eq|ne|gt|lt|ge|le|s|n|z)\>"
+# color brightblue "\<(cat|cd|chmod|chown|cp|echo|env|export|grep|install|let|ln|make|mkdir|mv|rm|sed|set|tar|touch|umask|unset)\>"
+# icolor brightred "\$\{?[_A-Z0-9]+\}?"
+# color yellow "#.*$"
+# color brightyellow ""(\\.|[^\"])*"" "'(\\.|[^'])*'"
+
+d264 1
+a264 1
+# icolor brightwhite "^[[:space:]]*(set|unset|syntax|i?color).*$"
+d266 3
+a268 2
+# icolor cyan "^[[:space:]]*(set|unset)[[:space:]]+(autoindent|backup|backupdir|backwards|brackets|casesensitive|const|cut|fill|historylog|morespace|mouse|multibuffer|noconvert|nofollow|nohelp|nowrap|operatingdir|preserve|punct|quickblank|quotestr|rebinddelete)\>" "^[[:space:]]*(set|unset)[[:space:]]+(rebindkeypad|regexp|smarthome|smooth|speller|suspend|tabsize|tabstospaces|tempfile|view|whitespace|wordbounds)\>"
+# icolor green "^[[:space:]]*(set|unset|syntax)\>"
+d270 2
+a271 2
+# icolor yellow "^[[:space:]]*i?color[[:space:]]*(bright)?(white|black|red|blue|green|yellow|magenta|cyan)?(,(white|black|red|blue|green|yellow|magenta|cyan))?\>"
+# icolor magenta "^[[:space:]]*i?color\>" "\<(start|end)="
+d273 1
+a273 1
+# icolor white "\"(\\.|[^\"])*\""
+d275 1
+a275 1
+# icolor blue "^[[:space:]]*#.*$"
+@
+
+
+1.1.1.2
+log
+@dispatch-conf update.
+@
+text
+@a69 3
+## Don't add newlines to the ends of files.
+# set nonewlines
+
+d188 1
+a188 1
+# color brightmagenta "'([^"'\]|(\\["'abfnrtv\\]))'" "'\\(([0-7][0-7]?)|([0-3][0-7][0-7]))'" "'\\x[0-9A-Fa-f][0-9A-Fa-f]?'"
+d333 1
+a333 1
+# icolor cyan "^[[:space:]]*(set|unset)[[:space:]]+(autoindent|backup|backupdir|backwards|brackets|casesensitive|const|cut|fill|historylog|morespace|mouse|multibuffer|noconvert|nofollow|nohelp|nonewlines|nowrap|operatingdir|preserve|punct|quickblank)\>" "^[[:space:]]*(set|unset)[[:space:]]+(quotestr|rebinddelete|rebindkeypad|regexp|smarthome|smooth|speller|suspend|tabsize|tabstospaces|tempfile|view|whitespace|wordbounds)\>"
+@

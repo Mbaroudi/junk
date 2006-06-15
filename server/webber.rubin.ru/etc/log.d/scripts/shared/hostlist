@@ -1,0 +1,35 @@
+
+use strict;
+
+my $TempDir = $ENV{'LOGWATCH_TEMP_DIR'};
+
+my ($line, $host,$tothost);
+my @hostlist;
+my $HostFile = ("$TempDir" . "hostfile");
+if (-f $HostFile) {
+   open (TEMPFILE,$HostFile);
+   @hostlist = <TEMPFILE>;
+   close (TEMPFILE);
+}
+
+while (defined($line = <STDIN>)) {
+   if ($line =~ m/^... .. ..:..:.. (\S*)/io) {
+      $host = $1;
+      if (grep(m/$host/,@hostlist)) {
+      } else {
+         push @hostlist,$host;
+      }
+   }
+}
+
+open (TEMPFILE,">$HostFile") || die $!;
+foreach $tothost (@hostlist) {
+   chomp $tothost;
+   if (length($tothost) == "0") {
+   } else {
+      print TEMPFILE "$tothost\n";
+   }
+}
+close TEMPFILE;
+
+# vi: shiftwidth=3 syntax=perl tabstop=3 et

@@ -1,0 +1,73 @@
+head	1.1;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.1
+date	2006.06.13.05.14.56;	author root;	state Exp;
+branches
+	1.1.1.1;
+next	;
+
+1.1.1.1
+date	2006.06.13.05.15.16;	author root;	state Exp;
+branches;
+next	;
+
+
+desc
+@Archived config file.
+@
+
+
+1.1
+log
+@dispatch-conf update.
+@
+text
+@#!/sbin/runscript
+# Copyright 1999-2004 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/net-analyzer/snort/files/snort.rc6,v 1.6 2005/11/26 13:57:06 strerror Exp $
+
+depend() {
+	need net
+}
+
+checkconfig() {
+	if [ ! -e $CONF ] ; then
+		eerror "You need a configuration file to run snort"
+		eerror "There is an example config in /etc/snort/snort.conf.distrib"
+		return 1
+	fi
+}
+
+start() {
+	checkconfig || return 1
+	ebegin "Starting snort"
+	start-stop-daemon --start --quiet --exec /usr/bin/snort \
+		-- ${SNORT_OPTS} >/dev/null 2>&1
+	eend $?
+}
+
+stop() {
+	ebegin "Stopping snort"
+	start-stop-daemon --stop --quiet --pidfile ${PIDFILE}
+	eend $?
+}
+@
+
+
+1.1.1.1
+log
+@dispatch-conf update.
+@
+text
+@d4 1
+a4 1
+# $Header: /var/cvsroot/gentoo-x86/net-analyzer/snort/files/snort.rc7,v 1.1 2006/02/17 16:22:03 vanquirius Exp $
+a21 1
+		--pidfile ${PIDFILE} \
+@

@@ -1,0 +1,68 @@
+
+use strict;
+##########################################################################
+# $Id: applydate,v 1.13 2005/02/24 17:08:04 kirk Exp $
+##########################################################################
+
+########################################################
+# This was written and is maintained by:
+#    Kirk Bauer <kirk@kaybee.org>
+#
+# Please send all comments, suggestions, bug reports,
+#    etc, to kirk@kaybee.org.
+########################################################
+
+use POSIX qw(strftime);
+
+# SearchDate2 is for newer crond (i.e. RH7.X)
+my ($SearchDate, $SearchDate2, $ThisLine);
+my ($incount, $outcount) = (0, 0);
+my $time = time;
+my $hostname = $ENV{'HOSTNAME'};
+my $OSname = $ENV{'OSname'};
+
+if ($ENV{'LOGWATCH_DATE_RANGE'} eq 'yesterday') {
+   $SearchDate = strftime("%m/%d", localtime($time-86400));
+   $SearchDate2 = strftime("%b %e", localtime($time-86400));
+}
+elsif ($ENV{'LOGWATCH_DATE_RANGE'} eq 'today') {
+   $SearchDate = strftime("%m/%d", localtime($time));
+   $SearchDate2 = strftime("%b %e", localtime($time));
+}
+elsif ($ENV{'LOGWATCH_DATE_RANGE'} eq 'all') {
+   $SearchDate = '../..';
+   $SearchDate2 = '... ..';
+}
+
+if ($ENV{'LOGWATCH_DEBUG'} > 5) {
+   print STDERR "DEBUG: Inside ApplyDate (cron)...\n";
+   print STDERR 'DEBUG: Range: ' . $ENV{'LOGWATCH_DATE_RANGE'} . "\n";
+   print STDERR "DEBUG: Looking For: $SearchDate or $SearchDate2\n";
+}
+
+while (defined($ThisLine = <STDIN>)) {
+   $incount++;
+   #Solaris CRON filter -mgt
+   #Basically takes the cron format in /var/cron/log and makes it look like syslog
+   if ( $OSname =~ /SunOS/ ) {
+      if ($ThisLine =~ m/^\>\s+CMD: (.+)$/o) {
+         my $command = $1;
+         my $nextline = <STDIN>;
+         my ($user, $ps, $datestamp) = $nextline =~ /^\>\s+(\w+) (\d+) \w \w\w\w (\w\w\w\s+\d+ \d\d:\d\d:\d\d)/;
+         $ThisLine = "$datestamp $hostname CROND[$ps]: ($user) CMD ($command)\n";
+      }
+   }
+   if ($ThisLine =~ m/^[^ ]+ \($SearchDate-..:..:..-[0123456789]+\) /o) {
+      print $ThisLine;
+      $outcount++;
+   } elsif ($ThisLine =~ m/^$SearchDate2 ..:..:.. [^ ]+ [\w\/]+\[\d+\]:/o) {
+      print $ThisLine;
+      $outcount++;
+   }
+}
+
+if ($ENV{'LOGWATCH_DEBUG'} > 5) {
+   print STDERR "DEBUG: ApplyDate (cron): $incount Lines In, $outcount Lines Out\n";
+}
+
+# vi: shiftwidth=3 tabstop=3 syntax=perl et

@@ -1,0 +1,15 @@
+dev-perl/Net-XWhois ~x86
+
+dev-php4/jpgraph ~x86
+net-analyzer/base ~x86
+dev-php/PEAR-Image_Canvas ~x86
+dev-php/PEAR-Image_Color ~x86
+dev-php/PEAR-Image_Graph ~x86
+dev-php/PEAR-Numbers_Roman ~x86
+
+dev-db/mtop ~x86
+
+sys-libs/freeipmi ~x86
+sys-libs/openipmi ~x86
+sys-apps/ipmitool ~x86
+sys-apps/ipmiutil ~x86

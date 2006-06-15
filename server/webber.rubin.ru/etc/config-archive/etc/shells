@@ -1,0 +1,10 @@
+# /etc/shells: valid login shells
+# $Header: /var/cvsroot/gentoo-src/rc-scripts/etc/shells,v 1.5 2003/07/15 20:36:32 azarah Exp $
+/bin/sh
+/bin/bash
+/bin/tcsh
+/bin/csh
+/bin/esh
+/bin/ksh
+/bin/zsh
+/bin/sash

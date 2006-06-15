@@ -1,0 +1,75 @@
+head	1.1;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.1
+date	2006.03.20.08.29.55;	author root;	state Exp;
+branches
+	1.1.1.1;
+next	;
+
+1.1.1.1
+date	2006.03.20.08.30.14;	author root;	state Exp;
+branches;
+next	;
+
+
+desc
+@Archived config file.
+@
+
+
+1.1
+log
+@dispatch-conf update.
+@
+text
+@#%PAM-1.0
+
+auth       required	/lib/security/pam_securetty.so
+auth       required	/lib/security/pam_stack.so service=system-auth
+auth       required	/lib/security/pam_nologin.so
+
+account    required	/lib/security/pam_stack.so service=system-auth
+
+password   required	/lib/security/pam_stack.so service=system-auth
+
+session    required	/lib/security/pam_stack.so service=system-auth
+@
+
+
+1.1.1.1
+log
+@dispatch-conf update.
+@
+text
+@d3 3
+a5 5
+auth       required	pam_securetty.so
+auth       include	system-auth
+auth       required	pam_tally.so file=/var/log/faillog onerr=succeed no_magic_root
+auth       required	pam_shells.so
+auth       required	pam_nologin.so
+d7 1
+a7 3
+account    required	pam_access.so
+account    include	system-auth
+account    required	pam_tally.so deny=0 file=/var/log/faillog onerr=succeed no_magic_root
+d9 1
+a9 11
+password   include	system-auth
+
+session    include	system-auth
+session    required	pam_env.so
+session    optional	pam_lastlog.so
+session    optional	pam_motd.so motd=/etc/motd
+session    optional	pam_mail.so
+
+# If you want to enable pam_console, uncomment the following line
+# and read carefully README.pam_console in /usr/share/doc/pam*
+#session    optional	pam_console.so
+d11 1
+@

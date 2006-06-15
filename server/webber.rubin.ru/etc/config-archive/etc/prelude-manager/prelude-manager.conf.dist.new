@@ -1,0 +1,156 @@
+# Prelude Manager configuration file.
+#
+# <IMPORTANT>
+#
+# Sections are importants, and things won't work correctly if they are not 
+# un-commented. For example you need to uncomment [db] if you want the 
+# database plugin to be loaded.
+#
+# </IMPORTANT>
+
+
+include = /etc/prelude/default/global.conf
+
+
+# Address where the prelude-manager server is listening on.
+# if value is unix, or unix:/path/to/unix/socket, an UNIX domain
+# socket will be used.
+# 
+# Multiple listen address are supported.
+#
+# listen = address:port
+# listen = unix:/tmp/prelude-manager.socket
+# listen = unix
+#
+listen = 127.0.0.1
+
+
+# Sets the user/group ID as which prelude-manager will run.
+# In order to use this option, prelude-manager must be run initially as root
+#
+# user = prelude
+# group = prelude
+
+
+# Number of bits of the prime used in the Diffie Hellman key exchange. 
+# Note that the bits value should be one of 768, 1024, 2048, 3072 or 4096. 
+# The default is 1024.
+#
+# dh-prime-length = 1024
+
+
+# How often to regenerate the parameters used in the Diffie Hellman key 
+# exchange. These should be discarded and regenerated once a day, once a 
+# week or once a month. Depending on the security requirements.
+#
+# Generation is a CPU intensive operation. The value is in hours, 
+# 0 disables regeneration entirely. The default is 24 hours.
+#
+# dh-parameters-regenerate = 24
+
+
+# If you want this Manager to retrieve message from another
+# Manager (useful if the other Manager is inside a DMZ):
+#
+# child-managers = x.x.x.x 
+#
+# This mean the messages should be gathered from x.x.x.x
+
+#
+# If you want a given reporting plugin to be protected against 
+# possible failure, use the failover option. Failover will prevent
+# the data sent to the report plugin to be lost in case this one fail.
+#
+# You might use this option multiple time for different plugins.
+#
+# failover = name_of_plugin
+
+
+####################################
+# Here start plugins configuration #
+####################################
+
+# [relaying]
+#
+# If you want the message caught by this manager to be relayed.
+# You can use boolean AND and OR to make the rule.
+#
+# parent-managers = x.x.x.x || y.y.y.y && z.z.z.z
+#
+# This mean the emission should occur on x.x.x.x or, if it fail,
+# on y.y.y.y and z.z.z.z (if one of the two host in the AND fail, 
+# the emission will be considered as failed involving saving the 
+# message locally).
+
+
+# [db]
+
+# The type of database (mysql/pgsql).
+# type = mysql
+
+# Host the database is listening on.
+# host = localhost
+
+# Port the database is listening on.
+# port = 3306
+
+# Name of the database.
+# name = prelude
+
+# Username to be used to connect the database.
+# user = prelude
+
+# Password used to connect the database.
+# pass = xxxxxx
+
+
+
+#
+# The Textmod plugin allow to report alert as text
+# in a file. Or to dump theses alert to stderr. 
+#
+# The default logfile for this plugin is /var/log/prelude.log
+#
+
+# [TextMod]
+#
+# logfile = stderr
+# logfile = /usr/var/log/prelude.log
+
+
+
+
+# [XmlMod]
+#
+# The Xmlmod plugin allow to report alert as IDMEF XML in a file. 
+# Or to dump theses alert to stderr. 
+#
+# The default logfile for this plugin is /var/log/prelude-xml.log
+#
+# Tell Xmlmod to disable output file buffering.
+# This will prevent XML alerts to be truncated and thus make real-time
+# parsing easier:
+#
+# disable-buffering
+#
+#
+# Tell Xmlmod to check generated XML against IDMEF DTD:
+# validate
+# 
+# Tell Xmlmod to produce a pretty, human readable xml output:
+# format
+#
+# logfile = stderr
+# logfile = /usr/var/log/prelude-xml.log
+
+
+
+# [Debug]
+# 
+# logfile = stderr
+#
+# Specify the name of the IDMEF object to print (you might select multiple objects).
+# If no object is provided, 'Debug' will print out the entire message.
+#
+# object = alert.classification.text
+

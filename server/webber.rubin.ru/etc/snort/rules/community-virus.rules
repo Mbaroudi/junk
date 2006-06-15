@@ -1,0 +1,7 @@
+# Copyright 2005 Sourcefire, Inc. All Rights Reserved.
+# These rules are licensed under the GNU General Public License.
+# Please see the file LICENSE in this directory for more details. 
+# $Id: community-virus.rules,v 1.6 2005/03/08 14:41:42 bmc Exp $
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET 5554 (msg:"COMMUNITY VIRUS Dabber PORT overflow attempt port 5554"; flow:to_server,established,no_stream; content:"PORT"; nocase; isdataat:100,relative; pcre:"/^PORT\s[^\n]{100}/smi"; reference:MCAFEE,125300; classtype:attempted-admin; sid:100000110; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1023 (msg:"COMMUNITY VIRUS Dabber PORT overflow attempt port 1023"; flow:to_server,established,no_stream; content:"PORT"; nocase; isdataat:100,relative; pcre:"/^PORT\s[^\n]{100}/smi"; reference:MCAFEE,125300; classtype:attempted-admin; sid:100000111; rev:1;)

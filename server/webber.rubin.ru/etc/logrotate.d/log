@@ -1,0 +1,5 @@
+/var/log/*.log {
+    missingok
+    rotate 8
+    weekly
+}

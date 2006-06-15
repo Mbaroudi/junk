@@ -1,0 +1,100 @@
+# Configuration file for pydf
+#
+#
+# colours can be: 
+#  'none'    - no change from previous colour
+#  'default' - default system colour
+#
+# special attributes:
+#  'bold'
+#  'underline'
+#  'blink'
+#  'reverse'
+#  'concealed'
+#
+# foreground:
+#  'black'
+#  'red'
+#  'green'
+#  'yellow'
+#  'blue'
+#  'magenta'
+#  'cyan'
+#  'white'
+#
+# background:
+#  'on_black'
+#  'on_red'
+#  'on_green'
+#  'on_yellow'
+#  'on_blue'
+#  'on_magenta'
+#  'on_cyan'
+#  'on_white'
+#
+# beep:
+#  'beep'
+#
+#
+# or any combination of these, separated with commas
+
+
+# normal text colour - currently not used
+normal_colour = 'default'
+
+# colour of the header
+header_colour = 'yellow'
+
+# colour for local filesystems
+local_fs_colour = 'default'
+
+# colour for remote filesystems (such as nfs, samba, afs....)
+remote_fs_colour = 'green'
+
+# colour for special filesystems (such as proc, pty)
+special_fs_colour = 'blue'
+
+# colour for filesystems with usage > FILL_THRESH
+filled_fs_colour = 'red'
+
+# colour for filesystems with usage > FULL_THRESH
+full_fs_colour = 'on_red', 'green', 'blink'
+
+# default format for displaying sizes "-h" or "-H" or "-m" or "-k" or "--blocks"
+sizeformat = "-h"
+
+# filesystem filled up over this limit (in percents) is displayed
+# with filled_fs_colour (to show it is dangerously filled up)
+FILL_THRESH = 85.0
+
+# filesystem filled up over this limit is displayed with 
+# full_fs_colour (to show it is FULL)
+FULL_THRESH = 99.0
+
+# Format used to display information: (keyword, size, justify).
+# keyword is one of 'fs' 'fstype' 'size' 'used' 'avail' 'perc' 'bar' 'on'.
+# size is column width of the entry, a space is automatically added
+# between columns.
+# justify is either "l" for left justify, "r" for right justify or "c" for 
+# center.
+# You can use any order and any combination of keywords, but
+# be careful not to exceed the size of your screen
+
+
+format = [    
+            ('fs', 15, "l"), ('size', 9, "r"), 
+            ('used', 9, "r"), ('avail', 9, "r"), ('perc', 5, "r"),
+            ('bar', 8, "l"), ('on', 16, "l")
+         ]
+
+
+# character to display filesystem size bar
+barchar = '#'
+
+# file to get mount information from
+# on normal linux system, only /etc/mtab or /proc/mounts make sense
+
+mountfile = "/etc/mtab"
+
+# needed only when your python interpreter does not support os.statvfs
+statfs_command = "/usr/local/bin/statfs -t"

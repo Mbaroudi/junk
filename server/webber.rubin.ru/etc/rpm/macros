@@ -1,0 +1,1 @@
+%__dbi_cdb create private cdb mpool mp_mmapsize=16Mb mp_size=1Mb

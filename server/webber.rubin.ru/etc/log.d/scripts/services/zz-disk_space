@@ -1,0 +1,38 @@
+##########################################################################
+# $Id: zz-disk_space,v 1.8 2005/02/24 17:08:05 kirk Exp $
+##########################################################################
+my (%Config);
+
+$ENV{PRINTING} = "y";
+$Config{'output'} = $ENV{'LOGWATCH_OUTPUT_TYPE'};
+$Config{'detail'} = $ENV{'LOGWATCH_DETAIL_LEVEL'} || 0;
+my $show_home_dir_sizes = $ENV{'show_home_dir_sizes'} || 0;
+
+if (($ENV{'PRINTING'} eq "y" ) && ($ENV{'OSname'} eq "Linux")) {
+   if ($show_home_dir_sizes == 1) { #set in zz-disk_space.conf -mgt
+      print "\n\n------------- Home Directory Sizes ---------------\n\n";
+      print "Size    Location\n";
+      print "(MB)\n";
+      system("du -s --block-size=1048576 /home/* | sort -n -r -k 1");
+      print "\n\n------------- Home Directory Sizes ---------------\n\n";
+    }
+   #print "\n\n------------------ Disk Space --------------------\n\n";
+   #system("df -hP | grep '^/dev/'");
+   system("df -hP | grep '^[/ ]'");
+   print "\n";
+} elsif ($ENV{'PRINTING'} eq "y") {
+   if ($show_home_dir_sizes == 1) { #set in zz-disk_space.conf -mgt
+      print "\n\n------------- Home Directory Sizes ---------------\n\n";
+      print "Size    Location\n";
+      print "(MB)\n";
+      system("du -s -k /home/* | sort -n -r -k 1");
+      print "\n\n------------- Home Directory Sizes ---------------\n\n";
+    }
+   #print "\n\n------------------ Disk Space --------------------\n\n";
+   #system("df -kP | grep '^/dev/'");
+   system("df -kP | grep '^[/ ]'");
+   print "\n";
+}
+
+# vi: shiftwidth=3 tabstop=3 syntax=perl et
+

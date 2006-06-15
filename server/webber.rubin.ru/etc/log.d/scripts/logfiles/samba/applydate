@@ -1,0 +1,63 @@
+
+##########################################################################
+# $Id: applydate,v 1.9 2005/02/24 17:08:04 kirk Exp $
+##########################################################################
+
+########################################################
+# This was written and is maintained by:
+#    Luuk de Boer <luuk@pi.net>
+#
+# Please send all comments, suggestions, bug reports,
+#    etc, to kirk@kaybee.org.
+########################################################
+
+use POSIX qw(strftime);
+
+# I plan to add a *lot* more date flexibility at a later time...
+
+my $time = time;
+
+if ( $ENV{'LOGWATCH_DATE_RANGE'} eq 'yesterday') {
+   $SearchDate = strftime("%m/%d/%y", localtime($time-86400));
+   $SearchDate2 = strftime("%Y/%m/%d", localtime($time-86400));
+}
+elsif ( $ENV{'LOGWATCH_DATE_RANGE'} eq 'today') {
+   $SearchDate = strftime("%m/%d/%y", localtime($time));
+   $SearchDate2 = strftime("%Y/%m/%d", localtime($time));
+}
+elsif ( $ENV{'LOGWATCH_DATE_RANGE'} eq 'all') {
+   $SearchDate = "../../..";
+   $SearchDate2 = "..../../..";
+}
+
+if ( $ENV{'LOGWATCH_DEBUG'} > 5 ) {
+   print STDERR "DEBUG: Inside ApplyDate (samba)...\n";
+   print STDERR "DEBUG: Range: " . $ENV{'LOGWATCH_DATE_RANGE'} . "\n";
+   print STDERR "DEBUG: Looking For: $SearchDate or $SearchDate2\n";
+}
+
+$ThisLine = <STDIN>;
+mainloop: while ($ThisLine) {
+   if ($ThisLine =~ m/^$SearchDate ..:..:.. /o) {
+      print $ThisLine;
+   }
+   elsif ($ThisLine =~ m/^\[$SearchDate2 ..:..:../o) {
+      chomp($ThisLine);
+      print $ThisLine;
+      while ($ThisLine = <STDIN>) {
+         if ($ThisLine =~ m/^\[....\/..\/.. ..:..:../) {
+            # Found next entry
+            print "\n";
+            next mainloop;
+         } else {
+            chomp($ThisLine);
+            print $ThisLine;
+         }
+      }
+      print "\n";
+   } else {
+      $ThisLine = <STDIN>;
+   }
+}
+
+# vi: shiftwidth=3 tabstop=3 syntax=perl et

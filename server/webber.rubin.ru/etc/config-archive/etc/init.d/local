@@ -1,0 +1,35 @@
+#!/sbin/runscript
+# Copyright 1999-2005 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-src/rc-scripts/init.d/local,v 1.12.4.1 2005/01/30 22:17:37 vapier Exp $
+
+depend() {
+	after *
+}
+
+start() {
+	ebegin "Starting local"
+
+	# Add any misc programs that should be started
+	# to /etc/conf.d/local.start
+	if [[ -e /etc/conf.d/local.start ]] ; then
+		source /etc/conf.d/local.start
+	fi
+
+	eend $? "Failed to start local"
+}
+
+stop() {
+	ebegin "Stopping local"
+
+	# Add any misc programs that should be stopped
+	# to /etc/conf.d/local.stop
+	if [[ -e /etc/conf.d/local.stop ]] ; then
+		source /etc/conf.d/local.stop
+	fi
+
+	eend $? "Failed to stop local"
+}
+
+
+# vim:ts=4

@@ -1,0 +1,26 @@
+# /etc/conf.d/local.start
+# $Header: /var/cvsroot/gentoo-src/rc-scripts/etc/conf.d/local.start,v 1.4.4.1 2005/02/19 02:13:53 vapier Exp $
+
+# This is a good place to load any misc.
+# programs on startup ( 1>&2 )
+		
+# Soldatov durak! Chtob ya bolshe ne videl takogo!!!
+# Yes! Of cause!!!! But this works....
+route add default gw 212.248.100.1
+/sbin/route add -net 192.168.16.0 netmask 255.255.255.0 gw 212.248.100.3
+/sbin/route add -net 192.168.17.0 netmask 255.255.255.0 gw 212.248.100.3
+
+# this is very imortant for web hosting !!!
+modprobe dummy numdummies=256 && sleep 10 && /usr/local/sbin/hosting start all
+ifconfig dummy255 172.16.1.1 && named -c /etc/hosting/bind/named.conf -u named
+/etc/init.d/squid start
+
+#this is for some particular web servers to work...
+su host10 -c '/var/www/172.16.0.10/public_html/cgi-bin/auth/bin/auth.pl --conf=/var/www/172.16.0.10/public_html/cgi-bin/auth/conf/webauth.conf &'
+su host14 -c 'cd /var/www/172.16.0.14/public_html/htdocs && ./chatserver &' 2>&1>/dev/null
+su host14 -c 'cd /var/www/172.16.0.14/public_html/htdocs/bot/mat && ./mat &' 2>&1>/dev/null
+su host14 -c 'cd /var/www/172.16.0.14/public_html/htdocs/bot/quiz && ./kiiz &' 2>&1>/dev/null
+
+#for monitoring raid
+MegaCtrl -start -log /var/log/MegaRaid.log 2>&1>/dev/null
+

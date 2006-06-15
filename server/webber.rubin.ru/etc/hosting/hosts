@@ -1,0 +1,17 @@
+#################/etc/hosting/hosts#########
+172.16.0.1	host1.webber.rubin.ru	forum.netcom-r.ru
+172.16.0.2	host2.webber.rubin.ru	largos.ru	www.largos.ru
+172.16.0.3	host3.webber.rubin.ru	vaidena.by	www.vaidena.by
+172.16.0.4	host4.webber.rubin.ru	westside.ru	www.westside.ru		west-side.ru	www.west-side.ru
+172.16.0.5	host5.webber.rubin.ru	chat.netcom-r.ru	
+172.16.0.6	host6.webber.rubin.ru	rubin.ru	www.rubin.ru
+172.16.0.7	host7.webber.rubin.ru	jurstrana.ru	www.jurstrana.ru
+172.16.0.8	host8.webber.rubin.ru	forum.rubi.ru	
+172.16.0.9	host9.webber.rubin.ru	press.gorbushkin.ru	www.press.gorbushkin.ru
+172.16.0.10	host10.webber.rubin.ru	rubi.ru	www.rubi.ru gorbushkin.ru www.gorbushkin.ru www.gorbushkin.su www.gorbushkin.com www.gorbushkin.net www.gorbushkin.org www.gorbushkin.info www.gorbushkin.biz shop.rubi.ru www.shop.rubi.ru ruby.ru www.ruby.ru
+172.16.0.11	host11.webber.rubin.ru	my-monica.com	www.my-monica.com
+172.16.0.12	host12.webber.rubin.ru	webber.rubin.ru	
+172.16.0.13	host13.webber.rubin.ru	datingclub.ru	www.datingclub.ru
+172.16.0.14	host14.webber.rubin.ru	chat.datingclub.ru	
+172.16.0.15	host15.webber.rubin.ru	www1.netcom-r.ru	
+172.16.0.16	host16.webber.rubin.ru	folks.brain.msk.ru	

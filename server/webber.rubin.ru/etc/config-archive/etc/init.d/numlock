@@ -1,0 +1,35 @@
+#!/sbin/runscript
+# Copyright 1999-2005 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-src/rc-scripts/init.d/numlock,v 1.11.4.1 2005/01/30 22:17:37 vapier Exp $
+
+depend() {
+	need localmount
+}
+
+start() {
+	ebegin "Enabling numlock on ttys"
+	local dev
+	[[ -d /dev/vc ]] \
+		&& dev=/dev/vc/ \
+		|| dev=/dev/tty
+	for tty in $(seq 1 "${RC_TTY_NUMBER}") ; do
+		setleds -D +num < ${dev}${tty} &> /dev/null
+	done
+	eend $? "Failed to enable numlock"
+}
+
+stop() {
+	ebegin "Disabling numlock on ttys"
+	local dev
+	[[ -d /dev/vc ]] \
+		&& dev=/dev/vc/ \
+		|| dev=/dev/tty
+	for tty in $(seq 1 "${RC_TTY_NUMBER}") ; do
+		setleds -D -num < ${dev}${tty} &> /dev/null
+	done
+	eend $? "Failed to disable numlock"
+}
+
+
+# vim:ts=4
