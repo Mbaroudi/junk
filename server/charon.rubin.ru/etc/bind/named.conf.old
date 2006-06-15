@@ -1,0 +1,320 @@
+//
+// named.conf for Red Hat caching-nameserver 
+//
+
+acl mynet { 127.0.0.1; 212.248.100.0/24; 192.168.0.0/16; 195.210.145.0/29; };
+
+acl relcom { 193.124.22.65; };
+
+acl nsrubin { 212.248.100.8; };
+
+
+options {
+	listen-on { 195.210.145.4; };
+	directory "/var/named";
+	dump-file "/var/named/data/cache_dump.db";
+        statistics-file "/var/named/data/named_stats.txt";
+	allow-transfer { none; };
+        allow-recursion { mynet; };
+	/*
+	 * If there is a firewall between you and nameservers you want
+	 * to talk to, you might need to uncomment the query-source
+	 * directive below.  Previous versions of BIND always asked
+	 * questions using port 53, but BIND 8.1 uses an unprivileged
+	 * port by default.
+	 */
+	//  query-source address 192.168.10.18 port 53;
+};
+
+// 
+// a caching only nameserver config
+// 
+controls {
+	inet 127.0.0.1 allow { localhost; } keys { rndckey; };
+};
+
+zone "." IN {
+	type hint;
+	file "named.ca";
+};
+
+zone "localdomain" IN {
+	type master;
+	file "localdomain.zone";
+	allow-update { none; };
+};
+
+zone "localhost" IN {
+	type master;
+	file "localhost.zone";
+	allow-update { none; };
+};
+
+zone "0.0.127.in-addr.arpa" IN {
+	type master;
+	file "named.local";
+	allow-update { none; };
+};
+
+zone "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.ip6.arpa" IN {
+        type master;
+	file "named.ip6.local";
+	allow-update { none; };
+};
+
+zone "255.in-addr.arpa" IN {
+	type master;
+	file "named.broadcast";
+	allow-update { none; };
+};
+
+zone "0.in-addr.arpa" IN {
+	type master;
+	file "named.zero";
+	allow-update { none; };
+};
+
+include "/etc/rndc.key";
+
+/*
+ * My Slave zone
+ */
+
+zone "brain.msk.ru" in {
+        type slave;
+        file "slaves/brain.msk.ru";
+        masters { 212.248.100.8; };
+        allow-transfer { relcom; };
+};
+
+zone "itcu.msk.ru" in {
+        type slave;
+        file "slaves/itcu.msk.ru";
+        masters { 212.248.100.8; };
+        allow-transfer { relcom; };
+};
+
+zone "itcu.spb.ru" in {
+        type slave;
+        file "slaves/itcu.spb.ru";
+        masters { 212.248.100.8; };
+        allow-transfer { relcom; };
+};
+
+zone "itunion.msk.ru" in {
+        type slave;
+        file "slaves/itunion.msk.ru";
+        masters { 212.248.100.8; };
+        allow-transfer { relcom; };
+};
+
+zone "itunion.spb.ru" in {
+        type slave;
+        file "slaves/itunion.spb.ru";
+        masters { 212.248.100.8; };
+        allow-transfer { relcom; };
+};
+
+zone "cgiheaven.msk.ru" in {
+        type slave;
+        file "slaves/cgiheaven.msk.ru";
+        masters { 212.248.100.8; };
+        allow-transfer { relcom; };
+};
+
+zone "sysjob.ru" in {
+        type slave;
+        file "slaves/sysjob.ru";
+        masters { 212.248.100.8; };
+};
+
+zone "sysnews.ru" in {
+        type slave;
+        file "slaves/sysnews.ru";
+        masters { 212.248.100.8; };
+};
+
+zone "sysadmins.msk.ru" in {
+        type slave;
+        file "slaves/sysadmins.msk.ru";
+        masters { 212.248.100.8; };
+        allow-transfer { relcom; };
+};
+
+zone "rubinrealty.ru" in {
+        type slave;
+        file "slaves/rubinrealty.ru";
+        masters { 212.248.100.8; };
+};
+
+zone "rubin-realty.ru" in {
+        type slave;
+        file "slaves/rubin-realty.ru";
+        masters { 212.248.100.8; };
+};
+
+zone "westside.ru" in {
+        type slave;
+        file "slaves/westside.ru";
+        masters { 212.248.100.8; };
+};
+
+zone "west-side.ru" in {
+        type slave;
+        file "slaves/west-side.ru";
+        masters { 212.248.100.8; };
+};
+
+zone "7377470.ru" in {
+        type slave;
+        file "slaves/7377470.ru";
+        masters { 212.248.100.8; };
+};
+
+zone "xpoint.msk.ru" in {
+        type slave;
+        file "slaves/xpoint.msk.ru";
+        masters { 212.248.100.8; };
+        allow-transfer { relcom; };
+};
+
+zone "cycleurope.ru" in {
+        type slave;
+        file "slaves/cycleurope.ru";
+        masters { 212.248.100.8; };
+};
+
+zone "povt.nov.ru" in {
+        type slave;
+        file "slaves/povt.nov.ru";
+        masters { 212.248.100.8; };
+        allow-transfer { relcom; };
+};
+
+zone "gorbushkindom.ru" in {
+        type slave;
+        file "slaves/gorbushkindom.ru";
+        masters { 212.248.100.8; };
+};
+
+zone "my-monica.com" in {
+        type slave;
+        file "slaves/my-monica.com";
+        masters { 212.248.100.8; };
+};
+
+zone "gorbushkindvor.com" in {
+        type slave;
+        file "slaves/gorbushkindvor.com";
+        masters { 212.248.100.8; };
+};
+
+zone "gorbushkindvor.info" in {
+        type slave;
+        file "slaves/gorbushkindvor.info";
+        masters { 212.248.100.8; };
+};
+
+zone "lalapark.ru" in {
+        type slave;
+        file "slaves/lalapark.ru";
+        masters { 212.248.100.8; };
+};
+
+zone "lalapark.info" in {
+        type slave;
+        file "slaves/lalapark.info";
+        masters { 212.248.100.8; };
+};
+
+zone "gorbushkahit.com" in {
+        type slave;
+        file "slaves/gorbushkahit.com";
+        masters { 212.248.100.8; };
+};
+
+zone "gorbushka-hit.com" in {
+        type slave;
+        file "slaves/gorbushka-hit.com";
+        masters { 212.248.100.8; };
+};
+
+zone "gorbushka-hit.ru" in {
+        type slave;
+        file "slaves/gorbushka-hit.ru";
+        masters { 212.248.100.8; };
+};
+
+zone "gorbushkahit.ru" in {
+        type slave;
+        file "slaves/gorbushkahit.ru";
+        masters { 212.248.100.8; };
+};
+
+zone "gorbushkin.ru" in {
+        type slave;
+        file "slaves/gorbushkin.ru";
+        masters { 212.248.100.8; };
+};
+
+zone "gordvor.ru" in {
+        type slave;
+        file "slaves/gordvor.ru";
+        masters { 212.248.100.8; };
+};
+
+zone "forumru.com" in {
+        type slave;
+        file "slaves/forumru.com";
+        masters { 212.248.100.8; };
+};
+
+/* 2005.09.08: Can't download zone from master server.
+ * zone "tsipulina.ru" in {
+ *         type slave;
+ *         file "slaves/tsipulina.ru";
+ *         masters { 217.67.181.52; };
+ * };
+ */
+
+zone "gorbushkin.su" in {
+        type slave;
+        file "slaves/gorbushkin.su";
+        masters { 212.248.100.8; };
+};
+
+zone "gorbushkin.com" in {
+        type slave;
+        file "slaves/gorbushkin.com";
+        masters { 212.248.100.8; };
+};
+
+zone "gorbushkin.net" in {
+        type slave;
+        file "slaves/gorbushkin.net";
+        masters { 212.248.100.8; };
+};
+
+zone "gorbushkin.org" in {
+        type slave;
+        file "slaves/gorbushkin.org";
+        masters { 212.248.100.8; };
+};
+
+zone "gorbushkin.info" in {
+        type slave;
+        file "slaves/gorbushkin.info";
+        masters { 212.248.100.8; };
+};
+
+zone "gorbushkin.biz" in {
+        type slave;
+        file "slaves/gorbushkin.biz";
+        masters { 212.248.100.8; };
+};
+
+zone "vaidena.by" {
+	type slave;
+	file "slaves/vaidena.by";
+	masters {217.21.54.73;};
+};

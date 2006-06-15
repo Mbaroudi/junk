@@ -1,0 +1,37 @@
+head	1.1;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.1
+date	2006.03.13.15.13.58;	author brain;	state Exp;
+branches;
+next	;
+
+
+desc
+@Archived config file.
+@
+
+
+1.1
+log
+@dispatch-conf update.
+@
+text
+@#
+# reserved values
+#
+255	local
+254	main
+253	default
+252	dns
+251	rubin_real
+0	unspec
+#
+# local
+#
+#1	inr.ruhep
+@

@@ -1,0 +1,49 @@
+head	1.1;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.1
+date	2006.04.27.05.41.32;	author root;	state Exp;
+branches
+	1.1.1.1;
+next	;
+
+1.1.1.1
+date	2006.04.27.05.41.33;	author root;	state Exp;
+branches;
+next	;
+
+
+desc
+@Archived config file.
+@
+
+
+1.1
+log
+@dispatch-conf update.
+@
+text
+@# /etc/skel/.bash_profile:
+# $Header: /var/cvsroot/gentoo-x86/app-shells/bash/files/dot-bash_logout,v 1.1 2005/04/30 00:08:01 vapier Exp $
+
+# This file is sourced when a login shell terminates.
+# Clear the screen for security's sake.
+clear
+@
+
+
+1.1.1.1
+log
+@dispatch-conf update.
+@
+text
+@d1 2
+a2 1
+# /etc/skel/.bash_logout
+a4 1
+
+@

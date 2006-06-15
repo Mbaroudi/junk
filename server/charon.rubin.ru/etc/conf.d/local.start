@@ -1,0 +1,24 @@
+# /etc/conf.d/local.start
+# $Header: /var/cvsroot/gentoo-src/rc-scripts/etc/conf.d/local.start,v 1.4.4.1 2005/02/19 02:13:53 vapier Exp $
+
+# This is a good place to load any misc.
+# programs on startup ( 1>&2 )
+/etc/init.d/LBcore.init start
+/etc/init.d/LBarcd.init start
+/etc/init.d/LBcd.init.tables start
+
+# PPPOE Server
+/usr/sbin/pppoe-server -N 1024 -S pppoe -C netcom-r -I eth1.12 -I eth1.13 -I eth1.15 -I eth1.24 -I eth1.27 -I eth1.29
+
+# PPTP Server
+/usr/sbin/pptpd --listen 192.168.16.1
+/usr/sbin/pptpd --listen 192.168.17.1
+
+# Iproute2
+# !!! Pri etom ne budet pingovat'sya 145.4 & 100.3 ot vnutrennih eth
+# for dns (ns2.rubin.ru)
+#/sbin/ip rule add from 195.210.145.4/32 to 0.0.0.0/0 table dns
+#/sbin/ip route add default table dns via 195.210.145.1
+# for go to LB via direct connect. Not via proxy
+#/sbin/ip rule add from 212.248.100.3/32 to 0.0.0.0/0 table rubin_real
+#/sbin/ip route add default table rubin_real via 212.248.100.1

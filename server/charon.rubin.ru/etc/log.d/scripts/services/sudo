@@ -1,0 +1,54 @@
+###########################################################################
+# $Id: sudo,v 1.8 2005/02/24 17:08:05 kirk Exp $
+###########################################################################
+
+###########################################################################
+# sudo: A logwatch script to collate and format sudo log entries from
+#       the secure log. Entries are broken down by the user who issued
+#       the command, and further by the effective user of the command.
+#
+#       Detail Levels:
+#        0: Just print the command
+#       20: Include the current directory when the command was executed
+#           (on a separate line)
+#       30: Include the TTY on the directory line
+###########################################################################
+
+use strict;
+#require 5.6.0; # our
+
+our ($Debug,  $Detail,  %byUser);
+
+my $Debug = $ENV{'LOGWATCH_DEBUG'} || 0;
+my $Detail = $ENV{'LOGWATCH_DETAIL_LEVEL'} || 20;
+
+while (defined(my $ThisLine = <STDIN>)) {
+
+   if ( $ThisLine =~ m/^\s*(\w+) : TTY=(\S+) ; PWD=(.*?) ; USER=(\w+) ; COMMAND=(.*)/) {
+      my ($user, $tty, $dir, $euser, $cmd) = ($1, $2, $3, $4, $5);
+      push @{$byUser{$user}{$euser}}, [$cmd, $dir, $tty];
+   }
+
+}
+
+foreach my $user (sort keys %byUser) {
+        print "=" x 78, "\n";
+        foreach my $euser (sort keys %{$byUser{$user}}) {
+            print "$user => $euser\n", "-" x 78, "\n";
+            foreach my $row (@{$byUser{$user}{$euser}}) {
+        	my ($cmd, $dir, $tty) = @$row;
+        	# make long commands easier to read
+        	$cmd =~ s/(?=.{74,})(.{1,74}) /${1} \\\n    /g
+        	    if (length($cmd) > 75);
+        	print "$cmd\n";
+        	if ($Detail > 20) {
+        	    my $ttydetail = "";
+        	    $ttydetail = "($tty) " if $Detail >= 30;
+        	    print "\t$ttydetail$dir\n";
+        	} # if $Detail
+            } # foreach $row
+        } # foreach $euser
+} # foreach $user
+
+# vi: shiftwidth=3 tabstop=3 syntax=perl et
+

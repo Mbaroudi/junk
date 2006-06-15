@@ -1,0 +1,35 @@
+head	1.1;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.1
+date	2006.06.13.05.14.32;	author root;	state Exp;
+branches;
+next	;
+
+
+desc
+@Archived config file.
+@
+
+
+1.1
+log
+@dispatch-conf update.
+@
+text
+@# /etc/conf.d/iptables
+
+# Location in which iptables initscript will save set rules on 
+# service shutdown
+IPTABLES_SAVE="/var/lib/iptables/rules-save"
+
+# Options to pass to iptables-save and iptables-restore 
+#SAVE_RESTORE_OPTIONS="-c"
+
+# Save state on stopping iptables
+SAVE_ON_STOP="no"
+@

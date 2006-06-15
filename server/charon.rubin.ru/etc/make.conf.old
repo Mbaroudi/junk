@@ -1,0 +1,21 @@
+# These settings were set by the catalyst build script that automatically built this stage
+# Please consult /etc/make.conf.example for a more detailed example
+#CFLAGS="-O2 -march=pentium4"
+#CHOST="i686-pc-linux-gnu"
+#CXXFLAGS="${CFLAGS}"
+
+# Coped from webber
+CFLAGS="-O2 -march=pentium4 -pipe -mfpmath=sse -fomit-frame-pointer"
+CHOST="i686-pc-linux-gnu"
+CXXFLAGS="${CFLAGS}"
+
+USE="apache bash-completion chroot iconv lm_sensors logrotate nptlonly \
+     sensord sockets test unicode vhosts -X -alsa -apache2 -arts -esd -gnome -gtk \
+     -ipv6 -kde -oss"
+
+FEATURES="buildpkg ccache"
+PORT_LOGDIR=/var/log/portage
+PORTDIR_OVERLAY="/usr/local/portage"
+CCACHE_SIZE="3G"
+MAKEOPTS="-j2"
+#GENTOO_MIRRORS="http://mirror.aiya.ru/pub/gentoo/ ftp://mirror.aiya.ru/pub/gentoo/ http://ftp.citkit.ru/pub/Linux/gentoo ftp://ftp.citkit.ru/pub/Linux/gentoo"

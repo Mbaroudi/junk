@@ -1,0 +1,35 @@
+
+##########################################################################
+# $Id: expandrepeats,v 1.8 2005/02/24 17:08:05 kirk Exp $
+##########################################################################
+
+########################################################
+# This was written and is maintained by:
+#    Kirk Bauer <kirk@kaybee.org>
+#
+# Please send all comments, suggestions, bug reports,
+#    etc, to kirk@kaybee.org.
+#
+########################################################
+
+# This used to expand "Last Message Repeated n Times" messages in 
+# standard syslog files.  Now, I have decided it is much better to
+# just ignore the repeats, as otherwise our temporary logfiles will
+# be too huge.
+
+$LastLine = "";
+
+while (defined($ThisLine = <STDIN>)) {
+   if ($ThisLine =~ m/last message repeated ([0123456789]+) times$/) {
+      # Just ignore these lines
+      #for ($i=0;$i<$1;$i++) {
+      #   print $LastLine;
+      #}
+   }
+   else {
+      print $ThisLine;
+      $LastLine = $ThisLine;
+   }
+}
+
+# vi: shiftwidth=3 syntax=perl tabstop=3 et

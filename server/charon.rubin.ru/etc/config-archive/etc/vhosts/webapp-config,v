@@ -1,0 +1,430 @@
+head	1.1;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.1
+date	2006.04.10.07.09.41;	author root;	state Exp;
+branches
+	1.1.1.1;
+next	;
+
+1.1.1.1
+date	2006.04.10.07.10.11;	author root;	state Exp;
+branches;
+next	;
+
+
+desc
+@Archived config file.
+@
+
+
+1.1
+log
+@dispatch-conf update.
+@
+text
+@# -*- mode: sh -*-
+#
+# /etc/vhosts/webapp-config
+#		Some default variables that are shared between the 
+#		webapp-config utility, and the webapp eclass
+#
+#		Part of the Gentoo Linux distribution
+#
+# Copyright	(c) 1999-2004 Gentoo Technologies, Inc
+#		Released under v2 of the GNU GPL
+#
+# Author(s)	Stuart Herbert <stuart@@gentoo.org>
+#
+# ========================================================================
+
+# ========================================================================
+# IMPORTANT:
+#
+# You MUST set $PVR before source'ing this file.  This is automatically
+# taken care of for ebuilds ... other scripts must remember to do this too!
+#
+# The SAME warning goes for setting $PN.
+#
+# See ebuild(5) for details on what $PN and $PVR are for.
+#
+# ========================================================================
+
+# ========================================================================
+#
+# USER-EDITABLE SETTINGS
+#
+# Feel free to edit these settings to suit your local needs
+#
+# ========================================================================
+
+# VHOST_ROOT is the directory where virtual host websites are added
+# so, if your server is hosting (say)
+#
+# 	www.gentoo.org
+#	bugs.gentoo.org
+#
+# then the htdocs directory for each of these would be
+#
+#	/var/www/www.gentoo.org/htdocs
+#	/var/www/bugs.gentoo.org/htdocs
+#
+# Change this setting *only* if you need your websites installed in
+# a different physical location
+#
+# If you perfer to use Gentoo's optional support for the /srv service
+# home file hierarchy, uncomment the second version of VHOST_ROOT
+# (this should have been done for you if you installed webapp-config
+# with the srvdir USE flag enabled)
+
+VHOST_ROOT="/var/www/${G_HOSTNAME}"
+#VHOST_ROOT="/srv/${G_HOSTNAME}/www"
+
+# some web applications need to know what host they are serving up pages
+# for.  this information is configured when the application is installed
+# by the webapp-config script
+#
+# changing this value *after* the application has been installed has
+# no effect!!
+#
+# you can override this setting by using the -h switch to webapp-config
+
+VHOST_HOSTNAME="localhost"
+# VHOST_HOSTNAME="`hostname --fqdn 2>/dev/null || echo localhost`"
+
+# what web server are you using?
+# your choices are:
+#
+# apache-basic
+#
+# you can override this setting by using the -s switch to webapp-config
+
+VHOST_SERVER="apache"
+
+# which user should own config files?
+# the default is 'id -nu', which is normally the root user
+#
+# IMPORTANT: never set this to a numerial uid.  always use the username
+# or else webapp-config *will* complain that the user does not exist
+#
+# you can override this setting by using the -u switch to webapp-config
+
+VHOST_CONFIG_UID="`id -nu`"
+
+# which group should own config files?
+# the default is 'id -ng', which is normally the root group
+#
+# IMPORTANT: never set this to a numerical gid.  always use the group name
+# or else webapp-config *will* complain that the group does not exist
+#
+# you can override this setting by using the -g switch to webapp-config
+
+VHOST_CONFIG_GID="`id -ng`"
+
+# what type of shared directories should be created?
+# the default is 'virtual', which means that each install of the app
+# does NOT get a unique copy of the directory, or the files beneath it
+#
+# permitted values are: server-owned, config-owned, virtual, root-owned
+#
+# you can override this setting by using the --virtual-dirs switch to
+# webapp-config
+
+VHOST_CONFIG_VIRTUAL_DIRS="virtual"
+
+# what type of shared files should be created?
+# the default is 'virtual', which means that each install of the app
+# does NOT get a unique copy of the files
+#
+# permitted values are: server-owned, config-owned, virtual
+#
+# you can override this setting by using the --virtual-files switch to
+# webapp-config
+
+VHOST_CONFIG_VIRTUAL_FILES="virtual"
+
+# where should drop-in config files for Apache et al go?
+#
+# these files will be called <server>-<app>.conf.  They are quite rare,
+# but are needed from time to time by the odd application or two
+
+VHOST_CONFIG_DIR="${VHOST_ROOT}/conf"
+
+# which user & group should own the files by default?
+#
+# the default is for files to be owned by the superuser root, so that
+# they cannot be tampered with by other users
+#
+# this setting affects the files and directories installed by the ebuild,
+# and it affects some directories created by webapp-config.  It does not
+# affect any of the files installed by webapp-config at this time.
+
+VHOST_DEFAULT_UID="root"
+VHOST_DEFAULT_GID="root"
+
+# what type of links do you want to use?
+#
+# starting with webapp-config v1.10, the default behaviour is to attempt
+# to hardlink a file from /usr/share/webapps/* first.  If the hardlink
+# fails (normally because /usr and /var | /srv are on different filesystems)
+# webapp-config will fall back to making a physical copy of the file
+# instead
+#
+# NOTE:
+#	we have moved to hardlinks because not all web-based packages work
+#	when their files are symlinked in
+#
+#	please do not raise bugs about packages that do not work when
+#	symlinked
+#
+# VHOST_LINK_TYPE="soft"
+
+# what are the names of your document directories?
+#
+# by default, your website lives in /var/www/<hostname>/htdocs.  If you
+# run webapp-config with the --secure switch, your website instead lives
+# in /var/www/<hostname>/htdocs-secure.
+#
+# you can change the default names of 'htdocs' and 'htdocs-secure' by
+# editing these two variables
+
+VHOST_HTDOCS_INSECURE="htdocs"
+VHOST_HTDOCS_SECURE="htdocs-secure"
+
+# what permissions do you want the files to have?
+#
+# by default, webapp-config installs directories and files with these
+# permissions.  You can change them here to comply with your local
+# security policies.
+
+VHOST_PERMS_SERVEROWNED_DIR=775
+VHOST_PERMS_SERVEROWNED_FILE=664
+
+VHOST_PERMS_CONFIGOWNED_DIR=755
+VHOST_PERMS_CONFIGOWNED_FILE=644
+
+VHOST_PERM_DEFAULTOWNED_DIR=755
+
+VHOST_PERMS_VIRTUALOWNED_DIR=755
+VHOST_PERMS_VIRTUALOWNED_FILE="o-w"
+
+VHOST_PERMS_INSTALLDIR=755
+
+# ========================================================================
+# END OF USER-EDITABLE SETTINGS
+# ========================================================================
+
+# ========================================================================
+# EDIT THE VARIABLES BELOW THIS LINE AT YOUR OWN RISK
+#
+# These variables are used by the webapp.eclass component of Portage,
+# and by /usr/sbin/webapp-config.
+#
+# If you break your Gentoo installation by changing these settings, then
+# re-emerge the webapps-config package to restore the default values
+#
+# When webapp-config is upgraded, it may add to and/or change the value of
+# variables listed here.  If you do not merge in these changes, you will
+# probably find that webapp-config will break in horrible ways.
+#
+# etc-update is NOT optional ;-)
+#
+# ========================================================================
+
+MY_APPSUFFIX="${PN}/${PVR}"
+MY_APPROOT="/usr/share/webapps"
+MY_APPDIR="${MY_APPROOT}/${MY_APPSUFFIX}"
+MY_PERSISTROOT="/var/db/webapps"
+MY_PERSISTDIR="${MY_PERSISTROOT}/${MY_APPSUFFIX}"
+MY_HTDOCSBASE="htdocs"
+MY_HTDOCSDIR="${MY_APPDIR}/${MY_HTDOCSBASE}"
+G_HTDOCSDIR="${VHOST_ROOT}/${G_HTDOCSBASE:-$MY_HTDOCSBASE}"
+MY_HOSTROOTBASE="hostroot"
+MY_HOSTROOTDIR="${MY_APPDIR}/${MY_HOSTROOTBASE}"
+MY_CGIBINBASE="cgi-bin"
+MY_CGIBINDIR="${MY_HOSTROOTDIR}/${MY_CGIBINBASE}"
+MY_ICONSBASE="icons"
+MY_ICONSDIR="${MY_HOSTROOTDIR}/${MY_ICONSBASE}"
+MY_ERRORSBASE="error"
+MY_ERRORSDIR="${MY_HOSTROOTDIR}/${MY_ERRORSBASE}"
+MY_SQLSCRIPTSDIR="${MY_APPDIR}/sqlscripts"
+MY_HOOKSCRIPTSDIR="${MY_APPDIR}/hooks"
+MY_SERVERCONFIGDIR="${MY_APPDIR}/conf"
+WA_CONFIGLIST="${MY_APPDIR}/config-files"
+WA_SOLIST="${MY_APPDIR}/server-owned-files"
+WA_POSTINSTALLINFO="${MY_APPDIR}/post-install-instructions.txt"
+WA_VIRTUALLIST="${MY_APPDIR}/virtuals"
+WA_INSTALLSBASE="installs"
+WA_INSTALLS="${MY_PERSISTDIR}/${WA_INSTALLSBASE}"
+
+# when problems are detected, where should the user report bugs to?
+MY_BUGSURL="http://bugs.gentoo.org/"
+
+# which version of webapp-config is this file for?
+#
+# we have a problem when users upgrade webapp-config.  It turns out that
+# they don't explicitly upgrade webapp-config ... instead, webapp-config
+# gets because it is a dependency for a web-based package.
+#
+# unfortunately, this means that any changes to this config file do not
+# get installed (through etc-update or equivalent) until after the web-
+# based package has been installed.  We end up trying to install the
+# package using a partial install of webapp-config
+#
+# how can we work around this?
+#
+# the only way to work around this is to put some sort of version-control
+# marker in this config file.  webapp-config and this file must agree on
+# what this marker is, otherwise webapp-config will refuse to work
+
+WA_CONF_VERSION=6
+
+# ========================================================================
+# END OF CONFIG FILE
+# ========================================================================
+@
+
+
+1.1.1.1
+log
+@dispatch-conf update.
+@
+text
+@d1 2
+d4 14
+a17 2
+#       Some default variables that are shared between the
+#       webapp-config utility, and the webapp eclass
+d19 2
+a20 1
+#       Part of the Gentoo Linux distribution
+d22 1
+a22 2
+# Copyright (c) 1999-2005 Gentoo Foundation
+#       Released under v2 of the GNU GPL
+d24 1
+a24 3
+# Author(s)     Stuart Herbert <stuart@@gentoo.org>
+#               Renat Lumpau <rl03@@gentoo.org>
+#               Gunnar Wrobel <php@@gunnarwrobel.de>
+d36 1
+a36 1
+# vhost_root is the directory where virtual host websites are added
+d39 2
+a40 2
+#   www.gentoo.org
+#   bugs.gentoo.org
+d44 2
+a45 2
+#   /var/www/www.gentoo.org/htdocs
+#   /var/www/bugs.gentoo.org/htdocs
+d50 2
+a51 2
+# If you prefer to use Gentoo's optional support for the /srv service
+# home file hierarchy, uncomment the second version of vhost_root
+d55 2
+a56 2
+vhost_root="/var/www/${vhost_hostname}"
+#vhost_root="/srv/${vhost_hostname}/www"
+a65 4
+#
+# IMPORTANT: If you comment this setting and provide no explicit hostname
+# with the command line -h switch, webapp-config will try to determine
+# the fully qualified domain name by itself
+d67 2
+a68 1
+vhost_hostname="localhost"
+d73 1
+a73 3
+# apache
+# aolserver
+# lighttpd
+d77 1
+a77 1
+vhost_server="apache"
+d80 4
+a83 3
+# the default is the user currently running webapp-config (which is 
+# normally the root user). You may either use the numerical uid or the 
+# user name
+d87 1
+a87 1
+#vhost_config_uid="root"
+d90 4
+a93 3
+# the default is the group of the user currently running webapp-config
+# (which is normally the root group). You may either use the numerical
+# gid or the group name
+d97 1
+a97 1
+#vhost_config_gid="root"
+d100 2
+a101 2
+# the default is 'default-owned', which means that each install of the app
+# gets a copy of the directory 
+d103 1
+a103 1
+# permitted values are: server-owned, config-owned, default-owned
+d105 1
+a105 1
+# you can override this setting by using the --default-dirs switch to
+d108 1
+a108 1
+vhost_config_default_dirs="default-owned"
+d119 1
+a119 1
+vhost_config_virtual_files="virtual"
+d121 1
+a121 1
+# where should drop-in config files for webservers go?
+d126 1
+a126 1
+vhost_config_dir="${vhost_root}/conf"
+d137 2
+a138 2
+vhost_default_uid="root"
+vhost_default_gid="root"
+d149 2
+a150 2
+#   we have moved to hardlinks because not all web-based packages work
+#   when their files are symlinked in
+d152 2
+a153 2
+#   please do not raise bugs about packages that do not work when
+#   symlinked
+d155 1
+a155 1
+# vhost_link_type="soft"
+d166 2
+a167 2
+vhost_htdocs_insecure="htdocs"
+vhost_htdocs_secure="htdocs-secure"
+a173 3
+# You need to specify octal values ("0nnn") or you can use the encoding
+# used by chmod ("[ugoa]{1,3}[+-=]{rwx]{1,3}" elements as a comma 
+# seperated list)
+d175 2
+a176 2
+vhost_perms_serverowned_dir="0775"
+vhost_perms_serverowned_file="0664"
+d178 2
+a179 2
+vhost_perms_configowned_dir="0755"
+vhost_perms_configowned_file="0644"
+d181 1
+a181 2
+vhost_perms_defaultowned_dir="0755"
+vhost_perms_virtualowned_file="o-w"
+d183 2
+a184 1
+vhost_perms_installdir="0755"
+d186 1
+d209 29
+d255 1
+a255 1
+WA_CONF_VERSION="7"
+@

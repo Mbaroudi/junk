@@ -1,0 +1,60 @@
+head	1.1;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.1
+date	2005.12.22.06.57.19;	author brain;	state Exp;
+branches;
+next	;
+
+
+desc
+@Archived config file.
+@
+
+
+1.1
+log
+@dispatch-conf update.
+@
+text
+@#
+# dispatch-conf.conf
+#
+
+# Directory to archive replaced configs
+archive-dir=/etc/config-archive
+
+# Use rcs for storing files in the archive directory?
+# (yes or no)
+use-rcs=yes
+
+# Diff for display
+# %s old file
+# %s new file
+diff="diff -Nu %s %s | less --no-init --QUIT-AT-EOF"
+
+# Diff for interactive merges.
+# %s output file
+# %s old file
+# %s new file
+merge="sdiff --suppress-common-lines --output=%s %s %s"
+
+# Automerge files comprising only CVS interpolations (e.g. Header or Id)
+# (yes or no)
+replace-cvs=yes
+
+# Automerge files comprising only whitespace and/or comments
+# (yes or no)
+replace-wscomments=yes
+
+# Automerge files that the user hasn't modified
+# (yes or no)
+replace-unmodified=yes
+
+# Per-session log file of changes made to configuration files
+log-file=/var/log/dispatch-conf.log
+@

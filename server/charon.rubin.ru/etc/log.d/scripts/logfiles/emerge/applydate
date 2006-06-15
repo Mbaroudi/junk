@@ -1,0 +1,52 @@
+
+##########################################################################
+# $Id: applydate,v 1.1 2005/04/20 22:13:32 bjorn Exp $
+##########################################################################
+# $Log: applydate,v $
+# Revision 1.1  2005/04/20 22:13:32  bjorn
+# Initial file by Matt Brown
+#
+##########################################################################
+
+##########################################################################
+# This was written by: Matt Brown,  mdbrown at uwaterloo dot ca
+#
+# Please send all comments, suggestions, bug reports,
+#    etc, to logwatch-devel@logwatch.org.
+##########################################################################
+
+
+# Processes emerge logs to remove entries outside the desired date range
+
+use strict;
+use POSIX qw(strftime);
+
+# Set the date we are looking for based on the desired date range
+my $date;
+if ($ENV{'LOGWATCH_DATE_RANGE'} eq 'yesterday') {
+    $date = strftime("%b %d, %Y", localtime(time-86400));
+}
+elsif ($ENV{'LOGWATCH_DATE_RANGE'} eq 'today') {
+    $date = strftime("%b %d, %Y", localtime(time));
+}
+elsif ($ENV{'LOGWATCH_DATE_RANGE'} eq 'all') {
+    $date = '\w{3} [0-9]{2}, [0-9]{4}';
+}
+if ($ENV{'LOGWATCH_DEBUG'} > 5) {
+    print STDERR "DEBUG: Inside applydate (emerge)...\n";
+    print STDERR 'DEBUG: Range: ' . $ENV{'LOGWATCH_DATE_RANGE'} . "\n";
+    print STDERR "DEBUG: Looking For: $date\n";
+}
+
+# Examine each line of the file, writing out only the lines that are within
+# the date range
+my $printLine = 0;
+while (defined(my $line = <STDIN>)) {
+        if ($line =~ /Started emerge on: $date/) {
+                $printLine = 1;
+        }
+        elsif ($line =~ /Started emerge on:/) {
+                $printLine = 0;
+        }
+        print $line if ($printLine == 1);
+} 

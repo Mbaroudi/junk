@@ -1,0 +1,54 @@
+head	1.1;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.1
+date	2006.04.10.06.33.13;	author root;	state Exp;
+branches
+	1.1.1.1;
+next	;
+
+1.1.1.1
+date	2006.04.10.06.35.23;	author root;	state Exp;
+branches;
+next	;
+
+
+desc
+@Archived config file.
+@
+
+
+1.1
+log
+@dispatch-conf update.
+@
+text
+@# sysfs is populated after the event is sent
+ACTION=="add", DEVPATH=="/devices/*", ENV{PHYSDEVBUS}=="?*", WAIT_FOR_SYSFS="bus"
+ACTION=="add", SUBSYSTEM=="net", WAIT_FOR_SYSFS="address"
+
+# ignore these events until someone needs them
+SUBSYSTEM=="drivers",           OPTIONS="ignore_device"
+SUBSYSTEM=="module",            OPTIONS="ignore_device"
+
+@
+
+
+1.1.1.1
+log
+@dispatch-conf update.
+@
+text
+@a0 4
+# ignore these events until someone needs them
+SUBSYSTEM=="drivers",	OPTIONS="ignore_device"
+SUBSYSTEM=="module",	OPTIONS="ignore_device"
+
+a2 1
+ACTION=="add", SUBSYSTEM=="scsi", WAIT_FOR_SYSFS="ioerr_cnt"
+d4 5
+@

@@ -1,0 +1,57 @@
+#
+# LANBilling 1.8 Configuration file 
+#  
+
+# 
+# MySQL server IP, user, password, database name
+#
+rdbhost=127.0.0.1
+rdbuser=billing
+rdbpass=billing
+rdbname=billing
+
+#
+# MySQL server IP, user, password, database name
+# Used only for type=safe, as local database parameters
+#
+
+dbhost=127.0.0.1
+dbuser=billing
+dbpass=billing
+dbname=billing
+
+# System id. (Must be unique)
+sysid=1
+
+# 'type'= 
+#	<main> if using only one main database. in that case, dbhost, dbuser, dbpass, dbname set to NULL 
+#	<safe> if using local db+remote(main) db, only for LBcd, LBscd, LBccd.
+type=main
+
+# read main config every X seconds
+cfg_time=60
+
+# name of file, that will turn off virtual group access to network resources
+#(input args: login, password, segment, mask) ex: test password 192.168.0.0 255.255.255.0
+script_off=/usr/local/billing/vg.off
+
+# name of file, that will turn on virtual groups access to network resources
+#(input args: login, password, segment, mask) ex: test password 192.168.0.0 255.255.255.0
+script_on=/usr/local/billing/vg.on
+
+# name of file, that will executing after  virtual groups editing 
+#(input args: login, password, segment, mask) ex: test password 192.168.0.0 255.255.255.0
+script_edit=/usr/local/billing/vg.edit
+
+# name of file, that will be started after vgroup creation 
+#(input args: login, password, segment, mask) ex: test password 192.168.0.0 255.255.255.0
+script_create=/usr/local/billing/vg.create
+
+# name of file, that will be started after vgroup deletion (input args: login, password)
+script_delete=/usr/local/billing/vg.delete
+
+# name of executable file that will notify user about balance low level (input args: login, balance, email, b_limit)
+script_notify=/usr/local/billing/script_notify
+
+# Admin notification script. It will be started if agent inactive more than 3*flush seconds) (input args: agent_id email agent_description)
+adm_notify=/usr/local/billing/adm_notify

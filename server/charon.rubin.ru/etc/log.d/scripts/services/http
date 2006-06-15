@@ -1,0 +1,600 @@
+##########################################################################
+# $Id: http,v 1.21 2005/04/25 16:37:46 bjorn Exp $
+##########################################################################
+# $Log: http,v $
+# Revision 1.21  2005/04/25 16:37:46  bjorn
+# Commented out 'use diagnostics' for release
+#
+# Revision 1.20  2005/04/23 14:39:05  bjorn
+# Support for .html.language-extension and sqwebmaili, from Willi Mann.
+#
+# Revision 1.19  2005/04/22 13:46:02  bjorn
+# Adds filetype extensions, per Paweł Gołaszewski
+#
+# Revision 1.18  2005/04/17 19:12:14  bjorn
+# Changes to needs_exam to deal with error codes, and many print format changes
+#
+# Revision 1.17  2005/02/24 22:51:45  kirk
+# added "/.".
+# removed the duplicate '\/' from the ends of some lines.
+# added "/mailman/.*".
+# added "/announce", "/scrape", and the extension "torrent".
+# added vl2 to the archive extensions. (It's a zip file for a game.)
+#
+# Revision 1.16  2005/02/24 17:08:04  kirk
+# Applying consolidated patches from Mike Tremaine
+#
+# Revision 1.8  2005/02/21 19:09:52  mgt
+# Bump to 5.2.8 removed some cvs logs -mgt
+#
+# Revision 1.7  2005/02/16 00:43:28  mgt
+# Added #vi tag to everything, updated ignore.conf with comments, added emerge and netopia to the tree from Laurent -mgt
+#
+# Revision 1.6  2005/02/13 23:50:42  mgt
+# Tons of patches from Pawel and PLD Linux folks...Thanks! -mgt
+#
+# Revision 1.5  2004/10/11 18:37:15  mgt
+# patches from Pawel -mgt
+#
+# Revision 1.4  2004/07/29 19:33:29  mgt
+# Chmod and removed perl call -mgt
+#
+# Revision 1.3  2004/07/10 01:54:34  mgt
+# sync with kirk -mgt
+#
+##########################################################################
+
+########################################################
+# This was written and is maintained by:
+#    Michael Romeo <michaelromeo@mromeo.com>
+#
+# Please send all comments, suggestions, bug reports,
+#    etc, to kirk@kaybee.org.
+########################################################
+
+
+#use diagnostics;
+use strict;
+use Logwatch ':sort';
+# use re "debug";
+#
+#  parse httpd access_log
+#
+#  Get the detail level and
+#  Build tables of the log format to parse it and determine whats what
+#
+
+my $detail = 10;
+my @log_fields =();
+my @log_format =();
+my $ignore_error_hacks = 0;
+$detail = $ENV{'LOGWATCH_DETAIL_LEVEL'};
+@log_fields = split(" ", $ENV{'http_fields'});
+@log_format = split(" ", $ENV{'http_format'});
+$ignore_error_hacks = $ENV{'http_ignore_error_hacks'};
+
+#
+# Initialization etc.
+#
+
+my $byte_summary = 0;
+my $failed_requests = 0;
+my %field = ();
+my %hacks =();
+my %hack_success =();
+my %needs_exam =();
+my %ban_ip =();
+my %robots =();
+my $pattern = "";
+my $flag = 0;
+my $isahack = 0;
+my $a5xx_resp = 0;
+my $a4xx_resp = 0;
+my $a3xx_resp = 0;
+my $a2xx_resp = 0;
+my $a1xx_resp = 0;
+my $image_count = 0;
+my $image_bytes = 0;
+my $docs_count = 0;
+my $docs_bytes = 0;
+my $archive_count = 0;
+my $archive_bytes = 0;
+my $sound_count = 0;
+my $sound_bytes = 0;
+my $movie_count = 0;
+my $movie_bytes = 0;
+my $winexec_count = 0;
+my $winexec_bytes = 0;
+my $content_count = 0;
+my $content_bytes = 0;
+my $redirect_count = 0;
+my $redirect_bytes = 0;
+my $other_count = 0;
+my $other_bytes = 0;
+my $total_hack_count = 0;
+my $wpad_count =     0;
+my $wpad_bytes =     0;
+my $src_count =      0;
+my $src_bytes =      0;
+my $logs_count =     0;
+my $logs_bytes =     0;
+my $images_count =   0;
+my $images_bytes =   0;
+my $fonts_count =    0;
+my $fonts_bytes =    0;
+my $config_count =   0;
+my $config_bytes =   0;
+my $xpcomext_count = 0;
+my $xpcomext_bytes = 0;
+my $mozext_count =   0;
+my $mozext_bytes =   0;
+my $proxy_count =    0;
+my $proxy_bytes =    0;
+my %proxy_host =     ();
+my $host =           "";
+my $notparsed =      "";
+my $notparsed_count =0;
+
+######################
+my $image_types =    '(\.bmp|\.cdr|\.emz|\.gif|\.ico|\.jpeg|\.jpg|\.png|\.svg|\.sxd|\.tif|\.tiff|\.wbmp|\.wmf|\.wmz|\.xdm)';
+my $content_types =  '(';
+   $content_types =  $content_types.'\/server-status|\/server-info';
+   $content_types =  $content_types.'|\.htm|\.html|\.jhtml|\.phtml|\.shtml|\/\.?';
+   $content_types =  $content_types.'|\.html\.[a-z]{2,3}(_[A-Z]{2,3})?';
+   $content_types =  $content_types.'|\.inc|\.php|\.php3|\.asmx|\.asp|\.pl|\.wml';
+   $content_types =  $content_types.'|^\/mailman\/.*';
+   $content_types =  $content_types.'|\/sqwebmail.*';   
+   $content_types =  $content_types.'|^\/announce|^\/scrape'; # BitTorrent tracker mod_bt
+   $content_types =  $content_types.'|\.torrent';
+   $content_types =  $content_types.'|\.css|\.js|\.cgi';
+   $content_types =  $content_types.'|\.fla|\.swf|\.rdf';
+   $content_types =  $content_types.'|\.class|\.jsp|\.jar|\.java';
+   $content_types =  $content_types.'|COPYRIGHT|readme|README|FAQ|INSTALL|\.txt)';
+my $docs_types =     '(\.asc|\.djvu|\.doc|\.dot|\.dtd|\.dvi|\.gnumeric|\.mcd|\.mso|\.pdf|\.pps|\.ppt|\.ps|\.rtf|\.sxi|\.tex|\.text|\.tm|\.xls|\.xml)';
+my $archive_types =  '(\.ace|\.bz2|\.cab|\.deb|\.dsc|\.ed2k|\.gz|\.hqx|\.md5|\.rar|\.rpm|\.sig|\.sign|\.tar|\.tbz2|\.tgz|\.vl2|\.Z|\.zip)';
+my $sound_types =    '(\.au|\.aud|\.mid|\.mp3|\.ogg|\.pls|\.ram|\.raw|\.rm|\.wav|\.wma|\.wmv|\.xsm)';
+my $movie_types =    '(\.asf|\.ass|\.avi|\.idx|\.mid|\.mpg|\.mpeg|\.mov|\.qt|\.psb|\.srt|\.ssa|\.smi|\.sub)';
+my $winexec_types =  '(\.bat|\.com|\.exe|\.dll)';
+my $wpad_files =     '(wpad\.dat|wspad\.dat|proxy\.pac)';
+my $program_src =    '(';
+   $program_src =    $program_src.'\.bas|\.c|\.cpp|\.diff|\.f|\.h|\.init|\.m|\.mo|\.pas|\.patch|\.po|\.pot|\.sh|\.spec';
+   $program_src =    $program_src.'|Makefile|Makefile_c|Makefile_f77)';
+my $images_types =   '(\.bin|\.cue|\.img|\.iso|\.run)';
+my $logs_types =     '(\.log|_log|-log|\.logs|\.out|\.wyniki)';
+my $fonts_types =    '(\.aft|\.ttf)';
+my $config_types =   '(\.cfg|\.conf|\.config|\.ini|\.properties)';
+my $xpcomext_types = '(\.xpt)';
+my $mozext_types =   '(\.xul)';
+
+# HTTP Status codes from HTTP/Status.pm, to avoid loading package
+# that may or may not exist.  We only need those >=400, but all
+# are included for potential future use.
+my %StatusCode = (
+    100 => 'Continue',
+    101 => 'Switching Protocols',
+    102 => 'Processing',                      # WebDAV
+    200 => 'OK',
+    201 => 'Created',
+    202 => 'Accepted',
+    203 => 'Non-Authoritative Information',
+    204 => 'No Content',
+    205 => 'Reset Content',
+    206 => 'Partial Content',
+    207 => 'Multi-Status',                    # WebDAV
+    300 => 'Multiple Choices',
+    301 => 'Moved Permanently',
+    302 => 'Found',
+    303 => 'See Other',
+    304 => 'Not Modified',
+    305 => 'Use Proxy',
+    307 => 'Temporary Redirect',
+    400 => 'Bad Request',
+    401 => 'Unauthorized',
+    402 => 'Payment Required',
+    403 => 'Forbidden',
+    404 => 'Not Found',
+    405 => 'Method Not Allowed',
+    406 => 'Not Acceptable',
+    407 => 'Proxy Authentication Required',
+    408 => 'Request Timeout',
+    409 => 'Conflict',
+    410 => 'Gone',
+    411 => 'Length Required',
+    412 => 'Precondition Failed',
+    413 => 'Request Entity Too Large',
+    414 => 'Request-URI Too Large',
+    415 => 'Unsupported Media Type',
+    416 => 'Request Range Not Satisfiable',
+    417 => 'Expectation Failed',
+    422 => 'Unprocessable Entity',            # WebDAV
+    423 => 'Locked',                          # WebDAV
+    424 => 'Failed Dependency',               # WebDAV
+    500 => 'Internal Server Error',
+    501 => 'Not Implemented',
+    502 => 'Bad Gateway',
+    503 => 'Service Unavailable',
+    504 => 'Gateway Timeout',
+    505 => 'HTTP Version Not Supported',
+    507 => 'Insufficient Storage',            # WebDAV
+);
+
+#
+#   what to look for as an attack  USE LOWER CASE!!!!!!
+#
+my @exploits = (
+   'null',
+   '/../../../',
+   '../../config.sys',
+   '/../../../autoexec.bat',
+   '/../../windows/user.dat',
+   '\\\x02\\\xb1',
+   '\\\x04\\\x01',
+   '\\\x05\\\x01',
+   '\\\x90\\\x02\\\xb1\\\x02\\\xb1',
+   '\\\x90\\\x90\\\x90\\\x90',
+   '\\\xff\\\xff\\\xff\\\xff',
+   '\\\xe1\\\xcd\\\x80',
+   '\\\xff\xe0\\\xe8\\\xf8\\\xff\\\xff\\\xff-m',
+   '\\\xc7f\\\x0c',
+   '\\\x84o\\\x01',
+   '\\\x81',
+   '\\\xff\\\xe0\\\xe8',
+   '\/c\+dir',
+   '\/c\+dir\+c',
+   '\.htpasswd',
+   'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+   'author.exe',
+   'boot.ini',
+   'cmd.exe',
+   'cltreq.asp',
+   'c%20dir%20C',
+   'default.ida',
+   'httpodbc.dll',
+   'nsiislog.dll',
+   'owssvr.dll',
+   'passwd',
+   'phpmyadmin',
+   'root.exe',
+   'shtml.exe',
+   'win.ini',
+   'XXXXXXXXXXXXXXXXXXXXXX'
+);
+
+#
+#  Define some usefull RE paterns
+#
+
+my %re_pattern = (
+   space => '(.*)',
+   brace => '\[(.*)\]',
+   quote => '\"(.*)\"');
+
+#
+#  Build the regex to parse the line
+#
+
+for (my $i = 0; $i < @log_format; $i++) {
+   # print "$i $log_format[$i] $re_pattern{$log_format[$i]} \n";
+   $pattern = $pattern.$re_pattern{$log_format[$i]}.'\\s';
+}
+
+# this is easier than coding last element logic in the loop
+chop($pattern);
+chop($pattern);
+
+#################   print "RE pattern     = $pattern \n";
+
+#
+#  Process log file on stdin
+#
+
+while (my $line = <STDIN>) {
+   chomp($line);
+   
+   ##################  print "Line = $line \n";
+   
+   #
+   # parse the line per the input spec
+   #
+   
+   my @parsed_line = $line =~ /$pattern/o;
+
+   if (not @parsed_line) {
+      $notparsed_count++;
+      if ($notparsed_count <= 10) {
+         $notparsed = $notparsed . "   " . $line . "\n";
+      }
+      next;
+   }
+   
+   # hash the results so we can identify the fields
+   # 
+   for (my $i = 0; $i < @log_fields; $i++) {
+      #		print "$i $log_fields[$i] $parsed_line[$i] \n";
+      $field{$log_fields[$i]} = $parsed_line[$i];
+   }
+
+   ##
+   ## Do the default stuff
+   ## 
+
+   #
+   # Break up the request into method, url and protocol
+   #
+
+   ($field{method},$field{url},$field{protocol}) = split(/ /,$field{"request"});
+   if (! $field{url}) {
+      $field{url}='null';
+   }
+   $field{lc_url} = lc $field{url};
+   
+   #
+   # Bytes sent Summary
+   # Apache uses "-" to represent 0 bytes transfered
+   #
+	
+   if ($field{bytes_transfered} eq "-") {$field{bytes_transfered} = 0};
+   $byte_summary += $field{bytes_transfered};
+
+   #
+   #  loop to check for typical exploit attempts
+   #
+	
+   $isahack = 0;
+	for (my $i = 0; $i < @exploits; $i++) {
+      # print "$i $exploits[$i] $field{lc_url} \n";
+      if ($field{lc_url} =~ /$exploits[$i]/) {
+         $hacks{$field{client_ip}}{$exploits[$i]}++;
+         $total_hack_count += 1;
+         $ban_ip{$field{client_ip}} = " ";
+         if ($field{http_rc} < 400) {
+            $hack_success{$field{url}} = $field{http_rc};
+         }
+         $isahack = 1;
+      }
+   }
+   
+   #
+   #  Count types and bytes
+   #
+   #	this is only printed if detail > 4 but it also looks 
+   #	for 'strange' stuff so it needs to run always
+   #
+
+   ($field{base_url},$field{url_parms}) = split(/\?/,$field{"lc_url"});
+   
+   if ($field{base_url} =~ /$image_types$/o) {
+      $image_count += 1;
+      $image_bytes += $field{bytes_transfered};
+   } elsif ($field{base_url} =~ /$docs_types$/o) {
+      $docs_count += 1;
+      $docs_bytes += $field{bytes_transfered};
+   } elsif ($field{base_url} =~ /$archive_types$/o) {
+      $archive_count += 1;
+      $archive_bytes += $field{bytes_transfered};
+   } elsif ($field{base_url} =~ /$sound_types$/o) {
+      $sound_count += 1;
+      $sound_bytes += $field{bytes_transfered};
+   } elsif ($field{base_url} =~ /$movie_types$/o) {
+      $movie_count += 1;
+      $movie_bytes += $field{bytes_transfered};
+   } elsif ($field{base_url} =~ /$winexec_types$/o) {
+      $winexec_count += 1;
+      $winexec_bytes += $field{bytes_transfered};
+   } elsif ($field{base_url} =~ /$content_types$/o) {
+      $content_count += 1;
+      $content_bytes += $field{bytes_transfered};
+   } elsif ($field{base_url} =~ /$wpad_files$/o) {
+      $wpad_count += 1;
+      $wpad_bytes += $field{bytes_transfered};
+   } elsif ($field{base_url} =~ /$program_src$/o) {
+      $src_count += 1;
+      $src_bytes += $field{bytes_transfered};
+   } elsif ($field{base_url} =~ /$images_types$/o) {
+      $images_count += 1;
+      $images_bytes += $field{bytes_transfered};
+   } elsif ($field{base_url} =~ /$logs_types$/o) {
+      $logs_count += 1;
+      $logs_bytes += $field{bytes_transfered};
+   } elsif ($field{base_url} =~ /$fonts_types$/o) {
+      $fonts_count += 1;
+      $fonts_bytes += $field{bytes_transfered};
+   } elsif ($field{base_url} =~ /$config_types$/o) {
+      $config_count += 1;
+      $config_bytes += $field{bytes_transfered};
+   } elsif ($field{base_url} =~ /$xpcomext_types$/) {
+      $xpcomext_count += 1;
+      $xpcomext_bytes += $field{bytes_transfered};
+   } elsif ($field{base_url} =~ /$mozext_types$/) {
+      $mozext_count += 1;
+      $mozext_bytes += $field{bytes_transfered};
+   } elsif ($field{http_rc} =~ /3\d\d/) {
+      $redirect_count += 1;
+      $redirect_bytes += $field{bytes_transfered};
+   } elsif ($field{method} =~ /CONNECT/) {
+      $proxy_count += 1;
+      $proxy_bytes += $field{bytes_transfered};
+      $proxy_host{"$field{client_ip} -> $field{base_url}"}++;
+   } else {
+      $other_count += 1;
+      $other_bytes += $field{bytes_transfered};
+   }
+   if ( $field{http_rc} >= 400 ) {
+      my $fmt_url = $field{url};
+      if (length($field{url}) > 60) {
+         $fmt_url = substr($field{url},0,42) . " ... " .
+                    substr($field{url},-15,15);
+      }	
+      $needs_exam{$field{http_rc}}{$fmt_url}++;
+   }
+
+   ##
+   ## Do the > 4 stuff
+   ## 
+   #
+   #  Response Summary
+   #
+   
+   if ($field{http_rc} > 499 ) {
+      $a5xx_resp += 1;
+   } elsif ($field{http_rc} > 399 ) {
+      $a4xx_resp += 1;
+   } elsif($field{http_rc} > 299 ) {
+      $a3xx_resp += 1;
+   } elsif($field{http_rc} > 199 ) {
+      $a2xx_resp += 1;
+   } else {
+      $a1xx_resp += 1;
+   }
+
+   #
+   #  Count the robots who actually ask for the robots.txt file
+   #
+   
+   if ($field{lc_url} =~ /^\/robots.txt$/) {
+      if (defined $field{agent}) {
+         $robots{$field{agent}} +=1;
+      }
+   }
+   
+} ## End of while loop
+
+#############################################
+##   output the results 
+##
+
+if ($detail >4) {
+   printf "%.2f MB transfered " , $byte_summary/(1024*1024);
+   print  "in ";
+   print my $resp_total = ($a1xx_resp + $a2xx_resp + $a3xx_resp + $a4xx_resp + $a5xx_resp);
+   print " responses ";
+   print " (1xx $a1xx_resp, 2xx $a2xx_resp, 3xx $a3xx_resp,";
+   print " 4xx $a4xx_resp, 5xx $a5xx_resp) \n";
+   my $lr = length($resp_total);
+   if ($image_count > 0)      { printf "   %*d Images (%.2f MB),\n" , $lr, $image_count, $image_bytes/(1024*1024); }
+   if ($docs_count > 0)       { printf "   %*d Documents (%.2f MB),\n" , $lr, $docs_count, $docs_bytes/(1024*1024); }
+   if ($archive_count > 0)    { printf "   %*d Archives (%.2f MB),\n" , $lr, $archive_count, $archive_bytes/(1024*1024); }
+   if ($sound_count > 0)      { printf "   %*d Sound files (%.2f MB),\n" , $lr, $sound_count, $sound_bytes/(1024*1024); }
+   if ($movie_count > 0)      { printf "   %*d Movies files (%.2f MB),\n" , $lr, $movie_count, $movie_bytes/(1024*1024); }
+   if ($winexec_count > 0)    { printf "   %*d Windows executable files (%.2f MB),\n" , $lr, $winexec_count, $winexec_bytes/(1024*1024); }
+   if ($content_count > 0)    { printf "   %*d Content pages (%.2f MB),\n" , $lr, $content_count, $content_bytes/(1024*1024); }
+   if ($redirect_count > 0)   { printf "   %*d Redirects (%.2f MB),\n" , $lr, $redirect_count, $redirect_bytes/(1024*1024); }
+   if ($wpad_count > 0)       { printf "   %*d Proxy Configuration Files (%.2f MB),\n" , $lr, $wpad_count, $wpad_bytes/(1024*1024); }
+   if ($src_count > 0)        { printf "   %*d Program source files (%.2f MB),\n" , $lr, $src_count, $src_bytes/(1024*1024); }
+   if ($images_count > 0)     { printf "   %*d CD Images (%.2f MB),\n" , $lr, $images_count, $images_bytes/(1024*1024); }
+   if ($logs_count > 0)       { printf "   %*d Various Logs (%.2f MB),\n" , $lr, $logs_count, $logs_bytes/(1024*1024); }
+   if ($fonts_count > 0)      { printf "   %*d Fonts (%.2f MB),\n" , $lr, $fonts_count, $fonts_bytes/(1024*1024); }
+   if ($config_count > 0)     { printf "   %*d Configs (%.2f MB),\n" , $lr, $config_count, $config_bytes/(1024*1024); }
+   if ($xpcomext_count > 0)   { printf "   %*d XPCOM Type Libraries (%.2f MB),\n" , $lr, $xpcomext_count, $xpcomext_bytes/(1024*1024); }
+   if ($mozext_count > 0)     { printf "   %*d Mozilla extensions (%.2f MB),\n" , $lr, $mozext_count, $mozext_bytes/(1024*1024); }
+   if ($proxy_count > 0)      { printf "   %*d mod_proxy requests (%.2f MB),\n" , $lr, $proxy_count, $proxy_bytes/(1024*1024); }
+   if ($other_count > 0)      { printf "   %*d Other (%.2f MB) \n" , $lr, $other_count, $other_bytes/(1024*1024); }
+}
+
+#
+#  List attempted exploits
+#
+
+if (($detail >4) and $total_hack_count) {
+   print "\nAttempts to use known hacks by ".(keys %hacks).
+         " hosts were logged $total_hack_count time(s) from:\n";
+   my $order = TotalCountOrder(%hacks);
+   foreach my $i (sort $order keys %hacks) {
+      my $hacks_per_ip = 0;
+      foreach my $j ( keys %{$hacks{$i}} ) {
+         $hacks_per_ip += $hacks{$i}{$j};
+      }
+      print "   $i: $hacks_per_ip Time(s)\n";
+      if ($detail > 9) {
+         foreach my $j ( keys %{$hacks{$i}} ) {
+            print "      $j $hacks{$i}{$j} Time(s) \n";
+         }
+      } else {
+         print "\n";
+      }
+   }	
+}
+
+if (keys %proxy_host) {
+   print "\nConnection attempts using mod_proxy:\n";
+   foreach $host (sort {$a cmp $b} keys %proxy_host) {
+      print "   $host: $proxy_host{$host} Time(s)\n";
+   }
+}
+#
+#  List (wannabe) blackhat sites
+#
+
+$flag = 1;
+foreach my $i (sort keys %ban_ip) {
+   if ($flag) {
+      print "\nA total of ".scalar(keys %ban_ip)." sites probed the server \n";
+      $flag = 0;
+   }
+   #if ($detail > 4) {
+      print "   $i\n";
+   #}
+}
+
+#
+#  List possible successful probes
+#
+
+$flag = 1;
+foreach my $i (keys %hack_success) {
+   if ($flag) {
+      print "\n!!!! ".scalar(keys %hack_success)." possible successful probes \n";
+      $flag = 0;
+   }
+   print "   $i HTTP Response $hack_success{$i} \n";
+}
+
+#
+#  List error response codes
+#
+
+if (keys %needs_exam) {
+   print "\nRequests with error response codes\n";
+   # my $count = TotalCountOrder(%needs_exam);
+   for my $code (sort keys %needs_exam) {
+      if (not defined $StatusCode{$code}) {
+         $StatusCode{$code} = "\(undefined\)";
+      }
+      print "   $code $StatusCode{$code}\n";
+      for my $url (sort keys %{$needs_exam{$code}}) {
+         print "      $url: $needs_exam{$code}{$url} Time(s)\n";
+      }
+   }
+}
+
+#
+#  List robots that identified themselves
+#
+
+if ($detail > 4) {
+   $flag = 1;
+   foreach my $i (keys %robots) {
+      if ($flag) {
+         print "\nA total of ".scalar(keys %robots)." ROBOTS were logged \n";
+         $flag = 0;
+      }
+      if ($detail > 9) {
+         print "   $i $robots{$i} Time(s) \n";
+      }
+   }
+}
+
+if ($notparsed) {
+   print "\nThis is a listing of log lines that were not parsed correctly.\n";
+   print "Perhaps the variables \$HTTP_FIELDS and \$HTTP_FORMAT in file\n";
+   print "conf/services/http.conf are not correct?\n\n";
+   if ($notparsed_count > 10) {
+      print "(Only the first ten are printed; there were a total of $notparsed_count)\n";
+   }
+   print $notparsed;
+}
+
+exit (0);
+
+# vi: shiftwidth=3 tabstop=3 syntax=perl et
+

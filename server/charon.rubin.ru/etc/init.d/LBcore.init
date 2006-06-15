@@ -1,0 +1,70 @@
+#!/bin/sh
+#
+# /etc/rc.d/init.d/LBcore start/stop/restart/force-reload 
+# 
+# LAN Billing server v1.7 init script.
+#
+
+PROCESS="LBstatd";
+
+#Put args required here
+# i.e. ARGS="-c /etc/billing_my.conf -L /usr/local/billing/mylog.log"
+ARGS="-L /var/log/billing/server.log";
+
+
+
+CONFIG=`echo $ARGS | sed -e "s/^.*-c[[:space:]]*\([^[:space:]]*\)[[:space:]]*.*$/\1/"`;
+if test "$CONFIG" = "$ARGS"
+then
+	CONFIG="";
+fi;
+FAIL="FAILED";
+OK="OK";
+
+case "$1" in
+  start)
+    echo -n "Starting $PROCESS ...    ";
+    if ps axww | grep "$PROCESS" | grep "$CONFIG" | grep -v grep | grep -v $0 > /dev/null 2>/dev/null
+    then
+        echo  "[  $FAIL  ]";
+        echo "Process $PROCESS $ARGS is already running";
+    else
+        /usr/local/billing/$PROCESS $ARGS > /dev/null 2>&1
+        if test $? -ne 0
+        then
+            echo  "[  $FAIL  ]"
+        else
+            echo "[  $OK  ]";
+        fi;
+    fi;
+    ;;
+  stop)
+    echo -n "Stopping $PROCESS ...    ";
+    PIDS=`ps axmww | grep "$PROCESS" | grep "$CONFIG" | grep -v grep | grep -v $0 | awk '{print $1}'`;
+    KILL_FAILED=1;
+    for PID in $PIDS;
+    do
+       kill -9 $PID >/dev/null 2>&1;
+       if test $? -eq 0
+       then
+          KILL_FAILED=0;
+       fi; 
+    done;
+    if test $KILL_FAILED -eq 0
+    then
+       echo "[  $OK  ]";
+    else
+       echo "[  $FAIL  ]";
+    fi;
+    ;;
+  force-reload|restart|reload)
+    $0 stop;
+    sleep 1;
+    $0 start;
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart|reload|force-reload}"
+    exit 1
+esac
+
+exit 0

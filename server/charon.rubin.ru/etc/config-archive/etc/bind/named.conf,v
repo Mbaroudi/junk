@@ -1,0 +1,336 @@
+head	1.1;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.1
+date	2006.03.13.15.13.56;	author brain;	state Exp;
+branches;
+next	;
+
+
+desc
+@Archived config file.
+@
+
+
+1.1
+log
+@dispatch-conf update.
+@
+text
+@/*
+ *  named.conf
+ */
+
+/* My acl list */
+acl mynet { 127.0.0.1; 212.248.100.0/24; 192.168.0.0/16; 195.210.145.0/29; 10.0.0.0/8; };
+acl relcom { 193.124.22.65; };
+acl nsrubin { 212.248.100.8; };
+
+options {
+	directory "/var/bind";
+
+	// uncomment the following lines to turn on DNS forwarding,
+	// and change the forwarding ip address(es) :
+	//forward first;
+	//forwarders {
+	//	123.123.123.123;
+	//	123.123.123.123;
+	//};
+
+	listen-on-v6 { none; };
+        listen-on { 195.210.145.4; };
+
+	// to allow only specific hosts to use the DNS server:
+	//allow-query {
+	//	127.0.0.1;
+	//};
+
+	// if you have problems and are behind a firewall:
+	//query-source address * port 53;
+	pid-file "/var/run/named/named.pid";
+        allow-transfer { none; };
+        allow-recursion { mynet; };
+
+        dump-file "/var/bind/cache_dump.db";
+        statistics-file "/var/bind/named_stats.txt";
+};
+
+zone "." IN {
+	type hint;
+	file "named.ca";
+};
+
+zone "localhost" IN {
+	type master;
+	file "pri/localhost.zone";
+	allow-update { none; };
+	notify no;
+};
+
+zone "127.in-addr.arpa" IN {
+	type master;
+	file "pri/127.zone";
+	allow-update { none; };
+	notify no;
+};
+
+
+/*
+ * My Slave zone
+ */
+
+zone "brain.msk.ru" in {
+        type slave;
+        file "sec/brain.msk.ru";
+        masters { 212.248.100.8; };
+        allow-transfer { relcom; };
+};
+
+zone "itcu.msk.ru" in {
+        type slave;
+        file "sec/itcu.msk.ru";
+        masters { 212.248.100.8; };
+        allow-transfer { relcom; };
+};
+
+zone "itcu.spb.ru" in {
+        type slave;
+        file "sec/itcu.spb.ru";
+        masters { 212.248.100.8; };
+        allow-transfer { relcom; };
+};
+
+zone "itunion.msk.ru" in {
+        type slave;
+        file "sec/itunion.msk.ru";
+        masters { 212.248.100.8; };
+        allow-transfer { relcom; };
+};
+
+zone "itunion.spb.ru" in {
+        type slave;
+        file "sec/itunion.spb.ru";
+        masters { 212.248.100.8; };
+        allow-transfer { relcom; };
+};
+
+zone "cgiheaven.msk.ru" in {
+        type slave;
+        file "sec/cgiheaven.msk.ru";
+        masters { 212.248.100.8; };
+        allow-transfer { relcom; };
+};
+
+zone "sysjob.ru" in {
+        type slave;
+        file "sec/sysjob.ru";
+        masters { 212.248.100.8; };
+};
+
+zone "sysnews.ru" in {
+        type slave;
+        file "sec/sysnews.ru";
+        masters { 212.248.100.8; };
+};
+
+zone "sysadmins.msk.ru" in {
+        type slave;
+        file "sec/sysadmins.msk.ru";
+        masters { 212.248.100.8; };
+        allow-transfer { relcom; };
+};
+
+zone "rubinrealty.ru" in {
+        type slave;
+        file "sec/rubinrealty.ru";
+        masters { 212.248.100.8; };
+};
+
+zone "rubin-realty.ru" in {
+        type slave;
+        file "sec/rubin-realty.ru";
+        masters { 212.248.100.8; };
+};
+
+zone "westside.ru" in {
+        type slave;
+        file "sec/westside.ru";
+        masters { 212.248.100.8; };
+};
+
+zone "west-side.ru" in {
+        type slave;
+        file "sec/west-side.ru";
+        masters { 212.248.100.8; };
+};
+
+zone "7377470.ru" in {
+        type slave;
+        file "sec/7377470.ru";
+        masters { 212.248.100.8; };
+};
+
+zone "xpoint.msk.ru" in {
+        type slave;
+        file "sec/xpoint.msk.ru";
+        masters { 212.248.100.8; };
+        allow-transfer { relcom; };
+};
+
+zone "cycleurope.ru" in {
+        type slave;
+        file "sec/cycleurope.ru";
+        masters { 212.248.100.8; };
+};
+
+zone "povt.nov.ru" in {
+        type slave;
+        file "sec/povt.nov.ru";
+        masters { 212.248.100.8; };
+        allow-transfer { relcom; };
+};
+
+zone "gorbushkindom.ru" in {
+        type slave;
+        file "sec/gorbushkindom.ru";
+        masters { 212.248.100.8; };
+};
+
+zone "my-monica.com" in {
+        type slave;
+        file "sec/my-monica.com";
+        masters { 212.248.100.8; };
+};
+
+zone "gorbushkindvor.com" in {
+        type slave;
+        file "sec/gorbushkindvor.com";
+        masters { 212.248.100.8; };
+};
+
+zone "gorbushkindvor.info" in {
+        type slave;
+        file "sec/gorbushkindvor.info";
+        masters { 212.248.100.8; };
+};
+
+zone "lalapark.ru" in {
+        type slave;
+        file "sec/lalapark.ru";
+        masters { 212.248.100.8; };
+};
+
+zone "lalapark.info" in {
+        type slave;
+        file "sec/lalapark.info";
+        masters { 212.248.100.8; };
+};
+
+zone "gorbushkahit.com" in {
+        type slave;
+        file "sec/gorbushkahit.com";
+        masters { 212.248.100.8; };
+};
+
+zone "gorbushka-hit.com" in {
+        type slave;
+        file "sec/gorbushka-hit.com";
+        masters { 212.248.100.8; };
+};
+
+zone "gorbushka-hit.ru" in {
+        type slave;
+        file "sec/gorbushka-hit.ru";
+        masters { 212.248.100.8; };
+};
+
+zone "gorbushkahit.ru" in {
+        type slave;
+        file "sec/gorbushkahit.ru";
+        masters { 212.248.100.8; };
+};
+
+zone "gorbushkin.ru" in {
+        type slave;
+        file "sec/gorbushkin.ru";
+        masters { 212.248.100.8; };
+};
+
+zone "gordvor.ru" in {
+        type slave;
+        file "sec/gordvor.ru";
+        masters { 212.248.100.8; };
+};
+
+zone "forumru.com" in {
+        type slave;
+        file "sec/forumru.com";
+        masters { 212.248.100.8; };
+};
+
+/* 2005.09.08: Can't download zone from master server.
+ * zone "tsipulina.ru" in {
+ *         type slave;
+ *         file "sec/tsipulina.ru";
+ *         masters { 217.67.181.52; };
+ * };
+ */
+
+zone "gorbushkin.su" in {
+        type slave;
+        file "sec/gorbushkin.su";
+        masters { 212.248.100.8; };
+};
+
+zone "gorbushkin.com" in {
+        type slave;
+        file "sec/gorbushkin.com";
+        masters { 212.248.100.8; };
+};
+
+zone "gorbushkin.net" in {
+        type slave;
+        file "sec/gorbushkin.net";
+        masters { 212.248.100.8; };
+};
+
+zone "gorbushkin.org" in {
+        type slave;
+        file "sec/gorbushkin.org";
+        masters { 212.248.100.8; };
+};
+
+zone "gorbushkin.info" in {
+        type slave;
+        file "sec/gorbushkin.info";
+        masters { 212.248.100.8; };
+};
+
+zone "gorbushkin.biz" in {
+        type slave;
+        file "sec/gorbushkin.biz";
+        masters { 212.248.100.8; };
+};
+
+zone "vaidena.by" {
+	type slave;
+	file "sec/vaidena.by";
+	masters { 217.21.54.73; };
+};
+
+zone "jurstrana.ru" {
+	type slave;
+	file "sec/jurstrana.ru";
+	masters { 212.248.100.8; };
+};
+
+zone "netcom-r.ru" {
+	type slave;
+	file "sec/netcom-r.ru";
+	masters { 212.248.100.8; };
+};
+@

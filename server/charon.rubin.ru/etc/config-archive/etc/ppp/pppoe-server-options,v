@@ -1,0 +1,78 @@
+head	1.1;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.1
+date	2006.03.13.15.13.58;	author brain;	state Exp;
+branches;
+next	;
+
+
+desc
+@Archived config file.
+@
+
+
+1.1
+log
+@dispatch-conf update.
+@
+text
+@# PPP options for the PPPoE server
+# LIC: GPL
+
+# Sync mode 
+#sync
+
+# Debug
+debug
+
+# IP alloc
+#192.168.13.1:
+
+# Require the peer to authenticate itself before allowing network
+# packets to be sent or received.
+# For a PPP Server with script based logins not using PAP or CHAP
+# you need to disable this setting.
+auth
+
+# Name of the local system for authentication purposes
+# (must match the second field in /etc/ppp/chap-secrets entries)
+name charon
+
+# DNS addr
+#ms-dns 212.248.0.1
+ms-dns 195.210.145.4
+ms-dns 212.248.100.8
+
+# MTU & MRU
+mtu 1472
+mru 1472
+
+# BSD licensed ppp-2.4.2 upstream with MPPE only, kernel module ppp_mppe.o
+# Require the peer to authenticate itself using MS-CHAPv2 [Microsoft
+# Challenge Handshake Authentication Protocol, Version 2] authentication.
+#refuse-eap
+#refuse-pap
+#refuse-mschap
+require-chap
+require-mschap-v2
+# Test
+#require-pap
+
+# Peer ping
+lcp-echo-interval 10
+lcp-echo-failure 3
+
+#noproxyarp
+proxyarp
+nobsdcomp
+noipx
+novj
+receive-all
+plugin rp-pppoe.so
+plugin radius.so
+@

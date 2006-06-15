@@ -1,0 +1,8 @@
+PATH="/usr/i686-pc-linux-gnu/gcc-bin/3.3.6"
+ROOTPATH="/usr/i686-pc-linux-gnu/gcc-bin/3.3.6"
+LDPATH="/usr/lib/gcc-lib/i686-pc-linux-gnu/3.3.6"
+GCCBITS="32"
+MANPATH="/usr/share/gcc-data/i686-pc-linux-gnu/3.3.6/man"
+INFOPATH="/usr/share/gcc-data/i686-pc-linux-gnu/3.3.6/info"
+STDCXX_INCDIR="g++-v3"
+GCC_SPECS="/usr/lib/gcc-lib/i686-pc-linux-gnu/3.3.6/hardenednossp.specs"

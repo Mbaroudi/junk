@@ -1,0 +1,13 @@
+#
+# reserved values
+#
+255	local
+254	main
+253	default
+252	dns
+251	rubin_real
+0	unspec
+#
+# local
+#
+#1	inr.ruhep

@@ -1,0 +1,134 @@
+head	1.1;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.1
+date	2006.04.10.06.33.13;	author root;	state Exp;
+branches
+	1.1.1.1;
+next	;
+
+1.1.1.1
+date	2006.04.10.06.35.04;	author root;	state Exp;
+branches;
+next	;
+
+
+desc
+@Archived config file.
+@
+
+
+1.1
+log
+@dispatch-conf update.
+@
+text
+@#!/bin/sh
+#
+# firewall-masq		This script sets up firewall rules for a machine
+#                       acting as a masquerading gateway
+#
+# Copyright (C) 2000 Roaring Penguin Software Inc.  This software may
+# be distributed under the terms of the GNU General Public License, version
+# 2 or any later version.
+# LIC: GPL
+
+# Interface to Internet
+EXTIF=ppp+
+
+ANY=0.0.0.0/0
+
+ipchains -P input ACCEPT
+ipchains -P output ACCEPT
+ipchains -P forward DENY
+
+ipchains -F forward
+ipchains -F input
+ipchains -F output
+
+# Deny TCP and UDP packets to privileged ports
+ipchains -A input -l -i $EXTIF -d $ANY 0:1023 -p udp -j DENY
+ipchains -A input -l -i $EXTIF -d $ANY 0:1023 -p tcp -j DENY
+
+# Deny TCP connection attempts
+ipchains -A input -l -i $EXTIF -p tcp -y -j DENY
+
+# Deny ICMP echo-requests
+ipchains -A input -l -i $EXTIF -s $ANY echo-request -p icmp -j DENY
+
+# Do masquerading
+ipchains -A forward -j MASQ
+echo 1 > /proc/sys/net/ipv4/ip_forward
+@
+
+
+1.1.1.1
+log
+@dispatch-conf update.
+@
+text
+@d14 13
+a26 33
+# NAT-Tables are different, so we can use ACCEPT everywhere (?)
+iptables -t nat -P PREROUTING ACCEPT
+iptables -t nat -P OUTPUT ACCEPT
+iptables -t nat -P POSTROUTING ACCEPT
+
+# Flush the NAT-Table
+iptables -t nat -F
+
+iptables -t filter -P INPUT DROP
+iptables -t filter -F
+
+# Allow incoming SSH
+#iptables -t filter -A INPUT -i $EXTIF -p tcp --dport 22 -j ACCEPT
+
+# Log & Deny the rest of the privileged ports
+iptables -t filter -A INPUT -i $EXTIF -p tcp --dport 0:1023 -j LOG
+iptables -t filter -A INPUT -i $EXTIF -p udp --dport 0:1023 -j LOG
+iptables -t filter -A INPUT -i $EXTIF -p tcp --dport 0:1023 -j DROP
+iptables -t filter -A INPUT -i $EXTIF -p udp --dport 0:1023 -j DROP
+
+# Log & Deny NFS
+iptables -t filter -A INPUT -i $EXTIF -p udp --dport 2049 -j LOG
+iptables -t filter -A INPUT -i $EXTIF -p tcp --dport 2049 -j LOG
+iptables -t filter -A INPUT -i $EXTIF -p udp --dport 2049 -j DROP
+iptables -t filter -A INPUT -i $EXTIF -p tcp --dport 2049 -j DROP
+
+# Log & Deny X11
+iptables -t filter -A INPUT -i $EXTIF -p tcp --dport 6000:6063 -j LOG
+iptables -t filter -A INPUT -i $EXTIF -p tcp --dport 6000:6063 -j DROP
+
+# Log & Deny XFS
+iptables -t filter -A INPUT -i $EXTIF -p tcp --dport 7100 -j LOG
+iptables -t filter -A INPUT -i $EXTIF -p tcp --dport 7100 -j DROP
+d29 1
+a29 2
+iptables -t filter -A INPUT -i $EXTIF -p tcp --syn -j LOG
+iptables -t filter -A INPUT -i $EXTIF -p tcp --syn -j DROP
+d32 1
+a32 1
+iptables -t filter -A INPUT -i $EXTIF -p icmp --icmp-type echo-request -j DROP
+d35 1
+a35 3
+iptables -t nat -A POSTROUTING -o $EXTIF -j MASQUERADE
+
+# Enable forwarding
+a36 12
+
+# no IP spoofing
+if [ -e /proc/sys/net/ipv4/conf/all/rp_filter ] ; then
+   for i in /proc/sys/net/ipv4/conf/*/rp_filter; do
+      echo 1 > $i
+   done
+fi
+
+# Disable Source Routed Packets
+for i in /proc/sys/net/ipv4/conf/*/accept_source_route; do
+   echo 0 > $i
+done
+@
