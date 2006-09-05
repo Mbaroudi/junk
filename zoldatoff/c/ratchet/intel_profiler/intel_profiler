@@ -1,3 +1,0 @@
-icc -prof_gen -lm ratchet.c -o ratchet_prof
-./ratchet
-icc -prof_use -lm ratchet.c -o ratchet
