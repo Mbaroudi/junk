@@ -1,0 +1,3 @@
+gcc -O2 -fprofile-arcs -ftest-coverage -lm ratchet.c -o ratchet
+./ratchet
+gcov ratchet.c

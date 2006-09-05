@@ -1,0 +1,1180 @@
+; ratchet - extended data dump
+; created by dasm2.pl (linux) on Sun Sep  3 18:40:19 2006
+
+; Header information:
+;   architecture: i386, flags 0x00000112:
+;   EXEC_P, HAS_SYMS, D_PAGED
+;   start address 0x08048530
+;   
+;   Program Header:
+;       PHDR off    0x00000034 vaddr 0x08048034 paddr 0x08048034 align 2**2
+;            filesz 0x00000100 memsz 0x00000100 flags r-x
+;     INTERP off    0x00000134 vaddr 0x08048134 paddr 0x08048134 align 2**0
+;            filesz 0x00000013 memsz 0x00000013 flags r--
+;       LOAD off    0x00000000 vaddr 0x08048000 paddr 0x08048000 align 2**12
+;            filesz 0x00000e4c memsz 0x00000e4c flags r-x
+;       LOAD off    0x00001000 vaddr 0x08049000 paddr 0x08049000 align 2**12
+;            filesz 0x00000140 memsz 0x000007c0 flags rw-
+;    DYNAMIC off    0x00001014 vaddr 0x08049014 paddr 0x08049014 align 2**2
+;            filesz 0x000000d0 memsz 0x000000d0 flags rw-
+;       NOTE off    0x00000148 vaddr 0x08048148 paddr 0x08048148 align 2**2
+;            filesz 0x00000020 memsz 0x00000020 flags r--
+;      STACK off    0x00000000 vaddr 0x00000000 paddr 0x00000000 align 2**2
+;            filesz 0x00000000 memsz 0x00000000 flags rw-
+;   PAX_FLAGS off    0x00000000 vaddr 0x00000000 paddr 0x00000000 align 2**2
+;            filesz 0x00000000 memsz 0x00000000 flags --- 2800
+;   
+;   Dynamic Section:
+;     NEEDED      libm.so.6
+;     NEEDED      libc.so.6
+;     INIT        0x804843c
+;     FINI        0x8048d60
+;     HASH        0x8048168
+;     STRTAB      0x80482bc
+;     SYMTAB      0x80481bc
+;     STRSZ       0xa7
+;     SYMENT      0x10
+;     DEBUG       0x0
+;     PLTGOT      0x80490e8
+;     PLTRELSZ    0x60
+;     PLTREL      0x11
+;     JMPREL      0x80483dc
+;     REL         0x80483d4
+;     RELSZ       0x8
+;     RELENT      0x8
+;     VERNEED     0x8048384
+;     VERNEEDNUM  0x2
+;     VERSYM      0x8048364
+;   
+;   Version References:
+;     required from libc.so.6:
+;       0x0d696911 0x00 04 GLIBC_2.1
+;       0x0d696910 0x00 03 GLIBC_2.0
+;     required from libm.so.6:
+;       0x0d696910 0x00 02 GLIBC_2.0
+;   
+;   Sections:
+;   Idx Name          Size      VMA       LMA       File off  Algn
+;     0 .interp       00000013  08048134  08048134  00000134  2**0
+;                     CONTENTS, ALLOC, LOAD, READONLY, DATA
+;     1 .note.ABI-tag 00000020  08048148  08048148  00000148  2**2
+;                     CONTENTS, ALLOC, LOAD, READONLY, DATA
+;     2 .hash         00000054  08048168  08048168  00000168  2**2
+;                     CONTENTS, ALLOC, LOAD, READONLY, DATA
+;     3 .dynsym       00000100  080481bc  080481bc  000001bc  2**2
+;                     CONTENTS, ALLOC, LOAD, READONLY, DATA
+;     4 .dynstr       000000a7  080482bc  080482bc  000002bc  2**0
+;                     CONTENTS, ALLOC, LOAD, READONLY, DATA
+;     5 .gnu.version  00000020  08048364  08048364  00000364  2**1
+;                     CONTENTS, ALLOC, LOAD, READONLY, DATA
+;     6 .gnu.version_r 00000050  08048384  08048384  00000384  2**2
+;                     CONTENTS, ALLOC, LOAD, READONLY, DATA
+;     7 .rel.dyn      00000008  080483d4  080483d4  000003d4  2**2
+;                     CONTENTS, ALLOC, LOAD, READONLY, DATA
+;     8 .rel.plt      00000060  080483dc  080483dc  000003dc  2**2
+;                     CONTENTS, ALLOC, LOAD, READONLY, DATA
+;     9 .init         00000017  0804843c  0804843c  0000043c  2**2
+;                     CONTENTS, ALLOC, LOAD, READONLY, CODE
+;    10 .plt          000000d0  08048454  08048454  00000454  2**2
+;                     CONTENTS, ALLOC, LOAD, READONLY, CODE
+;    11 .text         00000830  08048530  08048530  00000530  2**4
+;                     CONTENTS, ALLOC, LOAD, READONLY, CODE
+;    12 .fini         0000001a  08048d60  08048d60  00000d60  2**2
+;                     CONTENTS, ALLOC, LOAD, READONLY, CODE
+;    13 .rodata       000000c8  08048d80  08048d80  00000d80  2**3
+;                     CONTENTS, ALLOC, LOAD, READONLY, DATA
+;    14 .eh_frame     00000004  08048e48  08048e48  00000e48  2**2
+;                     CONTENTS, ALLOC, LOAD, READONLY, DATA
+;    15 .ctors        00000008  08049000  08049000  00001000  2**2
+;                     CONTENTS, ALLOC, LOAD, DATA
+;    16 .dtors        00000008  08049008  08049008  00001008  2**2
+;                     CONTENTS, ALLOC, LOAD, DATA
+;    17 .jcr          00000004  08049010  08049010  00001010  2**2
+;                     CONTENTS, ALLOC, LOAD, DATA
+;    18 .dynamic      000000d0  08049014  08049014  00001014  2**2
+;                     CONTENTS, ALLOC, LOAD, DATA
+;    19 .got          00000004  080490e4  080490e4  000010e4  2**2
+;                     CONTENTS, ALLOC, LOAD, DATA
+;    20 .got.plt      0000003c  080490e8  080490e8  000010e8  2**2
+;                     CONTENTS, ALLOC, LOAD, DATA
+;    21 .data         00000018  08049128  08049128  00001128  2**3
+;                     CONTENTS, ALLOC, LOAD, DATA
+;    22 .bss          00000680  08049140  08049140  00001140  2**5
+;                     ALLOC
+;    23 .comment      0000015b  00000000  00000000  00001140  2**0
+;                     CONTENTS, READONLY
+;    24 .debug_aranges 00000078  00000000  00000000  000012a0  2**3
+;                     CONTENTS, READONLY, DEBUGGING
+;    25 .debug_pubnames 0000006c  00000000  00000000  00001318  2**0
+;                     CONTENTS, READONLY, DEBUGGING
+;    26 .debug_info   000006d2  00000000  00000000  00001384  2**0
+;                     CONTENTS, READONLY, DEBUGGING
+;    27 .debug_abbrev 0000016d  00000000  00000000  00001a56  2**0
+;                     CONTENTS, READONLY, DEBUGGING
+;    28 .debug_line   000002c7  00000000  00000000  00001bc3  2**0
+;                     CONTENTS, READONLY, DEBUGGING
+;    29 .debug_frame  0000007c  00000000  00000000  00001e8c  2**2
+;                     CONTENTS, READONLY, DEBUGGING
+;    30 .debug_str    000002cb  00000000  00000000  00001f08  2**0
+;                     CONTENTS, READONLY, DEBUGGING
+;    31 .debug_loc    000001a1  00000000  00000000  000021d3  2**0
+;                     CONTENTS, READONLY, DEBUGGING
+;    32 .debug_ranges 00000020  00000000  00000000  00002374  2**0
+;                     CONTENTS, READONLY, DEBUGGING
+
+;
+; Disassembly of section .init (process initialization code):
+;
+
+  ;
+  ; _init
+  ;
+  push    %ebp                            ;  referenced from call(s) at 08048cda; 
+
+  mov     %esp,%ebp                       ;  
+  sub     $8,%esp                         ;  
+  call    08048554                        ;  call to call_gmon_start
+
+  call    080485a7                        ;  call to frame_dummy
+
+  call    08048d34                        ;  call to __do_global_ctors_aux
+
+  leave                                   ;  
+  ret                                     ;  
+
+;
+; Disassembly of section .plt (procedure linking table):
+;
+
+  ;
+  ; .plt
+  ;
+  pushl   80490ec                         ;  referenced from jump(s) at 0804846f; 0804847f; 0804848f; 0804849f; 080484af; 080484bf; 080484cf; 080484df; 080484ef; 080484ff; 0804850f; 0804851f; 
+
+  jmp     *80490f0                        ;  
+
+  ;  ...
+  add     %al,(%eax)                      ;  
+  jmp     *80490f4                        ;  referenced from call(s) at 08048906; 080489b9; 080489b9; 
+
+  push    $0                              ;  reference to data : "__gmon_start__"
+
+  jmp     08048454                        ;  jump to external LIBC function
+
+  jmp     *80490f8                        ;  referenced from call(s) at 08048c40; 
+
+  push    $8                              ;  
+  jmp     08048454                        ;  jump to external LIBC function
+
+  jmp     *80490fc                        ;  referenced from call(s) at 08048b14; 08048b2f; 08048b4a; 08048ba6; 08048bc3; 08048bda; 08048bec; 08048c02; 08048c02; 
+
+  push    $10                             ;  
+  jmp     08048454                        ;  jump to external LIBC function
+
+  jmp     *8049100                        ;  referenced from call(s) at 08048c38; 
+
+  push    $18                             ;  
+  jmp     08048454                        ;  jump to external LIBC function
+
+  jmp     *8049104                        ;  referenced from call(s) at 0804854c; 
+
+  push    $20                             ;  
+  jmp     08048454                        ;  jump to external LIBC function
+
+  jmp     *8049108                        ;  referenced from call(s) at 0804892c; 08048a4b; 08048a84; 08048a84; 
+
+  push    $28                             ;  
+  jmp     08048454                        ;  jump to external LIBC function
+
+  jmp     *804910c                        ;  referenced from call(s) at 08048ab4; 08048ab4; 08048aca; 08048aca; 08048ae0; 08048ae0; 08048cab; 08048cab; 
+
+  push    $30                             ;  
+  jmp     08048454                        ;  jump to external LIBC function
+
+  jmp     *8049110                        ;  referenced from call(s) at 080487d9; 08048b52; 08048c0a; 08048c0a; 
+
+  push    $38                             ;  
+  jmp     08048454                        ;  jump to external LIBC function
+
+  jmp     *8049114                        ;  referenced from call(s) at 080487d1; 08048af5; 08048af5; 08048b8d; 
+
+  push    $40                             ;  
+  jmp     08048454                        ;  jump to external LIBC function
+
+  jmp     *8049118                        ;  referenced from call(s) at 08048625; 08048694; 08048694; 08048694; 08048694; 08048694; 080486d1; 
+
+  push    $48                             ;  
+  jmp     08048454                        ;  jump to external LIBC function
+
+  jmp     *804911c                        ;  referenced from call(s) at 080488f2; 080489a5; 080489a5; 
+
+  push    $50                             ;  
+  jmp     08048454                        ;  jump to external LIBC function
+
+  jmp     *8049120                        ;  referenced from call(s) at 080485f5; 
+
+  push    $58                             ;  
+  jmp     08048454                        ;  jump to external LIBC function
+
+
+;
+; Disassembly of section .text (actual program code):
+;
+
+  ;
+  ; _start
+  ;
+  xor     %ebp,%ebp                       ;  
+  pop     %esi                            ;  
+  mov     %esp,%ecx                       ;  
+  and     $fffffff0,%esp                  ;  
+  push    %eax                            ;  
+  push    %esp                            ;  
+  push    %edx                            ;  
+  push    $8048d29                        ;  reference to data : "__libc_csu_fini"
+
+  push    $8048cc4                        ;  reference to data : "__libc_csu_init"
+
+  push    %ecx                            ;  
+  push    %esi                            ;  
+  push    $8048c20                        ;  reference to data : "main"
+
+  call    080484a4                        ;  
+  hlt                                     ;  
+  nop                                     ;  
+  nop                                     ;  
+
+  ;
+  ; call_gmon_start
+  ;
+  push    %ebp                            ;  referenced from call(s) at 08048442; 
+
+  mov     %esp,%ebp                       ;  
+  push    %ebx                            ;  
+  call    0804855d                        ;  
+  pop     %ebx                            ;  referenced from call(s) at 08048558; 
+
+  add     $b8b,%ebx                       ;  
+  push    %edx                            ;  
+  mov     fffffffc(%ebx),%eax             ;  
+  test    %eax,%eax                       ;  
+  je      08048571                        ;  
+  call    *%eax                           ;  
+  pop     %eax                            ;  referenced from jump(s) at 0804856d; 
+
+  pop     %ebx                            ;  
+  leave                                   ;  
+  ret                                     ;  
+  nop                                     ;  
+  nop                                     ;  
+  nop                                     ;  
+
+  ;
+  ; __do_global_dtors_aux
+  ;
+  push    %ebp                            ;  referenced from call(s) at 08048d71; 
+
+  mov     %esp,%ebp                       ;  
+  sub     $8,%esp                         ;  
+  cmpb    $0,8049140                      ;  reference to data : "__gmon_start__"
+
+  je      08048593                        ;  
+  jmp     080485a5                        ;  
+  add     $4,%eax                         ;  referenced from jump(s) at 0804859c; 
+
+  mov     %eax,8049130                    ;  
+  call    *%edx                           ;  
+  mov     8049130,%eax                    ;  referenced from jump(s) at 08048585; 
+
+  mov     (%eax),%edx                     ;  
+  test    %edx,%edx                       ;  
+  jne     08048589                        ;  
+  movb    $1,8049140                      ;  
+  leave                                   ;  referenced from jump(s) at 08048587; 
+
+  ret                                     ;  
+
+  ;
+  ; frame_dummy
+  ;
+  push    %ebp                            ;  referenced from call(s) at 08048447; 
+
+  mov     %esp,%ebp                       ;  
+  sub     $8,%esp                         ;  
+  mov     8049010,%eax                    ;  
+  test    %eax,%eax                       ;  
+  je      080485c8                        ;  
+  mov     $0,%eax                         ;  reference to data : "__gmon_start__"
+
+  test    %eax,%eax                       ;  
+  je      080485c8                        ;  
+  movl    $8049010,(%esp)                 ;  reference to data : "__JCR_END__"
+
+  call    *%eax                           ;  
+  leave                                   ;  referenced from jump(s) at 080485b4; 080485bd; 
+
+  ret                                     ;  
+  nop                                     ;  
+  nop                                     ;  
+  nop                                     ;  
+  nop                                     ;  
+  nop                                     ;  
+
+  ; double A[N_of_pixels], B, C;
+  ; 
+  ; // _________We generate jumps__________________
+  ; void Generate_Jumps ()
+  ; {
+  nop                                     ;  
+
+  ;
+  ; Generate_Jumps
+  ;
+  push    %ebp                            ;  referenced from call(s) at 08048839; 0804886c; 
+
+  mov     %esp,%ebp                       ;  
+
+  ;  int f, k = 0;
+  ;  double Sum = t;
+  ;  double rnd, q, T[100];
+  ;  T[0] = t;
+  ; 
+  ;  /* for (k = 1; T[k] > 0.0; k++)
+  ;  {
+  ;  rnd = drand48();
+  ;  if (rnd > 0.0)
+  ;  T[k] = T[k-1] + log (rnd) / kappa;
+  ;  }*/
+  ; 
+  ;  while (Sum > 0.0) {
+  push    %edi                            ;  
+  xor     %edi,%edi                       ;  
+  push    %esi                            ;  
+  push    %ebx                            ;  
+  sub     $33c,%esp                       ;  
+  fldl    8049138                         ;  
+  fstl    fffffcc8(%ebp)                  ;  
+  fstl    fffffcd0(%ebp)                  ;  
+
+  ;  rnd = drand48();
+  ;  if (rnd > 0.0)
+  ;  Sum += log (rnd) / kappa;
+  jmp     0804861a                        ;  
+  fstpl   (%esp)                          ;  referenced from jump(s) at 08048635; 
+
+  call    08048514                        ;  
+  fdivl   8049148                         ;  
+  faddl   fffffcc8(%ebp)                  ;  
+
+  ;  T[++k] = Sum;
+  fstpl   fffffcc8(%ebp)                  ;  
+  fldl    fffffcc8(%ebp)                  ;  referenced from jump(s) at 08048639; 08048639; 08048639; 08048639; 08048639; 
+
+  inc     %edi                            ;  
+  fstl    fffffcd0(%ebp,%edi,8)           ;  
+  fldz                                    ;  referenced from jump(s) at 080485f0; 080485f0; 080485f0; 080485f0; 
+
+  fxch    %st(1)                          ;  
+  fucompp                                  ;  
+  fnstsw  %ax                             ;  
+  sahf                                    ;  
+  jbe     0804863b                        ;  
+  call    080484f4                        ;  
+  fldz                                    ;  
+  fxch    %st(1)                          ;  
+  fucom   %st(1)                          ;  
+  fnstsw  %ax                             ;  
+  fstp    %st(1)                          ;  
+  sahf                                    ;  
+  ja      080485f2                        ;  
+  fstp    %st(0)                          ;  
+
+  ;  }
+  ; 
+  ;  int N_of_jumps = k;
+  ;  T[N_of_jumps] = 0.0;
+  jmp     0804860c                        ;  
+  xor     %ebx,%ebx                       ;  referenced from jump(s) at 08048623; 
+
+  xor     %ecx,%ecx                       ;  
+  mov     %ebx,fffffcd0(%ebp,%edi,8)      ;  
+  xor     %eax,%eax                       ;  
+  mov     %ecx,fffffcd4(%ebp,%edi,8)      ;  
+
+  ; 
+  ;  for (f = 0; f < N_of_pixels; f++)
+  ;  A[f] = 0.0;
+  nop                                     ;  
+  xor     %edx,%edx                       ;  referenced from jump(s) at 08048666; 08048666; 08048666; 
+
+  xor     %esi,%esi                       ;  
+  mov     %edx,8049160(,%eax,8)           ;  
+  mov     %esi,8049164(,%eax,8)           ;  
+  inc     %eax                            ;  
+  cmp     $64,%eax                        ;  
+
+  ;  double A_tmp = 0.0;
+  ;  B = C = 0.0;
+  jne     08048650                        ;  
+  xor     %ebx,%ebx                       ;  
+  xor     %ecx,%ecx                       ;  
+  xor     %edx,%edx                       ;  
+
+  ; 
+  ;  for (k = 1; k <= N_of_jumps; k++) {
+  xor     %eax,%eax                       ;  
+  test    %edi,%edi                       ;  
+  mov     %ebx,8049488                    ;  
+  mov     %ecx,804948c                    ;  
+  mov     %edx,8049480                    ;  
+  mov     %eax,8049484                    ;  
+  jle     08048788                        ;  
+
+  ;  rnd = kappa * drand48() / V_0;
+  mov     $1,%esi                         ;  
+
+  ;  int j = 0;
+  ;  Sum = 0.0;
+  ; 
+  ;  while (rnd > Sum)
+  call    080484f4                        ;  referenced from jump(s) at 08048782; 08048782; 08048782; 
+
+  xor     %ebx,%ebx                       ;  
+  fmull   8049148                         ;  
+  fldz                                    ;  
+  fxch    %st(1)                          ;  
+  fucom   %st(1)                          ;  
+  fnstsw  %ax                             ;  
+  sahf                                    ;  
+  jbe     080487a5                        ;  
+  fld1                                    ;  
+  jmp     080486b6                        ;  
+
+  ;  Sum += 1.0 / (++j);
+  fxch    %st(1)                          ;  referenced from jump(s) at 080486c9; 
+
+  inc     %ebx                            ;  referenced from jump(s) at 080486b2; 
+
+  push    %ebx                            ;  
+  fildl   (%esp)                          ;  
+  add     $4,%esp                         ;  
+  fdivr   %st(1),%st                      ;  
+  faddp   %st,%st(3)                      ;  
+  fxch    %st(1)                          ;  
+  fucom   %st(2)                          ;  
+  fnstsw  %ax                             ;  
+  sahf                                    ;  
+  ja      080486b4                        ;  
+  fstp    %st(0)                          ;  
+  fstp    %st(0)                          ;  
+
+  ; 
+  ;  if (drand48() < 0.5) {
+  fstp    %st(0)                          ;  
+  call    080484f4                        ;  referenced from jump(s) at 080487a9; 
+
+  fldl    8048d98                         ;  
+  fucompp                                  ;  
+  fnstsw  %ax                             ;  
+  sahf                                    ;  
+
+  ;  q = -j;
+  jbe     08048793                        ;  
+  neg     %ebx                            ;  
+  mov     $54442d18,%eax                  ;  
+  push    %ebx                            ;  
+  mov     $3ff921fb,%edx                  ;  
+  fildl   (%esp)                          ;  
+  add     $4,%esp                         ;  
+  mov     %eax,fffffcc0(%ebp)             ;  
+  mov     %edx,fffffcc4(%ebp)             ;  
+
+  ;  A_tmp = M_PI_2;
+  ;  } else {
+  ;  q = j;
+  ;  A_tmp = - M_PI_2;
+  ;  }
+  ; 
+  ;  A_tmp -= sqr (q) * T[k] / 2 + M_PI_2 + q * T[k] * C;
+  fldl    fffffcc0(%ebp)                  ;  
+  fldl    fffffcd0(%ebp,%esi,8)           ;  referenced from jump(s) at 080487a0; 
+
+  xor     %eax,%eax                       ;  
+  fld     %st(2)                          ;  
+  fmul    %st(1),%st                      ;  
+  fldl    8049488                         ;  
+  fld     %st(4)                          ;  
+  fmul    %st(5),%st                      ;  
+  fmul    %st(3),%st                      ;  
+  fmull   8048d98                         ;  
+  faddl   8048d88                         ;  
+  fld     %st(2)                          ;  
+  fmul    %st(2),%st                      ;  
+  faddp   %st,%st(1)                      ;  
+  fsubrp  %st,%st(4)                      ;  
+  fld     %st(2)                          ;  
+  fmulp   %st,%st(3)                      ;  
+
+  ;  for (f = 0; f < N_of_pixels; f++)
+  ;  A[f] += A_tmp - q * F[f] * sqr (T[k]) / 2;
+  lea     0(%esi),%esi                    ;  
+  fld     %st(4)                          ;  referenced from jump(s) at 08048765; 
+
+  fmull   80494a0(,%eax,8)                ;  
+  fmul    %st(3),%st                      ;  
+  fmull   8048da0                         ;  
+  fadd    %st(4),%st                      ;  
+  faddl   8049160(,%eax,8)                ;  
+  fstpl   8049160(,%eax,8)                ;  
+  inc     %eax                            ;  
+  cmp     $64,%eax                        ;  
+  jne     08048740                        ;  
+  fstp    %st(3)                          ;  
+
+  ;  B += T[k] * q;
+  fstp    %st(1)                          ;  
+  faddl   8049480                         ;  
+  inc     %esi                            ;  
+  cmp     %esi,%edi                       ;  
+
+  ;  C += q;
+  fstpl   8049480                         ;  
+  faddp   %st,%st(1)                      ;  
+  fstpl   8049488                         ;  
+
+  ;  }
+  ; }
+  jge     08048694                        ;  
+  add     $33c,%esp                       ;  referenced from jump(s) at 08048689; 
+
+  pop     %ebx                            ;  
+  pop     %esi                            ;  
+  pop     %edi                            ;  
+  pop     %ebp                            ;  
+  ret                                     ;  
+  push    %ebx                            ;  referenced from jump(s) at 080486e1; 080486e1; 
+
+  fildl   (%esp)                          ;  
+  add     $4,%esp                         ;  
+  fldl    8048d90                         ;  
+  jmp     0804870c                        ;  
+  fstp    %st(0)                          ;  referenced from jump(s) at 080486aa; 
+
+  fstp    %st(0)                          ;  
+  jmp     080486d1                        ;  
+
+  ; 
+  ; //___________Calculating delta_p_________________________
+  ; void Calculate_delta_p ()
+  ; {
+  mov     %esi,%esi                       ;  
+
+  ;
+  ; Calculate_delta_p
+  ;
+
+  ;  int f, j;
+  ;  long k;
+  ;  double delta_p_Re[N_of_pixels], delta_p_Im[N_of_pixels];
+  ;  double A1[N_of_pixels], A2[N_of_pixels];
+  ;  double B1, B2, C1, C2;
+  ;  double tmp_sin, tmp_cos, tmp_exp, tmp1, tmp2;
+  ;  double Fi_Im, Fi_Re;
+  ;  double R_Im, R_Re;
+  ;  FILE *output, *crash;
+  ; 
+  ;  output = fopen ("output.dat", "w");
+  push    %ebp                            ;  referenced from call(s) at 08048cb0; 08048cb0; 08048cb0; 
+
+  mov     $8048dc8,%eax                   ;  reference to data : "w"
+
+  mov     %esp,%ebp                       ;  
+
+  ;  fclose(output);
+  push    %edi                            ;  
+  mov     $1,%edi                         ;  
+  push    %esi                            ;  
+  push    %ebx                            ;  
+  sub     $d2c,%esp                       ;  
+  mov     %eax,4(%esp)                    ;  
+  movl    $8048dca,(%esp)                 ;  reference to data : "output.dat"
+
+  call    080484e4                        ;  
+  mov     %eax,(%esp)                     ;  
+  call    080484d4                        ;  
+  mov     %edi,fffff324(%ebp)             ;  
+
+  ; 
+  ;  for (j = 1; j <= 2; j++) {
+  ;  t += 0.1;
+  lea     fffffcc8(%ebp),%edi             ;  
+  fldl    8049138                         ;  referenced from jump(s) at 08048b6d; 08048b6d; 08048b6d; 08048b6d; 08048b6d; 
+
+  mov     $1,%eax                         ;  
+  faddl   8048da8                         ;  
+  fstpl   8049138                         ;  
+  jmp     08048810                        ;  
+  nop                                     ;  
+  nop                                     ;  
+  nop                                     ;  
+  nop                                     ;  
+  nop                                     ;  
+  nop                                     ;  
+  nop                                     ;  
+  nop                                     ;  
+  nop                                     ;  
+  nop                                     ;  
+  nop                                     ;  
+  nop                                     ;  
+
+  ; 
+  ;  for (f = 0; f < N_of_pixels; f++)
+  ;  delta_p_Re[f] = delta_p_Im[f] = 0.0;
+  nop                                     ;  
+  xor     %esi,%esi                       ;  referenced from jump(s) at 08048801; 08048832; 
+
+  xor     %ebx,%ebx                       ;  
+  xor     %ecx,%ecx                       ;  
+  xor     %edx,%edx                       ;  
+  mov     %esi,fffff9a0(%ebp,%eax,8)      ;  
+  mov     %ebx,fffff9a4(%ebp,%eax,8)      ;  
+  mov     %ecx,fffffff8(%edi,%eax,8)      ;  
+  mov     %edx,fffffffc(%edi,%eax,8)      ;  
+  inc     %eax                            ;  
+  cmp     $65,%eax                        ;  
+  jne     08048810                        ;  
+
+  ;  for (k = 1; k <= Very_Big_Number; k++) {
+  ;  Generate_Jumps ();
+  mov     $1,%esi                         ;  
+  call    080485d0                        ;  call to Generate_Jumps, referenced from jump(s) at 08048a1d; 
+
+
+  ;  for (f = 0; f < N_of_pixels; f++)
+  ;  A1[f] = A[f];
+  xor     %eax,%eax                       ;  
+  fldl    8049160(,%eax,8)                ;  referenced from jump(s) at 08048852; 08048852; 
+
+  fstpl   fffff688(%ebp,%eax,8)           ;  
+  inc     %eax                            ;  
+  cmp     $64,%eax                        ;  
+
+  ;  B1 = B;
+  jne     08048840                        ;  
+  fldl    8049480                         ;  
+
+  ;  C1 = C;
+  fstpl   fffff328(%ebp)                  ;  
+  fldl    8049488                         ;  
+
+  ;  Generate_Jumps ();
+  fstpl   fffff330(%ebp)                  ;  
+  call    080485d0                        ;  call to Generate_Jumps
+
+  xor     %eax,%eax                       ;  
+  lea     0(%esi),%esi                    ;  
+
+  ;  for (f = 0; f < N_of_pixels; f++)
+  ;  A2[f] = A[f];
+  lea     0(%edi),%edi                    ;  
+  fldl    8049160(,%eax,8)                ;  referenced from jump(s) at 08048892; 08048892; 08048892; 
+
+  fstpl   fffff368(%ebp,%eax,8)           ;  
+  inc     %eax                            ;  
+  cmp     $64,%eax                        ;  
+
+  ;  B2 = B;
+  ;  C2 = C;
+  jne     08048880                        ;  
+
+  ; 
+  ;  tmp1 = 2.0 * (B1-B2) * sigma;
+  ;  tmp2 = C1 + C2 - 2.0*p_0;
+  ;  Fi_Re = - (sqr (tmp1) + sqr (C1 - C2)) / (8.0*sigma);
+  ;  Fi_Im = - (2.0 * tmp1 * tmp2 + 8.0 * x_0 * sigma * (C1 - C2)) / (8.0*sigma);
+  ;  tmp_sin = sin (Fi_Im);
+  ;  tmp_cos = cos (Fi_Im);
+  ;  tmp_exp = exp (Fi_Re);
+  ;  R_Re = - tmp_exp * (tmp_cos * tmp2 - tmp_sin * tmp1) / 2.0;
+  ;  R_Im = - tmp_exp * (tmp_sin * tmp2 + tmp_cos * tmp1) / 2.0;
+  fldl    8049488                         ;  
+  mov     $1,%ebx                         ;  
+  fldl    fffff328(%ebp)                  ;  
+  fsubl   8049480                         ;  
+  fadd    %st(0),%st                      ;  
+  fstl    fffff348(%ebp)                  ;  
+  fldl    fffff330(%ebp)                  ;  
+  fadd    %st(2),%st                      ;  
+  fstl    fffff350(%ebp)                  ;  
+  fxch    %st(2)                          ;  
+  fsubrl  fffff330(%ebp)                  ;  
+  fld     %st(1)                          ;  
+  faddp   %st,%st(2)                      ;  
+  fxch    %st(1)                          ;  
+  fmulp   %st,%st(2)                      ;  
+  fld     %st(0)                          ;  
+  fmull   8048db0                         ;  
+  faddp   %st,%st(2)                      ;  
+  fxch    %st(1)                          ;  
+  fmull   8048db8                         ;  
+  fstl    (%esp)                          ;  
+  fstpl   fffff308(%ebp)                  ;  
+  fstpl   fffff2f8(%ebp)                  ;  
+  call    08048504                        ;  
+  fstpl   fffff338(%ebp)                  ;  
+  fldl    fffff308(%ebp)                  ;  
+  fstpl   (%esp)                          ;  
+  call    08048464                        ;  
+  fstpl   fffff340(%ebp)                  ;  
+  fldl    fffff348(%ebp)                  ;  
+  fmul    %st(0),%st                      ;  
+  fldl    fffff2f8(%ebp)                  ;  
+  fmul    %st(0),%st                      ;  
+  faddp   %st,%st(1)                      ;  
+  fmull   8048db8                         ;  
+  fstpl   (%esp)                          ;  
+  call    080484b4                        ;  
+  fchs                                    ;  
+  fldl    fffff350(%ebp)                  ;  
+  fmull   fffff340(%ebp)                  ;  
+  fldl    fffff348(%ebp)                  ;  
+  fmull   fffff338(%ebp)                  ;  
+  fsubrp  %st,%st(1)                      ;  
+  fmul    %st(1),%st                      ;  
+  fmull   8048d98                         ;  
+  fldl    fffff350(%ebp)                  ;  
+  fmull   fffff338(%ebp)                  ;  
+  fldl    fffff348(%ebp)                  ;  
+  fmull   fffff340(%ebp)                  ;  
+  faddp   %st,%st(1)                      ;  
+  fmulp   %st,%st(2)                      ;  
+  fxch    %st(1)                          ;  
+  fmull   8048d98                         ;  
+  jmp     08048982                        ;  
+  nop                                     ;  
+  lea     0(%esi),%esi                    ;  
+
+  ; 
+  ;  for (f = 0; f < N_of_pixels; f++) {
+  ;  tmp_sin = sin (A1[f]-A2[f]);
+  fxch    %st(1)                          ;  referenced from jump(s) at 08048a00; 
+
+  fldl    fffff680(%ebp,%ebx,8)           ;  referenced from jump(s) at 08048979; 
+
+  fsubl   fffff360(%ebp,%ebx,8)           ;  
+  fstl    (%esp)                          ;  
+  fstpl   fffff2f8(%ebp)                  ;  
+  fstpl   fffff2e8(%ebp)                  ;  
+  fstpl   fffff2d8(%ebp)                  ;  
+
+  ;  tmp_cos = cos (A1[f]-A2[f]);
+  call    08048504                        ;  
+  fldl    fffff2f8(%ebp)                  ;  
+  fstpl   (%esp)                          ;  
+  fstpl   fffff308(%ebp)                  ;  
+
+  ;  delta_p_Re[f] += tmp_cos * R_Re - tmp_sin * R_Im;
+  call    08048464                        ;  
+  fldl    fffff2d8(%ebp)                  ;  
+  fld     %st(0)                          ;  
+  fmul    %st(2),%st                      ;  
+  fldl    fffff308(%ebp)                  ;  
+  fldl    fffff2e8(%ebp)                  ;  
+  fld     %st(0)                          ;  
+  fmul    %st(2),%st                      ;  
+  fsubrp  %st,%st(3)                      ;  
+  fxch    %st(2)                          ;  
+  faddl   fffffff8(%edi,%ebx,8)           ;  
+
+  ;  delta_p_Im[f] += tmp_sin * R_Re + tmp_cos * R_Im;
+  fstpl   fffffff8(%edi,%ebx,8)           ;  
+  fmul    %st(2),%st                      ;  
+  fxch    %st(3)                          ;  
+  fmul    %st(1),%st                      ;  
+  faddp   %st,%st(3)                      ;  
+  fxch    %st(2)                          ;  
+  faddl   fffff9a0(%ebp,%ebx,8)           ;  
+  fstpl   fffff9a0(%ebp,%ebx,8)           ;  
+  inc     %ebx                            ;  
+  cmp     $65,%ebx                        ;  
+  jne     08048980                        ;  
+  fstp    %st(0)                          ;  
+  fstp    %st(0)                          ;  
+  inc     %esi                            ;  
+  push    %esi                            ;  
+  fildl   (%esp)                          ;  
+  add     $4,%esp                         ;  
+  fldl    8048dc0                         ;  
+  fucompp                                  ;  
+  fnstsw  %ax                             ;  
+  sahf                                    ;  
+  jae     08048839                        ;  
+  mov     $1,%esi                         ;  
+  nop                                     ;  
+
+  ;  }
+  ; 
+  ;  /* crash = fopen ("crash", "w");
+  ;  fprintf (crash, "%f\n", k / Very_Big_Number);
+  ;  fclose (crash);
+  ;  printf("%f\%\n", 100 * k / Very_Big_Number);
+  ;  */
+  ;  }
+  ; 
+  ;  for (f = 0; f < N_of_pixels; f++) {
+  ;  delta_p_Re[f] *= exp (2.0*kappa*t) / Very_Big_Number;
+  lea     0(%esi),%esi                    ;  
+  fldl    fffffff8(%edi,%esi,8)           ;  referenced from jump(s) at 08048b5a; 
+
+  fstpl   fffff360(%ebp)                  ;  
+  fldl    8049148                         ;  
+  fadd    %st(0),%st                      ;  
+  fmull   8049138                         ;  
+  fstpl   (%esp)                          ;  
+  call    080484b4                        ;  
+  fdivl   8048dc0                         ;  
+  fmull   fffff360(%ebp)                  ;  
+  fstl    fffff360(%ebp)                  ;  
+
+  ;  delta_p_Im[f] *= exp (2.0*kappa*t) / Very_Big_Number;
+  fstpl   fffffff8(%edi,%esi,8)           ;  
+  fldl    fffff9a0(%ebp,%esi,8)           ;  
+  fstpl   fffff358(%ebp)                  ;  
+  fldl    8049148                         ;  
+  fadd    %st(0),%st                      ;  
+  fmull   8049138                         ;  
+  fstpl   (%esp)                          ;  
+
+  ;  printf("F = %f\t", F[f]);
+  call    080484b4                        ;  
+  movl    $8048dd5,(%esp)                 ;  reference to data : "F = %f	"
+
+  fdivl   8048dc0                         ;  
+  fmull   fffff358(%ebp)                  ;  
+  fstl    fffff358(%ebp)                  ;  
+  fstpl   fffff9a0(%ebp,%esi,8)           ;  
+  fldl    8049498(,%esi,8)                ;  
+  fstpl   4(%esp)                         ;  
+
+  ;  printf("delta_p_Re = %f\t", delta_p_Re[f]);
+  call    080484c4                        ;  
+  movl    $8048ddd,(%esp)                 ;  reference to data : "delta_p_Re = %f	"
+
+  fldl    fffff360(%ebp)                  ;  
+  fstpl   4(%esp)                         ;  
+
+  ;  printf("delta_p_Im = %f\n", delta_p_Im[f]);
+  call    080484c4                        ;  
+  movl    $8048dee,(%esp)                 ;  reference to data : "delta_p_Im = %f"
+
+  fldl    fffff358(%ebp)                  ;  
+  fstpl   4(%esp)                         ;  
+
+  ;  output = fopen ("output.dat", "a");
+  call    080484c4                        ;  
+  mov     $8048dff,%eax                   ;  reference to data : "a"
+
+  mov     %eax,4(%esp)                    ;  
+  movl    $8048dca,(%esp)                 ;  reference to data : "output.dat"
+
+
+  ;  fprintf(output, "%f\t", F[f]);
+  call    080484e4                        ;  
+
+  ;  fprintf(output, "%f\t", delta_p_Re[f]);
+  ;  fprintf(output, "%f\n", delta_p_Im[f]);
+  ;  fclose(output);
+  fldl    8049498(,%esi,8)                ;  
+  inc     %esi                            ;  
+  mov     %eax,%ebx                       ;  
+  mov     $8048dd9,%eax                   ;  reference to data : "%f	"
+
+  fstpl   8(%esp)                         ;  
+  mov     %eax,4(%esp)                    ;  
+  mov     %ebx,(%esp)                     ;  
+  call    08048484                        ;  
+  mov     $8048dd9,%ecx                   ;  reference to data : "%f	"
+
+  mov     %ecx,4(%esp)                    ;  
+  mov     %ebx,(%esp)                     ;  
+  fldl    fffff360(%ebp)                  ;  
+  fstpl   8(%esp)                         ;  
+  call    08048484                        ;  
+  mov     $8048e1c,%edx                   ;  reference to data : "%f"
+
+  mov     %edx,4(%esp)                    ;  
+  mov     %ebx,(%esp)                     ;  
+  fldl    fffff358(%ebp)                  ;  
+  fstpl   8(%esp)                         ;  
+  call    08048484                        ;  
+  mov     %ebx,(%esp)                     ;  
+  call    080484d4                        ;  
+  cmp     $65,%esi                        ;  
+  jne     08048a30                        ;  
+  incl    fffff324(%ebp)                  ;  
+  cmpl    $3,fffff324(%ebp)               ;  
+
+  ;  }
+  ;  }
+  ; 
+  ;  output = fopen ("output.dat", "a");
+  jne     080487ea                        ;  
+
+  ;  fprintf(output, "\nx_0 = %f\n", 1.0*x_0);
+  ;  fprintf(output, "p_0 = %f\n", 1.0*p_0);
+  ;  fprintf(output, "V_0 = %f\n", 1.0*V_0);
+  ;  fprintf(output, "sigma = %f\n", 1.0*sigma);
+  mov     $8048dff,%eax                   ;  reference to data : "a"
+
+  mov     $8048e20,%edi                   ;  reference to data : "sigma = %f"
+
+
+  ;  fprintf(output, "t = %f\n", 1.0*t);
+  mov     %eax,4(%esp)                    ;  
+  mov     $8048e2c,%esi                   ;  reference to data : "t = %f"
+
+  movl    $8048dca,(%esp)                 ;  reference to data : "output.dat"
+
+  call    080484e4                        ;  
+  mov     %eax,%ebx                       ;  
+  mov     $8048e01,%eax                   ;  reference to data : "x_0 = %f"
+
+  fld1                                    ;  
+  fstpl   8(%esp)                         ;  
+  mov     %ebx,(%esp)                     ;  
+  mov     %eax,4(%esp)                    ;  
+  call    08048484                        ;  
+  xor     %eax,%eax                       ;  
+  mov     %eax,8(%esp)                    ;  
+  xor     %eax,%eax                       ;  
+  mov     %eax,c(%esp)                    ;  
+  mov     $8048e0c,%eax                   ;  reference to data : "p_0 = %f"
+
+  mov     %ebx,(%esp)                     ;  
+  mov     %eax,4(%esp)                    ;  
+  call    08048484                        ;  
+  mov     $8048e16,%eax                   ;  reference to data : "V_0 = %f"
+
+  mov     %ebx,(%esp)                     ;  
+  mov     %eax,4(%esp)                    ;  
+  fld1                                    ;  
+  fstpl   8(%esp)                         ;  
+  call    08048484                        ;  
+  mov     %edi,4(%esp)                    ;  
+  mov     %ebx,(%esp)                     ;  
+  fld1                                    ;  
+  fstpl   8(%esp)                         ;  
+  call    08048484                        ;  
+  mov     %esi,4(%esp)                    ;  
+  mov     %ebx,(%esp)                     ;  
+  fldl    8049138                         ;  
+  fstpl   8(%esp)                         ;  
+
+  ;  fclose(output);
+  call    08048484                        ;  
+  mov     %ebx,(%esp)                     ;  
+
+  ; }
+  call    080484d4                        ;  
+  add     $d2c,%esp                       ;  
+  pop     %ebx                            ;  
+  pop     %esi                            ;  
+  pop     %edi                            ;  
+  pop     %ebp                            ;  
+  ret                                     ;  
+
+  ; 
+  ; int main ()
+  ; {
+  lea     0(%esi),%esi                    ;  
+
+  ;
+  ; main
+  ;
+  lea     4(%esp),%ecx                    ;  
+  and     $fffffff0,%esp                  ;  
+  pushl   fffffffc(%ecx)                  ;  
+  push    %ebp                            ;  
+  mov     %esp,%ebp                       ;  
+  push    %ecx                            ;  
+
+  ;  int k, f;
+  ; 
+  ;  srand48 ((long) time(NULL));
+  sub     $14,%esp                        ;  
+  movl    $0,(%esp)                       ;  reference to data : "__gmon_start__"
+
+  call    08048494                        ;  
+  mov     %eax,(%esp)                     ;  
+  call    08048474                        ;  
+  mov     $1,%eax                         ;  
+  fldl    8049148                         ;  
+
+  ; 
+  ;  for (k = 1; k <= 8; k++) {
+  ;  kappa += V_0/k;
+  fld1                                    ;  
+  push    %eax                            ;  referenced from jump(s) at 08048c61; 
+
+  inc     %eax                            ;  
+  fildl   (%esp)                          ;  
+  add     $4,%esp                         ;  
+  cmp     $9,%eax                         ;  
+  fdivr   %st(1),%st                      ;  
+  faddp   %st,%st(2)                      ;  
+  jne     08048c52                        ;  
+  fstp    %st(0)                          ;  
+  fstl    8049148                         ;  
+  xor     %eax,%eax                       ;  
+  flds    8048e40                         ;  
+  flds    8048e44                         ;  
+
+  ;  }
+  ; 
+  ;  for (f = 0; f < N_of_pixels; f++) {
+  ;  F[f] = -Max_F + f * 2.0 * Max_F / N_of_pixels;
+  lea     0(%esi),%esi                    ;  
+  push    %eax                            ;  referenced from jump(s) at 08048c9a; 
+
+  fildl   (%esp)                          ;  
+  add     $4,%esp                         ;  
+  fadd    %st(0),%st                      ;  
+  fmul    %st(2),%st                      ;  
+  fdiv    %st(1),%st                      ;  
+  fsub    %st(2),%st                      ;  
+  fstpl   80494a0(,%eax,8)                ;  
+  inc     %eax                            ;  
+  cmp     $64,%eax                        ;  
+  jne     08048c80                        ;  
+  fstp    %st(0)                          ;  
+
+  ;  }
+  ; 
+  ;  printf("kappa = %f\n", kappa);
+  fstp    %st(0)                          ;  
+  fstpl   4(%esp)                         ;  
+  movl    $8048e34,(%esp)                 ;  reference to data : "kappa = %f"
+
+
+  ;  Calculate_delta_p ();
+  call    080484c4                        ;  
+
+  ;  return 1;
+  ; }
+  call    080487b0                        ;  call to Calculate_delta_p
+
+  add     $14,%esp                        ;  
+  mov     $1,%eax                         ;  
+  pop     %ecx                            ;  
+  pop     %ebp                            ;  
+  lea     fffffffc(%ecx),%esp             ;  
+  ret                                     ;  
+  nop                                     ;  
+
+  ;
+  ; __libc_csu_init
+  ;
+  push    %ebp                            ;  
+  mov     %esp,%ebp                       ;  
+  push    %edi                            ;  
+  push    %esi                            ;  
+  xor     %esi,%esi                       ;  
+  push    %ebx                            ;  
+  call    08048d2e                        ;  call to __i686.get_pc_thunk.bx
+
+  add     $417,%ebx                       ;  
+  sub     $1c,%esp                        ;  
+  call    0804843c                        ;  call to _init
+
+  lea     ffffff18(%ebx),%eax             ;  
+  lea     ffffff18(%ebx),%edx             ;  
+  mov     %eax,fffffff0(%ebp)             ;  
+  sub     %edx,%eax                       ;  
+  sar     $2,%eax                         ;  
+  cmp     %eax,%esi                       ;  
+  jae     08048d21                        ;  
+  mov     %edx,%edi                       ;  
+  mov     10(%ebp),%eax                   ;  referenced from jump(s) at 08048d1f; 
+
+  mov     %eax,8(%esp)                    ;  
+  mov     c(%ebp),%eax                    ;  
+  mov     %eax,4(%esp)                    ;  
+  mov     8(%ebp),%eax                    ;  
+  mov     %eax,(%esp)                     ;  
+  call    *(%edx,%esi,4)                  ;  
+  mov     fffffff0(%ebp),%eax             ;  
+  add     $1,%esi                         ;  
+  sub     %edi,%eax                       ;  
+  mov     %edi,%edx                       ;  
+  sar     $2,%eax                         ;  
+  cmp     %eax,%esi                       ;  
+  jb      08048cf9                        ;  
+  add     $1c,%esp                        ;  referenced from jump(s) at 08048cf5; 
+
+  pop     %ebx                            ;  
+  pop     %esi                            ;  
+  pop     %edi                            ;  
+  pop     %ebp                            ;  
+  ret                                     ;  
+
+  ;
+  ; __libc_csu_fini
+  ;
+  push    %ebp                            ;  
+  mov     %esp,%ebp                       ;  
+  pop     %ebp                            ;  
+  ret                                     ;  
+  mov     (%esp),%ebx                     ;  referenced from call(s) at 08048ccc; 
+
+  ret                                     ;  
+  nop                                     ;  
+  nop                                     ;  
+
+  ;
+  ; __do_global_ctors_aux
+  ;
+  push    %ebp                            ;  referenced from call(s) at 0804844c; 
+
+  mov     %esp,%ebp                       ;  
+  push    %ebx                            ;  
+  sub     $4,%esp                         ;  
+  mov     8049000,%eax                    ;  
+  cmp     $ffffffff,%eax                  ;  
+  je      08048d57                        ;  
+  xor     %ebx,%ebx                       ;  
+  call    *%eax                           ;  referenced from jump(s) at 08048d55; 
+
+  mov     8048ffc(%ebx),%eax              ;  
+  sub     $4,%ebx                         ;  
+  cmp     $ffffffff,%eax                  ;  
+  jne     08048d47                        ;  
+  add     $4,%esp                         ;  referenced from jump(s) at 08048d43; 
+
+  pop     %ebx                            ;  
+  pop     %ebp                            ;  
+  ret                                     ;  
+  nop                                     ;  
+  nop                                     ;  
+  nop                                     ;  
+
+;
+; Disassembly of section .fini (process termination code):
+;
+
+  ;
+  ; _fini
+  ;
+  push    %ebp                            ;  
+  mov     %esp,%ebp                       ;  
+  push    %ebx                            ;  
+  call    08048d69                        ;  
+  pop     %ebx                            ;  referenced from call(s) at 08048d64; 
+
+  add     $37f,%ebx                       ;  
+  push    %eax                            ;  
+  call    08048578                        ;  call to __do_global_dtors_aux
+
+  pop     %ecx                            ;  
+  pop     %ebx                            ;  
+  leave                                   ;  
+  ret                                     ;  
