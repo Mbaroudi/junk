@@ -1,11 +1,12 @@
 #include "zmp.h"
 #include "interface.h"
 
-//Draw playlist window
 void drawPlaylist(WINDOW *window, 
 		struct playlist *play_list[], 
 		int item, 
 		int max_item) 
+/*! \brief Draws a playlist window and songs within it
+ */
 {
         int i, tmp, maxy, maxx;
         getmaxyx(window, maxy, maxx);
@@ -34,11 +35,12 @@ void drawPlaylist(WINDOW *window,
         redrawWindow(window);
 }//drawPlaylist
 
-//Delete item from playlist
 int delfromPlaylist(struct playlist *play_list[], 
 		int del_item, 
 		int *max_playlist_item,
 		int playlist_item)
+/*! \brief Removes selected item from playlist
+ */
 {
 	int i, item;
 	for (i=del_item; i<(*max_playlist_item); i++)
@@ -55,6 +57,8 @@ int delfromPlaylist(struct playlist *play_list[],
 void drawSong (WINDOW *window,
 		struct playlist *playlist_play,
 		struct playlist *playlist_sel)
+/*! \brief Displays song information
+ */
 {
 	int maxy, maxx, i;
 	getmaxyx(window, maxy, maxx);

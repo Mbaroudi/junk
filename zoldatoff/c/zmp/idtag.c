@@ -5,6 +5,8 @@
 #include "zmp.h"
 
 char *id3_get_tag (struct id3_tag const *tag, char const *what, unsigned int maxlen)
+/*! \brief picks up particular tag from the tag structure
+ */
 {
         struct id3_frame const *frame = NULL;
         union id3_field const *field = NULL;
@@ -92,6 +94,7 @@ char *id3_get_tag (struct id3_tag const *tag, char const *what, unsigned int max
 
 
 void readTag(struct playlist *list)
+/*! \brief Puts all tags of the file to the apropriate fields of the playlist structure corresponding that file
 {
         struct id3_file *file;
         struct id3_tag *tag;

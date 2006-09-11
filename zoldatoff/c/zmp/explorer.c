@@ -11,14 +11,25 @@
 #include "idtag.h"
 
 
-//For sorting directories in ascending order
 int dircmp(const void *f1, const void *f2)
+/*! \brief Sorting directories in ascending order
+ *
+ * This function compares two arguments in an array, 
+ * so that this array can be sorted
+ */
 {
 	return strcmp(*(int *)f1, *(int *)f2);
-}//dircmp
+}
 
-//List contents of directory
+
 int listDir(const char *directory, struct filelist *dir_list[]) 	//the array of files in folder
+/*! \brief Listing directory
+ *
+ * This functon lists all files & dirs the directory contains.
+ *
+ * \param directory a char string that represents the path to the directory listed
+ * \param dir_list[] an array of pointers to all of the objects of directory
+ */
 {
         DIR *dp;
         struct dirent *ep;
@@ -98,11 +109,17 @@ int listDir(const char *directory, struct filelist *dir_list[]) 	//the array of 
 
 //================================================================================					 
 
-//draw the list of files in the explorer window
 void drawExplorer(WINDOW *window,
 		struct filelist *dir_list[],
 		int item,
 		int max_item)
+/*! \brief Draw the list of files in explorer window
+ *
+ * \param window pointer to explorer window
+ * \param dir_list array of pointers to all directory objects
+ * \param item number of selected item in dir_list array
+ * \param max_item the last item in dir_list array
+ */
 {
         int i, tmp, maxy, maxx;
         getmaxyx(window, maxy, maxx);
@@ -140,8 +157,12 @@ void drawExplorer(WINDOW *window,
 
 //================================================================================
 
-//Go one directory up
 char *upDir(char directory[]) 
+/*! \brief Go to up level directory
+ *
+ * \param directory source directory
+ * \return path to the up level directory
+ */
 {
 	int i, len;
 	if (!strcmp(directory, "/")) 
@@ -158,12 +179,20 @@ char *upDir(char directory[])
 
 //================================================================================
 
-//Add file to playlist
 void addFile(struct playlist *play_list[],
 		struct filelist *dir_list[],
 		char current_dir[],
 		int playlist_item,
 		int explorer_item)
+/*! \brief add file to playlist
+ *
+ * Adds the file selected in explorer window to playlist
+ * \param play_list array of pointers to playlist items
+ * \param dir_list list of directory items
+ * \param current_dir nothing to say
+ * \param playlist_item selected playlist item
+ * \param explorer_item selected item in explorer list
+ */
 {
 	char tmp[MAX_FILE_NAME];
 	if (playlist_item<MAX_LIST) {
@@ -185,6 +214,12 @@ void addFile(struct playlist *play_list[],
 void addFolder(char dir[], 
 		struct playlist *play_list[], 
 		int *max_item)
+/*! \brief Adds all files in folder and subfolders to playlist recurcevely
+ *
+ * \param dir path to the directory to add
+ * \param play_list array of pointers to playlist items
+ * \param max_item the number of the last playlist item
+ */
 {
 	int num, i;
 	struct filelist *list[MAX_LIST];
@@ -210,12 +245,20 @@ void addFolder(char dir[],
 
 //================================================================================					 
 
-//Add file or folder to playlist
 void addtoPlaylist(struct filelist *dir_list[],
 		struct playlist *play_list[],
 		int explorer_item,
 		char current_dir[],
 		int *max_playlist_item)
+/*! \brief Adds selected file of folder to playlist
+ *
+ * \param dir_list current directory structure
+ * \param play_list current playlist structure
+ * \param explorer_item selected item in explorer window
+ * \param current_dir current directory :)
+ * \param max_playlist_item the last playlist item
+ */
+
 {
 	if (dir_list[explorer_item]->f_type == 'm') {
 		(*max_playlist_item)++;

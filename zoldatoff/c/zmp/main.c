@@ -407,6 +407,8 @@ int main(int argc, char *argv[])
 }
 
 int incItem(int item, int max_item)
+/*! \brief increases an int by +1 if it is not more than max_item, otherwise sets to zero
+ */
 {
         return item<max_item ? ++item : 0;
 }
@@ -414,11 +416,15 @@ int incItem(int item, int max_item)
 //================================================================================
 
 int decItem(int item, int max_item)
+/*! \brief decreases an int by -1 if it is not less than, otherwize sets to max_item
+ */
 {
         return item>0 ? --item : max_item;
 }
         
 void musicFinished()
+/*! \brief Sets flag when music stops playing
+ */
 {
 	musicPlaying = 0;
 }
