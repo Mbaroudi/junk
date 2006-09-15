@@ -95,6 +95,7 @@ char *id3_get_tag (struct id3_tag const *tag, char const *what, unsigned int max
 
 void readTag(struct playlist *list)
 /*! \brief Puts all tags of the file to the apropriate fields of the playlist structure corresponding that file
+ */
 {
         struct id3_file *file;
         struct id3_tag *tag;
