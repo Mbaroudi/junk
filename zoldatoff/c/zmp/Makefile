@@ -1,20 +1,19 @@
-zmp: main.o interface.o explorer.o playlist.o idtag.o
-	gcc -O2 -Wall -lncursesw -lid3tag -lSDL_mixer -fprofile-arcs -ftest-coverage -pg -o zmp main.o interface.o explorer.o playlist.o idtag.o
+DEBUG=#-fprofile-arcs -ftest-coverage -g
+CC=gcc $(DEBUG)
+CFLAGS=-O2 -c -Wall
+LDFLAGS=-lncursesw -lid3tag -lSDL_mixer
 
-interface.o: interface.c zmp.h
-	gcc -fprofile-arcs -ftest-coverage -pg -g -Wall -c interface.c
+SOURCES=interface.c explorer.c playlist.c idtag.c main.c
+OBJECTS=$(SOURCES:.c=.o)
+EXECUTABLE=zmp
 
-explorer.o: explorer.c zmp.h
-	gcc -fprofile-arcs -ftest-coverage -pg -g -Wall -c explorer.c
+all: $(SOURCES) $(EXECUTABLE)
 
-playlist.o: playlist.c zmp.h
-	gcc -fprofile-arcs -ftest-coverage -pg -g -Wall -c playlist.c
+$(EXECUTABLE): $(OBJECTS) 
+	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
 
-idtag.o: idtag.c zmp.h
-	gcc -fprofile-arcs -ftest-coverage -pg -g -Wall -c idtag.c
-
-main.o: main.c interface.o explorer.o playlist.o idtag.o zmp.h
-	gcc -fprofile-arcs -ftest-coverage -pg -g -Wall -c main.c
+.c.o:
+	$(CC) $(CFLAGS) $< -o $@
 
 clean: 
-	rm -f *.o *.bb *.bbg *.da *.out *.gcov zmp
+	rm -f *.bb *.bbg *.da *.out *.gcov *.gcno *.gcda *~ $(EXECUTABLE) $(OBJECTS)
