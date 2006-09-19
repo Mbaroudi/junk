@@ -14,7 +14,7 @@ inline  void sincos_x87_inline(double x,double *s,double *c)
 #define x_0 1.0
 #define sigma 1.0
 #define V_0 1.0
-#define Very_Big_Number 5.0e5
+#define Very_Big_Number 5.0e8
 #define N_of_pixels 100
 #define Max_F 2000.0
 
@@ -95,7 +95,7 @@ void Calculate_delta_p ()
         output = fopen ("output.dat", "w");
         fclose(output);
 
-        for (j = 1; j <= 2; j++) {
+        for (j = 1; j <= 1; j++) {
                 t += 0.1;
 
                 for (f = 0; f < N_of_pixels; f++)
@@ -151,11 +151,11 @@ void Calculate_delta_p ()
         }
 
         output = fopen ("output.dat", "a");
-        fprintf(output, "\nx_0 = %f\n", 1.0*x_0);
-        fprintf(output, "p_0 = %f\n", 1.0*p_0);
-        fprintf(output, "V_0 = %f\n", 1.0*V_0);
-        fprintf(output, "sigma = %f\n", 1.0*sigma);
-        fprintf(output, "t = %f\n", 1.0*t);
+        fprintf(output, "\n# x_0 = %f\n", 1.0*x_0);
+        fprintf(output, "# p_0 = %f\n", 1.0*p_0);
+        fprintf(output, "# V_0 = %f\n", 1.0*V_0);
+        fprintf(output, "# sigma = %f\n", 1.0*sigma);
+        fprintf(output, "# t = %f\n", 1.0*t);
         fclose(output);
 }
 

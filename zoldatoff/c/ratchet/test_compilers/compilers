@@ -10,3 +10,6 @@ a) -O2	11.5
 b) -O3	--||--
 c) register (for) int f       11.3
 e) sincos (asm)	11
+
+gcc -lm -O2 -fprefetch-loop-arrays -march=pentium4 -ffast-math ratchet.c -o ratchet_gcc
+-funroll-loops 10.7 sec
