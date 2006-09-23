@@ -14,7 +14,7 @@ inline  void sincos_x87_inline(double x,double *s,double *c)
 #define x_0 1.0
 #define sigma 1.0
 #define V_0 1.0
-#define Very_Big_Number 5.0e8
+#define Very_Big_Number 5.0e5
 #define N_of_pixels 100
 #define Max_F 2000.0
 
@@ -95,7 +95,7 @@ void Calculate_delta_p ()
         output = fopen ("output.dat", "w");
         fclose(output);
 
-        for (j = 1; j <= 1; j++) {
+        for (j = 1; j <= 2; j++) {
                 t += 0.1;
 
                 for (f = 0; f < N_of_pixels; f++)
@@ -122,9 +122,11 @@ void Calculate_delta_p ()
                         R_Re = - tmp_exp * (tmp_cos * tmp2 - tmp_sin * tmp1) / 2.0;
                         R_Im = - tmp_exp * (tmp_sin * tmp2 + tmp_cos * tmp1) / 2.0;
 
-                        for (f = 0; f < N_of_pixels; f++) {
+                        for (f = 0; f < N_of_pixels-1; f++) {
 				//__builtin_sincos(A1[f]-A2[f], &tmp_sin, &tmp_cos);
 				sincos(A1[f]-A2[f], &tmp_sin, &tmp_cos);
+				__builtin_prefetch(&A1[f+1], 1, 3);
+				__builtin_prefetch(&A2[f+1], 1, 3);
                                 delta_p_Re[f] += tmp_cos * R_Re - tmp_sin * R_Im;
                                 //delta_p_Im[f] += tmp_sin * R_Re + tmp_cos * R_Im;
                         }
