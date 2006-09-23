@@ -7,7 +7,7 @@
 #define sincos(x,s,c) sincos_x87_inline(x,s,c)
 inline  void sincos_x87_inline(double x,double *s,double *c)
 {
-	__asm__ ("fsincos;" : "=t" (*c), "=u" (*s) : "0" (x) : "st(7)");
+__asm__ ("fsincos;" : "=t" (*c), "=u" (*s) : "0" (x) : "st(7)");
 }
 
 #define p_0 0.0
@@ -81,13 +81,13 @@ void Generate_Jumps ()
 void Calculate_delta_p ()
 {
         register int f;
-	int j;
+        int j;
         long k;
         double delta_p_Re[N_of_pixels], delta_p_Im[N_of_pixels];
         double A1[N_of_pixels], A2[N_of_pixels];
         double B1, B2, C1, C2;
         double tmp_sin, tmp_cos;
-	double tmp_exp, tmp1, tmp2;
+        double tmp_exp, tmp1, tmp2;
         double Fi_Im, Fi_Re;
         double R_Im, R_Re;
         FILE *output, *crash;
@@ -116,49 +116,46 @@ void Calculate_delta_p ()
                         tmp2 = C1 + C2 - 2.0*p_0;
                         Fi_Re = - (sqr (tmp1) + sqr (C1 - C2)) / (8.0*sigma);
                         Fi_Im =  - (2.0 * tmp1 * tmp2 + 8.0 * x_0 * sigma * (C1 - C2)) / (8.0*sigma);
-			//__builtin_sincos(Fi_Im, &tmp_sin, &tmp_cos);
-			sincos(Fi_Im, &tmp_sin, &tmp_cos);
+                        //__builtin_sincos(Fi_Im, &tmp_sin, &tmp_cos);
+                        sincos(Fi_Im, &tmp_sin, &tmp_cos);
                         tmp_exp = exp (Fi_Re);
                         R_Re = - tmp_exp * (tmp_cos * tmp2 - tmp_sin * tmp1) / 2.0;
                         R_Im = - tmp_exp * (tmp_sin * tmp2 + tmp_cos * tmp1) / 2.0;
 
                         for (f = 0; f < N_of_pixels-1; f++) {
-				//__builtin_sincos(A1[f]-A2[f], &tmp_sin, &tmp_cos);
-				sincos(A1[f]-A2[f], &tmp_sin, &tmp_cos);
-				__builtin_prefetch(&A1[f+1], 1, 3);
-				__builtin_prefetch(&A2[f+1], 1, 3);
+                                //__builtin_sincos(A1[f]-A2[f], &tmp_sin, &tmp_cos);
+                                sincos(A1[f]-A2[f], &tmp_sin, &tmp_cos);
+                                __builtin_prefetch(&A1[f+1], 1, 3);
+                                __builtin_prefetch(&A2[f+1], 1, 3);
                                 delta_p_Re[f] += tmp_cos * R_Re - tmp_sin * R_Im;
                                 //delta_p_Im[f] += tmp_sin * R_Re + tmp_cos * R_Im;
                         }
 
-                   /*     	crash = fopen ("crash", "w");
-                        	fprintf (crash, "%f\n", k / Very_Big_Number);
-                        	fclose (crash);
-				printf("%f\%\n", 100 * k / Very_Big_Number);
-		   */
+                        /*     	crash = fopen ("crash", "w");
+                             	fprintf (crash, "%f\n", k / Very_Big_Number);
+                             	fclose (crash);
+                        printf("%f\%\n", 100 * k / Very_Big_Number);
+                        */
                 }
 
+                output = fopen ("output.dat", "a");
                 for (f = 0; f < N_of_pixels; f++) {
                         delta_p_Re[f] *= exp (2.0*kappa*t) / Very_Big_Number;
-                        delta_p_Im[f] *= exp (2.0*kappa*t) / Very_Big_Number;
+                        //delta_p_Im[f] *= exp (2.0*kappa*t) / Very_Big_Number;
                         printf("F = %f\t", F[f]);
-                        printf("delta_p_Re = %f\t", delta_p_Re[f]);
-                        printf("delta_p_Im = %f\n", delta_p_Im[f]);
-                        output = fopen ("output.dat", "a");
+                        printf("delta_p_Re = %f\n", delta_p_Re[f]);
+                        //printf("delta_p_Im = %f\n", delta_p_Im[f]);
                         fprintf(output, "%f\t", F[f]);
-                        fprintf(output, "%f\t", delta_p_Re[f]);
-                        fprintf(output, "%f\n", delta_p_Im[f]);
-                        fclose(output);
+                        fprintf(output, "%f\n", delta_p_Re[f]);
+                        //fprintf(output, "%f\n", delta_p_Im[f]);
                 }
+                fprintf(output, "\n# x_0 = %f\n", 1.0*x_0);
+                fprintf(output, "# p_0 = %f\n", 1.0*p_0);
+                fprintf(output, "# V_0 = %f\n", 1.0*V_0);
+                fprintf(output, "# sigma = %f\n", 1.0*sigma);
+                fprintf(output, "# t = %f\n", 1.0*t);
+                fclose(output);
         }
-
-        output = fopen ("output.dat", "a");
-        fprintf(output, "\n# x_0 = %f\n", 1.0*x_0);
-        fprintf(output, "# p_0 = %f\n", 1.0*p_0);
-        fprintf(output, "# V_0 = %f\n", 1.0*V_0);
-        fprintf(output, "# sigma = %f\n", 1.0*sigma);
-        fprintf(output, "# t = %f\n", 1.0*t);
-        fclose(output);
 }
 
 int main ()
