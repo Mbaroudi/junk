@@ -1,3 +1,4 @@
 #!/bin/bash
 
-gcc -O2 -lm --fast-math ratch.c
+gcc -O2 -lm -fprefetch-loop-arrays -funroll-loops -march=pentium4 -ffast-math ratchet.c -o ratchet_gcc
+icc -lm -funroll-loops -march=pentium4 ratchet.c -o ratchet_icc
