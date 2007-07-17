@@ -12056,6 +12056,7 @@ HCBw
 }, Open  ]]
 }, Open  ]]
 },
+Evaluator->"proliant",
 WindowSize->{1014, 696},
 WindowMargins->{{0, Automatic}, {Automatic, 0}},
 FrontEndVersion->"6.0 for Linux x86 (32-bit) (April 20, 2007)",
