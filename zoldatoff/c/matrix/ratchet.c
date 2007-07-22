@@ -3,15 +3,18 @@
 #include <math.h>
 #include <time.h>
 
+/*******Закомментарить для использования стандартного генератора случайных чисел************/
 #ifndef SFMT
 #define SFMT
 #include "sfmt19937-sse2.c"
 #endif
+/*******Закомментарить для использования стандартного генератора случайных чисел************/
 
 #ifndef M_PI
 #define M_PI 3.141592654
 #endif
 
+/*********Параметры расчета*********/
 #define result_file "matrix.dat"
 #define NN 4
 const int Ntraj = 1e7;
@@ -20,6 +23,8 @@ const double E0 = 0.0;
 const double Tmax = 0.1;
 const int Nmax = 128;
 const int DiamP = 8;
+/*********Параметры расчета*********/
+
 double kappa;
 double m2;
 double A[NN+1];
