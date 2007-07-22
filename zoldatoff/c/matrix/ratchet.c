@@ -14,7 +14,7 @@
 
 #define result_file "matrix.dat"
 #define NN 4
-const int Ntraj = 2e6;
+const int Ntraj = 1e7;
 const double V0 = 1.0;
 const double E0 = 0.0;
 const double Tmax = 0.1;
