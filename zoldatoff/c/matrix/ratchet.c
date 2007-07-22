@@ -3,7 +3,16 @@
 #include <math.h>
 #include <time.h>
 
-#define N 4
+#ifndef SFMT
+#define SFMT
+#include "sfmt19937.c"
+#endif
+
+#ifndef M_PI
+#define M_PI 3.141592654
+#endif
+
+#define NN 4
 const int Ntraj = 2e6;
 const double V0 = 1.0;
 const double E0 = 0.0;
@@ -12,8 +21,8 @@ const int Nmax = 128;
 const int DiamP = 8;
 double kappa;
 double m2;
-double A[N+1];
-double P[N+1];
+double A[NN+1];
+double P[NN+1];
 
 struct str {
         double tau;
@@ -26,6 +35,14 @@ struct compl {
         double re;
         double im;
 } Mat[513][513];
+
+double RAND() {
+#ifdef SFMT
+	return genrand_real1();
+#else
+	return rand()/(double)RAND_MAX;
+#endif	
+}
 
 inline double V (double x, int M, float V0) {
         int i;
@@ -44,14 +61,14 @@ inline double R(double t) {
 }
 
 inline int randd(void) {
-        double r = 25./12.* rand()/(double)RAND_MAX;
+        double r = 25./12.* RAND();
         int k;
         if (r<=A[1]) k = 1;
         else if (r<=A[2]) k = 2;
              else if (r<=A[3]) k = 3;
                        else k = 4;
 
-        if (rand()/(double)RAND_MAX <= .5) k = -k;
+        if (RAND() <= .5) k = -k;
         return k;
 }
 
@@ -60,7 +77,7 @@ inline void trajectory(double* act) {
         int k, j = 1;
         p_str[1].t = p_str[1].p = 0.;
         while ( p_str[j].t <= Tmax ) {
-                p_str[j].tau = log( 1/(rand()/(double)RAND_MAX + 0.000001 ) ) / kappa;
+                p_str[j].tau = log( 1/(RAND() + 0.0000001 ) ) / kappa;
                 p_str[j].d = randd();
                 j++;
                 p_str[j].t = p_str[j-1].t + p_str[j-1].tau;
@@ -104,23 +121,27 @@ int main() {
 	time_t time_begin;
 	double time_left;
 
+#ifdef SFMT
+	init_gen_rand(time(NULL));
+#else	
         srand(time(NULL));
+#endif	
 
-        for (i=1; i<=N; i++) {
+        for (i=1; i<=NN; i++) {
                 A[i] = 0.;
                 for (k=1; k<=i; k++) A[i] += 1./k;
         }
 
-        for (k=1; k<=N; k++) P[k] = .5/k/A[N];
+        for (k=1; k<=NN; k++) P[k] = .5/k/A[NN];
 
         printf("Конечное время: %.2f\n", Tmax);
         printf("Количество траекторий: %.1e\n", (double) Ntraj);
 
-        kappa = V0 * A[N];
+        kappa = V0 * A[NN];
         printf("Kappa: %.4f\n", kappa);
 
         m2 = 0.;
-        for (k=1; k<=N; k++) m2 += 2*P[k]*k*k;
+        for (k=1; k<=NN; k++) m2 += 2*P[k]*k*k;
         printf("m2: %.4f\n", m2);
 
         RC = R(Tmax);
