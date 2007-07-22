@@ -1,5 +1,5 @@
 #!/bin/bash
 
 iconv -t CP1251 -o wratchet.c ratchet.c
-gcc -O2 -lm -fprefetch-loop-arrays -funroll-loops -march=pentium4 -ffast-math ratchet.c -o ratchet_gcc
+gcc -O2 -lm -fprefetch-loop-arrays -funroll-loops -march=pentium4 -msse2 -ffast-math ratchet.c -o ratchet_gcc
 icc -lm -funroll-loops -march=pentium4 ratchet.c -o ratchet_icc
