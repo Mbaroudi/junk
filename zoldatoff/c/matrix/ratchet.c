@@ -5,7 +5,7 @@
 
 #ifndef SFMT
 #define SFMT
-#include "sfmt19937.c"
+#include "sfmt19937-sse2.c"
 #endif
 
 #ifndef M_PI
