@@ -12,6 +12,7 @@
 #define M_PI 3.141592654
 #endif
 
+#define result_file "matrix.dat"
 #define NN 4
 const int Ntraj = 2e6;
 const double V0 = 1.0;
@@ -117,7 +118,7 @@ int main() {
         double RC, h, EKT, pk;
         double s, p, q;
         double ACT[5];
-        FILE* fre;
+        FILE* fresult;
 	time_t time_begin;
 	double time_left;
 
@@ -218,26 +219,26 @@ int main() {
 
         printf("\nВероятность покинуть коридор: %.2f%%\n", (double) cnt/ (double) Ntraj * 100.);
 
-        fre = fopen("re","w");
-        fprintf(fre, "{");
+        fresult = fopen(result_file,"w");
+        fprintf(fresult, "{");
         for (i=1;i<=MSS;i++) {
-                fprintf(fre, "{");
+                fprintf(fresult, "{");
                 for (j=1;j<=MSS;j++) {
                         if (fabs(Mat[i][j].im) + fabs(Mat[i][j].re)>0.0000001)
                                 if (Mat[i][j].im < 0)
-                                        fprintf(fre, "%.10f - %.10f*I", Mat[i][j].re, -Mat[i][j].im);
+                                        fprintf(fresult, "%.10f - %.10f*I", Mat[i][j].re, -Mat[i][j].im);
                                 else
-                                        fprintf(fre, "%.10f + %.10f*I", Mat[i][j].re, Mat[i][j].im);
-                        else fprintf(fre, "0");
+                                        fprintf(fresult, "%.10f + %.10f*I", Mat[i][j].re, Mat[i][j].im);
+                        else fprintf(fresult, "0");
                         if (j<MSS) {
-                                fprintf(fre, ", ");
+                                fprintf(fresult, ", ");
                         }
                 }
-                if (i<MSS) fprintf(fre, "}, ");
-                else fprintf(fre, "}");
+                if (i<MSS) fprintf(fresult, "}, ");
+                else fprintf(fresult, "}");
         }
-        fprintf(fre, "}");
-        fclose(fre);
+        fprintf(fresult, "}");
+        fclose(fresult);
 
         return 0;
 }
