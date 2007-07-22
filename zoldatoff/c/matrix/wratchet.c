@@ -17,7 +17,7 @@
 /*********Параметры расчета*********/
 #define result_file "matrix.dat"
 #define NN 4
-const int Ntraj = 1e7;
+const int Ntraj = 1e6;
 const double V0 = 1.0;
 const double E0 = 0.0;
 const double Tmax = 0.1;
@@ -229,7 +229,7 @@ int main() {
         for (i=1;i<=MSS;i++) {
                 fprintf(fresult, "{");
                 for (j=1;j<=MSS;j++) {
-                        if (fabs(Mat[i][j].im) > 1e-10 && fabs(Mat[i][j].re) > 1e-10)
+                        if (fabs(Mat[i][j].im) + fabs(Mat[i][j].re) > 1e-10)
                                 if (Mat[i][j].im < 0)
                                         fprintf(fresult, "%.10f - %.10f*I", Mat[i][j].re, -Mat[i][j].im);
                                 else
