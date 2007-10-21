@@ -403,6 +403,9 @@ int main(int argc, char *argv[])
         delwin(playlist_win); 	//kill all windows
         delwin(song_info_win); 	//kill all windows
         endwin(); 		//end curses environment
+
+	for(k=0; k<=max_explorer_item;k++) free(dir_list[k]);
+	for(k=0; k<=max_playlist_item;k++) free(play_list[k]);
         return 0;
 }
 

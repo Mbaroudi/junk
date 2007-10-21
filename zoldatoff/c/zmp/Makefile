@@ -1,4 +1,4 @@
-DEBUG=#-fprofile-arcs -ftest-coverage -g
+DEBUG=-ggdb #-fprofile-arcs -ftest-coverage
 CC=gcc $(DEBUG)
 CFLAGS=-O2 -c -Wall
 LDFLAGS=-lncursesw -lid3tag -lSDL_mixer
