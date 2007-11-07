@@ -60,8 +60,9 @@ void drawSong (WINDOW *window,
 /*! \brief Displays song information
  */
 {
-	int maxy, maxx, i;
+	int maxy, maxx, i, width;
 	getmaxyx(window, maxy, maxx);
+	width = maxx - 5;
 	wattrset(window, COLOR_PAIR(SONG_INFO_COLOR) | WA_BOLD);
 	wclrscr(window);
 
@@ -74,29 +75,29 @@ void drawSong (WINDOW *window,
 		if (playlist_play->title!="") {
 			mvwprintw(window, i, 2, "Title:");
 			i++;
-			mvwprintw(window, i, 2, " %s", playlist_play->title);
+			mvwprintw(window, i, 2, " %.*s", width, playlist_play->title);
 			i++;
 		}
 		if (playlist_play->artist!="") {
 			mvwprintw(window, i, 2, "Artist:");
 			i++;
-			mvwprintw(window, i, 2, " %s", playlist_play->artist);
+			mvwprintw(window, i, 2, " %.*s", width, playlist_play->artist);
 			i++;
 		}
 		if (playlist_play->genre!="") {
 			mvwprintw(window, i, 2, "Genre:");
 			i++;
-			mvwprintw(window, i, 2, " %s", playlist_play->genre);
+			mvwprintw(window, i, 2, " %.*s", width, playlist_play->genre);
 			i++;
 		}
 		if (playlist_play->album!="") {
 			mvwprintw(window, i, 2, "Album:");
 			i++;
-			mvwprintw(window, i, 2, " %s", playlist_play->album);
+			mvwprintw(window, i, 2, " %.*s", width, playlist_play->album);
 			i++;
 		}
 		if (playlist_play->year!="") {
-			mvwprintw(window, i, 2, "Year: %s", playlist_play->year);
+			mvwprintw(window, i, 2, "Year: %.*s", width, playlist_play->year);
 			i++;
 		}
 	}
@@ -109,25 +110,25 @@ void drawSong (WINDOW *window,
 		if (playlist_sel->title!="") {
 			mvwprintw(window, i, 2, "Title:");
 			i++;
-			mvwprintw(window, i, 2, " %s", playlist_sel->title);
+			mvwprintw(window, i, 2, " %.*s", width, playlist_sel->title);
 			i++;
 		}
 		if (playlist_sel->artist!="") {
 			mvwprintw(window, i, 2, "Artist:");
 			i++;
-			mvwprintw(window, i, 2, " %s", playlist_sel->artist);
+			mvwprintw(window, i, 2, " %.*s", width, playlist_sel->artist);
 			i++;
 		}
 		if (playlist_sel->genre!="") {
 			mvwprintw(window, i, 2, "Genre:");
 			i++;
-			mvwprintw(window, i, 2, " %s", playlist_sel->genre);
+			mvwprintw(window, i, 2, " %.*s", width, playlist_sel->genre);
 			i++;
 		}
 		if (playlist_sel->album!="") {
 			mvwprintw(window, i, 2, "Album:");
 			i++;
-			mvwprintw(window, i, 2, " %s", playlist_sel->album);
+			mvwprintw(window, i, 2, " %.*s", width, playlist_sel->album);
 			i++;
 		}
 		if (playlist_sel->year!="") {

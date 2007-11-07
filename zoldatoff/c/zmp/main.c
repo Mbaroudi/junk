@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
         drawWindow(base_win, BASEWIN_COLOR, "Zoldatoff Media Player");
         explorer_win = newwin(maxy-4, maxx-2, 1, 1);
         drawWindow(explorer_win, EXPLORER_COLOR, "Explorer");
-        playlist_win = newwin(maxy-4, (3*maxx)/4, 1, maxx/4);
+        playlist_win = newwin(maxy-4, (3*maxx)/4 - 1, 1, maxx/4);
         drawWindow(playlist_win, PLAYLIST_COLOR, "Playlist");
         song_info_win = newwin(maxy-4, maxx/4 - 1, 1, 1);
         drawWindow(song_info_win, SONG_INFO_COLOR, "Song");
@@ -69,7 +69,9 @@ int main(int argc, char *argv[])
 	for (k=0; k<MAX_LIST; k++)
 		dir_list[k] = NULL;
 	
-        char current_dir[MAX_FILE_NAME]="/home/media/music/";
+        char current_dir[MAX_FILE_NAME]="/home/zoldatoff/";
+        char last_dir[MAX_FILE_NAME]="";
+        char tmp_dir[MAX_FILE_NAME]="";
 	char vol_str[SDL_MIX_MAXVOLUME+1];
 	vol_str[SDL_MIX_MAXVOLUME]='\0';
         int playlist_item=0, max_playlist_item=-1, playing_item=0;
@@ -251,6 +253,7 @@ int main(int argc, char *argv[])
 					for (k=0; k<=max_explorer_item; k++) free(dir_list[k]);
         				max_explorer_item = listDir(current_dir, dir_list);
 					explorer_item = explorer_sel = 0;
+        				drawWindow(explorer_win, EXPLORER_COLOR, current_dir);
 					drawExplorer(explorer_win,dir_list,explorer_item,max_explorer_item);
 				}
 				else if (dir_list[explorer_item]->f_type == 'm') {
@@ -301,10 +304,20 @@ int main(int argc, char *argv[])
 			break;
 		case KEY_LEFT: 		//DONE: go up one dir
 			if (show_explorer) {
+				strcpy(last_dir, current_dir);
 				strcpy(current_dir, upDir(current_dir));
 				for (k=0; k<=max_explorer_item; k++) free(dir_list[k]);
         			max_explorer_item = listDir(current_dir, dir_list);
 				explorer_item = explorer_sel = 0;
+				for (k=0; k<=max_explorer_item; k++) {
+					strcpy(tmp_dir, current_dir);
+					strcat(tmp_dir, dir_list[k]->f_name);
+					strcat(tmp_dir, "/");
+					if ( !strcmp(tmp_dir, last_dir) ) {
+						explorer_item = k;
+						break;
+					}
+				}
 				drawExplorer(explorer_win,dir_list,explorer_item,max_explorer_item);
 			}
 			else if (Mix_PlayingMusic()) 

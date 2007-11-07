@@ -149,8 +149,8 @@ void drawExplorer(WINDOW *window,
 				else mvwprintw(window,i+1-tmp,1, "  %s  ",dir_list[i]->f_name);
 				break;
 		}
-                //mvwprintw(window,i+1-tmp,60,"  %c  ",dir_list[i]->f_type);   //for debug only!!
-                //mvwprintw(window,i+1-tmp,70,"  %d  ",dir_list[i]->is_selected);   //for debug only!!
+        //        mvwprintw(window,i+1-tmp,60,"  %c  ",dir_list[i]->f_type);   //for debug only!!
+        //        mvwprintw(window,i+1-tmp,70,"  %d  ",dir_list[i]->is_selected);   //for debug only!!
         }
         redrawWindow(window);
 }//drawExplorer
