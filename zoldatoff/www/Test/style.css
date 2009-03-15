@@ -1,0 +1,15 @@
+body {
+	font-family: "Arial Narrow";
+}
+table{
+	border:dotted;
+	border-width: 1pt;
+}
+td{
+	border-bottom:dotted;
+	border-top:dotted;
+	border-left:dotted;
+	border-right: dotted;
+	border-width: 1pt;
+	text-align:center;
+}
