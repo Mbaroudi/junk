@@ -6,10 +6,14 @@ table{
 	border-width: 1pt;
 }
 td{
-	border-bottom:dotted;
+	/*border-bottom:dotted;
 	border-top:dotted;
 	border-left:dotted;
-	border-right: dotted;
+	border-right: dotted;*/
+	border-bottom:solid;
+	border-top:solid;
+	border-left:solid;
+	border-right: solid;
 	border-width: 1pt;
 	text-align:center;
 }

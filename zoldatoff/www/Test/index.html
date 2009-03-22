@@ -2,19 +2,33 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <title>New Web Project</title>
-        <link href="style.css" rel="stylesheet" type="text/css">
+        <title>JavaScript</title>
+        <link href="style.css" rel="stylesheet" type="text/css" />
     </head>
     <body>
-        <h1>New Web Project Page</h1>
+        <h1>JavaScript first steps</h1>
         <script type="application/javascript">
             <!--
             var i, j;
+			var cell = new Array();
+			
             document.write('<table>');
-            for (i = 1; i <= 10; i++) {
+            for (i = 1; i <= 5; i++) {
                 document.write('<tr>');
                 for (j = 1; j <= 10; j++) {
-                    document.write('<td><img src="img/'+(i+j)%10+'.jpg" alt="Ajax" width=50pt></td>');
+                    document.write('<td id="td'+(10*i+j)+'">');
+					document.write('<img src="img/'+(i+j)%10+'.jpg" alt="Ajax" width=50pt id="'+(10*i+j)+'" />');
+					document.write('</td>');
+					
+					cell[10*i+j] = document.getElementById('td'+(10*i+j));
+					cell[10*i+j].onmouseover = function () {this.style.borderColor='red';
+															this.getElementsByTagName('img')[0].style.MozOpacity = 0.2;
+															};
+					cell[10*i+j].onmouseout = function ()  {this.style.borderColor='black';
+															this.getElementsByTagName('img')[0].style.MozOpacity = 1;
+															};
+					
+					
                 }
                 document.write('</tr>');
             }
