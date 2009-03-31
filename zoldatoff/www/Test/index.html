@@ -17,7 +17,7 @@
                 document.write('<tr>');
                 for (j = 1; j <= 10; j++) {
                     document.write('<td id="td'+(10*i+j)+'">');
-					document.write('<img src="img/'+(i+j)%10+'.jpg" alt="Ajax" width=50pt id="'+(10*i+j)+'" />');
+					document.write('<img src="img/'+(i+j)%10+'.jpg" alt="Ajax" width=50pt id="img'+(10*i+j)+'" />');
 					document.write('</td>');
 					
 					cell[10*i+j] = document.getElementById('td'+(10*i+j));
