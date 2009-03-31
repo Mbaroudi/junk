@@ -1,0 +1,106 @@
+body {
+	font-family: Arial, Helvetica, sans-serif;
+	background-color: white;
+	color: gray;
+	border-color:blue;
+	height: 100%;
+}
+
+div.leftDiv {
+	position: absolute; 
+	left: 0px; 
+	top: 10%; 
+	width: 10%;
+	height: 80%; 
+	z-index: 1;	
+	border: dotted;
+	border-width: thin;
+}
+
+div.centerDiv {
+	position: absolute; 
+	left: 10%; 
+	top: 10%; 
+	width: 80%;
+	height: 80%; 
+	z-index: 1;	
+	border: dotted;
+	border-width: thin;
+	text-align: center;
+}
+
+div.vertical {
+	position: absolute; 
+	left: 10%; 
+	top: 10%; 
+	width: 5px;
+	height: 80%; 
+	z-index: 2;	
+	border: dotted;
+	border-width: thin;
+	background-color:blue;
+}
+
+div.rightDiv {
+	position: absolute; 
+	left: 90%; 
+	top: 10%; 
+	width: 10%;
+	height: 80%; 
+	z-index: 1;	
+	border: dotted;
+	border-width: thin;
+}
+
+img.thumbImg {
+	width: 90%;
+	position: absolute;
+}
+
+img.thumbImg:hover {
+	width: 100%;
+	position: absolute;
+	z-index: 2;
+}
+
+img.gifImg {
+	position: absolute;
+	top: 45%;
+	left: 45%;
+}
+
+div.loading-invisible{
+    /*make invisible*/
+    display:none;
+	z-index: 1;
+  }
+
+  /*this is what we want the div to look like
+    when it IS showing*/
+ div.loading-visible{
+    /*make visible*/
+    display:block;
+
+    /*position it at the very top-left corner*/
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    text-align:center;
+
+    /*in supporting browsers, make it
+      a little transparent*/
+    background:#000;
+    /*_background:none; this line removes the background in IE*/
+    opacity:.75;
+    border-top:1px solid #ddd;
+    border-bottom:1px solid #ddd;
+
+    /*set the padding, so that the content
+      of the div is centered vertically*/
+    padding-top:5%;
+	
+	z-index: 10000;
+}
+
