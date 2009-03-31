@@ -1,0 +1,49 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+ 		<link href="main.css" rel="stylesheet" type="text/css" />
+        <title>New Web Project</title>
+    </head>
+    <body>
+        <h1>Gallery</h1>
+		
+		<div id="loading" class="loading-invisible">
+  			<img class="gifImg" src="img/loader3.gif" alt="loading..."/>
+			<br />
+			Loading...
+		</div>
+		
+		<script type="text/javascript">
+			<!--
+  			document.getElementById("loading").className = "loading-visible";
+			document.getElementById("loading").onclick = function() {
+						document.getElementById("loading").className = "loading-invisible";}
+  			//window.onload=function(){document.getElementById("loading").className = "loading-invisible";}
+  			//-->
+		</script>
+		
+		<div class="leftDiv">
+			<img class="thumbImg" src="img/2.jpg" alt="img2"/>
+			<img class="thumbImg" src="img/3.jpg" alt="img3"/>
+			<img class="gifImg" src="img/wheel.gif" alt="loading..."/>
+		</div>
+		
+		<div class="vertical" onmouseover="this.style.backgroundColor='gray';document.body.style.cursor = 'col-resize'" 
+				onmouseout="this.style.backgroundColor='blue';document.body.style.cursor = 'default'"
+				>
+					<br>
+		</div>
+		
+		<div class="centerDiv">
+			<!--img class="gifImg" src="img/loader3.gif" alt="loading..."/-->
+		</div>
+		
+		<div class="rightDiv">
+			<img class="gifImg" src="img/loader2.gif" alt="loading..."/>
+		</div>
+		
+    </body>
+</html>
