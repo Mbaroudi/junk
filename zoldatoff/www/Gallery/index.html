@@ -10,15 +10,42 @@
     <body>
         <h1>Gallery</h1>
 		
-		<div id="loading" class="loading-invisible">
-  			<img class="gifImg" src="img/loader3.gif" alt="loading..."/>
-			<br />
-			Loading...
+		<div id="loading" class="loading-visible">
 		</div>
 		
 		<script type="text/javascript">
+			var innerX = 100;
+			var innerY = 50;
+			
+			var gifImage = new Image();
+			gifImage.src = "img/loader3.gif";
+			gifImage.onload = function()
+			{
+				innerX = gifImage.width;
+				innerY = gifImage.height;
+				
+				outerDiv = document.getElementById("loading");
+				outerDiv.style.height = window.innerHeight + 'px';
+				outerDiv.style.width = window.innerWidth + 'px';
+				
+				innerDiv = document.createElement('div');
+				outerDiv.appendChild(innerDiv);
+				innerDiv.style.height = innerY + 'px';
+				innerDiv.style.width = innerX + 'px';
+				innerDiv.style.left = Math.round((window.innerWidth - innerX)/2)+'px';
+				innerDiv.style.top = Math.round((window.innerHeight - innerY)/2)+'px';
+				innerDiv.style.position = 'absolute';
+				innerDiv.innerHTML = '<img src="img/loader3.gif" alt="loading..."/><br /><center>Loading...</center>';
+			}
+					
+		</script>
+			
+		
+		<!--script type="text/javascript" src="../interface.js"></script-->
+		
+		<script type="text/javascript">
 			<!--
-  			document.getElementById("loading").className = "loading-visible";
+  			//document.getElementById("loading").className = "loading-visible";
 			document.getElementById("loading").onclick = function() {
 						document.getElementById("loading").className = "loading-invisible";}
   			//window.onload=function(){document.getElementById("loading").className = "loading-invisible";}
