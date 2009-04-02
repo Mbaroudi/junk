@@ -56,7 +56,36 @@
 		</div>
 		
 		<div class="centerDiv">
-			<img id="mainImg" class="thumbImg"/>
+			<img id="mainImg" />
+			<script type="text/javascript">
+				<!--
+				var theImg = document.getElementById("mainImg");
+				theImg.src = "img/loader1.gif";
+				theImg.onload = function()
+				{
+					if (this.width > this.parentNode.offsetWidth)
+					{
+						this.style.width = "100%";
+						this.style.height = "auto";
+						this.style.marginTop = Math.round( (this.parentNode.offsetHeight - this.height) / 2 ) + 'px';
+					}
+					
+					else if (this.height > this.parentNode.offsetHeight)
+					{
+						this.style.width = "auto";
+						this.style.height = "100%";
+						this.style.marginTop = "0px";
+					}
+					
+					else 
+					{
+						this.style.width = "auto";
+						this.style.height = "auto";
+						this.style.marginTop = Math.round( (this.parentNode.offsetHeight - this.height) / 2 ) + 'px';
+					}
+				};
+				//-->
+			</script>
 		</div>
 		
 		<div class="rightDiv">
@@ -77,6 +106,32 @@
 				var theImg = document.getElementById("bottomImg0"+i);
 				var theMainImg = document.getElementById("mainImg");
 				theImg.onclick = function(){theMainImg.src = this.src;};
+				
+				theImg.onload = function()
+				{
+					
+					if (this.width > this.parentNode.offsetWidth)
+					{
+						this.style.width = "100%";
+						this.style.height = "auto";
+						this.style.marginTop = Math.round( (this.parentNode.offsetHeight - this.height) / 2 ) + 'px';
+					}
+					
+					else if (this.height > this.parentNode.offsetHeight)
+					{
+						this.style.width = "auto";
+						this.style.height = "100%";
+						this.style.marginTop = "0px";
+					}
+					
+					else 
+					{
+						this.style.width = "auto";
+						this.style.height = "auto";
+						this.style.marginTop = Math.round( (this.parentNode.offsetHeight - this.height) / 2 ) + 'px';
+					}
+				};
+
 			}
 			//-->
 		</script>
