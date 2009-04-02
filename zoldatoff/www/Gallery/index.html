@@ -5,56 +5,47 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
  		<link href="main.css" rel="stylesheet" type="text/css" />
-        <title>New Web Project</title>
+        <title>Gallery</title>
     </head>
+	
     <body>
-        <h1>Gallery</h1>
-		
-		<div id="loading" class="loading-visible">
+		<div id="outer-loading" class="loading-visible">
+			<div id="inner-loading">
+				<img id="loading-img"/>
+				<br />
+				<center>Loading...</center>
+			</div>	
 		</div>
 		
 		<script type="text/javascript">
-			var innerX = 100;
-			var innerY = 50;
+			<!--
+			outerDiv = document.getElementById("outer-loading");
+			outerDiv.style.height = window.innerHeight + 'px';
+			outerDiv.style.width = window.innerWidth + 'px';
+			outerDiv.onclick = function() {this.className = "loading-invisible";}
 			
-			var gifImage = new Image();
+			innerDiv = document.getElementById("inner-loading");
+			gifImage = document.getElementById("loading-img");
+
 			gifImage.src = "img/loader3.gif";
 			gifImage.onload = function()
 			{
-				innerX = gifImage.width;
-				innerY = gifImage.height;
+				var innerX = gifImage.width;
+				var innerY = gifImage.height;
 				
-				outerDiv = document.getElementById("loading");
-				outerDiv.style.height = window.innerHeight + 'px';
-				outerDiv.style.width = window.innerWidth + 'px';
-				
-				innerDiv = document.createElement('div');
-				outerDiv.appendChild(innerDiv);
 				innerDiv.style.height = innerY + 'px';
 				innerDiv.style.width = innerX + 'px';
 				innerDiv.style.left = Math.round((window.innerWidth - innerX)/2)+'px';
 				innerDiv.style.top = Math.round((window.innerHeight - innerY)/2)+'px';
 				innerDiv.style.position = 'absolute';
-				innerDiv.innerHTML = '<img src="img/loader3.gif" alt="loading..."/><br /><center>Loading...</center>';
 			}
-					
+			//-->		
 		</script>
 			
 		
 		<!--script type="text/javascript" src="../interface.js"></script-->
 		
-		<script type="text/javascript">
-			<!--
-  			//document.getElementById("loading").className = "loading-visible";
-			document.getElementById("loading").onclick = function() {
-						document.getElementById("loading").className = "loading-invisible";}
-  			//window.onload=function(){document.getElementById("loading").className = "loading-invisible";}
-  			//-->
-		</script>
-		
 		<div class="leftDiv">
-			<img class="thumbImg" src="img/2.jpg" alt="img2"/>
-			<img class="thumbImg" src="img/3.jpg" alt="img3"/>
 			<img class="gifImg" src="img/wheel.gif" alt="loading..."/>
 		</div>
 		
@@ -65,12 +56,30 @@
 		</div>
 		
 		<div class="centerDiv">
-			<!--img class="gifImg" src="img/loader3.gif" alt="loading..."/-->
+			<img id="mainImg" class="thumbImg"/>
 		</div>
 		
 		<div class="rightDiv">
 			<img class="gifImg" src="img/loader2.gif" alt="loading..."/>
 		</div>
+		
+		<div id="bottom-panel" class="bottomDiv">
+			<div id="bottomDiv01" class="thumbDiv"><img id="bottomImg01" class="thumbImg" src="squirell/01.jpg"/></div>
+			<div id="bottomDiv02" class="thumbDiv"><img id="bottomImg02" class="thumbImg" src="squirell/02.jpg"/></div>
+			<div id="bottomDiv03" class="thumbDiv"><img id="bottomImg03" class="thumbImg" src="squirell/03.jpg"/></div>
+			<div id="bottomDiv04" class="thumbDiv"><img id="bottomImg04" class="thumbImg" src="squirell/04.jpg"/></div>
+			<div id="bottomDiv05" class="thumbDiv"><img id="bottomImg05" class="thumbImg" src="squirell/05.jpg"/></div>
+		</div>
+		
+		<script type="text/javascript">
+			<!--
+			for(var i=1; i<=5; i++) {
+				var theImg = document.getElementById("bottomImg0"+i);
+				var theMainImg = document.getElementById("mainImg");
+				theImg.onclick = function(){theMainImg.src = this.src;};
+			}
+			//-->
+		</script>
 		
     </body>
 </html>

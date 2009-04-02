@@ -11,7 +11,7 @@ div.leftDiv {
 	left: 0px; 
 	top: 10%; 
 	width: 10%;
-	height: 80%; 
+	height: 60%; 
 	z-index: 1;	
 	border: dotted;
 	border-width: thin;
@@ -22,7 +22,7 @@ div.centerDiv {
 	left: 10%; 
 	top: 10%; 
 	width: 80%;
-	height: 80%; 
+	height: 60%; 
 	z-index: 1;	
 	border: dotted;
 	border-width: thin;
@@ -34,7 +34,7 @@ div.vertical {
 	left: 10%; 
 	top: 10%; 
 	width: 5px;
-	height: 80%; 
+	height: 60%; 
 	z-index: 2;	
 	border: dotted;
 	border-width: thin;
@@ -46,39 +46,47 @@ div.rightDiv {
 	left: 90%; 
 	top: 10%; 
 	width: 10%;
-	height: 80%; 
+	height: 60%; 
 	z-index: 1;	
 	border: dotted;
 	border-width: thin;
 }
 
-img.thumbImg {
-	width: 90%;
-	position: absolute;
-}
-
-img.thumbImg:hover {
+div.bottomDiv {
+	position: absolute; 
+	left: 0%; 
+	top: 70%; 
 	width: 100%;
-	position: absolute;
-	z-index: 2;
+	height: 30%; 
+	z-index: 1;	
+	border: dotted;
+	border-width: thin;
 }
 
-img.gifImg {
-	position: absolute;
-	top: 45%;
-	left: 45%;
+div.thumbDiv {
+	position: relative;
+	top: 0px;
+	left:0px; 
+	width: 15%;
+	height: 100%; 
+	z-index: 1;	
+	border: dotted;
+	border-width: thin;
+	float: left;
+	text-align:center;
+}
+
+img.thumbImg {
+	/*width:100%;*/
+	height:100%;
 }
 
 div.loading-invisible{
-    /*make invisible*/
     display:none;
 	z-index: 1;
-  }
+}
 
-  /*this is what we want the div to look like
-    when it IS showing*/
  div.loading-visible{
-    /*make visible*/
     display:block;
 
     /*position it at the very top-left corner*/
@@ -88,16 +96,14 @@ div.loading-invisible{
     text-align:center;
 	vertical-align:middle;
 
-    /*in supporting browsers, make it
-      a little transparent*/
+    /*in supporting browsers, make it a little transparent*/
     background:#000;
     /*_background:none; this line removes the background in IE*/
     opacity:.75;
     border-top:1px solid #ddd;
     border-bottom:1px solid #ddd;
 
-    /*set the padding, so that the content
-      of the div is centered vertically*/
+    /*set the padding, so that the content of the div is centered vertically*/
     padding-top:5%;
 	
 	z-index: 10000;
