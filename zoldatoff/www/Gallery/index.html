@@ -8,8 +8,8 @@
         <title>Gallery</title>
     </head>
 	
-    <body>
-		<div id="outer-loading" class="loading-visible">
+    <body id="allBody">
+		<div id="outer-loading" class="loading-invisible">
 			<div id="inner-loading">
 				<img id="loading-img"/>
 				<br />
@@ -19,6 +19,7 @@
 		
 		<script type="text/javascript">
 			<!--
+			/*
 			outerDiv = document.getElementById("outer-loading");
 			outerDiv.style.height = window.innerHeight + 'px';
 			outerDiv.style.width = window.innerWidth + 'px';
@@ -38,7 +39,7 @@
 				innerDiv.style.left = Math.round((window.innerWidth - innerX)/2)+'px';
 				innerDiv.style.top = Math.round((window.innerHeight - innerY)/2)+'px';
 				innerDiv.style.position = 'absolute';
-			}
+			}*/
 			//-->		
 		</script>
 			
@@ -52,40 +53,12 @@
 		<div class="vertical" onmouseover="this.style.backgroundColor='gray';document.body.style.cursor = 'col-resize'" 
 				onmouseout="this.style.backgroundColor='blue';document.body.style.cursor = 'default'"
 				>
-					<br>
+					<br />
 		</div>
 		
-		<div class="centerDiv">
-			<img id="mainImg" />
-			<script type="text/javascript">
-				<!--
-				var theImg = document.getElementById("mainImg");
-				theImg.src = "img/loader1.gif";
-				theImg.onload = function()
-				{
-					if (this.width > this.parentNode.offsetWidth)
-					{
-						this.style.width = "100%";
-						this.style.height = "auto";
-						this.style.marginTop = Math.round( (this.parentNode.offsetHeight - this.height) / 2 ) + 'px';
-					}
-					
-					else if (this.height > this.parentNode.offsetHeight)
-					{
-						this.style.width = "auto";
-						this.style.height = "100%";
-						this.style.marginTop = "0px";
-					}
-					
-					else 
-					{
-						this.style.width = "auto";
-						this.style.height = "auto";
-						this.style.marginTop = Math.round( (this.parentNode.offsetHeight - this.height) / 2 ) + 'px';
-					}
-				};
-				//-->
-			</script>
+		<div class="centerDiv" id="centerDiv">
+			<!--img id="mainImg" /-->
+			<br />
 		</div>
 		
 		<div class="rightDiv">
@@ -93,45 +66,72 @@
 		</div>
 		
 		<div id="bottom-panel" class="bottomDiv">
-			<div id="bottomDiv01" class="thumbDiv"><img id="bottomImg01" class="thumbImg" src="squirell/01.jpg"/></div>
-			<div id="bottomDiv02" class="thumbDiv"><img id="bottomImg02" class="thumbImg" src="squirell/02.jpg"/></div>
-			<div id="bottomDiv03" class="thumbDiv"><img id="bottomImg03" class="thumbImg" src="squirell/03.jpg"/></div>
-			<div id="bottomDiv04" class="thumbDiv"><img id="bottomImg04" class="thumbImg" src="squirell/04.jpg"/></div>
-			<div id="bottomDiv05" class="thumbDiv"><img id="bottomImg05" class="thumbImg" src="squirell/05.jpg"/></div>
+			<div id="bottomDiv01" class="thumbDiv"><!--img id="bottomImg01" class="thumbImg" src="squirell/01.jpg"/--></div>
+			<div id="bottomDiv02" class="thumbDiv"><!--img id="bottomImg02" class="thumbImg" src="squirell/02.jpg"/--></div>
+			<div id="bottomDiv03" class="thumbDiv"><!--img id="bottomImg03" class="thumbImg" src="squirell/03.jpg"/--></div>
+			<div id="bottomDiv04" class="thumbDiv"><!--img id="bottomImg04" class="thumbImg" src="squirell/04.jpg"/--></div>
+			<div id="bottomDiv05" class="thumbDiv"><!--img id="bottomImg05" class="thumbImg" src="squirell/05.jpg"/--></div>
 		</div>
 		
 		<script type="text/javascript">
 			<!--
-			for(var i=1; i<=5; i++) {
-				var theImg = document.getElementById("bottomImg0"+i);
-				var theMainImg = document.getElementById("mainImg");
-				theImg.onclick = function(){theMainImg.src = this.src;};
-				
-				theImg.onload = function()
-				{
-					
-					if (this.width > this.parentNode.offsetWidth)
+			var wwwImg = function(imgPath, parentDiv) 
+			{
+				this.src = imgPath;
+				parentDiv.appendChild(this);
+			}
+			wwwImg.prototype = new Image();
+			
+			//позиционируем картинку при загрузке
+			wwwImg.prototype.onload = function()
+			{	
+				with (this) {
+					if (width > parentNode.offsetWidth && height > parentNode.offsetHeight)
+					//картинка ваще не поместилась
 					{
-						this.style.width = "100%";
-						this.style.height = "auto";
-						this.style.marginTop = Math.round( (this.parentNode.offsetHeight - this.height) / 2 ) + 'px';
+						
+						if (width / parentNode.offsetWidth > height / parentNode.offsetHeight) {
+							style.width = "100%";
+							style.height = "auto";
+							style.marginTop = Math.round((parentNode.offsetHeight - height) / 2) + 'px';
+						}
+						else {
+							style.height = "100%";
+							style.width = "auto";
+							style.marginTop = "0px";
+						}
 					}
-					
-					else if (this.height > this.parentNode.offsetHeight)
+					else if (height > parentNode.offsetHeight)
+					//картинка не поместилась по высоте
+					//
 					{
-						this.style.width = "auto";
-						this.style.height = "100%";
-						this.style.marginTop = "0px";
+						style.width = "auto";
+						style.height = "100%";
+						style.marginTop = "0px";
 					}
-					
+					else if (width > parentNode.offsetWidth)
+					//картинка не поместилась по ширине 
+					{
+						style.width = "100%";
+						style.height = "auto";
+						style.marginTop = Math.round( (parentNode.offsetHeight - height) / 2 ) + 'px';
+					}
 					else 
 					{
-						this.style.width = "auto";
-						this.style.height = "auto";
-						this.style.marginTop = Math.round( (this.parentNode.offsetHeight - this.height) / 2 ) + 'px';
+						style.width = width + "px";
+						style.height = height + "px";
+						style.marginTop = Math.round( (parentNode.offsetHeight - height) / 2 ) + 'px';
 					}
-				};
-
+				}
+			};
+			
+			var theMainImg = new wwwImg("img/loader1.gif", document.getElementById("centerDiv"));
+			
+			var theBottomImg = new Array();
+			
+			for(var i=0; i<1; i++) {
+				theBottomImg[i] = new wwwImg("squirell/01.jpg", document.getElementById("bottomDiv0"+(i+1)));
+				theBottomImg[i].onclick = function() {theMainImg.src = this.src;};
 			}
 			//-->
 		</script>
