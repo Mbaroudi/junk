@@ -9,7 +9,7 @@
     </head>
 	
     <body id="allBody">
-		<div id="outer-loading" class="loading-invisible">
+		<!--div id="outer-loading" class="loading-invisible">
 			<div id="inner-loading">
 				<img id="loading-img"/>
 				<br />
@@ -19,7 +19,6 @@
 		
 		<script type="text/javascript">
 			<!--
-			/*
 			outerDiv = document.getElementById("outer-loading");
 			outerDiv.style.height = window.innerHeight + 'px';
 			outerDiv.style.width = window.innerWidth + 'px';
@@ -39,9 +38,9 @@
 				innerDiv.style.left = Math.round((window.innerWidth - innerX)/2)+'px';
 				innerDiv.style.top = Math.round((window.innerHeight - innerY)/2)+'px';
 				innerDiv.style.position = 'absolute';
-			}*/
-			//-->		
-		</script>
+			}
+			//->	
+		</script-->
 			
 		
 		<!--script type="text/javascript" src="../interface.js"></script-->
@@ -53,12 +52,9 @@
 		<div class="vertical" onmouseover="this.style.backgroundColor='gray';document.body.style.cursor = 'col-resize'" 
 				onmouseout="this.style.backgroundColor='blue';document.body.style.cursor = 'default'"
 				>
-					<br />
 		</div>
 		
-		<div class="centerDiv" id="centerDiv">
-			<!--img id="mainImg" /-->
-			<br />
+		<div class="centerDiv" id="mainDiv">
 		</div>
 		
 		<div class="rightDiv">
@@ -75,21 +71,11 @@
 		
 		<script type="text/javascript">
 			<!--
-			var wwwImg = function(imgPath, parentDiv) 
-			{
-				this.src = imgPath;
-				parentDiv.appendChild(this);
-			}
-			wwwImg.prototype = new Image();
-			
-			//позиционируем картинку при загрузке
-			wwwImg.prototype.onload = function()
-			{	
+			function onImgLoad () {
 				with (this) {
 					if (width > parentNode.offsetWidth && height > parentNode.offsetHeight)
 					//картинка ваще не поместилась
 					{
-						
 						if (width / parentNode.offsetWidth > height / parentNode.offsetHeight) {
 							style.width = "100%";
 							style.height = "auto";
@@ -123,15 +109,26 @@
 						style.marginTop = Math.round( (parentNode.offsetHeight - height) / 2 ) + 'px';
 					}
 				}
-			};
+			}
 			
-			var theMainImg = new wwwImg("img/loader1.gif", document.getElementById("centerDiv"));
+			function wwwImage(imgSrc, parentDiv) {
+				alert(imgSrc + ' ' + parentDiv);
+				this.theImg = new Image();
+				parentDiv.appendChild(this.theImg);
+				this.theImg.src = imgSrc;
+				//theDiv = parentDiv;
+				this.theImg.onload = onImgLoad;
+			}
 			
-			var theBottomImg = new Array();
+			var theMainImg = new wwwImage("squirell/02.jpg", document.getElementById("mainDiv"));
 			
-			for(var i=0; i<1; i++) {
-				theBottomImg[i] = new wwwImg("squirell/01.jpg", document.getElementById("bottomDiv0"+(i+1)));
-				theBottomImg[i].onclick = function() {theMainImg.src = this.src;};
+			var theBottomImg = new Array(5);
+			
+			for (var i = 0; i < 5; i++) {
+				theBottomImg[i] = new wwwImage("squirell/0" + (1 + i % 5) + ".jpg", document.getElementById("bottomDiv0" + (i + 1)));
+				theBottomImg[i].theImg.onclick = function(){
+					theMainImg.theImg.src = this.src;
+				}
 			}
 			//-->
 		</script>
