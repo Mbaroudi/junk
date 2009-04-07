@@ -5,27 +5,21 @@
     <head>
         <meta name="generator" content="HTML Tidy, see www.w3.org" />
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <link href="main.css" rel="stylesheet" type="text/css" />
+        <!--link href="main.css" rel="stylesheet" type="text/css" /-->
+		<link href="superimage.css" rel="stylesheet" type="text/css" />
         <title>Gallery</title>
     </head>
 
     <body id="allBody">
-        <div class="centerDiv" id="cDiv">
-            <!--img src="img/loader1.gif" /-->
-        </div>
+    	<script type="text/javascript" src="superimage.js"></script>
 		
-<script type="text/javascript">
+        <div class="darkDiv" id="cDiv"></div>
+		
+		<script type="text/javascript">
             <!--
-			Image.prototype.create = function(imgPath, parentDiv)
-			{
-                this.src = imgPath;
-                parentDiv.appendChild(this);
-            };
-        
-            var theMainImg = new Image();
-			theMainImg.create("img/loader1.gif", document.getElementById("cDiv"));
+            var theMainImg = new superImage("squirell/01.jpg", "img/loader1.gif", document.getElementById("cDiv"));
             //-->
-</script>
+		</script>
     </body>
 </html>
 
