@@ -1,36 +1,27 @@
 img.img-hide {
-	max-height: 100%;
-	max-width: 100%;
-	/*position:absolute;
-	top:0px;*/
 	display:none;
-	z-index:0;
-	text-align:center;
 }
 
 img.img-show {
 	max-height: 100%;
 	max-width: 100%;
-	/*position:absolute;
-	top:0px;*/
-	display:block;
-	z-index:10;
-	opacity:1;
 }
 
 div.darkDiv {
-	background:#fff;
-    opacity:0.7;
+	/*background:#8A8A8A;
+    opacity:1;
+	background-color:#808080;
+	*/
+	
+	text-align: center;
 	
 	position: absolute; 
 	left: 10%; 
 	top: 10%; 
 	width: 30%;
 	height: 60%; 
-	z-index: 1;	
+	
 	border: dotted;
 	border-width: thin;
-	text-align: center;
 	
-	z-index:2;
 }

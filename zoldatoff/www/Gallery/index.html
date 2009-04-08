@@ -5,11 +5,12 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
  		<link href="main.css" rel="stylesheet" type="text/css" />
+		<link href="superimage.css" rel="stylesheet" type="text/css" />
         <title>Gallery</title>
     </head>
 	
     <body id="allBody">
-    	<script type="text/javascript" src="images.js"></script>
+    	<script type="text/javascript" src="superimage.js"></script>
 		
 		<!--div id="outer-loading" class="loading-invisible">
 			<div id="inner-loading">
@@ -54,6 +55,7 @@
 		</div>
 		
 		<div class="centerDiv" id="mainDiv">
+			<img id="mainImage" class="img-show"/>
 		</div>
 		
 		<div class="rightDiv">
@@ -61,24 +63,26 @@
 		</div>
 		
 		<div id="bottom-panel" class="bottomDiv">
-			<div id="bottomDiv01" class="thumbDiv"><!--img id="bottomImg01" class="thumbImg" src="squirell/01.jpg"/--></div>
-			<div id="bottomDiv02" class="thumbDiv"><!--img id="bottomImg02" class="thumbImg" src="squirell/02.jpg"/--></div>
-			<div id="bottomDiv03" class="thumbDiv"><!--img id="bottomImg03" class="thumbImg" src="squirell/03.jpg"/--></div>
-			<div id="bottomDiv04" class="thumbDiv"><!--img id="bottomImg04" class="thumbImg" src="squirell/04.jpg"/--></div>
-			<div id="bottomDiv05" class="thumbDiv"><!--img id="bottomImg05" class="thumbImg" src="squirell/05.jpg"/--></div>
+			<div id="bottomDiv_0001" class="thumbDiv"><!--img id="bottomImg01" class="thumbImg" src="squirell/01.jpg"/--></div>
+			<div id="bottomDiv_0002" class="thumbDiv"><!--img id="bottomImg02" class="thumbImg" src="squirell/02.jpg"/--></div>
+			<div id="bottomDiv_0003" class="thumbDiv"><!--img id="bottomImg03" class="thumbImg" src="squirell/03.jpg"/--></div>
+			<div id="bottomDiv_0004" class="thumbDiv"><!--img id="bottomImg04" class="thumbImg" src="squirell/04.jpg"/--></div>
+			<div id="bottomDiv_0005" class="thumbDiv"><!--img id="bottomImg05" class="thumbImg" src="squirell/05.jpg"/--></div>
 		</div>
 		
 		<script type="text/javascript">
 			<!--
-			var theMainImg = new wwwImage("img/loader1.gif", document.getElementById("mainDiv"));
+			//var theMainImg = new wwwImage("img/loader1.gif", document.getElementById("mainDiv"));
 			var theBottomImg = new Array(5);
 			
 			for (var i = 0; i < 5; i++) {
-				theBottomImg[i] = new wwwImage("squirell/0" + (1 + i % 5) + ".jpg", document.getElementById("bottomDiv0" + (i + 1)));
-				theBottomImg[i].theImg.onclick = function(){
+				theBottomImg[i] = new myImage("squirell/0" + (1 + i % 5) + ".jpg", 
+											"img/loader2.gif",
+											"000" + (i+1));
+				/*theBottomImg[i].theImg.onclick = function(){
 					//theMainImg.theImg.src = this.src;
 					theMainImg.changeSrc(this.src);
-				}
+				}*/
 			}
 			//-->
 		</script>
