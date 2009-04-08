@@ -1,59 +1,35 @@
 /**
  * @author appleapple
  */
-
- function superImage(imgSrc, loadingSrc, parentDiv){
- 	this.mainImg = new Image();
-	this.subImg = new Image();
-	parentDiv.appendChild(this.mainImg);
-	parentDiv.appendChild(this.subImg);
-	
-	function mainOnTop() {
-		this.className = "img-show";
-		this.nextSibling.className = "img-hide";
-		this.parentNode.style.opacity = 1;
-		this.parentNode.style.backgroundColor = "white";
-	}
-	
-	function subOnTop(){
-		this.previousSibling.className = "img-hide";
-		this.className = "img-show";
-	}
-	
-	this.subImg.src = loadingSrc;
-	this.mainImg.src = imgSrc;
-	
-	this.subImg.onload = subOnTop;
-	this.mainImg.onload = mainOnTop;
- }
  
  function getNumber(str) {
  	var pos_ = str.indexOf("_");
  	return str.substring(pos_+1, str.length);
  }
  
+ function placeImage(theImg) {
+ 		with (theImg) {
+			var parentH = parentNode.offsetHeight;
+			if (height < parentH) 
+				style.marginTop = Math.round((parentH - height) / 2) + 'px';
+			else 
+				style.marginTop = "0px";
+		}
+ }
+ 
 function onSubLoad() {
 		document.getElementById("bottomDiv_" + getNumber(this.id)).appendChild(this);
 		this.className = "img-show";
-		
-		if (this.height < this.parentNode.offsetHeight) {
-			this.style.marginTop = Math.round((this.parentNode.offsetHeight - this.height) / 2) + 'px';
-		}
-		else
-			this.style.marginTop = "0px";
+		placeImage(this);
 }
 
 function onMainLoad() {		
 		document.getElementById("sub_" + getNumber(this.id)).className = "img-hide";
 		document.getElementById("bottomDiv_" + getNumber(this.id)).appendChild(this);
-		this.className = "img-show";
 		
-		if (this.height < this.parentNode.offsetHeight) {
-				this.style.marginTop = Math.round((this.parentNode.offsetHeight - this.height) / 2) + 'px';
-			}
-		else
-			this.style.marginTop = "0px";
-			
+		this.className = "img-show";
+		placeImage(this);
+		
 		this.onclick = function() { document.getElementById("mainImage").src = this.src; }
 }
  

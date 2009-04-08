@@ -12,9 +12,9 @@
     <body id="allBody">
     	<script type="text/javascript" src="superimage.js"></script>
 		
-		<!--div id="outer-loading" class="loading-invisible">
+		<div id="outer-loading" class="loading-visible">
 			<div id="inner-loading">
-				<img id="loading-img"/>
+				<img id="loading-img" alt="loading"/>
 				<br />
 				<center>Loading...</center>
 			</div>	
@@ -22,40 +22,37 @@
 		
 		<script type="text/javascript">
 			<!--
-			outerDiv = document.getElementById("outer-loading");
-			outerDiv.style.height = window.innerHeight + 'px';
-			outerDiv.style.width = window.innerWidth + 'px';
-			outerDiv.onclick = function() {this.className = "loading-invisible";}
+			gifImage = document.getElementById("loading-img");
+			gifImage.src = "img/loader3.gif";
 			
 			innerDiv = document.getElementById("inner-loading");
-			gifImage = document.getElementById("loading-img");
-
-			gifImage.src = "img/loader3.gif";
+			outerDiv = document.getElementById("outer-loading");
+			outerDiv.onclick = function() {this.className = "loading-invisible";}
+			
 			gifImage.onload = function()
 			{
 				var innerX = gifImage.width;
 				var innerY = gifImage.height;
 				
-				innerDiv.style.height = innerY + 'px';
-				innerDiv.style.width = innerX + 'px';
 				innerDiv.style.left = Math.round((window.innerWidth - innerX)/2)+'px';
 				innerDiv.style.top = Math.round((window.innerHeight - innerY)/2)+'px';
 				innerDiv.style.position = 'absolute';
 			}
-			//->	
-		</script-->
+			//-->	
+		</script>
 		
 		<div class="leftDiv">
 			<img class="gifImg" src="img/wheel.gif" alt="loading..."/>
 		</div>
 		
-		<div class="vertical" onmouseover="this.style.backgroundColor='gray';document.body.style.cursor = 'col-resize'" 
-				onmouseout="this.style.backgroundColor='blue';document.body.style.cursor = 'default'"
-				>
+		<div class="vertical" 
+			onmouseover="this.style.backgroundColor='black';document.body.style.cursor = 'col-resize'" 
+			onmouseout="this.style.backgroundColor='gray';document.body.style.cursor = 'default'"
+			>
 		</div>
 		
 		<div class="centerDiv" id="mainDiv">
-			<img id="mainImage" class="img-show"/>
+			<img id="mainImage" class="img-show" alt="main"/>
 		</div>
 		
 		<div class="rightDiv">
@@ -63,26 +60,25 @@
 		</div>
 		
 		<div id="bottom-panel" class="bottomDiv">
-			<div id="bottomDiv_0001" class="thumbDiv"><!--img id="bottomImg01" class="thumbImg" src="squirell/01.jpg"/--></div>
-			<div id="bottomDiv_0002" class="thumbDiv"><!--img id="bottomImg02" class="thumbImg" src="squirell/02.jpg"/--></div>
-			<div id="bottomDiv_0003" class="thumbDiv"><!--img id="bottomImg03" class="thumbImg" src="squirell/03.jpg"/--></div>
-			<div id="bottomDiv_0004" class="thumbDiv"><!--img id="bottomImg04" class="thumbImg" src="squirell/04.jpg"/--></div>
-			<div id="bottomDiv_0005" class="thumbDiv"><!--img id="bottomImg05" class="thumbImg" src="squirell/05.jpg"/--></div>
+			<div id="bottomDiv_0001" class="thumbDiv"></div>
+			<div id="bottomDiv_0002" class="thumbDiv"></div>
+			<div id="bottomDiv_0003" class="thumbDiv"></div>
+			<div id="bottomDiv_0004" class="thumbDiv"></div>
+			<div id="bottomDiv_0005" class="thumbDiv"></div>
 		</div>
 		
 		<script type="text/javascript">
 			<!--
-			//var theMainImg = new wwwImage("img/loader1.gif", document.getElementById("mainDiv"));
 			var theBottomImg = new Array(5);
 			
 			for (var i = 0; i < 5; i++) {
 				theBottomImg[i] = new myImage("squirell/0" + (1 + i % 5) + ".jpg", 
 											"img/loader2.gif",
 											"000" + (i+1));
-				/*theBottomImg[i].theImg.onclick = function(){
-					//theMainImg.theImg.src = this.src;
-					theMainImg.changeSrc(this.src);
-				}*/
+			}
+			
+			document.getElementById("mainImage").onload = function(){
+				placeImage(this);
 			}
 			//-->
 		</script>
