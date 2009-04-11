@@ -1,12 +1,10 @@
 body {
 	font-family: Arial, Helvetica, sans-serif;
 	background-color: white;
-	color: gray;
-	border-color:blue;
 	height: 100%;
 }
 
-div.leftDiv {
+#leftDiv {
 	position: absolute; 
 	left: 0px; 
 	top: 10%; 
@@ -18,7 +16,7 @@ div.leftDiv {
 	text-align: center;
 }
 
-div.mainDiv {
+#mainDiv {
 	position: absolute; 
 	left: 153px; 
 	top: 10%; 
@@ -64,6 +62,11 @@ div.mainDiv {
 	z-index: 1000;
 }
 
+#horizontal2:hover {
+	background-color:black;
+	cursor:row-resize; 
+}
+
 /*
 div.rightDiv {
 	position: absolute; 
@@ -77,7 +80,7 @@ div.rightDiv {
 	text-align: center;
 }*/
 
-div.bottomDiv {
+#bottomDiv {
 	position: absolute; 
 	left: 0%; 
 	top: 70%; 
