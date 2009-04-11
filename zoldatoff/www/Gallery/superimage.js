@@ -1,5 +1,5 @@
 /**
- * @author appleapple
+ * @author Zoldatoff
  */
  
  function getNumber(str) {

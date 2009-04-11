@@ -11,6 +11,7 @@
 	
     <body id="allBody">
     	<script type="text/javascript" src="superimage.js"></script>
+		<script type="text/javascript" src="drag_drop.js"></script>
 		
 		<div id="outer-loading" class="loading-visible">
 			<div id="inner-loading">
@@ -41,25 +42,19 @@
 			//-->	
 		</script>
 		
-		<div class="leftDiv">
-			<img class="gifImg" src="img/wheel.gif" alt="loading..."/>
+		<div id="leftDiv" class="leftDiv">
+			<img id="leftImg" class="gifImg" src="img/wheel.gif" alt="loading..." onload = "placeImage(this)"/>
 		</div>
 		
-		<div class="vertical" 
-			onmouseover="this.style.backgroundColor='black';document.body.style.cursor = 'col-resize'" 
-			onmouseout="this.style.backgroundColor='gray';document.body.style.cursor = 'default'"
-			>
+		<div id="dragDiv"></div>
+		<div id="horizontal1"></div>
+		<div id="horizontal2"></div>
+		
+		<div id="mainDiv" class="mainDiv">
+			<img id="mainImage" class="img-show" src="img/loader2.gif" alt="main" onload = "placeImage(this)"/>
 		</div>
 		
-		<div class="centerDiv" id="mainDiv">
-			<img id="mainImage" class="img-show" alt="main"/>
-		</div>
-		
-		<div class="rightDiv">
-			<img class="gifImg" src="img/loader2.gif" alt="loading..."/>
-		</div>
-		
-		<div id="bottom-panel" class="bottomDiv">
+		<div id="bottomDiv" class="bottomDiv">
 			<div id="bottomDiv_0001" class="thumbDiv"></div>
 			<div id="bottomDiv_0002" class="thumbDiv"></div>
 			<div id="bottomDiv_0003" class="thumbDiv"></div>
@@ -69,17 +64,14 @@
 		
 		<script type="text/javascript">
 			<!--
+			var theBottomDiv = new Array(5);
 			var theBottomImg = new Array(5);
 			
 			for (var i = 0; i < 5; i++) {
-				theBottomImg[i] = new myImage("squirell/0" + (1 + i % 5) + ".jpg", 
-											"img/loader2.gif",
-											"000" + (i+1));
+				theBottomImg[i] = "squirell/0" + (1 + i % 5) + ".jpg"
+				theBottomDiv[i] = new myImage( theBottomImg[i], "img/loader2.gif", "000" + (i+1) );
 			}
-			
-			document.getElementById("mainImage").onload = function(){
-				placeImage(this);
-			}
+						
 			//-->
 		</script>
 		
