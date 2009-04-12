@@ -11,6 +11,19 @@ var divX0, divY0;
 var dragElement;
 var dragDirection;
 
+var mainDivPadding = 15;
+var thumbDivPadding = 5;
+
+document.onmousedown = initMove;
+document.onmousemove = moveHandler;
+
+// Если клавишу мыши отпустили вне элемента движение должно прекратиться
+document.onmouseup = function() {
+    moveState = false;
+	dragElement = null;
+	dragDirection = null;
+}
+
 // Объявим функцию для определения координат мыши
 function defPosition(event) {
     var x = y = 0;
@@ -53,48 +66,65 @@ function moveHandler(event) {
 		dragElement.id == 'dragDiv')
 	{
         dragElement.style.left = divX0 + defPosition(event).x - x0 + 'px';	
-        
-		document.getElementById("leftDiv").style.width = dragElement.style.left;
-		document.getElementById("mainDiv").style.left = dragElement.style.left;
-		document.getElementById("mainDiv").style.width =
-			document.body.clientWidth - 
-			document.getElementById("leftDiv").clientWidth - 
-			dragElement.clientWidth + 'px';
+		positionElements();
+		positionImages();
     }
 	
 	if (moveState &&
 		dragElement.id == "horizontal2")
 	{
 		dragElement.style.top = divY0 + defPosition(event).y - y0 + 'px';	
-		
-		document.getElementById("leftDiv").style.height = 
-			document.getElementById("horizontal2").offsetTop - 
-			document.getElementById("leftDiv").offsetTop + 'px';
+		positionElements();	
+		positionImages();
+	}
+}
+
+function positionElements() {
+	var maxX = window.innerWidth;
+			var maxY = window.innerHeight;
 			
-		document.getElementById("mainDiv").style.height = document.getElementById("leftDiv").style.height;
-		document.getElementById("dragDiv").style.height = document.getElementById("leftDiv").style.height;
+			var leftDiv = document.getElementById("leftDiv");
+			var mainDiv = document.getElementById("mainDiv");
+			var bottomDiv = document.getElementById("bottomDiv");
+			var dragDiv = document.getElementById("dragDiv");
+			var hor1Div = document.getElementById("horizontal1");
+			var hor2Div = document.getElementById("horizontal2");
 			
-		document.getElementById("bottomDiv").style.top =
-			document.getElementById("horizontal2").offsetTop + 'px';
+			dragDiv.style.height = hor2Div.offsetTop  - dragDiv.offsetTop + 'px';
+			hor1Div.style.top = dragDiv.offsetTop - hor1Div.offsetHeight + 'px';
 			
-		document.getElementById("bottomDiv").style.height = 
-			window.innerHeight - 
-			document.getElementById("horizontal2").offsetTop -
-			document.getElementById("horizontal2").clientHeight + 'px';	
+			with (leftDiv.style) {
+				top = dragDiv.offsetTop + 'px';
+				width = dragDiv.offsetLeft - 2 + 'px';
+				height = hor2Div.offsetTop  - dragDiv.offsetTop - 2 + 'px';
+				padding = "0px";
+			}
 			
+			with (mainDiv.style) {
+				padding = mainDivPadding + 'px';
+				left = dragDiv.offsetLeft + dragDiv.offsetWidth + 'px';
+				top = dragDiv.offsetTop + 'px';
+				width = maxX - parseInt(left) - 2*mainDivPadding - 2 + 'px';
+				height = hor2Div.offsetTop  - dragDiv.offsetTop - 2*mainDivPadding - 2 + 'px';
+			}
+			
+			with (bottomDiv.style) {
+				top = hor2Div.offsetTop + hor2Div.offsetHeight + 'px';
+				height = maxY - parseInt(top) - 2 + 'px';
+				width = maxX - 2 + 'px';
+			}
+			
+			for (var i = 0; i < 5; i++) {
+				with (document.getElementById("bottomDiv_000" + (i + 1)).style) {
+					padding = thumbDivPadding + 'px';
+					height = bottomDiv.offsetHeight - 2 * thumbDivPadding - 2 - 2 + 'px';
+				}
+			}
+}
+
+function positionImages(){
 		placeImage(document.getElementById('leftImg'));	
 		placeImage(document.getElementById('mainImage'));	
 		for (var i = 0; i < 5; i++) placeImage( document.getElementById( "main_000" + (i+1) ) );
 		for (var i = 0; i < 5; i++) placeImage( document.getElementById( "sub_000" + (i+1) ) );
-	}
-}
-
-document.onmousedown = initMove;
-document.onmousemove = moveHandler;
-
-// Если клавишу мыши отпустили вне элемента движение должно прекратиться
-document.onmouseup = function() {
-    moveState = false;
-	dragElement = null;
-	dragDirection = null;
 }

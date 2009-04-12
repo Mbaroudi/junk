@@ -9,7 +9,7 @@
  
  function placeImage(theImg) {
  		with (theImg) {
-			var parentH = parentNode.offsetHeight;
+			var parentH = parentNode.offsetHeight - 2*parseInt(parentNode.style.padding);
 			if (height < parentH) 
 				style.marginTop = Math.round((parentH - height) / 2) + 'px';
 			else 
