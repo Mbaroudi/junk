@@ -15,16 +15,14 @@
 		
 		<div id="outer-loading" class="loading-visible">
 			<div id="inner-loading">
-				<img id="loading-img" alt="loading"/>
-				<br />
-				<center>Loading...</center>
+				<img id="loading-img" alt="loading"/>Loading...
 			</div>	
 		</div>
 		
 		<script type="text/javascript">
 			<!--
 			gifImage = document.getElementById("loading-img");
-			gifImage.src = "img/loader3.gif";
+			gifImage.src = "img/loader_3_222.gif";
 			
 			innerDiv = document.getElementById("inner-loading");
 			outerDiv = document.getElementById("outer-loading");
@@ -43,7 +41,7 @@
 		</script>
 		
 		<div id="leftDiv">
-			<img id="leftImg" class="gifImg" src="img/wheel.gif" alt="loading..." onload = "placeImage(this)"/>
+			<img id="leftImg" class="gifImg" src="img/loader_4_222.gif" alt="loading..." onload = "placeImage(this)"/>
 		</div>
 		
 		<div id="dragDiv"></div>
@@ -51,7 +49,7 @@
 		<div id="horizontal2"></div>
 		
 		<div id="mainDiv">
-			<img id="mainImage" class="img-show" src="img/loader2.gif" alt="main" onload = "placeImage(this)"/>
+			<img id="mainImage" class="img-show" src="img/loader_2_222.gif" alt="main" onload = "placeImage(this)"/>
 		</div>
 		
 		<div id="bottomDiv">
@@ -69,7 +67,7 @@
 			
 			for (var i = 0; i < 5; i++) {
 				theBottomImg[i] = "squirell/0" + (1 + i % 5) + ".jpg"
-				theBottomDiv[i] = new myImage( theBottomImg[i], "img/loader2.gif", "000" + (i+1) );
+				theBottomDiv[i] = new myImage( theBottomImg[i], "img/loader_2_222.gif", "000" + (i+1) );
 			}
 						
 			//-->
