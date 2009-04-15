@@ -5,6 +5,7 @@ img.img-hide {
 img.img-show {
 	max-height: 100%;
 	max-width: 100%;
+	z-index:100;
 }
 
 div.darkDiv {
@@ -25,3 +26,4 @@ div.darkDiv {
 	border-width: thin;
 	
 }
+

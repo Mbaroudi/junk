@@ -24,13 +24,18 @@ function onSubLoad() {
 }
 
 function onMainLoad() {		
+		var parentDiv = document.getElementById("bottomDiv_" + getNumber(this.id) )
+
 		document.getElementById("sub_" + getNumber(this.id)).className = "img-hide";
-		document.getElementById("bottomDiv_" + getNumber(this.id)).appendChild(this);
+		parentDiv.appendChild(this);
+		parentDiv.style.opacity = "0.5";
 		
 		this.className = "img-show";
 		placeImage(this);
 		
 		this.onclick = function() { document.getElementById("mainImage").src = this.src; }
+		parentDiv.onmouseover = function(){this.style.opacity = "1"; }
+		parentDiv.onmouseout = function(){this.style.opacity = "0.4"; }
 }
  
  function myImage(imgSrc, loadingSrc, imgNum){
