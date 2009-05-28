@@ -57,3 +57,27 @@ div.loading-visible{
     opacity:.75;
 	z-index: 10000;
 }
+
+#divLeft {
+	height:15px; 
+	width:15px; 
+	background: transparent url(lib/ext/resources/images/gray/panel/tool-sprites.gif) no-repeat scroll 0 0;
+	background-position:0 -180px;
+	margin: 70px 5px 70px 5px;
+}
+
+#divLeft:hover {
+	background-position:-15px -180px;
+}
+
+#divRight {
+	height:15px; 
+	width:15px; 
+	background: transparent url(lib/ext/resources/images/gray/panel/tool-sprites.gif) no-repeat scroll 0 0;
+	background-position:0 -165px;
+	margin: 70px 5px 70px 5px;
+}
+
+#divRight:hover {
+	background-position:-15px -165px;
+}
