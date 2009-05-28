@@ -1,0 +1,10 @@
+img.img-hide {
+	display:none;
+}
+
+img.img-show {
+	max-height: 100%;
+	max-width: 100%;
+	z-index:100;
+}
+

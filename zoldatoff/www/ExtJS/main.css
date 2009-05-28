@@ -1,0 +1,59 @@
+html, body {
+	font:normal 12px verdana;
+	margin:0;
+	padding:0;
+	border:0 none;
+	overflow:hidden;
+	height:100%;
+}
+
+div.thumbDiv {
+	position: relative;
+	height: 150px; 	
+	min-width: 100px;
+	float: left;
+	margin: 5px 5px 5px 5px;
+	text-align:center;
+}
+
+#center {
+	position: relative;
+	top: 0px;
+	left: 0px; 
+	height: 100%;
+	width: 100%; 
+	float: left;
+	text-align:center;
+}
+
+#msg-div {
+	left: 35%;
+	position: absolute;
+	top: 10px;
+	width: 250px;
+	z-index: 20000;
+}
+
+#south {
+	overflow:hidden;
+}
+
+div.loading-invisible{
+    display:none;
+	z-index: 1;
+}
+
+div.loading-visible{
+    display:block;
+	color: red;
+
+    position:absolute;
+    top:0px;
+    left:0px;
+	width:100%;
+	height:100%;
+
+    background:#000;
+    opacity:.75;
+	z-index: 10000;
+}
