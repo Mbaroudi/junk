@@ -2,26 +2,46 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>title</title>
-<link rel="stylesheet" type="text/css" href="css/reset.css" />
-<link rel="stylesheet" type="text/css" href="css/main.css" />
-<script type="text/javascript" src="js/jquery.js"></script>
-<script type="text/javascript" src="js/app.js"></script>
+<title>zGallery</title>
+<!--link rel="stylesheet" type="text/css" href="css/reset.css" /-->
+<link href="css/main.css" rel="stylesheet" type="text/css" />
+
+<script type="text/javascript" src="js/jquery.js"> </script>
+
+<link href="css/galleria.css" rel="stylesheet" type="text/css" media="screen"> 
+<script type="text/javascript" src="js/jquery.galleria.js"> </script> 
+
+<script type="text/javascript"> 
+	jQuery(function($) { $('ul.galleria').galleria(); }); 
+</script>
+
 </head>
 <!--[if lte IE 6]>
  <script type="text/javascript">
-  window.attachEvent('onload',mmwidth);
-  window.attachEvent('onresize',mmwidth);
- function mmwidth(){
-  document.getElementById('wrap').style.width = ((document.documentElement.clientWidth || document.body.clientWidth) < 995) ? '985px' : ((document.body.clientWidth > 1410) ? '1400px' : '96%');
-   };
+
  </script>
 <![endif]-->
 <body>
-<div id="wrap">
-	<div class="content"> </div>
-	<div class="footer_blank"> </div>
-</div>
-<div id="footer"> </div>
+<!--div id="wrap">
+	<div class="content"> content </div>
+	<div class="footer_blank"> footer_blank </div>
+</div-->
+<div id="gallery">
+	
+	<ul class="galleria"> 
+		<li><img src="img/01.jpg" title="A caption" alt="Image01"></li> 
+		<li><img src="img/02.jpg" title="A caption" alt="Image02"></li>
+		<li><img src="img/03.jpg" title="A caption" alt="Image03"></li>
+		<li><img src="img/04.jpg" title="A caption" alt="Image04"></li>
+		<li><img src="img/05.jpg" title="A caption" alt="Image05"></li>
+		<li><img src="img/06.jpg" title="A caption" alt="Image06"></li>
+		<li><img src="img/07.jpg" title="A caption" alt="Image07"></li>
+		<li><img src="img/08.jpg" title="A caption" alt="Image08"></li>
+		<li><img src="img/09.jpg" title="A caption" alt="Image09"></li>
+	</ul>
+	
+</div>	
+
+<!--div id="footer"> footer </div-->
 </body>
 </html>

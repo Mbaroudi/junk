@@ -1,6 +1,7 @@
 html, body {
 	height:100%;
 }
+/*
 body {
 	font-family: Tahoma;
 	font-size: 11px;
@@ -8,6 +9,16 @@ body {
 	width:100%;
 	min-width:1000px;
 }
+*/
+body {
+	padding:20px;
+	background:white;
+	text-align:center;
+	background:black;
+	color:#bba;
+	font:80%/140% georgia,serif;
+}
+
 #wrap {
 	position: relative;
 	background:#fff;
