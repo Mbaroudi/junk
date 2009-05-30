@@ -1,0 +1,31 @@
+html, body {
+	height:100%;
+}
+body {
+	font-family: Tahoma;
+	font-size: 11px;
+	color: #000000;
+	width:100%;
+	min-width:1000px;
+}
+#wrap {
+	position: relative;
+	background:#fff;
+	min-width:1000px;
+	max-width: 1400px;
+	width:60%;
+	margin: 0px auto;
+	min-height:100%;
+	height:auto !important;
+	height:100%;
+}
+#footer {
+	padding-top:25px;
+	position:relative;
+	margin-top:-70px;
+	height:45px;
+	width:100%;
+}
+.footer_blank {
+	height:70px;
+}
