@@ -33,12 +33,12 @@ body {
 	position:absolute;
 	left:0px;
 	height:500px;
-	width: 300px;
+	width: 100px;
 }
 
 #images {
 	position:relative;
-	width:1000px;
+	width:800px;
 	float:right;
 	height:500px;
 	text-align:center;
@@ -55,7 +55,7 @@ body {
 
 #thumbs {
 	position:relative;
-	height:100px;
+	height:70px;
 	width:702px;
 	left:50%;
 	margin-left:-351px;
@@ -69,7 +69,7 @@ body {
 	vertical-align:middle;
 	line-height: 20px;
 
-	border-top: 1px solid #e8e9e8;  
+	border-top: 1px solid #111111;
 	text-align:center;
 	font-size:10px;
 	font-style:italic;

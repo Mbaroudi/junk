@@ -35,7 +35,9 @@
 
 .galleria li .caption {
 		display:block;
-		padding-top:.5em
+		/*
+padding-top:.5em
+*/
 }
 
 * html .galleria li div span {width:400px} /* MSIE bug */
@@ -49,11 +51,9 @@
 	overflow:hidden;
 }
 
-.caption {font-style:italic;color:#888877;}
+.caption {font-style:italic;color:#888877;height:20px;}
 
 .replaced {
-	width:auto;
-	height:auto;
-	max-width:800px;
-	max-height:390px;
+	max-width:100%;
+	max-height:100%;
 }
