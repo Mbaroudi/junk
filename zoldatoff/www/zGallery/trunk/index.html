@@ -3,45 +3,52 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>zGallery</title>
-<!--link rel="stylesheet" type="text/css" href="css/reset.css" /-->
+<link rel="stylesheet" type="text/css" href="css/reset.css" />
 <link href="css/main.css" rel="stylesheet" type="text/css" />
 
 <script type="text/javascript" src="js/jquery.js"> </script>
 
-<link href="css/galleria.css" rel="stylesheet" type="text/css" media="screen"> 
+<link href="css/galleria.css" rel="stylesheet" type="text/css" media="screen" /> 
 <script type="text/javascript" src="js/jquery.galleria.js"> </script> 
 
 <script type="text/javascript"> 
-	jQuery(function($) { $('ul.galleria').galleria(); }); 
+	jQuery(function($) { $('ul.galleria').galleria({insert:'#container'}); }); 
+	
 </script>
 
-</head>
-<!--[if lte IE 6]>
- <script type="text/javascript">
-
- </script>
+<!--[if lt IE 7]>
+<script src="http://ie7-js.googlecode.com/svn/version/2.0(beta3)/IE7.js" type="text/javascript"></script>
 <![endif]-->
+
+</head>
+
 <body>
-<!--div id="wrap">
-	<div class="content"> content </div>
-	<div class="footer_blank"> footer_blank </div>
-</div-->
-<div id="gallery">
+<div id="header">Wicked child's photo gallery</div>
+
+<div id="wrap">
+	<div id="list"> List </div>
 	
-	<ul class="galleria"> 
-		<li><img src="img/01.jpg" title="A caption" alt="Image01"></li> 
-		<li><img src="img/02.jpg" title="A caption" alt="Image02"></li>
-		<li><img src="img/03.jpg" title="A caption" alt="Image03"></li>
-		<li><img src="img/04.jpg" title="A caption" alt="Image04"></li>
-		<li><img src="img/05.jpg" title="A caption" alt="Image05"></li>
-		<li><img src="img/06.jpg" title="A caption" alt="Image06"></li>
-		<li><img src="img/07.jpg" title="A caption" alt="Image07"></li>
-		<li><img src="img/08.jpg" title="A caption" alt="Image08"></li>
-		<li><img src="img/09.jpg" title="A caption" alt="Image09"></li>
-	</ul>
-	
+	<div id=images>
+		<div id="container"> </div>
+		
+		<div id="thumbs">
+			<ul class="galleria"> 
+				<li><img src="img/01.jpg" title="A caption" alt="Image01" /></li> 
+				<li><img src="img/02.jpg" title="A caption" alt="Image02" /></li>
+				<li><img src="img/03.jpg" title="A caption" alt="Image03" /></li>
+				<li><img src="img/04.jpg" title="A caption" alt="Image04" /></li>
+				<li><img src="img/05.jpg" title="A caption" alt="Image05" /></li>
+				<li><img src="img/06.jpg" title="A caption" alt="Image06" /></li>
+				<li><img src="img/07.jpg" title="A caption" alt="Image07" /></li>
+				<li><img src="img/08.jpg" title="A caption" alt="Image08" /></li>
+				<li><img src="img/09.jpg" title="A caption" alt="Image09" /></li>
+			</ul>
+		</div>
+	</div>
+	<!--div class="empty_inner" style="" >&nbsp;</div-->
 </div>	
 
-<!--div id="footer"> footer </div-->
+<div id="footer"> &copy; Wicked child. E-mail: <a href="mailto:eletunovskaya@gmail.com">eletunovskaya@gmail.com</a> </div>
+
 </body>
 </html>
