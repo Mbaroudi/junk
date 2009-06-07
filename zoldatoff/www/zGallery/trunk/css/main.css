@@ -3,64 +3,109 @@ html, body {
 }
 
 body {
-	padding-left:20px;
-	padding-right:20px;
-	background:white;
-	text-align:center;
 	background:black;
 	color:#bba;
-	font:80%/140% georgia,serif;
+	font-family:Georgia,Serif;
 	overflow: hidden;
+	padding-left:20px;
+	padding-right:20px;
 }
 
 #header {
-	position:relative;
-	width:100%;
-	height:50px;
 	font-family:Brush Script MT, Comic Sans MS;
 	font-size:40px;
-	line-height:50px;
 	font-style:italic;
-}
-
-#wrap {
-	position:relative;
-	border:3px double #111111;
-}
-
-#list {
-	position:absolute;
-	width: 200px;
-}
-
-#images {
-	position:relative;
-	float:right;
-	text-align:center;
-}
-
-#container {
-	position:relative;
-	margin-top:5px;
-}
-
-#thumbs {
-	position:relative;
-	height:70px;
-	width:702px;
-}
-
-#footer {
+	height:50px;
+	line-height:50px;
 	position:relative;
 	width:100%;
-	height:20px;
-	margin-top:20px;
-	vertical-align:middle;
-	line-height: 20px;
+}
 
-	border-top: 1px solid #111111;
+#wrapDiv {
+	border:3px double #111111;
+	height:80%;
+	position:relative;
+}
+
+#leftDiv {
+	position:absolute;
+	width: 200px;
+	height:100%;
+}
+
+#imagesDiv {
+	position:relative;
+	float:right;
+	height:100%;
+}
+
+#rightDiv {
+	position:relative;
+	float:right;
+	height:100%;
+	width:200px;
+}
+
+#containerDiv {
+	height:70%;
+	margin-top:5px;
+	position:relative;
+	width:100%;
 	text-align:center;
+}
+
+#image{
+	max-width:100%;
+	max-height:100%;
+}
+
+#captionDiv {
+	color:#888877;
+	font-style:italic;
+	height:20px;
+	width:100%;
+}
+
+#thumbsDiv {
+	height:70px;
+	position:relative;
+}
+
+img.thumb {
+	cursor:pointer;
+	display:block;
+	height:auto;
+	left:auto;
+	opacity: 0.3;
+	top:auto;
+	width:100%;
+	height:100%;
+}
+
+img.thumb:hover {
+	opacity: 1.0;
+}
+
+.lithumb {
+	background:#000000 none repeat scroll 0 0;
+ 	border:3px double #111111;
+	float:left;
+ 	height:50px;
+ 	margin:0 2px;
+	overflow:hidden;
+ 	width:68px;
+ }
+
+#footer {	
+	border-top: 1px solid #111111;
 	font-size:10px;
 	font-style:italic;
+	height:50px;
+	line-height: 20px;
+	margin-top:20px;
+	position:relative;
+	text-align:center;
+	vertical-align:middle;
+	width:100%;
 }
 

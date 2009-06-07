@@ -4,119 +4,40 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>zGallery</title>
 
-<link rel="stylesheet" type="text/css" href="css/reset.css" />
-<link href="css/main.css" rel="stylesheet" type="text/css" />
+<link href="css/reset.css" rel="stylesheet" type="text/css" />
+<link href="css/main.css"  rel="stylesheet" type="text/css" />
 
-<script type="text/javascript" src="js/jquery.js"> </script>
-
-<link href="css/galleria.css" rel="stylesheet" type="text/css" media="screen" /> 
-<script type="text/javascript" src="js/jquery.galleria.js"> </script> 
-
-<script type="text/javascript"> 
-	jQuery(function($) { 
-		$('ul.galleria').galleria({
-			insert:'#container',
-			onImage   : function(image,caption,thumb) { // let's add some image effects for demonstration purposes
-				
-				// fade in the image & caption
-				if(! ($.browser.mozilla && navigator.appVersion.indexOf("Win")!=-1) ) { // FF/Win fades large images terribly slow
-					image.css('display','none').fadeIn(1000);
-				}
-				caption.css('display','none').fadeIn(1000);
-				
-				// fetch the thumbnail container
-				var _li = thumb.parents('li');
-				
-				// fade out inactive thumbnail
-				_li.siblings().children('img.selected').fadeTo(500,0.3);
-				
-				// fade in active thumbnail
-				thumb.fadeTo('fast',1).addClass('selected');
-				
-				// add a title for the clickable image
-				image.attr('title','Next image >>');
-			},
-			onThumb : function(thumb) { // thumbnail effects goes here
-				
-				// fetch the thumbnail container
-				var _li = thumb.parents('li');
-				
-				// if thumbnail is active, fade all the way.
-				var _fadeTo = _li.is('.active') ? '1' : '0.3';
-				
-				// fade in the thumbnail when finnished loading
-				thumb.css({display:'none',opacity:_fadeTo}).fadeIn(1500);
-				
-				// hover effects
-				thumb.hover(
-					function() { thumb.fadeTo('fast',1); },
-					function() { _li.not('.active').children('img').fadeTo('fast',0.3); } // don't fade out if the parent is active
-				)
-			},
-			history: true
-		}); 
-	}); 	
-</script>
-
-<script type="text/javascript">
-	function interface() {		
-		maxX = $('body').width();
-			//- parseInt( $('body').css("padding-left") )
-			//- parseInt( $('body').css("padding-left") );
-		maxY = $('body').height();
-		
-		headerY = $('#header').height();
-		footerY = $('#footer').height();
-		wrapY = maxY-headerY-footerY-50; //!!!!!!!!!!
-		thumbY = $('#thumbs').height();
-		containerY = wrapY - thumbY;
-		captionY = $('.caption').height();
-		wrapperY = containerY - captionY;
-		listX = $('#list').width();
-		
-		$('#wrap').height(wrapY+'px');
-		$('#list').height(wrapY+'px');
-		$('#images').height(wrapY+'px');
-		$('#container').height(containerY+'px');
-		$('.galleria_wrapper').height(wrapperY+'px');
-		$('.replaced').height(wrapperY+'px');
-		
-		$('#images').width(maxX-listX+'px');
-		$('#container').width(maxX-listX+'px');
-	}
-	
-	$(document).ready(interface);
-	$(document).resize(interface);
-</script>
-
+<script type="text/javascript" src="js/jquery.min.js"> </script>
+<script type="text/javascript" src="js/zGallery.js"> </script>
 </head>
 
 <body>
 <div id="header">Wicked child's photo gallery</div>
 
-<div id="wrap">
-	<div id="list"> </div>
+<div id="wrapDiv">
+	<div id="leftDiv"> </div>
+	<div id="rightDiv"> </div>
 	
-	<div id=images>
-		<div id="container"> </div>
+	<div id=imagesDiv>
+		<div id="containerDiv"> <img id="image" src="none" alt="Main" style="display:none"/> </div> <!--height = 500-->
 		
-		<div id="thumbs">
-			<ul class="galleria"> 
-				<li><img src="img/01.jpg" title="A caption" alt="Image01" /></li> 
-				<li><img src="img/02.jpg" title="A caption" alt="Image02" /></li>
-				<li><img src="img/03.jpg" title="A caption" alt="Image03" /></li>
-				<li><img src="img/04.jpg" title="A caption" alt="Image04" /></li>
-				<li><img src="img/05.jpg" title="A caption" alt="Image05" /></li>
-				<li><img src="img/06.jpg" title="A caption" alt="Image06" /></li>
-				<li><img src="img/07.jpg" title="A caption" alt="Image07" /></li>
-				<li><img src="img/08.jpg" title="A caption" alt="Image08" /></li>
-				<li><img src="img/09.jpg" title="A caption" alt="Image09" /></li>
+		<div id="captionDiv"> <span id="caption"></span> </div>
+		
+		<div id="thumbsDiv">
+			<ul id="thumbs"> 
+				<li class="lithumb" id="li01"><img src="img/thumb/01.jpg" title="A caption" alt="Image01" class="thumb"/></li> 
+				<li class="lithumb" id="li02"><img src="img/thumb/02.jpg" title="A caption" alt="Image02" class="thumb"/></li>
+				<li class="lithumb" id="li03"><img src="img/thumb/03.jpg" title="A caption" alt="Image03" class="thumb"/></li>
+				<li class="lithumb" id="li04"><img src="img/thumb/04.jpg" title="A caption" alt="Image04" class="thumb"/></li>
+				<li class="lithumb" id="li05"><img src="img/thumb/05.jpg" title="A caption" alt="Image05" class="thumb"/></li>
+				<li class="lithumb" id="li06"><img src="img/thumb/06.jpg" title="A caption" alt="Image06" class="thumb"/></li>
+				<li class="lithumb" id="li07"><img src="img/thumb/07.jpg" title="A caption" alt="Image07" class="thumb"/></li>
+				<!--li class="lithumb" id="li08"><img src="img/thumb/08.jpg" title="A caption" alt="Image08" class="thumb"/></li>
+				<li class="lithumb" id="li09"><img src="img/thumb/09.jpg" title="A caption" alt="Image09" class="thumb"/></li-->
 			</ul>
 		</div>
 	</div>
 	
-	<div id="right"> </div>
-	<!--div class="empty_inner" style="" >&nbsp;</div-->
 </div>	
 
 <div id="footer"> &copy; Wicked child. E-mail: <a href="mailto:eletunovskaya@gmail.com">eletunovskaya@gmail.com</a> </div>
