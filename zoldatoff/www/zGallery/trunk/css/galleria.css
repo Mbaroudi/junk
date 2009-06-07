@@ -42,7 +42,13 @@ padding-top:.5em
 
 * html .galleria li div span {width:400px} /* MSIE bug */
 
-.galleria_container {width:800px;height:400px;text-align:center;}
+.galleria_container {
+/*
+	width:800px;
+	height:400px;
+*/
+	text-align:center;
+}
 
 .galleria_wrapper {
 	width:100%;

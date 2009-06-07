@@ -59,16 +59,20 @@
 </script>
 
 <script type="text/javascript">
-	function interface() {
-		maxX = $('body').width() - 40;
-		maxY = $('body').height() - 40;
+	function interface() {		
+		maxX = $('body').width();
+			//- parseInt( $('body').css("padding-left") )
+			//- parseInt( $('body').css("padding-left") );
+		maxY = $('body').height();
 		
 		headerY = $('#header').height();
 		footerY = $('#footer').height();
-		wrapY = maxY-headerY-footerY;
-		containerY = wrapY - 70;
-		wrapperY = containerY - 20;
-		listX = $('list').width();
+		wrapY = maxY-headerY-footerY-50; //!!!!!!!!!!
+		thumbY = $('#thumbs').height();
+		containerY = wrapY - thumbY;
+		captionY = $('.caption').height();
+		wrapperY = containerY - captionY;
+		listX = $('#list').width();
 		
 		$('#wrap').height(wrapY+'px');
 		$('#list').height(wrapY+'px');
@@ -78,15 +82,12 @@
 		$('.replaced').height(wrapperY+'px');
 		
 		$('#images').width(maxX-listX+'px');
+		$('#container').width(maxX-listX+'px');
 	}
 	
 	$(document).ready(interface);
 	$(document).resize(interface);
 </script>
-
-<!--[if lt IE 7]>
-<script src="js/IE7.js" type="text/javascript"></script>
-<![endif]-->
 
 </head>
 

@@ -10,6 +10,7 @@ body {
 	background:black;
 	color:#bba;
 	font:80%/140% georgia,serif;
+	overflow: hidden;
 }
 
 #header {
@@ -24,32 +25,22 @@ body {
 
 #wrap {
 	position:relative;
-	width:100%;
-	height: 500px;
 	border:3px double #111111;
 }
 
 #list {
 	position:absolute;
-	left:0px;
-	height:500px;
-	width: 100px;
+	width: 200px;
 }
 
 #images {
 	position:relative;
-	width:800px;
 	float:right;
-	height:500px;
 	text-align:center;
 }
 
 #container {
 	position:relative;
-	width:100%;
-	height:435px;
-	left:500px;
-	margin-left:-500px;
 	margin-top:5px;
 }
 
@@ -57,8 +48,6 @@ body {
 	position:relative;
 	height:70px;
 	width:702px;
-	left:50%;
-	margin-left:-351px;
 }
 
 #footer {
@@ -75,6 +64,3 @@ body {
 	font-style:italic;
 }
 
-.empty_inner {
-	height:20px;
-}
