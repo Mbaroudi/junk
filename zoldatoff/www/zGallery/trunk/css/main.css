@@ -43,6 +43,7 @@ body {
 	position:relative;
 	float:right;
 	height:100%;
+	overflow:hidden;
 	width:200px;
 }
 
@@ -82,6 +83,10 @@ img.thumb {
 	height:100%;
 }
 
+img.activethumb {
+	opacity: 1.0;
+}
+
 img.thumb:hover {
 	opacity: 1.0;
 }
@@ -110,7 +115,24 @@ img.thumb:hover {
 }
 
 .log {
-	font-family:Serif;
-	font-size: 10pt;
+	font-family:Arial;
+	font-size: 9pt;
+	position:relative;
 }
 
+#topDiv {
+	background:#000000;
+	display:none;
+	height:100%;
+	left:0px;
+	position:absolute;
+	text-align:center;
+	top:0px;
+	width:100%;
+	z-index:1000;
+} 
+
+#topImage {
+	max-height:100%;
+	max-width:100%;
+}
