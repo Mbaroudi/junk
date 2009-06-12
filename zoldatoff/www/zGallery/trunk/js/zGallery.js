@@ -1,8 +1,11 @@
 var DEBUG = true;
-
+var maxThumbs = 5;
 var imageList = new Array();
-var myImg = new Array();
-var output;
+var LScroll = 0;
+var RScroll = 0;
+
+$(document).ready(setInterface);
+$(window).resize(setInterface);
 
 function setInterface() {		
 	maxX = $('body').width();
@@ -17,7 +20,7 @@ function setInterface() {
 	thumbX = $('#thumbsDiv').width();
 	wrapY = maxY-headerY-footerY;
 	containerY = wrapY - thumbY - captionY;
-	wrapperY = containerY - captionY;
+	wrapperY = containerY - captionY; 
 	
 	//Позиционируем элементы на странице
 	$('#wrapDiv').height(wrapY+'px');
@@ -35,13 +38,21 @@ function fillImages(data) {
 	var myThumbs = $('#thumbs').empty();
 	
 	//Отображаем thumbnail-ы
-	for (var i=0; (i<data.imagelist.length) && (i<10); i++){
+	for (var i=0; i<data.imagelist.length; i++){
 		myThumbs.append('<li class="lithumb" id="li' + i + '"/>');
 		$('#li'+i).append('<img class="thumb" id="img' + i + '"/>');
 		
 		imageList[i] = data.imagelist[i];
-		$('#img'+i).attr('src', data.imagelist[i].thumb_src);
+		$('#img'+i).attr('src', imageList[i].thumb_src);
 		$('#img'+i).attr('number', i);
+	}
+	
+	//Подгрузка изображений
+	for (var i = 0; i < data.imagelist.length; i++) {
+		var tmp = document.createElement("img");
+		tmp.src = imageList[i].norm_src;
+		tmp = document.createElement("img");
+		tmp.src = imageList[i].full_src;
 	}
 	
 	errorLog("Request received: " + data.imagelist.length + " items", "red");
@@ -55,7 +66,9 @@ function fillImages(data) {
 			$('#image').css('display','none').fadeIn(1000);
 			
 			$('img.activethumb').removeClass("activethumb");
+			$('li.activelithumb').removeClass("activelithumb");
 			$(this).addClass("activethumb");
+			$('#li'+myNumber).addClass("activelithumb");
 			
 			$('#caption').html(imageList[myNumber].title);
 			$('#caption').css('display','none').fadeIn(1000);
@@ -65,8 +78,18 @@ function fillImages(data) {
 	})
 	
 	//Выставляем размеры DIV-а с thumb-ами
-	$('#thumbsDiv').css("width", data.imagelist.length*78 + 'px'); //!!!!!!!!!
-	$('#thumbsDiv').css("left", (maxX-leftX-rightX-data.imagelist.length*78)/2 + 'px'); ////!!!!
+	var liWidth = parseInt($('#li0').outerWidth()) 
+				+ parseInt($('#li0').css('margin-right')) 
+				+ parseInt($('#li0').css('margin-left'));
+	var nThumbs = Math.min( Math.floor( (maxX-leftX-rightX) / liWidth ), maxThumbs);
+	LScroll = 0;
+	RScroll = Math.max(0, imageList.length - nThumbs);
+	
+	errorLog("lScroll = " + LScroll, "white");
+	errorLog("rScroll = " + RScroll, "white");
+	
+	$('#thumbsDiv').width(nThumbs*liWidth + 'px');
+	$('#thumbsDiv').css("left", (maxX-leftX-rightX-nThumbs*liWidth)/2 + 'px');
 	
 	//Отображаем картинку из первого thumb-а
 	$('#img0').load( function(){
@@ -97,6 +120,23 @@ function fillImages(data) {
 	$('#topImage').click(function(){
 		$('#topDiv').css('display','block').fadeOut(1000);
 	})
+	
+	//Скроллинг thumbs-ов
+	$('#leftDiv').click(function(){
+		if (RScroll > 0) {
+			$('.lithumb').animate({"left": "-=" + liWidth + "px"});
+			LScroll += 1;
+			RScroll -=1;
+		}
+	})
+	
+	$('#rightDiv').click(function(){
+		if (LScroll > 0)  {
+			$('.lithumb').animate({"left": "+=" + liWidth + "px"});
+			LScroll -= 1;
+			RScroll +=1;
+		}
+	})
 }
 
 function errorLog(message, color) {
@@ -114,8 +154,3 @@ function errorLog(message, color) {
 		logDiv.scrollTop = logDiv.scrollHeight;
 	}
 }
-
-
-
-$(document).ready(setInterface);
-$(document).resize(setInterface); //TODO: Why is it not working!!??

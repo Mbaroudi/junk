@@ -29,8 +29,9 @@ body {
 
 #leftDiv {
 	position:absolute;
-	width: 200px;
+	float:left;
 	height:100%;
+	width: 200px;
 }
 
 #imagesDiv {
@@ -77,6 +78,10 @@ body {
 	position:relative;
 }
 
+#thumbs {
+	width:10000px;
+}
+
 img.thumb {
 	cursor:pointer;
 	display:block;
@@ -96,14 +101,19 @@ img.thumb:hover {
 	opacity: 1.0;
 }
 
-.lithumb {
+li.lithumb {
 	background:#000000 none repeat scroll 0 0;
  	border:3px double #111111;
 	float:left;
  	height:50px;
  	margin:0 2px;
 	overflow:hidden;
+	position:relative;
  	width:68px;
+ }
+ 
+ li.activelithumb {
+ 	border-color:#444422;
  }
 
 #footer {	
