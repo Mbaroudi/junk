@@ -62,13 +62,18 @@ body {
 
 #captionDiv {
 	color:#888877;
-	font-style:italic;
-	height:20px;
+	font-style:normal;
+	font-family:Brush Script MT, Comic Sans MS;
+	font-size:25px;
+	height:40px;
+	text-align:center;
+	vertical-align:middle;
 	width:100%;
 }
 
 #thumbsDiv {
 	height:70px;
+	overflow:hidden;
 	position:relative;
 }
 
@@ -115,7 +120,7 @@ img.thumb:hover {
 }
 
 .log {
-	font-family:Arial;
+	font-family:Helvetica;
 	font-size: 9pt;
 	position:relative;
 }
