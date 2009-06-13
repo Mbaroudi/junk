@@ -115,6 +115,51 @@ li.lithumb {
  li.activelithumb {
  	border-color:#444422;
  }
+ 
+#arrowsDiv {
+	height:25px;
+	left:50%;
+	position:relative;
+	margin-left:-14px;
+	text-align:center;
+}
+
+#toLeft, #toRight {
+	background: url('arrows.gif');
+	background-repeat:no-repeat;
+ 	display: block;
+	float:left;
+	height: 9px;
+ 	width: 16px;
+}
+
+#toLeft {
+	background-position:
+  		0px /* Смещение по горизонтали */
+  		0px; /* Смещение вверх по вертикали */
+	left:-10px;
+	position:relative;
+}
+
+#toRight {
+	background-position:
+  		-16px /* Смещение по горизонтали */
+  		0px; /* Смещение вверх по вертикали */
+	left:10px;
+	position:relative;
+}
+
+#toLeft:hover {
+	background-position:
+  		0px /* Смещение по горизонтали */
+  		-8px; /* Смещение вверх по вертикали */
+}
+
+#toRight:hover {
+	background-position:
+  		-16px /* Смещение по горизонтали */
+  		-8px; /* Смещение вверх по вертикали */
+}
 
 #footer {	
 	border-top: 1px solid #111111;

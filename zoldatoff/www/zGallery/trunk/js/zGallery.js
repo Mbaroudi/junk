@@ -1,5 +1,6 @@
 var DEBUG = true;
 var maxThumbs = 5;
+var nThumbs = maxThumbs;
 var imageList = new Array();
 var LScroll = 0;
 var RScroll = 0;
@@ -15,12 +16,13 @@ function setInterface() {
 	footerY = $('#footer').height();
 	thumbY = $('#thumbsDiv').height();
 	captionY = $('#captionDiv').height();
+	arrowsY = $('#arrowsDiv').height();
 	leftX = $('#leftDiv').width();
 	rightX = $('#rightDiv').width();
 	thumbX = $('#thumbsDiv').width();
-	wrapY = maxY-headerY-footerY;
-	containerY = wrapY - thumbY - captionY;
-	wrapperY = containerY - captionY; 
+	
+	wrapY = maxY - headerY - footerY;
+	containerY = wrapY - thumbY - captionY - arrowsY;
 	
 	//Позиционируем элементы на странице
 	$('#wrapDiv').height(wrapY+'px');
@@ -35,9 +37,10 @@ function setInterface() {
 }
 
 function fillImages(data) {
-	var myThumbs = $('#thumbs').empty();
+	errorLog("Request received: " + data.imagelist.length + " items", "red");
 	
 	//Отображаем thumbnail-ы
+	var myThumbs = $('#thumbs').empty();
 	for (var i=0; i<data.imagelist.length; i++){
 		myThumbs.append('<li class="lithumb" id="li' + i + '"/>');
 		$('#li'+i).append('<img class="thumb" id="img' + i + '"/>');
@@ -55,8 +58,6 @@ function fillImages(data) {
 		tmp.src = imageList[i].full_src;
 	}
 	
-	errorLog("Request received: " + data.imagelist.length + " items", "red");
-	
 	//Добавляем обработчик кликов для каждого из thumbnails-ов
 	$('img.thumb').load(function(){
 		$(this).click(function(){
@@ -73,23 +74,21 @@ function fillImages(data) {
 			$('#caption').html(imageList[myNumber].title);
 			$('#caption').css('display','none').fadeIn(1000);
 			
-			errorLog("Image " + imageList[myNumber].number + " clicked", "white");
+			// сдвигаем активный thumb ближе к центру 
+			scrollThumbs(LScroll + Math.floor(nThumbs/2) - myNumber);
 		})
 	})
 	
 	//Выставляем размеры DIV-а с thumb-ами
-	var liWidth = parseInt($('#li0').outerWidth()) 
+	liWidth = parseInt($('#li0').outerWidth()) 
 				+ parseInt($('#li0').css('margin-right')) 
 				+ parseInt($('#li0').css('margin-left'));
-	var nThumbs = Math.min( Math.floor( (maxX-leftX-rightX) / liWidth ), maxThumbs);
+	nThumbs = Math.min( Math.floor( (maxX-leftX-rightX) / liWidth ), maxThumbs);
 	LScroll = 0;
 	RScroll = Math.max(0, imageList.length - nThumbs);
 	
-	errorLog("lScroll = " + LScroll, "white");
-	errorLog("rScroll = " + RScroll, "white");
-	
 	$('#thumbsDiv').width(nThumbs*liWidth + 'px');
-	$('#thumbsDiv').css("left", (maxX-leftX-rightX-nThumbs*liWidth)/2 + 'px');
+	$('#thumbsDiv').css("left", (maxX-leftX-rightX-nThumbs*liWidth)/2 + 'px'); ///!!!!
 	
 	//Отображаем картинку из первого thumb-а
 	$('#img0').load( function(){
@@ -100,8 +99,10 @@ function fillImages(data) {
 	$('#image').click(function(){
 		var myNumber = $(this).attr('number');
 		
-		$('#topImage').css('margin-top', "0px");
-		$('#topImage').attr('src',imageList[myNumber].full_src);
+		if ($('#topImage').attr('src') != imageList[myNumber].full_src) {
+			$('#topImage').css('margin-top', "0px");
+			$('#topImage').attr('src', imageList[myNumber].full_src);
+		}
 		$('#topDiv').css('display','block');
 		$('#topImage').css('display','none').fadeIn(1000);
 	})
@@ -122,21 +123,41 @@ function fillImages(data) {
 	})
 	
 	//Скроллинг thumbs-ов
-	$('#leftDiv').click(function(){
-		if (RScroll > 0) {
-			$('.lithumb').animate({"left": "-=" + liWidth + "px"});
-			LScroll += 1;
-			RScroll -=1;
-		}
+	$('#toLeft').click(function(){
+		scrollThumbs(1);
 	})
 	
-	$('#rightDiv').click(function(){
-		if (LScroll > 0)  {
-			$('.lithumb').animate({"left": "+=" + liWidth + "px"});
-			LScroll -= 1;
-			RScroll +=1;
-		}
+	$('#toRight').click(function(){
+		scrollThumbs(-1);
 	})
+}
+
+function scrollThumbs(steps) {
+	//хотим и можем сдвинуться влево
+	if (steps < 0 && RScroll >= -steps) {
+		$('.lithumb').animate({
+			"left": "-=" + liWidth * (-steps) + "px"
+		});
+		LScroll -= steps;
+		RScroll += steps;
+	}
+	//хотим, но не можем сдвинуться влево
+	else if (steps < 0 && RScroll < -steps) {
+		scrollThumbs(steps+1);
+	}
+
+	//хотим и можем сдвинуться вправо
+	if (steps > 0 && LScroll >= steps) {
+		$('.lithumb').animate({
+			"left": "+=" + liWidth * steps + "px"
+		});
+		LScroll -= steps;
+		RScroll += steps;
+	}
+	//хотим, но не можем сдвинуться вправо
+	else if (steps > 0 && LScroll < steps) {
+		scrollThumbs(steps-1);
+	}
 }
 
 function errorLog(message, color) {
