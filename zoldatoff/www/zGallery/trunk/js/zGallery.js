@@ -5,7 +5,12 @@ var imageList = new Array();
 var LScroll = 0;
 var RScroll = 0;
 
-$(document).ready(setInterface);
+$(document).ready(function(){
+	setInterface();
+	$.getJSON('php/list_images.php', {gallery: 'default'}, fillImages);
+	errorLog("Request sent", "red");
+});
+
 $(window).resize(setInterface);
 
 function setInterface() {		
@@ -31,9 +36,6 @@ function setInterface() {
 	$('#thumbsDiv').css("left", (maxX-leftX-rightX-thumbX)/2 + 'px');
 	
 	errorLog("Page reformatted", "blue");
-	
-	$.getJSON('php/list_images.php', {gallery: 'default'}, fillImages);
-	errorLog("Request sent", "red");
 }
 
 function fillImages(data) {
@@ -62,9 +64,10 @@ function fillImages(data) {
 	$('img.thumb').load(function(){
 		$(this).click(function(){
 			var myNumber = $(this).attr('number');
+			$('#image').hide();
+			$('#loader').show();
 			$('#image').attr('src', imageList[myNumber].norm_src);
 			$('#image').attr('number', myNumber);
-			$('#image').css('display','none').fadeIn(1000);
 			
 			$('img.activethumb').removeClass("activethumb");
 			$('li.activelithumb').removeClass("activelithumb");
@@ -95,31 +98,68 @@ function fillImages(data) {
 		$(this).click();
 	});
 	
+	//Убираем loader image
+	$('#image').load(function(){
+		$('#loader').hide();
+		
+		var iHeight = $(this).height();
+		var dHeight = $('#containerDiv').height() 
+						- parseInt( $('#containerDiv').css('margin-top') )
+						- parseInt( $('#containerDiv').css('margin-bottom') );
+		
+		if (iHeight < dHeight) {
+			$(this).css('margin-top', (dHeight - iHeight)/2 + "px");
+		}
+		else {
+			$(this).css('max-height', dHeight);
+		}
+		
+		$('#image').fadeIn(1000);
+	})
+	
 	//При клике по картинке переходим в full-screen режим
 	$('#image').click(function(){
 		var myNumber = $(this).attr('number');
 		
 		if ($('#topImage').attr('src') != imageList[myNumber].full_src) {
+			$('#topImage').hide();
+			$('#topLoader').show();
 			$('#topImage').css('margin-top', "0px");
 			$('#topImage').attr('src', imageList[myNumber].full_src);
 		}
+		else {
+			$('#topImage').fadeIn(1000);
+		}
 		$('#topDiv').css('display','block');
-		$('#topImage').css('display','none').fadeIn(1000);
 	})
 	
 	//Позиционируем картинку в full-screen-е по вертикали
 	$('#topImage').load(function(){
+		$('#topLoader').hide();
+		
 		var iHeight = $(this).height();
-		var dHeight = $('#topDiv').height();
+		var dHeight = $('#topDiv').height() 
+						- parseInt( $('#topDiv').css('margin-top') )
+						- parseInt( $('#topDiv').css('margin-bottom') );
+		var dWidth = $('#topDiv').width() 
+						- parseInt( $('#topDiv').css('margin-left') )
+						- parseInt( $('#topDiv').css('margin-right') )
+						- parseInt( $('body').css('padding-left') )
+						- parseInt( $('body').css('padding-right') );
 		
 		if (iHeight < dHeight) {
 			$(this).css('margin-top', (dHeight - iHeight)/2 + "px");
 		}
+		
+		$(this).css('max-height', dHeight);
+		$(this).css('max-width', dWidth);
+		
+		$(this).fadeIn(1000);
 	})
 	
 	//При клике по картинке возвращаемся к обычному просмотру
 	$('#topImage').click(function(){
-		$('#topDiv').css('display','block').fadeOut(1000);
+		$('#topDiv').fadeOut(1000);
 	})
 	
 	//Скроллинг thumbs-ов

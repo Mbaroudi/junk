@@ -56,9 +56,17 @@ body {
 	text-align:center;
 }
 
-#image{
+#image {
 	max-width:100%;
 	max-height:100%;
+}
+
+.loader {
+	left: 50%;
+	margin-top:-5px;
+	margin-left:-5px;
+	position:absolute;
+	top:50%;
 }
 
 #captionDiv {
@@ -185,6 +193,7 @@ li.lithumb {
 	display:none;
 	height:100%;
 	left:0px;
+	margin:10px 10px 10px 10px;
 	position:absolute;
 	text-align:center;
 	top:0px;
