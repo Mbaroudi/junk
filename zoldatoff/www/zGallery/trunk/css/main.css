@@ -57,6 +57,7 @@ body {
 }
 
 #image {
+	cursor:pointer;
 	max-width:100%;
 	max-height:100%;
 }
@@ -74,14 +75,14 @@ body {
 	font-style:normal;
 	font-family:Brush Script MT, Comic Sans MS;
 	font-size:25px;
-	height:40px;
+	height:30px;
 	text-align:center;
 	vertical-align:middle;
 	width:100%;
 }
 
 #thumbsDiv {
-	height:70px;
+	height:56px;
 	overflow:hidden;
 	position:relative;
 }
@@ -92,13 +93,10 @@ body {
 
 img.thumb {
 	cursor:pointer;
-	display:block;
 	height:auto;
-	left:auto;
 	opacity: 0.3;
-	top:auto;
-	width:100%;
-	height:100%;
+	max-width:100%;
+	max-height:100%;
 }
 
 img.activethumb {
@@ -114,9 +112,10 @@ li.lithumb {
  	border:3px double #111111;
 	float:left;
  	height:50px;
- 	margin:0 2px;
+ 	/*margin:0 2px;*/
 	overflow:hidden;
 	position:relative;
+	text-align:center;
  	width:68px;
  }
  
@@ -127,46 +126,39 @@ li.lithumb {
 #arrowsDiv {
 	height:25px;
 	left:50%;
-	position:relative;
 	margin-left:-14px;
+	position:relative;
 	text-align:center;
+	vertical-align:middle;
 }
 
 #toLeft, #toRight {
-	background: url('arrows.gif');
-	background-repeat:no-repeat;
  	display: block;
 	float:left;
-	height: 9px;
+	color: #888877;
+	font-family:Brush Script MT, Comic Sans MS;
+	font-size:25px;
+	font-style:italic;
+	height: 30px;
+	position:relative;
+	vertical-align:middle;
  	width: 16px;
 }
 
 #toLeft {
-	background-position:
-  		0px /* Смещение по горизонтали */
-  		0px; /* Смещение вверх по вертикали */
-	left:-10px;
-	position:relative;
+	left:-40px;
 }
 
 #toRight {
-	background-position:
-  		-16px /* Смещение по горизонтали */
-  		0px; /* Смещение вверх по вертикали */
-	left:10px;
-	position:relative;
+	left:20px;	
 }
 
 #toLeft:hover {
-	background-position:
-  		0px /* Смещение по горизонтали */
-  		-8px; /* Смещение вверх по вертикали */
+	color:red;
 }
 
 #toRight:hover {
-	background-position:
-  		-16px /* Смещение по горизонтали */
-  		-8px; /* Смещение вверх по вертикали */
+	color:red;
 }
 
 #footer {	
@@ -190,14 +182,14 @@ li.lithumb {
 
 #topDiv {
 	background:#000000;
+	bottom:0px;
 	display:none;
-	height:100%;
 	left:0px;
-	margin:10px 10px 10px 10px;
+	padding: 20px 20px 20px 20px;
 	position:absolute;
+	right:0px;
 	text-align:center;
 	top:0px;
-	width:100%;
 	z-index:1000;
 } 
 

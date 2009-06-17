@@ -15,8 +15,11 @@
 		}
 	}
 	
-    for($i=1;$i<=8;$i++)
+    for($i=1;$i<=9;$i++)
 		$img[] = new image('0' . $i . '.jpg', $i-1);
+	
+	for($i=10;$i<=25;$i++)
+		$img[] = new image($i . '.jpg', $i-1);
 		
 	echo '{"imagelist": ' . json_encode($img) . '}';
 ?>

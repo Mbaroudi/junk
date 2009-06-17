@@ -6,36 +6,61 @@ var LScroll = 0;
 var RScroll = 0;
 
 $(document).ready(function(){
-	setInterface();
+	positionAll();
 	$.getJSON('php/list_images.php', {gallery: 'default'}, fillImages);
 	errorLog("Request sent", "red");
 });
 
-$(window).resize(setInterface);
+$(window).resize(function(){
+	positionAll();
+	positionImg('#image');
+	positionImg('#topImage');
+})
 
-function setInterface() {		
+function positionAll() {		
 	maxX = $('body').width();
 	maxY = $('body').height();
 	
-	headerY = $('#header').height();
-	footerY = $('#footer').height();
-	thumbY = $('#thumbsDiv').height();
-	captionY = $('#captionDiv').height();
-	arrowsY = $('#arrowsDiv').height();
-	leftX = $('#leftDiv').width();
-	rightX = $('#rightDiv').width();
-	thumbX = $('#thumbsDiv').width();
+	headerY 	= $('#header').outerHeight();
+	footerY 	= $('#footer').outerHeight();
+	thumbY		= $('#thumbsDiv').height();
+	captionY 	= $('#captionDiv').height();
+	arrowsY 	= $('#arrowsDiv').height();
+	leftX 		= $('#leftDiv').width();
+	rightX 		= $('#rightDiv').width();
+	thumbX 		= $('#thumbsDiv').width();
 	
-	wrapY = maxY - headerY - footerY;
-	containerY = wrapY - thumbY - captionY - arrowsY;
+	wrapY 		= maxY - headerY - footerY;	
+	containerY	= wrapY - thumbY - captionY - arrowsY
+					- parseInt($('#containerDiv').css('margin-top'))
+					- parseInt($('#wrapDiv').css('border-top-width'))
+					- parseInt($('#wrapDiv').css('border-bottom-width'));
 	
 	//Позиционируем элементы на странице
 	$('#wrapDiv').height(wrapY+'px');
 	$('#containerDiv').height(containerY+'px');
 	$('#imagesDiv').width(maxX-leftX-rightX+'px');
+	$('#thumbsDiv').height(thumbY + 'px');
 	$('#thumbsDiv').css("left", (maxX-leftX-rightX-thumbX)/2 + 'px');
 	
 	errorLog("Page reformatted", "blue");
+}
+
+function positionImg(imgID) {
+	myImg 		= $(imgID);
+	myParent 	= $(imgID).parent();
+	
+	var iHeight = myImg.height();	
+	var dHeight = myParent.height();
+	var iWidth 	= myImg.width();
+	var dWidth 	= myParent.width();
+	
+	if (dWidth/dHeight < iWidth/iHeight) {
+		myImg.css( 'margin-top', (dHeight*iWidth - iHeight*dWidth)/(2*iWidth) + "px" );
+	}
+	else {
+		myImg.css( 'margin-top', "0px" );
+	}
 }
 
 function fillImages(data) {
@@ -53,15 +78,18 @@ function fillImages(data) {
 	}
 	
 	//Подгрузка изображений
+	/*
 	for (var i = 0; i < data.imagelist.length; i++) {
 		var tmp = document.createElement("img");
 		tmp.src = imageList[i].norm_src;
 		tmp = document.createElement("img");
 		tmp.src = imageList[i].full_src;
 	}
+	*/
 	
 	//Добавляем обработчик кликов для каждого из thumbnails-ов
 	$('img.thumb').load(function(){
+		positionImg('#' + $(this).attr('id'));
 		$(this).click(function(){
 			var myNumber = $(this).attr('number');
 			$('#image').hide();
@@ -101,19 +129,7 @@ function fillImages(data) {
 	//Убираем loader image
 	$('#image').load(function(){
 		$('#loader').hide();
-		
-		var iHeight = $(this).height();
-		var dHeight = $('#containerDiv').height() 
-						- parseInt( $('#containerDiv').css('margin-top') )
-						- parseInt( $('#containerDiv').css('margin-bottom') );
-		
-		if (iHeight < dHeight) {
-			$(this).css('margin-top', (dHeight - iHeight)/2 + "px");
-		}
-		else {
-			$(this).css('max-height', dHeight);
-		}
-		
+		positionImg('#image');
 		$('#image').fadeIn(1000);
 	})
 	
@@ -136,24 +152,7 @@ function fillImages(data) {
 	//Позиционируем картинку в full-screen-е по вертикали
 	$('#topImage').load(function(){
 		$('#topLoader').hide();
-		
-		var iHeight = $(this).height();
-		var dHeight = $('#topDiv').height() 
-						- parseInt( $('#topDiv').css('margin-top') )
-						- parseInt( $('#topDiv').css('margin-bottom') );
-		var dWidth = $('#topDiv').width() 
-						- parseInt( $('#topDiv').css('margin-left') )
-						- parseInt( $('#topDiv').css('margin-right') )
-						- parseInt( $('body').css('padding-left') )
-						- parseInt( $('body').css('padding-right') );
-		
-		if (iHeight < dHeight) {
-			$(this).css('margin-top', (dHeight - iHeight)/2 + "px");
-		}
-		
-		$(this).css('max-height', dHeight);
-		$(this).css('max-width', dWidth);
-		
+		positionImg('#topImage');
 		$(this).fadeIn(1000);
 	})
 	
@@ -164,11 +163,11 @@ function fillImages(data) {
 	
 	//Скроллинг thumbs-ов
 	$('#toLeft').click(function(){
-		scrollThumbs(1);
+		scrollThumbs(nThumbs);
 	})
 	
 	$('#toRight').click(function(){
-		scrollThumbs(-1);
+		scrollThumbs(-nThumbs);
 	})
 }
 
