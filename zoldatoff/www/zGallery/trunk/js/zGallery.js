@@ -13,13 +13,13 @@ $(document).ready(function(){
 
 $(window).resize(function(){
 	positionAll();
-	positionImg('#image');
-	positionImg('#topImage');
+	$('#image').centerImg();
+	$('#topImage').centerImg();
 })
 
 function positionAll() {		
-	maxX = $('body').width();
-	maxY = $('body').height();
+	maxX 		= $('body').width();
+	maxY 		= $('body').height();
 	
 	headerY 	= $('#header').outerHeight();
 	footerY 	= $('#footer').outerHeight();
@@ -46,22 +46,28 @@ function positionAll() {
 	errorLog("Page reformatted", "blue");
 }
 
-function positionImg(imgID) {
-	myImg 		= $(imgID);
-	myParent 	= $(imgID).parent();
-	
-	var iHeight = myImg.height();	
-	var dHeight = myParent.height();
-	var iWidth 	= myImg.width();
-	var dWidth 	= myParent.width();
-	
-	if (dWidth/dHeight < iWidth/iHeight) {
-		myImg.css( 'margin-top', (dHeight*iWidth - iHeight*dWidth)/(2*iWidth) + "px" );
-	}
-	else {
-		myImg.css( 'margin-top', "0px" );
-	}
-}
+(function ($) {
+	$.fn.centerImg = function() {
+		var iHeight = $(this).height();	
+		var dHeight = $(this).parent().height();
+		var iWidth 	= $(this).width();
+		var dWidth 	= $(this).parent().width();
+		
+		var myMargin = 0;
+		
+		if (dWidth > iWidth && dHeight > iHeight) {
+			myMargin = (dHeight - iHeight)/2;
+		}
+		else if (dWidth/dHeight < iWidth/iHeight) {
+			myMargin = (dHeight*iWidth - iHeight*dWidth)/(2*iWidth);
+		}
+		else {
+			myMargin = 0;
+		}
+		
+		$(this).css( 'margin-top', myMargin + 'px' );
+     };
+})(jQuery);
 
 function fillImages(data) {
 	errorLog("Request received: " + data.imagelist.length + " items", "red");
@@ -77,19 +83,36 @@ function fillImages(data) {
 		$('#img'+i).attr('number', i);
 	}
 	
-	//Подгрузка изображений
-	/*
-	for (var i = 0; i < data.imagelist.length; i++) {
-		var tmp = document.createElement("img");
-		tmp.src = imageList[i].norm_src;
-		tmp = document.createElement("img");
-		tmp.src = imageList[i].full_src;
+	//Подгружаем картинки
+	var tmpN = new Image();
+	var tmpF = new Image();
+	tmpN.num = tmpF.num = 1;
+	
+	tmpN.src = imageList[1].norm_src;
+	tmpF.src = imageList[1].full_src;
+	
+	tmpN.onload = function(){
+		myNum = this.num;
+		errorLog(myNum + ' loaded (norm)', "blue");
+		if (myNum + 1 < imageList.length) {
+			this.num = myNum + 1;
+			this.src = imageList[myNum + 1].norm_src;
+		} //else document.removeChild(this);
 	}
-	*/
+	
+	tmpF.onload = function(){
+		myNum = this.num;
+		errorLog(myNum + ' loaded (full)', "red");
+		if (myNum + 1 < imageList.length) {
+			this.num = myNum + 1;
+			this.src = imageList[myNum + 1].full_src;
+		} //else document.removeChild(this);
+	}
 	
 	//Добавляем обработчик кликов для каждого из thumbnails-ов
 	$('img.thumb').load(function(){
-		positionImg('#' + $(this).attr('id'));
+		$(this).centerImg();
+		
 		$(this).click(function(){
 			var myNumber = $(this).attr('number');
 			$('#image').hide();
@@ -129,7 +152,7 @@ function fillImages(data) {
 	//Убираем loader image
 	$('#image').load(function(){
 		$('#loader').hide();
-		positionImg('#image');
+		$('#image').centerImg();
 		$('#image').fadeIn(1000);
 	})
 	
@@ -144,7 +167,8 @@ function fillImages(data) {
 			$('#topImage').attr('src', imageList[myNumber].full_src);
 		}
 		else {
-			$('#topImage').fadeIn(1000);
+			//$('#topImage').fadeIn(100);
+			$('#topImage').show();
 		}
 		$('#topDiv').css('display','block');
 	})
@@ -152,7 +176,7 @@ function fillImages(data) {
 	//Позиционируем картинку в full-screen-е по вертикали
 	$('#topImage').load(function(){
 		$('#topLoader').hide();
-		positionImg('#topImage');
+		$('#topImage').centerImg();
 		$(this).fadeIn(1000);
 	})
 	
