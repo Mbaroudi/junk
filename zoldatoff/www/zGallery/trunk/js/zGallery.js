@@ -71,8 +71,9 @@ function positionAll() {
 	DOM_wrapDiv.height(wrapY+'px');
 	DOM_containerDiv.height(containerY+'px');
 	DOM_imagesDiv.width(maxX-leftX-rightX+'px');
-	DOM_thumbsDiv.height(thumbY + 'px');
-	DOM_thumbsDiv.css("left", (maxX-leftX-rightX-thumbX)/2 + 'px');
+	DOM_thumbsDiv
+		.height(thumbY + 'px')
+		.css("left", (maxX-leftX-rightX-thumbX)/2 + 'px');
 	
 	errorLog("Page reformatted", "blue");
 }
@@ -110,8 +111,9 @@ function fillImages(data) {
 		$('#li'+i).append('<img class="thumb" id="img' + i + '"/>');
 		
 		imageList[i] = data.imagelist[i];
-		$('#img'+i).attr('src', imageList[i].thumb_src);
-		$('#img'+i).attr('number', i);
+		$('#img'+i)
+			.attr('src', imageList[i].thumb_src)
+			.attr('number', i);
 	}
 	
 	//Подгружаем картинки
@@ -128,7 +130,7 @@ function fillImages(data) {
 		if (myNum + 1 < imageList.length) {
 			this.num = myNum + 1;
 			this.src = imageList[myNum + 1].norm_src;
-		} //else document.removeChild(this);
+		}
 	}
 	
 	/*
@@ -138,7 +140,7 @@ function fillImages(data) {
 		if (myNum + 1 < imageList.length) {
 			this.num = myNum + 1;
 			this.src = imageList[myNum + 1].full_src;
-		} //else document.removeChild(this);
+		}
 	}
 	*/
 	
@@ -150,16 +152,18 @@ function fillImages(data) {
 			var myNumber = $(this).attr('number');
 			DOM_image.hide();
 			$('#loader').show();
-			DOM_image.attr('src', imageList[myNumber].norm_src);
-			DOM_image.attr('number', myNumber);
+			DOM_image
+				.attr('src', imageList[myNumber].norm_src)
+				.attr('number', myNumber);
 			
-			$('img.activethumb').removeClass("activethumb");
-			$('li.activelithumb').removeClass("activelithumb");
+			$('img.activethumb', '#thumbs').removeClass("activethumb");
+			$('li.activelithumb', '#thumbs').removeClass("activelithumb");
 			$(this).addClass("activethumb");
 			$('#li'+myNumber).addClass("activelithumb");
 			
-			DOM_caption.html(imageList[myNumber].title);
-			DOM_caption.css('display','none').fadeIn(1000);
+			DOM_caption
+				.html(imageList[myNumber].title)
+				.css('display','none').fadeIn(1000);
 			
 			// сдвигаем активный thumb ближе к центру 
 			scrollThumbs(LScroll + Math.floor(nThumbs/2) - myNumber);
@@ -174,8 +178,9 @@ function fillImages(data) {
 	LScroll = 0;
 	RScroll = Math.max(0, imageList.length - nThumbs);
 	
-	DOM_thumbsDiv.width(nThumbs*liWidth + 'px');
-	DOM_thumbsDiv.css("left", (maxX-leftX-rightX-nThumbs*liWidth)/2 + 'px'); ///!!!!
+	DOM_thumbsDiv
+		.width(nThumbs*liWidth + 'px')
+		.css("left", (DOM_imagesDiv.width()-nThumbs*liWidth)/2 + 'px');
 	
 	//Отображаем картинку из первого thumb-а
 	$('#img0').load( function(){
@@ -196,8 +201,9 @@ function fillImages(data) {
 		if (DOM_topImage.attr('src') != imageList[myNumber].full_src) {
 			DOM_topImage.hide();
 			$('#topLoader').show();
-			DOM_topImage.css('margin-top', "0px");
-			DOM_topImage.attr('src', imageList[myNumber].full_src);
+			DOM_topImage
+				.css('margin-top', "0px")
+				.attr('src', imageList[myNumber].full_src);
 		}
 		else {
 			//DOM_topImage.fadeIn(100);
@@ -266,8 +272,6 @@ function errorLog(message, color) {
 		if (!color) color = "white";
 		
 		DOM_rightDiv.append('<span class="log" style="color:' + color + '">[' + hours + ':' + min + ':' + sec + '] ' + message + '<br></span>');
-		
-		var logDiv = document.getElementById("rightDiv");
-		logDiv.scrollTop = logDiv.scrollHeight;
+		DOM_rightDiv.scrollTop = DOM_rightDiv.scrollHeight;
 	}
 }
