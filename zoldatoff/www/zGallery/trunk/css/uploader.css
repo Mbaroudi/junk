@@ -1,0 +1,23 @@
+body {
+	background:black;
+	color:#bba;
+	font-family:Georgia,Serif;
+	font-size:13px;
+}
+
+table {
+	border: thin solid;
+	border-collapse: collapse;
+	padding: 0px;
+}
+
+td {
+	border: thin solid;
+	padding: 10px;
+	text-align: center;
+}
+
+th {
+	border: thin solid;
+	padding: 10px;
+}
