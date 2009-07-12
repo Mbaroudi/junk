@@ -2285,12 +2285,14 @@ class upload {
                 }
             }
             // checks MIME type with shell if unix access is authorized
+			/*//zoldatoff
             if (!$this->file_src_mime || !is_string($this->file_src_mime) || empty($this->file_src_mime)) {
                 if (substr(PHP_OS, 0, 3) != 'WIN' && strlen($mime = @shell_exec("file -bi ".escapeshellarg($this->file_src_pathname))) != 0) {
                     $this->file_src_mime = trim($mime);
                     $this->log .= '- MIME type detected as ' . $this->file_src_mime . ' by UNIX file() command<br />';
                 }
             }
+            */
             // checks MIME type with mime_magic
             if (!$this->file_src_mime || !is_string($this->file_src_mime) || empty($this->file_src_mime)) {
                 if (function_exists('mime_content_type')) {

@@ -7,11 +7,11 @@
 	
 	class imagefile {
 		public $filename;
-		public $error;
+		public $number;
 		
-		function __construct($name, $err) {
+		function __construct($name, $num) {
 			$this->filename = $name;
-			$this->error = $err;
+			$this->number = $num;
 		}
 	}
 
