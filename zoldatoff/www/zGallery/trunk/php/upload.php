@@ -14,6 +14,10 @@
 	$norm_size_y = 500;
 	$thumb_size_y = 100;
 	
+	//header('Cache-Control: no-cache, must-revalidate');
+	//header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+	//header('Content-type: application/json');
+	
 	if ( isset($_REQUEST['filename']) ) {
 		
 		$handle = new upload($path_to_root . $path_upload . $_REQUEST['filename']);
@@ -65,15 +69,26 @@
 		$json = new imagefile($thumb_src, $_REQUEST['number'] );
 		echo '{"result": ' . json_encode($json) . '}';
 	}
-	else { //if(isset($_REQUEST['filename']))      
-		if ($handle = opendir($path_to_root . $path_upload))
-			while (false !== ($file = readdir($handle))) {
-				if($file != '.' && $file != '..' && eregi('\.jpg|\.jpeg|\.gif|\.png', $file))
-					$json[] = new imagefile($file, "OK");
-			}
-		closedir($handle);
+	
+	if ( isset($_REQUEST['object']) ) {
+		switch ($_REQUEST['object']) {
+		case 'newimages':
+			if ($handle = opendir($path_to_root . $path_upload))
+				while (false !== ($file = readdir($handle))) {
+					if($file != '.' && $file != '..' && eregi('\.jpg|\.jpeg|\.gif|\.png', $file))
+						$json[] = new imagefile($file, "OK");
+				}
+			closedir($handle);		
+			break;
+		case 'albums':
+			$json[] = new category(0);
+			break;
+		case 'categories';
+			$json[] = new gallery();
+			break;
+		}
 		
-		echo '{"file_list": ' . json_encode($json) . '}';
-	} //if(isset($_REQUEST['filename']))                   		
+		echo '{"objectlist": ' . json_encode($json) . '}';
+	}                   		
 			
 ?>

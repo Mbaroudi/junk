@@ -1,0 +1,90 @@
+body {
+	background:black;
+	color:#bba;
+	font-family:Georgia,Serif;
+	font-size:13px;
+	overflow: hidden;
+}
+
+div {
+	height: auto;
+	overflow: hidden;
+}
+
+#containerDiv {
+	height:100%;
+	left: 50%;
+	margin-left: -460px;
+	overflow:hidden;
+	position: absolute;
+	width: 920px;
+}
+
+.thumbContainer {
+	float:left;
+	height: 255px;
+	overflow:hidden;
+	position:relative;
+	width: 100%;
+}
+
+h3 {
+	font-family:Brush Script MT, Comic Sans MS;
+	font-size:40px;
+	font-style:italic;
+	height:50px;
+	line-height:50px;
+	margin: 0px 0px 0px 0px;
+	position:relative;
+	text-shadow: rgb(100, 100, 100) 0px -2px 0px;
+	width:100%;
+}
+
+.thumbsUL {
+	height: auto;
+	list-style: none;
+	width:100%;
+}
+
+li {
+	background:#000000 none repeat scroll 0 0;
+ 	border:3px double #330505;
+	display:block;
+	float:left;
+ 	height:80px;
+	overflow:hidden;
+	padding: 5px;
+	position:relative;
+	text-align:center;
+ 	width:80px;
+}
+
+img {
+	max-height: 100%;
+	max-width: 100%;
+}
+
+.ui-progressbar { 
+	background-image: url(js/jquery-ui/css/ui-lightness/images/pbar-ani.gif); 
+	height: 20px;
+	left: 50%;
+	margin-left: -200px;
+	margin-top: -10px;
+	position:absolute;
+	top: 50%!important;
+	width: 400px;
+}
+
+#topDiv {
+	background:#000000;
+	bottom:0px;
+	display:none;
+	left:0px;
+	opacity: 0.5;
+	padding: 20px 20px 20px 20px;
+	position:absolute;
+	right:0px;
+	text-align:center;
+	top:0px;
+	z-index:1000;
+}

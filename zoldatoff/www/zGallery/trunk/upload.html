@@ -4,12 +4,43 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <title>Gallery management</title>
 		
-		<link rel="stylesheet" type="text/css" href="css/uploader.css" />
+		<link type="text/css" href="js/jquery-ui/css/ui-lightness/jquery-ui-1.7.2.custom.css" rel="Stylesheet" />	
+		<script type="text/javascript" src="js/jquery-ui/js/jquery-1.3.2.min.js"> </script>
+		<script type="text/javascript" src="js/jquery-ui/js/jquery-ui-1.7.2.custom.min.js"> </script>
 		
-		<script type="text/javascript" src="js/jquery.min.js"> </script>
-		<script type="text/javascript" src="js/uploader.js"> </script>
+		<link rel="stylesheet" type="text/css" href="css/gritter.css" />
+		<script type="text/javascript" src="js/jquery.gritter.js"></script>
+		
+		<link rel="stylesheet" type="text/css" href="css/upload.css" />
+		<script type="text/javascript" src="js/extensions.js"> </script>
+		<script type="text/javascript" src="js/upload.js"> </script>
     </head>
     <body>		
-		<ul id="thumbs"> </ul>
+		<div id="containerDiv">
+			<div id="imagesDiv" class="thumbContainer">
+				<h3>Images</h3>
+				<div id="imageThumbsDiv" class="thumbsDiv"> 
+					<ul id="imageThumbsUL" class="thumbsUL"> </ul> 
+				</div>
+			</div>
+			
+			<div id="albumsDiv"  class="thumbContainer">
+				<h3>Albums</h3>
+				<div id="albumsThumbsDiv" class="thumbsDiv"> 
+					<ul id="albumThumbsUL" class="thumbsUL"> </ul> 
+				</div>
+			</div>
+			
+			<div id="categoriesDiv"  class="thumbContainer">
+				<h3>Categories</h3>
+				<div id="categoryThumbsDiv" class="thumbsDiv"> 
+					<ul id="categoryThumbsUL" class="thumbsUL"> </ul> 
+				</div>
+			</div>
+		</div>
+		
+		<div id="topDiv">
+			<div id="progressbar"> </div>
+		</div>
     </body>
 </html>
