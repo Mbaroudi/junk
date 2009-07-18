@@ -52,11 +52,18 @@ li {
 	display:block;
 	float:left;
  	height:80px;
+	opacity: .5;
 	overflow:hidden;
 	padding: 5px;
 	position:relative;
 	text-align:center;
  	width:80px;
+}
+
+li.active {
+	background:#202020 none repeat scroll 0 0;
+	border:3px double #550505;
+	opacity: 1;
 }
 
 img {

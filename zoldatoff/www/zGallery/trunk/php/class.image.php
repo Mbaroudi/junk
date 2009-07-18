@@ -28,6 +28,7 @@
 	}
 
 	class image {
+		public $image_id;
 		public $name;
 		public $description;
 		public $imagedate;
@@ -42,6 +43,7 @@
 			$query = "SELECT * FROM IMAGES WHERE id = $id";
 			$query_result = mysql_query($query) or die ("Cannot execute '$query'." . mysql_error());
 			if ($row = mysql_fetch_array($query_result)) {
+				$this->image_id = $row['id'];
 				$this->name = $row['name'];
 				$this->description = $row['descr'];
 				$this->imagedate = $row['img_date'];
@@ -55,49 +57,59 @@
 	}
 	
 	class album {
+		public $album_id;
 		public $name;
 		public $description;
 		public $image_list;
-		public $image_src;
+		public $image;
 		
 		function __construct($id) {
 			connect();
-			$query = "SELECT a.*, i.thumb_src FROM ALBUMS a LEFT JOIN IMAGES i on a.image_id = i.id WHERE a.id = $id";
+			$query = "SELECT * FROM ALBUMS WHERE id = $id";
 			$query_result = mysql_query($query) or die ("Cannot execute '$query'." . mysql_error());
 			if ($row = mysql_fetch_array($query_result)) {	
+				$this->album_id = $row['id'];
 				$this->name = $row['name'];
 				$this->description = $row['descr'];
-				$this->image_src = $row['thumb_src'];
+				$this->image = new image($row['image_id']);
 			}
-			
-			$query = "SELECT * FROM V_IMGALBUM WHERE alb_id = $id";
+		}
+		
+		function expand_info() {
+			connect();
+			$query = "SELECT * FROM V_IMGALBUM WHERE alb_id = $this->album_id";
 			$query_result = mysql_query($query) or die ("Cannot execute '$query'." . mysql_error());
 			while($row = mysql_fetch_array($query_result)) {
-				$this->image_list[] = $row['img_id'];
+				$this->image_list[] = new image($row['img_id']);
 			}
 		}
 	}
 	
 	class category {
+		public $category_id;
 		public $name;
 		public $description;
 		public $album_list;
-		public $image_src;
+		public $image;
 		
 		function __construct($id) {
 			connect();
-			$query = "SELECT c.*, i.thumb_src FROM CATEGORIES c LEFT JOIN IMAGES i on c.image_id = i.id WHERE c.id = $id";
+			$query = "SELECT * FROM CATEGORIES WHERE id = $id";
 			$query_result = mysql_query($query) or die ("Cannot execute '$query'." . mysql_error());
 			if ($row = mysql_fetch_array($query_result)) {	
+				$this->category_id = $row['id'];
 				$this->name = $row['name'];
 				$this->description = $row['descr'];
-				$this->image_src = $row['thumb_src'];
+				$this->image = new image($row['image_id']);
 			}
-			
-			$query = "SELECT * FROM V_ALBUMCATEGORY WHERE cat_id = $id";
+		}
+		
+		public function expand_info() {
+			connect();
+			$query = "SELECT * FROM V_ALBUMCATEGORY WHERE cat_id = $this->category_id";
 			$query_result = mysql_query($query) or die ("Cannot execute '$query'." . mysql_error());
 			while($row = mysql_fetch_array($query_result)) {
-				$this->album_list[] = $row['alb_id'];
+				$this->album_list[] = new album($row['alb_id']);
 			}
 		}
 		
@@ -105,15 +117,13 @@
 	
 	class gallery {
 		public $category_list;
-		public $image_src;
 		
 		function __construct() {
 			connect();
 			$query = "SELECT c.*, i.thumb_src FROM CATEGORIES c LEFT JOIN IMAGES i on c.image_id = i.id ORDER BY c.ID";
 			$query_result = mysql_query($query) or die ("Cannot execute '$query'." . mysql_error());
 			while($row = mysql_fetch_array($query_result)) {
-				$this->category_list[] = $row['id'];
-				$this->image_src = $row['thumb_src'];
+				$this->category_list[] = new category($row['id']);
 			}
 		}
 	}

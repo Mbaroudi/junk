@@ -12,7 +12,7 @@
 	$path_upload = 'img/upload/';
 	
 	$norm_size_y = 500;
-	$thumb_size_y = 100;
+	$thumb_size_y = 80;
 	
 	//header('Cache-Control: no-cache, must-revalidate');
 	//header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
@@ -80,11 +80,16 @@
 				}
 			closedir($handle);		
 			break;
+		case 'images':
+			$json = new album($_REQUEST['album_id']);
+			$json->expand_info();
+			break;
 		case 'albums':
-			$json[] = new category(0);
+			$json = new category($_REQUEST['category_id']);
+			$json->expand_info();
 			break;
 		case 'categories';
-			$json[] = new gallery();
+			$json = new gallery();
 			break;
 		}
 		
