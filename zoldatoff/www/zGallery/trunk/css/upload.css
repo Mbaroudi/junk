@@ -66,6 +66,12 @@ li.active {
 	opacity: 1;
 }
 
+.drophover {
+	background:#206020 none repeat scroll 0 0;
+	border:3px double #055005;
+	opacity: 1;
+}
+
 img {
 	max-height: 100%;
 	max-width: 100%;

@@ -72,28 +72,45 @@
 	
 	if ( isset($_REQUEST['object']) ) {
 		switch ($_REQUEST['object']) {
-		case 'newimages':
-			if ($handle = opendir($path_to_root . $path_upload))
-				while (false !== ($file = readdir($handle))) {
-					if($file != '.' && $file != '..' && eregi('\.jpg|\.jpeg|\.gif|\.png', $file))
-						$json[] = new imagefile($file, "OK");
-				}
-			closedir($handle);		
-			break;
-		case 'images':
-			$json = new album($_REQUEST['album_id']);
-			$json->expand_info();
-			break;
-		case 'albums':
-			$json = new category($_REQUEST['category_id']);
-			$json->expand_info();
-			break;
-		case 'categories';
-			$json = new gallery();
-			break;
+			case 'newimages':
+				if ($handle = opendir($path_to_root . $path_upload))
+					while (false !== ($file = readdir($handle))) {
+						if($file != '.' && $file != '..' && eregi('\.jpg|\.jpeg|\.gif|\.png', $file))
+							$json[] = new imagefile($file, "OK");
+					}
+				closedir($handle);		
+				break;
+			case 'images':
+				$json = new album($_REQUEST['album_id']);
+				$json->expand_info();
+				break;
+			case 'albums':
+				$json = new category($_REQUEST['category_id']);
+				$json->expand_info();
+				break;
+			case 'categories':
+				$json = new gallery();
+				break;
 		}
 		
 		echo '{"objectlist": ' . json_encode($json) . '}';
-	}                   		
-			
+	}  
+	
+	if ( isset($_REQUEST['action']) ) {    
+		connect();          		
+		switch ($_REQUEST['action']) {
+			case 'moveimages2albums':
+				$query = "DELETE FROM IMGALBUM WHERE img_id = " . $_REQUEST['imageid'];
+				$query_result = mysql_query($query) or die ("Cannot execute '$query'." . mysql_error());
+				// no break - it's important!!!
+			case 'copyimages2albums':
+				$query = "INSERT INTO IMGALBUM VALUES (" . $_REQUEST['imageid'] . ", " . $_REQUEST['albumid'] . ")";
+				$query_result = mysql_query($query) or die ("Cannot execute '$query'." . mysql_error());
+				$json = new image($_REQUEST['imageid']);
+				break;
+		}
+		
+		echo '{"result": ' . json_encode($json) . '}';
+	}
+	
 ?>
