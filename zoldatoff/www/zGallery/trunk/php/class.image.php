@@ -77,7 +77,7 @@
 		
 		function expand_info() {
 			connect();
-			$query = "SELECT * FROM V_IMGALBUM WHERE alb_id = $this->album_id";
+			$query = "SELECT * FROM V_IMGALBUM WHERE alb_id = $this->album_id ORDER BY img_id";
 			$query_result = mysql_query($query) or die ("Cannot execute '$query'." . mysql_error());
 			while($row = mysql_fetch_array($query_result)) {
 				$this->image_list[] = new image($row['img_id']);
@@ -106,7 +106,7 @@
 		
 		public function expand_info() {
 			connect();
-			$query = "SELECT * FROM V_ALBUMCATEGORY WHERE cat_id = $this->category_id";
+			$query = "SELECT * FROM V_ALBUMCATEGORY WHERE cat_id = $this->category_id ORDER BY alb_id";
 			$query_result = mysql_query($query) or die ("Cannot execute '$query'." . mysql_error());
 			while($row = mysql_fetch_array($query_result)) {
 				$this->album_list[] = new album($row['alb_id']);
@@ -120,7 +120,7 @@
 		
 		function __construct() {
 			connect();
-			$query = "SELECT c.*, i.thumb_src FROM CATEGORIES c LEFT JOIN IMAGES i on c.image_id = i.id ORDER BY c.ID";
+			$query = "SELECT * FROM CATEGORIES ORDER BY id";
 			$query_result = mysql_query($query) or die ("Cannot execute '$query'." . mysql_error());
 			while($row = mysql_fetch_array($query_result)) {
 				$this->category_list[] = new category($row['id']);

@@ -47,10 +47,7 @@
 		if (! $handle->processed ) echo $handle->error;
 		
 		//Insert data in MySQL	
-		mysql_pconnect($db_host, $db_user, $db_password) 
-			or die ("Could not connect to the MySQL server '$db_host' as user '$db_user'." . mysql_error());
-		mysql_select_db($db_name) 
-			or die ("Could not select DB '$db_name'." . mysql_error());
+		connect();
 	
 		$query = "INSERT INTO IMAGES (full_src, norm_src, thumb_src, uploaddate) VALUES ('" . 
 				$full_src  . "', '" . $norm_src . "', '" . 
@@ -58,9 +55,11 @@
 				)";
 		$query_result = mysql_query($query)
 			or die ("Could not execute query '$query'." . mysql_error());
+			
+		$query = "INSERT INTO IMGALBUM VALUES (LAST_INSERT_ID(), -1)";
+		$query_result = mysql_query($query)
+			or die ("Could not execute query '$query'." . mysql_error());
 		
-		mysql_close();
-	
 		//Delete original image
 		//$handle->clean();
 		if (! $handle->processed ) echo $handle->error;
@@ -107,6 +106,15 @@
 				$query = "INSERT INTO IMGALBUM VALUES (" . $_REQUEST['imageid'] . ", " . $_REQUEST['albumid'] . ")";
 				$query_result = mysql_query($query) or die ("Cannot execute '$query'." . mysql_error());
 				$json = new image($_REQUEST['imageid']);
+				break;
+			case 'movealbums2categories':
+				$query = "DELETE FROM ALBUMCATEGORY WHERE alb_id = " . $_REQUEST['albumid'];
+				$query_result = mysql_query($query) or die ("Cannot execute '$query'." . mysql_error());
+				// no break - it's important!!!
+			case 'copyalbums2categories':
+				$query = "INSERT INTO ALBUMCATEGORY VALUES (" . $_REQUEST['albumid'] . ", " . $_REQUEST['categoryid'] . ")";
+				$query_result = mysql_query($query) or die ("Cannot execute '$query'." . mysql_error());
+				$json = new album($_REQUEST['albumid']);
 				break;
 		}
 		
