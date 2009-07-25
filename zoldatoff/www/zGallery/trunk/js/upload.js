@@ -17,15 +17,20 @@ var currentObject;
 
 
 $(document).ready( function() {
+	
+	// Disable right click
   	$(document).bind("contextmenu",function(e){
     	return false;
   	});
 	
+	// Init progressbar
 	$("#progressbar").progressbar({value: 0});
 	
+	// Init edit dialog
 	$('#editForm').dialog({
 		autoOpen: false,
 		modal: true,
+		width: 320,
 		buttons: {
 			'OK': function() {
 				var bValid = true;
@@ -35,33 +40,60 @@ $(document).ready( function() {
 				bValid = bValid && checkLength($('#title'));
 				bValid = bValid && checkLength($('#description'));
 				
-				myJson = $(this).data('json');
-				
-				switch ($(this).data('object')) {
-					case 'images':
-						myAction = 'updateimage';
-						myId = myJson.image_id;
-						break;
-					case 'albums':
-						myAction = 'updatealbum';
-						myId = myJson.album_id;
-						break;
-					case 'categories':
-						myAction = 'updatecategory';
-						myId = myJson.category_id;
-						break;
+				if (mode == 'copy' || mode == 'move') {
+					myJson = $(this).data('json');
+					
+					switch ($(this).data('object')) {
+						case 'images':
+							myAction = 'updateimage';
+							myId = myJson.image_id;
+							break;
+						case 'albums':
+							myAction = 'updatealbum';
+							myId = myJson.album_id;
+							break;
+						case 'categories':
+							myAction = 'updatecategory';
+							myId = myJson.category_id;
+							break;
+					}
+					
+					if (bValid) {
+						$.getJSON('php/upload.php', {
+							action: myAction,
+							id: myId,
+							name: $('#title').val(),
+							description: $('#description').val()
+						}, function(jsonData){
+							$('#' + currentObject).data('json', jsonData.result);
+							$('#' + currentObject).parent().effect('highlight', {
+								color: '#dddddd'
+							}, 1000);
+						});
+						$(this).dialog('close');
+					}
 				}
 				
-				if (bValid) {
-					$.getJSON (
-						'php/upload.php', 
-						{ action: myAction, id: myId, name: $('#title').val(), description: $('#description').val() }, 
-						function (jsonData) {
-							$('#' + currentObject).data('json', jsonData.result);
-							$('#' + currentObject).parent().effect('highlight', {color: '#dddddd'}, 1000);
-						}
-					);
-					$(this).dialog('close');
+				if (mode = 'edit') {
+					switch ($(this).data('object')) {
+						case 'albums':
+							myAction = 'newalbum';
+							break;
+						case 'categories':
+							myAction = 'newcategory';
+							break;
+					}
+					
+					if (bValid) {
+						$.getJSON('php/upload.php', {
+							action: myAction,
+							name: $('#title').val(),
+							description: $('#description').val()
+						}, 
+						addNewElement
+						);
+						$(this).dialog('close');
+					}
 				}
 			},
 			'Cancel': function() {
@@ -75,6 +107,7 @@ $(document).ready( function() {
 		}
 	});
 	
+	// Init modes menu
 	$('.mode', '#modesDiv').click( function() {
 		$('.mode', '#modesDiv').removeClass('activeMode');
 		$(this).addClass('activeMode');
@@ -97,13 +130,10 @@ $(document).ready( function() {
 		runMode();		
 	});
 	
+	// Run Move mode
 	$('#modeMove').click();
 	
-	$('#modeNew').click(function(){
-		mode = 'new';
-		runMode();
-	});
-	
+	// Init scroll interfaces
 	$('#iUp').click(function(){
 		$('#imageThumbsUL').scrollThumbs(1);
 	});
@@ -124,6 +154,29 @@ $(document).ready( function() {
 	$('#cDown').click(function(){
 		$('#categoryThumbsUL').scrollThumbs(-1);
 	});
+	
+	// Init remove interfaces
+	$('#iRemove').click(function(){
+		$('#imageThumbsUL').removeElement();
+	});
+	$('#aRemove').click(function(){
+		$('#albumThumbsUL').removeElement();
+	});
+	$('#cRemove').click(function(){
+		$('#categoryThumbsUL').removeElement();
+	});
+	
+	// Init add interfaces
+	$('#modeNew').click(function(){
+		mode = 'new';
+		runMode();
+	});
+	$('#aAdd').click(function(){
+		$('#albumThumbsUL').addElement();
+	});
+	$('#cAdd').click(function(){
+		$('#categoryThumbsUL').addElement();
+	});
 })
 
 function checkLength(element) {
@@ -136,11 +189,44 @@ function checkLength(element) {
 	}
 }
 
+function addNewElement(jsonData) {
+	if (jsonData.result.album_id) {
+		N = $('#albumThumbsUL').children().length + 1;
+		$('#albumThumbsUL').append('<li><img id="alb' + N + '" class="aThumbs" src="' + jsonData.result.image.thumb_src + '"/> </li>');
+		$('#alb'+N).attr('myID', jsonData.result.album_id);
+		$('#alb'+N).data('json', jsonData.result);
+	}
+	
+	if (jsonData.result.category_id) {
+		N = $('#categoryThumbsUL').children().length + 1;
+		$('#categoryThumbsUL').append('<li><img id="cat' + N + '" class="cThumbs" src="' + jsonData.result.image.thumb_src + '"/> </li>');
+		$('#cat'+N).attr('myID', jsonData.result.category_id);
+		$('#cat'+N).data('json', jsonData.result);
+	}
+	
+	$('#cat0').click();
+}
+
+// Init mode and fetch data
 function runMode() {
 	switch (mode) {
 		case 'copy':
 		case 'move':
+			$('#iRemove').hide();
+			$('#aRemove').hide();
+			$('#cRemove').hide();
+			$('#aAdd').hide();
+			$('#cAdd').hide();
+			$('#modeNew').hide();
+			$.getJSON('php/upload.php', {object: 'categories'}, listCategories);
+			break;
 		case 'edit':
+			$('#iRemove').show();
+			$('#aRemove').show();
+			$('#cRemove').show();
+			$('#aAdd').show();
+			$('#cAdd').show();
+			$('#modeNew').show();
 			$.getJSON('php/upload.php', {object: 'categories'}, listCategories);
 			break;
 		case 'new':
@@ -183,12 +269,22 @@ function list(jsonData, object) {
 			$('#categoryThumbsUL').empty();
 			break;
 		case 'images':
-			nObjects = jsonData.objectlist.image_list.length;
+			if (jsonData.objectlist.image_list) {
+				nObjects = jsonData.objectlist.image_list.length;
+			}
+			else {
+				nObjects = 0;
+			}
 			$('#imageThumbsUL').empty();
 			$('#iCaption').html('Images from album "' + jsonData.objectlist.name + '"');
 			break;
 		case 'albums':
-			nObjects = jsonData.objectlist.album_list.length;
+			if (jsonData.objectlist.album_list) {
+				nObjects = jsonData.objectlist.album_list.length;
+			}
+			else {
+				nObjects = 0;
+			}
 			$('#albumThumbsUL').empty();
 			$('#aCaption').html('Albums from category "' + jsonData.objectlist.name + '"');
 			break;
@@ -252,6 +348,7 @@ function list(jsonData, object) {
 		case 'images':
 			// Изображения можно выделять
 			$('.iThumbs').click( function(){
+				if (mode == 'edit') $('.iThumbs').parent().removeClass('active');
 				$(this).parent().toggleClass('active');
 			});
 			
@@ -419,6 +516,64 @@ $.fn.scrollThumbs = function(steps) {
 		}
 		
 	}
+}
+
+$.fn.removeElement = function(){
+	var theElement = $(this).children('.active').children('img');
+	var jsonData = theElement.data('json');
+	
+	switch ($(this).attr('id')) {
+		case 'imageThumbsUL':
+			$.getJSON('php/upload.php', {action: 'removeimage', id: theElement.attr('myID')}, getRemoveStatus);
+			break;
+		case 'albumThumbsUL':
+			$.getJSON('php/upload.php', {action: 'removealbum', id: theElement.attr('myID')}, getRemoveStatus);
+			break;
+		case 'categoryThumbsUL':
+			$.getJSON('php/upload.php', {action: 'removecategory', id: theElement.attr('myID')}, getRemoveStatus);
+			break;
+	}
+}
+
+function getRemoveStatus(jsonData) {
+	
+	if (jsonData.result.image_id) {
+		$('.iThumbs').each(function(){
+			if ($(this).attr('myID') == jsonData.result.image_id) 
+				$(this).parent().hide();
+		});
+	}
+	
+	if (jsonData.result.album_id) {
+		$('.aThumbs').each(function(){
+			if ($(this).attr('myID') == jsonData.result.album_id) 
+				$(this).parent().hide();
+		});
+	}
+	
+	if (jsonData.result.category_id) {
+		$('.cThumbs').each(function(){
+			if ($(this).attr('myID') == jsonData.result.category_id) 
+				$(this).parent().hide();
+		});
+	}
+}
+
+$.fn.addElement = function(){
+	switch ($(this).attr('id')) {
+		case 'albumThumbsUL':
+			$('#formImg').hide();
+			$('#editForm').data('object', 'albums');
+			$('#editForm').dialog('option', 'title', 'Add new album');
+			break;
+		case 'categoryThumbsUL':
+			$('#formImg').hide();
+			$('#editForm').data('object', 'categories');
+			$('#editForm').dialog('option', 'title', 'Add new category');
+			break;
+	}
+	
+	$('#editForm').dialog('open');
 }
 
 // Выводим изображение обработанного файла и сообщаем об этом

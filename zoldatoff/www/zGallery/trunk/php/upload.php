@@ -131,6 +131,57 @@
 				$query_result = mysql_query($query) or die ("Cannot execute '$query'." . mysql_error());
 				$json = new category($_REQUEST['id']);
 				break;
+			case 'removeimage':
+				$json = new image($_REQUEST['id']);
+				$query = "DELETE FROM IMGALBUM WHERE img_id = " . $_REQUEST['id'];
+				$query_result = mysql_query($query) or die ("Cannot execute '$query'." . mysql_error());
+				$query = "DELETE FROM IMAGES WHERE id = " . $_REQUEST['id'];
+				$query_result = mysql_query($query) or die ("Cannot execute '$query'." . mysql_error());
+				//TODO: remove image file
+				break;
+			case 'removealbum':
+				$json = new album($_REQUEST['id']);
+				$query = "DELETE FROM IMGALBUM WHERE alb_id = " . $_REQUEST['id'];
+				$query_result = mysql_query($query) or die ("Cannot execute '$query'." . mysql_error());
+				$query = "DELETE FROM ALBUMCATEGORY WHERE alb_id = " . $_REQUEST['id'];
+				$query_result = mysql_query($query) or die ("Cannot execute '$query'." . mysql_error());
+				$query = "DELETE FROM ALBUMS WHERE id = " . $_REQUEST['id'];
+				$query_result = mysql_query($query) or die ("Cannot execute '$query'." . mysql_error());
+				break;
+			case 'removecategory':
+				$json = new category($_REQUEST['id']);
+				$query = "DELETE FROM ALBUMCATEGORY WHERE cat_id = " . $_REQUEST['id'];
+				$query_result = mysql_query($query) or die ("Cannot execute '$query'." . mysql_error());
+				$query = "DELETE FROM CATEGORIES WHERE id = " . $_REQUEST['id'];
+				$query_result = mysql_query($query) or die ("Cannot execute '$query'." . mysql_error());
+				break;
+			case 'newalbum':
+				$query = "INSERT INTO ALBUMS (name, descr, image_id) VALUES ('" . 
+						$_REQUEST['name'] . "', '" . 
+						$_REQUEST['description'] .
+						"', -1)";
+				$query_result = mysql_query($query) or die ("Could not execute query '$query'." . mysql_error());	
+				
+				$query = "SELECT LAST_INSERT_ID() as id";
+				$query_result = mysql_query($query) or die ("Cannot execute '$query'." . mysql_error());
+				if ($row = mysql_fetch_array($query_result)) {
+					$lastid = $row['id'];
+				}
+				
+				$query = "INSERT INTO ALBUMCATEGORY VALUES ($lastid, -1)";
+				$query_result = mysql_query($query) or die ("Could not execute query '$query'." . mysql_error());
+				
+				$json = new album($lastid);
+				break;
+			case 'newcategory':
+				$query = "INSERT INTO CATEGORIES (name, descr, image_id) VALUES ('" . 
+						$_REQUEST['name'] . "', '" . 
+						$_REQUEST['description'] .
+						"', -1)";
+				$query_result = mysql_query($query)
+					or die ("Could not execute query '$query'." . mysql_error());	
+				$json = new category(LAST_INSERT_ID());
+				break;
 		}
 		
 		echo '{"result": ' . json_encode($json) . '}';
