@@ -116,6 +116,21 @@
 				$query_result = mysql_query($query) or die ("Cannot execute '$query'." . mysql_error());
 				$json = new album($_REQUEST['albumid']);
 				break;
+			case 'updateimage':
+				$query = "UPDATE IMAGES SET NAME = '" . $_REQUEST['name'] . "', descr = '" . $_REQUEST['description'] . "' WHERE id = " . $_REQUEST['id'];
+				$query_result = mysql_query($query) or die ("Cannot execute '$query'." . mysql_error());
+				$json = new image($_REQUEST['id']);
+				break;
+			case 'updatealbum':
+				$query = "UPDATE ALBUMS SET NAME = '" . $_REQUEST['name'] . "', descr = '" . $_REQUEST['description'] . "' WHERE id = " . $_REQUEST['id'];
+				$query_result = mysql_query($query) or die ("Cannot execute '$query'." . mysql_error());
+				$json = new album($_REQUEST['id']);
+				break;
+			case 'updatecategory':
+				$query = "UPDATE CATEGORIES SET NAME = '" . $_REQUEST['name'] . "', descr = '" . $_REQUEST['description'] . "' WHERE id = " . $_REQUEST['id'];
+				$query_result = mysql_query($query) or die ("Cannot execute '$query'." . mysql_error());
+				$json = new category($_REQUEST['id']);
+				break;
 		}
 		
 		echo '{"result": ' . json_encode($json) . '}';

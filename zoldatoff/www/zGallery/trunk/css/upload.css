@@ -11,26 +11,95 @@ div {
 	overflow: hidden;
 }
 
+#modesDiv {
+	height: 170px;
+	left: 20px;
+	overflow:hidden;
+	position:absolute;
+	top: 10px;
+	width: 150px;
+}
+
 #containerDiv {
 	height:100%;
 	left: 50%;
 	margin-left: -460px;
 	overflow:hidden;
 	position: absolute;
-	width: 920px;
+	width: 1000px;
+}
+
+.actions {
+	/*border: 1px dashed #303030;*/
+	float: left;
+	height: 192px;
+	left: 0px;
+	position:relative;
+	top: 50px;
+	width:76px;
 }
 
 .thumbContainer {
+	/*border: 1px dashed #303030;*/
 	float:left;
-	height: 255px;
+	height: 242px;
 	overflow:hidden;
 	position:relative;
-	width: 100%;
+	width: 920px;
+}
+
+h2 {
+	font-family:Brush Script MT, Comic Sans MS;
+	font-size:25px;
+	font-style:italic;
+	height:30px;
+	line-height:30px;
+	margin: 0px 0px 0px 0px;
+	position:relative;
+	text-shadow: rgb(100, 100, 100) 0px -2px 0px;
+	width:100%;
+}
+
+.h2top {
+	position:absolute;
+	right: 10px;
+	text-align: right;
+	top: 5px;
+}
+
+.h2centerup {
+	margin-top: -25px;
+	right: 10px;
+	text-align: right;
+	top: 50%;
+}
+
+.h2centerdown {
+	margin-top: -5px;
+	right: 10px;
+	text-align: right;
+	top: 50%;
+}
+
+.h2bottom {
+	bottom: 5px;
+	position:absolute;
+	right: 10px;
+	text-align: right;
+}
+
+.mode {
+	color: #404040;
+	cursor:pointer;
+}
+
+.activeMode {
+	color:#bba;
 }
 
 h3 {
 	font-family:Brush Script MT, Comic Sans MS;
-	font-size:40px;
+	font-size:30px;
 	font-style:italic;
 	height:50px;
 	line-height:50px;
@@ -43,6 +112,7 @@ h3 {
 .thumbsUL {
 	height: auto;
 	list-style: none;
+	margin: 0px;
 	width:100%;
 }
 
@@ -67,9 +137,13 @@ li.active {
 }
 
 .drophover {
-	background:#206020 none repeat scroll 0 0;
-	border:3px double #055005;
-	opacity: 1;
+	/*background:#206020 none repeat scroll 0 0;*/
+	border:3px double #055005!important;
+	opacity: 1;	
+}
+
+.droptome {
+	border:3px double #50509a;
 }
 
 img {
@@ -79,7 +153,7 @@ img {
 
 .ui-progressbar { 
 	background-image: url(js/jquery-ui/css/ui-lightness/images/pbar-ani.gif); 
-	height: 20px;
+	height: 10px!important;
 	left: 50%;
 	margin-left: -200px;
 	margin-top: -10px;
@@ -100,4 +174,8 @@ img {
 	text-align:center;
 	top:0px;
 	z-index:1000;
+}
+
+#formImg {
+	padding:10px;
 }

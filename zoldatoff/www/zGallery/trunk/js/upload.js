@@ -7,26 +7,147 @@ var progress;
 
 var mode = 'move';
 /* Режим работы:
- * new (? -> manage)
+ * new
  * copy
  * move
- * manage
+ * edit
  */
+
+var currentObject;
 
 
 $(document).ready( function() {
-	//
+  	$(document).bind("contextmenu",function(e){
+    	return false;
+  	});
+	
+	$("#progressbar").progressbar({value: 0});
+	
+	$('#editForm').dialog({
+		autoOpen: false,
+		modal: true,
+		buttons: {
+			'OK': function() {
+				var bValid = true;
+				$('#title').removeClass('ui-state-error');
+				$('#description').removeClass('ui-state-error');
+
+				bValid = bValid && checkLength($('#title'));
+				bValid = bValid && checkLength($('#description'));
+				
+				myJson = $(this).data('json');
+				
+				switch ($(this).data('object')) {
+					case 'images':
+						myAction = 'updateimage';
+						myId = myJson.image_id;
+						break;
+					case 'albums':
+						myAction = 'updatealbum';
+						myId = myJson.album_id;
+						break;
+					case 'categories':
+						myAction = 'updatecategory';
+						myId = myJson.category_id;
+						break;
+				}
+				
+				if (bValid) {
+					$.getJSON (
+						'php/upload.php', 
+						{ action: myAction, id: myId, name: $('#title').val(), description: $('#description').val() }, 
+						function (jsonData) {
+							$('#' + currentObject).data('json', jsonData.result);
+							$('#' + currentObject).parent().effect('highlight', {color: '#dddddd'}, 1000);
+						}
+					);
+					$(this).dialog('close');
+				}
+			},
+			'Cancel': function() {
+				$(this).dialog('close');
+			}
+		},
+		close: function() {
+			$('#title').removeClass('ui-state-error');
+			$('#description').removeClass('ui-state-error');
+			$('#validateTips').text("Plz, fill-in the information below")
+		}
+	});
+	
+	$('.mode', '#modesDiv').click( function() {
+		$('.mode', '#modesDiv').removeClass('activeMode');
+		$(this).addClass('activeMode');
+		
+		switch ( $(this).attr('id') ) {
+			case 'modeNew':
+				mode = 'new';
+				break;
+			case 'modeCopy':
+				mode = 'copy';
+				break;
+			case 'modeMove':
+				mode = 'move';
+				break;
+			case 'modeEdit':
+				mode = 'edit';
+				break;
+		}
+		
+		runMode();		
+	});
+	
+	$('#modeMove').click();
+	
+	$('#modeNew').click(function(){
+		mode = 'new';
+		runMode();
+	});
+	
+	$('#iUp').click(function(){
+		$('#imageThumbsUL').scrollThumbs(1);
+	});
+	$('#iDown').click(function(){
+		$('#imageThumbsUL').scrollThumbs(-1);
+	});
+	
+	$('#aUp').click(function(){
+		$('#albumThumbsUL').scrollThumbs(1);
+	});
+	$('#aDown').click(function(){
+		$('#albumThumbsUL').scrollThumbs(-1);
+	});
+	
+	$('#cUp').click(function(){
+		$('#categoryThumbsUL').scrollThumbs(1);
+	});
+	$('#cDown').click(function(){
+		$('#categoryThumbsUL').scrollThumbs(-1);
+	});
+})
+
+function checkLength(element) {
+	if ( element.val().length == 0 ) {
+		element.addClass('ui-state-error');
+		$('#validateTips').text("Field must not be empty!").effect("highlight",{},1500);
+		return false;
+	} else {
+		return true;
+	}
+}
+
+function runMode() {
 	switch (mode) {
 		case 'copy':
 		case 'move':
-		case 'manage':
+		case 'edit':
 			$.getJSON('php/upload.php', {object: 'categories'}, listCategories);
 			break;
 		case 'new':
 			$.getJSON('php/upload.php', {object: 'newimages'}, listNewImages);
 			break;
 	}
-})
+}
 
 // Вывести список загруженных в папку upload изображений
 function listNewImages(jsonData) {
@@ -58,6 +179,8 @@ function list(jsonData, object) {
 		case 'newimages':
 			nObjects = jsonData.objectlist.length;
 			$('#imageThumbsUL').empty();
+			$('#albumThumbsUL').empty();
+			$('#categoryThumbsUL').empty();
 			break;
 		case 'images':
 			nObjects = jsonData.objectlist.image_list.length;
@@ -84,14 +207,17 @@ function list(jsonData, object) {
 			case 'images':
 				$('#imageThumbsUL').append('<li><img id="img' + i + '" class="iThumbs" src="' + jsonData.objectlist.image_list[i].thumb_src + '"/> </li>');
 				$('#img'+i).attr('myID', jsonData.objectlist.image_list[i].image_id);
+				$('#img'+i).data('json', jsonData.objectlist.image_list[i]);
 				break;
 			case 'albums':
 				$('#albumThumbsUL').append('<li><img id="alb' + i + '" class="aThumbs" src="' + jsonData.objectlist.album_list[i].image.thumb_src + '"/> </li>');
 				$('#alb'+i).attr('myID', jsonData.objectlist.album_list[i].album_id);
+				$('#alb'+i).data('json', jsonData.objectlist.album_list[i]);
 				break;
 			case 'categories':
 				$('#categoryThumbsUL').append('<li><img id="cat' + i + '" class="cThumbs" src="' + jsonData.objectlist.category_list[i].image.thumb_src + '"/> </li>');
 				$('#cat'+i).attr('myID', jsonData.objectlist.category_list[i].category_id);
+				$('#cat'+i).data('json', jsonData.objectlist.category_list[i]);
 				break;
 		}
 	}
@@ -115,7 +241,7 @@ function list(jsonData, object) {
 			// Выводим поверх всего DIV с probressbar-ом
 			dProgress = 100 / nObjects;
 			$('#topDiv').show();
-			$("#progressbar").progressbar({value: 0});
+			$("#progressbar").progressbar('option', 'value', 0);
 			
 			// Для каждого файла запускаем процедуру импорта в галерею
 			for (var i = 0; i < nObjects; i++) 
@@ -127,6 +253,10 @@ function list(jsonData, object) {
 			// Изображения можно выделять
 			$('.iThumbs').click( function(){
 				$(this).parent().toggleClass('active');
+			});
+			
+			$('.iThumbs').dblclick( function(){
+				$(this).editMe(object, $(this).data('json'));
 			});
 			
 			// Изображения можно перетаскивать внутри группы images2albums
@@ -141,6 +271,10 @@ function list(jsonData, object) {
 				$(this).parent().addClass('active');
 				$.getJSON('php/upload.php', {object: 'images', album_id: $(this).attr('myID')}, listImages);
 			})
+			
+			$('.aThumbs').dblclick( function(){
+				$(this).editMe(object, $(this).data('json'));
+			});
 			
 			// Выделяем первый альбом
 			//$('#alb0').click();
@@ -160,6 +294,10 @@ function list(jsonData, object) {
 				$(this).parent().addClass('active');
 				$.getJSON('php/upload.php', {object: 'albums', category_id: $(this).attr('myID')}, listAlbums);
 			})
+			
+			$('.cThumbs').dblclick( function(){
+				$(this).editMe(object, $(this).data('json'));
+			});
 									
 			// На категории можно перетаскивать альбомы
 			$(".cThumbs").make_droppable('albums2categories');
@@ -170,7 +308,7 @@ function list(jsonData, object) {
 	}
 }
 
-jQuery.fn.make_droppable = function(scope) {
+$.fn.make_droppable = function(scope) {
 	$(this).droppable({
 		drop: function(event, ui) {
 			dropObjectID = $(this).attr('myID');
@@ -191,13 +329,14 @@ jQuery.fn.make_droppable = function(scope) {
 				}
 			});
 		},
+		activeClass: 'droptome',
 		hoverClass: 'drophover',
 		scope: scope,
 		tolerance: 'pointer'
 	});
 }
 
-jQuery.fn.make_draggable = function(scope) {
+$.fn.make_draggable = function(scope) {
 	$(this).draggable({
 		appendTo: 'body',
 		containment: '#containerDiv',
@@ -225,6 +364,63 @@ jQuery.fn.make_draggable = function(scope) {
 	});
 }
 
+$.fn.editMe = function(object, jsonData) {
+	currentObject = $(this).attr('id');
+	
+	$('#title').attr('value', jsonData.name);
+	$('#description').attr('value', jsonData.description);
+	
+	$('#editForm').data('json', jsonData);
+	$('#editForm').data('object', object);
+	
+	switch (object) {
+		case 'images':
+			$('#editForm').dialog('option', 'title', 'Edit image');
+			$('#formImg').attr('src', jsonData.thumb_src);
+			break;
+		case 'albums':
+			$('#editForm').dialog('option', 'title', 'Edit album');
+			$('#formImg').attr('src', jsonData.image.thumb_src);
+			break;
+		case 'categories':
+			$('#editForm').dialog('option', 'title', 'Edit category');
+			$('#formImg').attr('src', jsonData.image.thumb_src);
+			break;
+	}
+	
+	$('#editForm').dialog('open');
+}
+
+$.fn.scrollThumbs = function(steps) {
+	nElements = $(this).children().length;
+	
+	if (nElements > 0) {
+	
+		var scroll = $(this).data('scroll');
+		var myHeight = $(this).children(':first').outerHeight();
+	
+		if (!scroll) {
+			$(this).data('scroll', 0);
+			scroll = 0
+		} 
+		
+		if (9 * (scroll + steps) > -nElements && steps < 0) {
+			$(this).children().animate({
+				"top": "-=" + myHeight * (-steps) + "px"
+			});
+			$(this).data('scroll', scroll + steps);
+		}
+		
+		if (scroll < 0 && steps > 0) {
+			$(this).children().animate({
+				"top": "+=" + myHeight * steps + "px"
+			});
+			$(this).data('scroll', scroll + steps);
+		}
+		
+	}
+}
+
 // Выводим изображение обработанного файла и сообщаем об этом
 function getUploadStatus(jsonData) {
 	$('#img' + jsonData.result.number).attr('src', jsonData.result.filename);
@@ -242,16 +438,18 @@ function getUploadStatus(jsonData) {
 	$("#progressbar").progressbar('option', 'value', progress);
 	if (progress > 99) {
 		$('#topDiv').hide();
-		mode = 'move';
-		$('#alb0').click();
+		$('#modeMove').click();
 	}
 }
 
 // Убираем изображение перемещенного файла и сообщаем об этом
 function displayImageAction(jsonData) {
-	$('.iThumbs').each(function(){
-		if ($(this).attr('myID') == jsonData.result.image_id) $(this).parent().empty(); 
-	});
+	if (mode == 'move') {
+		$('.iThumbs').each(function(){
+			if ($(this).attr('myID') == jsonData.result.image_id) 
+				$(this).parent().hide();
+		});
+	}
 	
 	$.gritter.add({
 		title: 'Image successfully copied/moved:',
@@ -263,9 +461,12 @@ function displayImageAction(jsonData) {
 }
 
 function displayAlbumAction(jsonData) {
-	$('.aThumbs').each(function(){
-		if ($(this).attr('myID') == jsonData.result.album_id) $(this).parent().empty(); 
-	});
+	if (mode == 'move') {
+		$('.aThumbs').each(function(){
+			if ($(this).attr('myID') == jsonData.result.album_id) 
+				$(this).parent().hide();
+		});
+	}
 	
 	$.gritter.add({
 		title: 'Album successfully copied/moved:',
