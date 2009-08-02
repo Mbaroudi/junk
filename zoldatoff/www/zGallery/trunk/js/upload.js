@@ -2,10 +2,14 @@
  * @author dsoldatov
  */
 
-var dProgress;
-var progress;
+var dProgress, progress;
+var currentObject, 
+	currentAlbum = null, 
+	currentCategory = null;
+var theImageList, theAlbumList, theCategoryList;
 
 var mode = 'move';
+
 /* Режим работы:
  * new
  * copy
@@ -13,10 +17,10 @@ var mode = 'move';
  * edit
  */
 
-var currentObject;
-
-
 $(document).ready( function() {
+	theImageList = $('#imageThumbsUL');
+	theAlbumList = $('#albumThumbsUL');
+	theCategoryList = $('#categoryThumbsUL');
 	
 	// Disable right click
   	$(document).bind("contextmenu",function(e){
@@ -40,7 +44,7 @@ $(document).ready( function() {
 				bValid = bValid && checkLength($('#title'));
 				bValid = bValid && checkLength($('#description'));
 				
-				if (mode == 'copy' || mode == 'move') {
+				if (mode != 'edit') {
 					myJson = $(this).data('json');
 					
 					switch ($(this).data('object')) {
@@ -127,7 +131,8 @@ $(document).ready( function() {
 				break;
 		}
 		
-		runMode();		
+		runMode();	
+		return false;	
 	});
 	
 	// Run Move mode
@@ -135,47 +140,59 @@ $(document).ready( function() {
 	
 	// Init scroll interfaces
 	$('#iUp').click(function(){
-		$('#imageThumbsUL').scrollThumbs(1);
+		theImageList.scrollThumbs(1);
+		return false;
 	});
 	$('#iDown').click(function(){
-		$('#imageThumbsUL').scrollThumbs(-1);
+		theImageList.scrollThumbs(-1);
+		return false;
 	});
 	
 	$('#aUp').click(function(){
-		$('#albumThumbsUL').scrollThumbs(1);
+		theAlbumList.scrollThumbs(1);
+		return false;
 	});
 	$('#aDown').click(function(){
-		$('#albumThumbsUL').scrollThumbs(-1);
+		theAlbumList.scrollThumbs(-1);
+		return false;
 	});
 	
 	$('#cUp').click(function(){
-		$('#categoryThumbsUL').scrollThumbs(1);
+		theCategoryList.scrollThumbs(1);
+		return false;
 	});
 	$('#cDown').click(function(){
-		$('#categoryThumbsUL').scrollThumbs(-1);
+		theCategoryList.scrollThumbs(-1);
+		return false;
 	});
 	
 	// Init remove interfaces
 	$('#iRemove').click(function(){
-		$('#imageThumbsUL').removeElement();
+		theImageList.removeElement();
+		return false;
 	});
 	$('#aRemove').click(function(){
-		$('#albumThumbsUL').removeElement();
+		theAlbumList.removeElement();
+		return false;
 	});
 	$('#cRemove').click(function(){
-		$('#categoryThumbsUL').removeElement();
+		theCategoryList.removeElement();
+		return false;
 	});
 	
 	// Init add interfaces
 	$('#modeNew').click(function(){
 		mode = 'new';
 		runMode();
+		return false;
 	});
 	$('#aAdd').click(function(){
-		$('#albumThumbsUL').addElement();
+		theAlbumList.addElement();
+		return false;
 	});
 	$('#cAdd').click(function(){
-		$('#categoryThumbsUL').addElement();
+		theCategoryList.addElement();
+		return false;
 	});
 })
 
@@ -190,16 +207,18 @@ function checkLength(element) {
 }
 
 function addNewElement(jsonData) {
+	var N;
+	
 	if (jsonData.result.album_id) {
-		N = $('#albumThumbsUL').children().length + 1;
-		$('#albumThumbsUL').append('<li><img id="alb' + N + '" class="aThumbs" src="' + jsonData.result.image.thumb_src + '"/> </li>');
+		theAlbumList.children().length + 1;
+		theAlbumList.append('<li><img id="alb' + N + '" class="aThumbs" src="' + jsonData.result.image.thumb_src + '"/> </li>');
 		$('#alb'+N).attr('myID', jsonData.result.album_id);
 		$('#alb'+N).data('json', jsonData.result);
 	}
 	
 	if (jsonData.result.category_id) {
-		N = $('#categoryThumbsUL').children().length + 1;
-		$('#categoryThumbsUL').append('<li><img id="cat' + N + '" class="cThumbs" src="' + jsonData.result.image.thumb_src + '"/> </li>');
+		theCategoryList.children().length + 1;
+		theCategoryList.append('<li><img id="cat' + N + '" class="cThumbs" src="' + jsonData.result.image.thumb_src + '"/> </li>');
 		$('#cat'+N).attr('myID', jsonData.result.category_id);
 		$('#cat'+N).data('json', jsonData.result);
 	}
@@ -218,7 +237,10 @@ function runMode() {
 			$('#aAdd').hide();
 			$('#cAdd').hide();
 			$('#modeNew').hide();
-			$.getJSON('php/upload.php', {object: 'categories'}, listCategories);
+			if (!currentCategory) {
+				lockDisplay();
+				$.getJSON('php/upload.php', {object: 'categories'}, listCategories);
+			}
 			break;
 		case 'edit':
 			$('#iRemove').show();
@@ -227,11 +249,25 @@ function runMode() {
 			$('#aAdd').show();
 			$('#cAdd').show();
 			$('#modeNew').show();
-			$.getJSON('php/upload.php', {object: 'categories'}, listCategories);
+			if (!currentCategory) {
+				lockDisplay();
+				$.getJSON('php/upload.php', {object: 'categories'}, listCategories);
+			}
 			break;
 		case 'new':
 			$.getJSON('php/upload.php', {object: 'newimages'}, listNewImages);
 			break;
+	}
+	
+	if (mode != 'new') {
+		if (currentAlbum) {
+			lockDisplay();
+			$.getJSON('php/upload.php', {object: 'images',album_id: currentAlbum}, listImages);
+		}
+		if (currentCategory) {
+			lockDisplay();
+			$.getJSON('php/upload.php', {object: 'albums', category_id: currentCategory}, listAlbums);
+		}
 	}
 }
 
@@ -264,9 +300,9 @@ function list(jsonData, object) {
 	switch (object) {
 		case 'newimages':
 			nObjects = jsonData.objectlist.length;
-			$('#imageThumbsUL').empty();
-			$('#albumThumbsUL').empty();
-			$('#categoryThumbsUL').empty();
+			theImageList.empty();
+			theAlbumList.empty();
+			theCategoryList.empty();
 			break;
 		case 'images':
 			if (jsonData.objectlist.image_list) {
@@ -275,7 +311,7 @@ function list(jsonData, object) {
 			else {
 				nObjects = 0;
 			}
-			$('#imageThumbsUL').empty();
+			theImageList.empty();
 			$('#iCaption').html('Images from album "' + jsonData.objectlist.name + '"');
 			break;
 		case 'albums':
@@ -285,12 +321,12 @@ function list(jsonData, object) {
 			else {
 				nObjects = 0;
 			}
-			$('#albumThumbsUL').empty();
+			theAlbumList.empty();
 			$('#aCaption').html('Albums from category "' + jsonData.objectlist.name + '"');
 			break;
 		case 'categories':
 			nObjects = jsonData.objectlist.category_list.length;
-			$('#categoryThumbsUL').empty();
+			theCategoryList.empty();
 			break;
 	}		
 	
@@ -298,22 +334,25 @@ function list(jsonData, object) {
 	for (var i=0; i<nObjects; i++){
 		switch (object) {
 			case 'newimages':
-				$('#imageThumbsUL').append('<li><img id="img' + i + '" class="iThumbs" src="css/loader.gif"/> </li>');
+				theImageList.append('<li><img id="img' + i + '" class="iThumbs" src="css/loader.gif"/> </li>');
 				break;
 			case 'images':
-				$('#imageThumbsUL').append('<li><img id="img' + i + '" class="iThumbs" src="' + jsonData.objectlist.image_list[i].thumb_src + '"/> </li>');
-				$('#img'+i).attr('myID', jsonData.objectlist.image_list[i].image_id);
-				$('#img'+i).data('json', jsonData.objectlist.image_list[i]);
+				theImageList.append('<li><img id="img' + i + '" class="iThumbs" src="' + jsonData.objectlist.image_list[i].thumb_src + '"/> </li>');
+				$('#img'+i)
+					.attr('myID', jsonData.objectlist.image_list[i].image_id)
+					.data('json', jsonData.objectlist.image_list[i]);
 				break;
 			case 'albums':
-				$('#albumThumbsUL').append('<li><img id="alb' + i + '" class="aThumbs" src="' + jsonData.objectlist.album_list[i].image.thumb_src + '"/> </li>');
-				$('#alb'+i).attr('myID', jsonData.objectlist.album_list[i].album_id);
-				$('#alb'+i).data('json', jsonData.objectlist.album_list[i]);
+				theAlbumList.append('<li><img id="alb' + i + '" class="aThumbs" src="' + jsonData.objectlist.album_list[i].image.thumb_src + '"/> </li>');
+				$('#alb'+i)
+					.attr('myID', jsonData.objectlist.album_list[i].album_id)
+					.data('json', jsonData.objectlist.album_list[i]);
 				break;
 			case 'categories':
-				$('#categoryThumbsUL').append('<li><img id="cat' + i + '" class="cThumbs" src="' + jsonData.objectlist.category_list[i].image.thumb_src + '"/> </li>');
-				$('#cat'+i).attr('myID', jsonData.objectlist.category_list[i].category_id);
-				$('#cat'+i).data('json', jsonData.objectlist.category_list[i]);
+				theCategoryList.append('<li><img id="cat' + i + '" class="cThumbs" src="' + jsonData.objectlist.category_list[i].image.thumb_src + '"/> </li>');
+				$('#cat'+i)
+					.attr('myID', jsonData.objectlist.category_list[i].category_id)
+					.data('json', jsonData.objectlist.category_list[i]);
 				break;
 		}
 	}
@@ -348,16 +387,23 @@ function list(jsonData, object) {
 		case 'images':
 			// Изображения можно выделять
 			$('.iThumbs').click( function(){
-				if (mode == 'edit') $('.iThumbs').parent().removeClass('active');
+				if (mode == 'edit') 
+					$('.iThumbs').parent().removeClass('active');
 				$(this).parent().toggleClass('active');
+				return false;
 			});
 			
 			$('.iThumbs').dblclick( function(){
-				$(this).editMe(object, $(this).data('json'));
+				if (mode != 'edit') $(this).editMe(object, $(this).data('json'));
+				return false;
 			});
 			
-			// Изображения можно перетаскивать внутри группы images2albums
-			$('.iThumbs').make_draggable('images2albums');
+			// Изображения можно перетаскивать внутри группы images2albums / images2all
+			if (mode == 'edit') {
+				$('.iThumbs').make_draggable('icon');
+			}
+			else 
+				$('.iThumbs').make_draggable('images2albums');
 			
 			break;
 			
@@ -367,17 +413,24 @@ function list(jsonData, object) {
 				$('.aThumbs').parent().removeClass('active');
 				$(this).parent().addClass('active');
 				$.getJSON('php/upload.php', {object: 'images', album_id: $(this).attr('myID')}, listImages);
+				currentAlbum = $(this).attr('myID');
+				if (mode != 'edit') {
+					$(".aThumbs").droppable('enable');
+					$(this).droppable('disable');
+				}
+				return false;
 			})
 			
 			$('.aThumbs').dblclick( function(){
-				$(this).editMe(object, $(this).data('json'));
+				if (mode != 'edit') $(this).editMe(object, $(this).data('json'));
+				return false;
 			});
 			
-			// Выделяем первый альбом
-			//$('#alb0').click();
-			
 			// На альбомы можно перетаскивать изображения
-			$(".aThumbs").make_droppable('images2albums');
+			if (mode == 'edit') 
+				$(".aThumbs").make_droppable('icon');
+			else
+				$(".aThumbs").make_droppable('images2albums');
 			
 			// Альбомы можно перетаскивать внутри группы albums2categories
 			$('.aThumbs').make_draggable('albums2categories');
@@ -390,38 +443,60 @@ function list(jsonData, object) {
 				$('.cThumbs').parent().removeClass('active');
 				$(this).parent().addClass('active');
 				$.getJSON('php/upload.php', {object: 'albums', category_id: $(this).attr('myID')}, listAlbums);
+				currentAlbum = null;
+				currentCategory = $(this).attr('myID');
+				if (mode != 'edit') {
+					$(".cThumbs").droppable('enable');
+					$(this).droppable('disable');
+				}
+				return false;
 			})
 			
 			$('.cThumbs').dblclick( function(){
-				$(this).editMe(object, $(this).data('json'));
+				if (mode != 'edit') $(this).editMe(object, $(this).data('json'));
+				return false;
 			});
 									
 			// На категории можно перетаскивать альбомы
-			$(".cThumbs").make_droppable('albums2categories');
+			if (mode == 'edit')
+				$(".cThumbs").make_droppable('icon');
+			else
+				$(".cThumbs").make_droppable('albums2categories');
 			
 			// Выделяем первую категорию
 			//$('#cat0').click();
 			break;
 	}
+	
+	unlockDisplay();
 }
 
 $.fn.make_droppable = function(scope) {
 	$(this).droppable({
 		drop: function(event, ui) {
-			dropObjectID = $(this).attr('myID');
+			lockDisplay();
+			t = $(this);
+			dropObjectID = t.attr('myID');
 			
 			// Перебираем drag'n'drop-нутые альбомы и перемещаем их в новую категорию
-			// idea: сейчас альбом удаляется изо всех категорий. Нужно действовать мягче...
+			// TODO: сейчас альбом удаляется изо всех категорий. Нужно действовать мягче...
 			$('#draggingContainer').children().each(function() {
 				$('#' + $(this).attr('id')).parent().removeClass('active');
-				dragObjectID = $(this).attr('myID');						
+				var dragObjectID = $(this).attr('myID');						
 				
 				switch (scope) {
 					case 'images2albums':     
-						$.getJSON('php/upload.php', {action: mode + scope, imageid: dragObjectID, albumid: dropObjectID}, displayImageAction);
+						$.getJSON('php/upload.php', {action: mode + scope, imageid: dragObjectID, albumid: dropObjectID, currentalbumid: currentAlbum}, displayImageAction);
 						break;
 					case 'albums2categories': 
-						$.getJSON('php/upload.php', {action: mode + scope, albumid: dragObjectID, categoryid: dropObjectID}, displayAlbumAction);
+						$.getJSON('php/upload.php', {action: mode + scope, albumid: dragObjectID, categoryid: dropObjectID, currentcategoryid: currentCategory}, displayAlbumAction);
+						break;
+					case 'icon': 
+						if (t.hasClass('aThumbs')) 
+							$.getJSON('php/upload.php', {action: mode + 'album' + scope, imageid: dragObjectID, albumid: dropObjectID}, displayThumbAction);
+						if (t.hasClass('cThumbs'))
+							$.getJSON('php/upload.php', {action: mode + 'category' + scope, imageid: dragObjectID, categoryid: dropObjectID}, displayThumbAction);
+						currentObject = t.attr('id');
 						break;
 				}
 			});
@@ -431,6 +506,8 @@ $.fn.make_droppable = function(scope) {
 		scope: scope,
 		tolerance: 'pointer'
 	});
+	
+	return $(this);
 }
 
 $.fn.make_draggable = function(scope) {
@@ -440,6 +517,7 @@ $.fn.make_draggable = function(scope) {
 		helper: function(){
 			// Собираем выделенные альбомы в div и тащим...
 			switch (scope) {
+				case 'icon':
 				case 'images2albums':     
 					var selected = $('#imageThumbsUL .active img');
 					break;
@@ -459,6 +537,8 @@ $.fn.make_draggable = function(scope) {
 		revert: 'invalid',
 		scope: scope
 	});
+	
+	return $(this);
 }
 
 $.fn.editMe = function(object, jsonData) {
@@ -486,10 +566,12 @@ $.fn.editMe = function(object, jsonData) {
 	}
 	
 	$('#editForm').dialog('open');
+	
+	return $(this);
 }
 
 $.fn.scrollThumbs = function(steps) {
-	nElements = $(this).children().length;
+	var nElements = $(this).children().length;
 	
 	if (nElements > 0) {
 	
@@ -516,6 +598,8 @@ $.fn.scrollThumbs = function(steps) {
 		}
 		
 	}
+	
+	return $(this);
 }
 
 $.fn.removeElement = function(){
@@ -533,6 +617,8 @@ $.fn.removeElement = function(){
 			$.getJSON('php/upload.php', {action: 'removecategory', id: theElement.attr('myID')}, getRemoveStatus);
 			break;
 	}
+	
+	return $(this);
 }
 
 function getRemoveStatus(jsonData) {
@@ -557,6 +643,8 @@ function getRemoveStatus(jsonData) {
 				$(this).parent().hide();
 		});
 	}
+	
+	unlockDisplay();
 }
 
 $.fn.addElement = function(){
@@ -574,6 +662,8 @@ $.fn.addElement = function(){
 	}
 	
 	$('#editForm').dialog('open');
+	
+	return $(this);
 }
 
 // Выводим изображение обработанного файла и сообщаем об этом
@@ -598,13 +688,15 @@ function getUploadStatus(jsonData) {
 }
 
 // Убираем изображение перемещенного файла и сообщаем об этом
-function displayImageAction(jsonData) {
+function displayImageAction(jsonData) {	
 	if (mode == 'move') {
 		$('.iThumbs').each(function(){
 			if ($(this).attr('myID') == jsonData.result.image_id) 
 				$(this).parent().hide();
 		});
 	}
+	
+	unlockDisplay();
 	
 	$.gritter.add({
 		title: 'Image successfully copied/moved:',
@@ -615,13 +707,15 @@ function displayImageAction(jsonData) {
 	});
 }
 
-function displayAlbumAction(jsonData) {
+function displayAlbumAction(jsonData) {	
 	if (mode == 'move') {
 		$('.aThumbs').each(function(){
 			if ($(this).attr('myID') == jsonData.result.album_id) 
 				$(this).parent().hide();
 		});
 	}
+	
+	unlockDisplay();
 	
 	$.gritter.add({
 		title: 'Album successfully copied/moved:',
@@ -630,5 +724,33 @@ function displayAlbumAction(jsonData) {
 		sticky: false, 
 		time: 8000
 	});
+}
+
+function displayThumbAction(jsonData) {
+	var c = $('#' + currentObject);
+	
+	c.attr('src', jsonData.result.image.thumb_src)
+	 .data('json', jsonData.result)
+	c.parent().effect('highlight', {
+		color: '#dddddd'
+	}, 1000);
+	
+	unlockDisplay();
+	
+	$.gritter.add({
+		title: 'Album/category icon successfully changed:',
+		text: jsonData.result.name,
+		image: jsonData.result.image.thumb_src,
+		sticky: false, 
+		time: 8000
+	});
+}
+
+function lockDisplay() {
+	$('#lockDiv').show();
+}
+
+function unlockDisplay() {
+	$('#lockDiv').hide();
 }
  

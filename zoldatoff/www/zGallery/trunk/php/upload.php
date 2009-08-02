@@ -99,7 +99,7 @@
 		connect();          		
 		switch ($_REQUEST['action']) {
 			case 'moveimages2albums':
-				$query = "DELETE FROM IMGALBUM WHERE img_id = " . $_REQUEST['imageid'];
+				$query = "DELETE FROM IMGALBUM WHERE img_id = " . $_REQUEST['imageid'] . " AND alb_id = " . $_REQUEST['currentalbumid'];
 				$query_result = mysql_query($query) or die ("Cannot execute '$query'." . mysql_error());
 				// no break - it's important!!!
 			case 'copyimages2albums':
@@ -108,7 +108,7 @@
 				$json = new image($_REQUEST['imageid']);
 				break;
 			case 'movealbums2categories':
-				$query = "DELETE FROM ALBUMCATEGORY WHERE alb_id = " . $_REQUEST['albumid'];
+				$query = "DELETE FROM ALBUMCATEGORY WHERE alb_id = " . $_REQUEST['albumid'] . " AND cat_id = " . $_REQUEST['currentcategoryid'];
 				$query_result = mysql_query($query) or die ("Cannot execute '$query'." . mysql_error());
 				// no break - it's important!!!
 			case 'copyalbums2categories':
@@ -181,6 +181,20 @@
 				$query_result = mysql_query($query)
 					or die ("Could not execute query '$query'." . mysql_error());	
 				$json = new category(LAST_INSERT_ID());
+				break;
+			case 'editalbumicon':
+				$query = "UPDATE ALBUMS SET image_id = " . $_REQUEST['imageid'] . " WHERE id = " . $_REQUEST['albumid'];
+				$query_result = mysql_query($query)
+					or die ("Could not execute query '$query'." . mysql_error());	
+				mysql_query("COMMIT");
+				$json = new album($_REQUEST['albumid']);
+				break;
+			case 'editcategoryicon':
+				$query = "UPDATE CATEGORIES SET image_id = " . $_REQUEST['imageid'] . " WHERE id = " . $_REQUEST['categoryid'];
+				$query_result = mysql_query($query)
+					or die ("Could not execute query '$query'." . mysql_error());
+				mysql_query("COMMIT");	
+				$json = new category($_REQUEST['categoryid']);
 				break;
 		}
 		
