@@ -6,7 +6,7 @@ var dProgress, progress;
 var currentObject, 
 	currentAlbum = null, 
 	currentCategory = null;
-var theImageList, theAlbumList, theCategoryList;
+var theImageList, theAlbumList, theCategoryList, theEditForm;
 
 var mode = 'move';
 
@@ -21,6 +21,7 @@ $(document).ready( function() {
 	theImageList = $('#imageThumbsUL');
 	theAlbumList = $('#albumThumbsUL');
 	theCategoryList = $('#categoryThumbsUL');
+	theEditForm = $('#editForm');
 	
 	// Disable right click
   	$(document).bind("contextmenu",function(e){
@@ -31,7 +32,7 @@ $(document).ready( function() {
 	$("#progressbar").progressbar({value: 0});
 	
 	// Init edit dialog
-	$('#editForm').dialog({
+	theEditForm.dialog({
 		autoOpen: false,
 		modal: true,
 		width: 320,
@@ -69,10 +70,10 @@ $(document).ready( function() {
 							name: $('#title').val(),
 							description: $('#description').val()
 						}, function(jsonData){
-							$('#' + currentObject).data('json', jsonData.result);
-							$('#' + currentObject).parent().effect('highlight', {
-								color: '#dddddd'
-							}, 1000);
+							$('#' + currentObject)
+								.data('json', jsonData.result)
+								.highlightMe();
+							unlockDisplay();
 						});
 						$(this).dialog('close');
 					}
@@ -99,6 +100,8 @@ $(document).ready( function() {
 						$(this).dialog('close');
 					}
 				}
+				
+				lockDisplay();
 			},
 			'Cancel': function() {
 				$(this).dialog('close');
@@ -215,6 +218,8 @@ function addNewElement(jsonData) {
 		$('#alb'+N).attr('myID', jsonData.result.album_id);
 		$('#alb'+N).data('json', jsonData.result);
 	}
+	
+	unlockDisplay();
 	
 	if (jsonData.result.category_id) {
 		theCategoryList.children().length + 1;
@@ -486,10 +491,10 @@ $.fn.make_droppable = function(scope) {
 				
 				switch (scope) {
 					case 'images2albums':     
-						$.getJSON('php/upload.php', {action: mode + scope, imageid: dragObjectID, albumid: dropObjectID, currentalbumid: currentAlbum}, displayImageAction);
+						$.getJSON('php/upload.php', {action: mode + scope, imageid: dragObjectID, albumid: dropObjectID, currentalbumid: currentAlbum}, displayDropStatus);
 						break;
 					case 'albums2categories': 
-						$.getJSON('php/upload.php', {action: mode + scope, albumid: dragObjectID, categoryid: dropObjectID, currentcategoryid: currentCategory}, displayAlbumAction);
+						$.getJSON('php/upload.php', {action: mode + scope, albumid: dragObjectID, categoryid: dropObjectID, currentcategoryid: currentCategory}, displayDropStatus);
 						break;
 					case 'icon': 
 						if (t.hasClass('aThumbs')) 
@@ -547,25 +552,26 @@ $.fn.editMe = function(object, jsonData) {
 	$('#title').attr('value', jsonData.name);
 	$('#description').attr('value', jsonData.description);
 	
-	$('#editForm').data('json', jsonData);
-	$('#editForm').data('object', object);
+	theEditForm
+		.data('json', jsonData)
+		.data('object', object);
 	
 	switch (object) {
 		case 'images':
-			$('#editForm').dialog('option', 'title', 'Edit image');
+			theEditForm.dialog('option', 'title', 'Edit image');
 			$('#formImg').attr('src', jsonData.thumb_src);
 			break;
 		case 'albums':
-			$('#editForm').dialog('option', 'title', 'Edit album');
+			theEditForm.dialog('option', 'title', 'Edit album');
 			$('#formImg').attr('src', jsonData.image.thumb_src);
 			break;
 		case 'categories':
-			$('#editForm').dialog('option', 'title', 'Edit category');
+			theEditForm.dialog('option', 'title', 'Edit category');
 			$('#formImg').attr('src', jsonData.image.thumb_src);
 			break;
 	}
 	
-	$('#editForm').dialog('open');
+	theEditForm.dialog('open');
 	
 	return $(this);
 }
@@ -621,62 +627,93 @@ $.fn.removeElement = function(){
 	return $(this);
 }
 
-function getRemoveStatus(jsonData) {
-	
-	if (jsonData.result.image_id) {
-		$('.iThumbs').each(function(){
-			if ($(this).attr('myID') == jsonData.result.image_id) 
-				$(this).parent().hide();
-		});
-	}
-	
-	if (jsonData.result.album_id) {
-		$('.aThumbs').each(function(){
-			if ($(this).attr('myID') == jsonData.result.album_id) 
-				$(this).parent().hide();
-		});
-	}
-	
-	if (jsonData.result.category_id) {
-		$('.cThumbs').each(function(){
-			if ($(this).attr('myID') == jsonData.result.category_id) 
-				$(this).parent().hide();
-		});
-	}
-	
-	unlockDisplay();
-}
-
 $.fn.addElement = function(){
 	switch ($(this).attr('id')) {
 		case 'albumThumbsUL':
 			$('#formImg').hide();
-			$('#editForm').data('object', 'albums');
-			$('#editForm').dialog('option', 'title', 'Add new album');
+			theEditForm
+				.data('object', 'albums')
+				.dialog('option', 'title', 'Add new album');
 			break;
 		case 'categoryThumbsUL':
 			$('#formImg').hide();
-			$('#editForm').data('object', 'categories');
-			$('#editForm').dialog('option', 'title', 'Add new category');
+			theEditForm
+				.data('object', 'categories')
+				.dialog('option', 'title', 'Add new category');
 			break;
 	}
 	
-	$('#editForm').dialog('open');
+	theEditForm.dialog('open');
 	
 	return $(this);
+}
+
+$.fn.highlightMe = function() {
+	return $(this)
+		.parent()
+		.effect('highlight', { color: '#dddddd' }, 1000);
+}
+
+function findMe (jsonData) {
+	var myClass, myID, myMessage;
+	
+	if (jsonData.result.image_id) {
+		myID = jsonData.result.image_id
+		myClass = '.iThumbs';
+		myMessage.object = 'Image';
+		myMessage.thumb = jsonData.result.thumb_id;
+	}
+	else 
+		if (jsonData.result.album_id) {
+			myID = jsonData.result.album_id
+			myClass = '.aThumbs';
+			myMessage.object = 'Album';
+			myMessage.thumb = jsonData.result.image.thumb_id;
+		}
+		else 
+			if (jsonData.result.category_id) {
+				myID = jsonData.result.category_id
+				myClass = '.cThumbs';
+				myMessage.object = 'Category';
+				myMessage.thumb = jsonData.result.image.thumb_id;
+			}
+			else {
+				unlockDisplay();
+				growl('Error!', jsonData.result.error, null);
+				return null;
+			}
+	
+	$(myClass).each(function(){
+		var t = $(this);
+		if (t.attr('myID') == myID) {
+			t.highlightMe();
+			if (mode == 'move') t.parent().hide();
+		}
+	});
+	
+	unlockDisplay();
+	return myMessage;
+}
+
+function getRemoveStatus(jsonData) {
+	var f = findMe(jsonData);
+	if (f) growl(f.object + ' successfully removed', jsonData.result.name, f.thumb);
+}
+
+// Убираем изображение перемещенного файла и сообщаем об этом
+function displayDropStatus(jsonData) {
+	var f = findMe(jsonData);
+	if (f) {
+		if (mode == 'move') growl(f.object + ' successfully moved', jsonData.result.name, f.thumb);
+		if (mode == 'copy') growl(f.object + ' successfully copied', jsonData.result.name, f.thumb);
+	}
 }
 
 // Выводим изображение обработанного файла и сообщаем об этом
 function getUploadStatus(jsonData) {
 	$('#img' + jsonData.result.number).attr('src', jsonData.result.filename);
 	
-	$.gritter.add({
-		title: 'Image imported in gallery',
-		text: jsonData.result.filename,
-		image: jsonData.result.filename,
-		sticky: false, 
-		time: 8000
-	});
+	growl('Image imported in gallery', jsonData.result.filename, jsonData.result.filename);
 	
 	progress += dProgress;
 	
@@ -687,70 +724,33 @@ function getUploadStatus(jsonData) {
 	}
 }
 
-// Убираем изображение перемещенного файла и сообщаем об этом
-function displayImageAction(jsonData) {	
-	if (mode == 'move') {
-		$('.iThumbs').each(function(){
-			if ($(this).attr('myID') == jsonData.result.image_id) 
-				$(this).parent().hide();
-		});
-	}
-	
-	unlockDisplay();
-	
-	$.gritter.add({
-		title: 'Image successfully copied/moved:',
-		text: jsonData.result.name,
-		image: jsonData.result.thumb_src,
-		sticky: false, 
-		time: 8000
-	});
-}
-
-function displayAlbumAction(jsonData) {	
-	if (mode == 'move') {
-		$('.aThumbs').each(function(){
-			if ($(this).attr('myID') == jsonData.result.album_id) 
-				$(this).parent().hide();
-		});
-	}
-	
-	unlockDisplay();
-	
-	$.gritter.add({
-		title: 'Album successfully copied/moved:',
-		text: jsonData.result.name,
-		image: jsonData.result.image.thumb_src,
-		sticky: false, 
-		time: 8000
-	});
-}
-
 function displayThumbAction(jsonData) {
 	var c = $('#' + currentObject);
 	
 	c.attr('src', jsonData.result.image.thumb_src)
 	 .data('json', jsonData.result)
-	c.parent().effect('highlight', {
-		color: '#dddddd'
-	}, 1000);
+	 .highlightMe();
 	
 	unlockDisplay();
 	
+	growl('Album/category icon successfully changed:', jsonData.result.name, jsonData.result.image.thumb_src);
+}
+
+function growl(myTitle, myText, myImage) {
 	$.gritter.add({
-		title: 'Album/category icon successfully changed:',
-		text: jsonData.result.name,
-		image: jsonData.result.image.thumb_src,
+		title: myTitle,
+		text: myText,
+		image: myImage,
 		sticky: false, 
 		time: 8000
 	});
 }
 
 function lockDisplay() {
-	$('#lockDiv').show();
+	return $('#lockDiv').show();
 }
 
 function unlockDisplay() {
-	$('#lockDiv').hide();
+	return $('#lockDiv').hide();
 }
  
