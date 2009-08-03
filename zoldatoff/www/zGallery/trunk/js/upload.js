@@ -22,6 +22,7 @@ $(document).ready( function() {
 	theAlbumList = $('#albumThumbsUL');
 	theCategoryList = $('#categoryThumbsUL');
 	theEditForm = $('#editForm');
+	theFormImg = $('#formImg');
 	
 	// Disable right click
   	$(document).bind("contextmenu",function(e){
@@ -404,9 +405,8 @@ function list(jsonData, object) {
 			});
 			
 			// Изображения можно перетаскивать внутри группы images2albums / images2all
-			if (mode == 'edit') {
+			if (mode == 'edit')
 				$('.iThumbs').make_draggable('icon');
-			}
 			else 
 				$('.iThumbs').make_draggable('images2albums');
 			
@@ -468,8 +468,6 @@ function list(jsonData, object) {
 			else
 				$(".cThumbs").make_droppable('albums2categories');
 			
-			// Выделяем первую категорию
-			//$('#cat0').click();
 			break;
 	}
 	
@@ -559,15 +557,15 @@ $.fn.editMe = function(object, jsonData) {
 	switch (object) {
 		case 'images':
 			theEditForm.dialog('option', 'title', 'Edit image');
-			$('#formImg').attr('src', jsonData.thumb_src);
+			theFormImg.attr('src', jsonData.thumb_src);
 			break;
 		case 'albums':
 			theEditForm.dialog('option', 'title', 'Edit album');
-			$('#formImg').attr('src', jsonData.image.thumb_src);
+			theFormImg.attr('src', jsonData.image.thumb_src);
 			break;
 		case 'categories':
 			theEditForm.dialog('option', 'title', 'Edit category');
-			$('#formImg').attr('src', jsonData.image.thumb_src);
+			theFormImg.attr('src', jsonData.image.thumb_src);
 			break;
 	}
 	
@@ -577,35 +575,37 @@ $.fn.editMe = function(object, jsonData) {
 }
 
 $.fn.scrollThumbs = function(steps) {
-	var nElements = $(this).children().length;
+	var t = $(this);
+	
+	var nElements = t.children().length;
 	
 	if (nElements > 0) {
 	
-		var scroll = $(this).data('scroll');
-		var myHeight = $(this).children(':first').outerHeight();
+		var scroll = t.data('scroll');
+		var myHeight = t.children(':first').outerHeight();
 	
 		if (!scroll) {
-			$(this).data('scroll', 0);
+			t.data('scroll', 0);
 			scroll = 0
 		} 
 		
 		if (9 * (scroll + steps) > -nElements && steps < 0) {
-			$(this).children().animate({
+			t.children().animate({
 				"top": "-=" + myHeight * (-steps) + "px"
 			});
-			$(this).data('scroll', scroll + steps);
+			t.data('scroll', scroll + steps);
 		}
 		
 		if (scroll < 0 && steps > 0) {
-			$(this).children().animate({
+			t.children().animate({
 				"top": "+=" + myHeight * steps + "px"
 			});
-			$(this).data('scroll', scroll + steps);
+			t.data('scroll', scroll + steps);
 		}
 		
 	}
 	
-	return $(this);
+	return t;
 }
 
 $.fn.removeElement = function(){
@@ -630,13 +630,13 @@ $.fn.removeElement = function(){
 $.fn.addElement = function(){
 	switch ($(this).attr('id')) {
 		case 'albumThumbsUL':
-			$('#formImg').hide();
+			theFormImg.hide();
 			theEditForm
 				.data('object', 'albums')
 				.dialog('option', 'title', 'Add new album');
 			break;
 		case 'categoryThumbsUL':
-			$('#formImg').hide();
+			theFormImg.hide();
 			theEditForm
 				.data('object', 'categories')
 				.dialog('option', 'title', 'Add new category');
@@ -654,28 +654,29 @@ $.fn.highlightMe = function() {
 		.effect('highlight', { color: '#dddddd' }, 1000);
 }
 
-function findMe (jsonData) {
+function findMe (jsonData, remove) {
 	var myClass, myID, myMessage;
+	myMessage = new Array();
 	
 	if (jsonData.result.image_id) {
 		myID = jsonData.result.image_id
 		myClass = '.iThumbs';
 		myMessage.object = 'Image';
-		myMessage.thumb = jsonData.result.thumb_id;
+		myMessage.thumb = jsonData.result.thumb_src;
 	}
 	else 
 		if (jsonData.result.album_id) {
 			myID = jsonData.result.album_id
 			myClass = '.aThumbs';
 			myMessage.object = 'Album';
-			myMessage.thumb = jsonData.result.image.thumb_id;
+			myMessage.thumb = jsonData.result.image.thumb_src;
 		}
 		else 
 			if (jsonData.result.category_id) {
 				myID = jsonData.result.category_id
 				myClass = '.cThumbs';
 				myMessage.object = 'Category';
-				myMessage.thumb = jsonData.result.image.thumb_id;
+				myMessage.thumb = jsonData.result.image.thumb_src;
 			}
 			else {
 				unlockDisplay();
@@ -687,7 +688,7 @@ function findMe (jsonData) {
 		var t = $(this);
 		if (t.attr('myID') == myID) {
 			t.highlightMe();
-			if (mode == 'move') t.parent().hide();
+			if (mode == 'move' || remove) t.parent().hide();
 		}
 	});
 	
@@ -696,7 +697,7 @@ function findMe (jsonData) {
 }
 
 function getRemoveStatus(jsonData) {
-	var f = findMe(jsonData);
+	var f = findMe(jsonData, true);
 	if (f) growl(f.object + ' successfully removed', jsonData.result.name, f.thumb);
 }
 
@@ -737,6 +738,10 @@ function displayThumbAction(jsonData) {
 }
 
 function growl(myTitle, myText, myImage) {
+	if (!myTitle) myTitle = " ";
+	if (!myText) myText = " ";
+	if (!myImage) myImage = "css/new.jpg";
+	
 	$.gritter.add({
 		title: myTitle,
 		text: myText,
