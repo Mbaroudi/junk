@@ -17,10 +17,6 @@
 			or die ("Could not select DB '$db_name'." . mysql_error());
 	}
 	
-	function returnError($errorMessage) {
-		die('{"result": {"error":"' . $errorMessage . '"}}');
-	}
-	
 	class imagefile {
 		public $filename;
 		public $number;

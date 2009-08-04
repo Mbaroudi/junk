@@ -3,7 +3,8 @@
  */
 
 var dProgress, progress;
-var currentObject, 
+var currentObject,
+	currentImage = null, //TODO
 	currentAlbum = null, 
 	currentCategory = null;
 var theImageList, theAlbumList, theCategoryList, theEditForm;
@@ -80,7 +81,7 @@ $(document).ready( function() {
 					}
 				}
 				
-				if (mode = 'edit') {
+				if (mode == 'edit') {
 					switch ($(this).data('object')) {
 						case 'albums':
 							myAction = 'newalbum';
@@ -266,6 +267,7 @@ function runMode() {
 	}
 	
 	if (mode != 'new') {
+		$.getJSON('php/upload.php', {object: 'categories'}, listCategories);
 		if (currentAlbum) {
 			lockDisplay();
 			$.getJSON('php/upload.php', {object: 'images',album_id: currentAlbum}, listImages);
@@ -353,12 +355,14 @@ function list(jsonData, object) {
 				$('#alb'+i)
 					.attr('myID', jsonData.objectlist.album_list[i].album_id)
 					.data('json', jsonData.objectlist.album_list[i]);
+				if (jsonData.objectlist.album_list[i].album_id == currentAlbum) $('#alb'+i).parent().addClass('active');
 				break;
 			case 'categories':
 				theCategoryList.append('<li><img id="cat' + i + '" class="cThumbs" src="' + jsonData.objectlist.category_list[i].image.thumb_src + '"/> </li>');
 				$('#cat'+i)
 					.attr('myID', jsonData.objectlist.category_list[i].category_id)
 					.data('json', jsonData.objectlist.category_list[i]);
+				if (jsonData.objectlist.category_list[i].category_id == currentCategory) $('#cat'+i).parent().addClass('active');
 				break;
 		}
 	}
@@ -482,7 +486,6 @@ $.fn.make_droppable = function(scope) {
 			dropObjectID = t.attr('myID');
 			
 			// Перебираем drag'n'drop-нутые альбомы и перемещаем их в новую категорию
-			// TODO: сейчас альбом удаляется изо всех категорий. Нужно действовать мягче...
 			$('#draggingContainer').children().each(function() {
 				$('#' + $(this).attr('id')).parent().removeClass('active');
 				var dragObjectID = $(this).attr('myID');						
@@ -517,6 +520,8 @@ $.fn.make_draggable = function(scope) {
 	$(this).draggable({
 		appendTo: 'body',
 		containment: '#containerDiv',
+		delay: 100,
+		//distance: 10, 
 		helper: function(){
 			// Собираем выделенные альбомы в div и тащим...
 			switch (scope) {
@@ -651,7 +656,7 @@ $.fn.addElement = function(){
 $.fn.highlightMe = function() {
 	return $(this)
 		.parent()
-		.effect('highlight', { color: '#dddddd' }, 1000);
+		.effect('highlight', { color: '#dd0000' }, 1000);
 }
 
 function findMe (jsonData, remove) {
@@ -726,15 +731,17 @@ function getUploadStatus(jsonData) {
 }
 
 function displayThumbAction(jsonData) {
-	var c = $('#' + currentObject);
-	
-	c.attr('src', jsonData.result.image.thumb_src)
-	 .data('json', jsonData.result)
-	 .highlightMe();
-	
 	unlockDisplay();
-	
-	growl('Album/category icon successfully changed:', jsonData.result.name, jsonData.result.image.thumb_src);
+	if (jsonData.result.error) {
+		growl('Error!', jsonData.result.error, null);
+	}
+	else {
+		$('#' + currentObject)
+			.attr('src', jsonData.result.image.thumb_src)
+			.data('json', jsonData.result)
+			.highlightMe();	
+		growl('Album/category icon successfully changed:', jsonData.result.name, jsonData.result.image.thumb_src);
+	}
 }
 
 function growl(myTitle, myText, myImage) {

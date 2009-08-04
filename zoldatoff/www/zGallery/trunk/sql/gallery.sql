@@ -85,9 +85,9 @@ CREATE TABLE IF NOT EXISTS categories (
 --
 -- Дамп данных таблицы 'categories'
 --
-
-INSERT INTO categories (id, name, descr, image_id) VALUES
-(-1, 'Default category', 'Hidden category', -1);
+	
+	INSERT INTO categories (id, name, descr, image_id) VALUES
+	(-1, 'Default category', 'Hidden category', -1);
 
 -- --------------------------------------------------------
 
@@ -130,13 +130,6 @@ CREATE TABLE IF NOT EXISTS imgalbum (
   KEY fk_imgalbum_images (img_id),
   KEY fk_imgalbum_albums (alb_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Link between images & albums';
-
---
--- Дамп данных таблицы 'imgalbum'
---
-
-INSERT INTO imgalbum (img_id, alb_id) VALUES
-(-1, -1);
 
 -- --------------------------------------------------------
 --

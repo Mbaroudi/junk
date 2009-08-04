@@ -15,21 +15,31 @@
 	$norm_size_y = 500;
 	$thumb_size_y = 80;
 	
+	function returnError($errorMessage) {
+		return '{"result": {"error":"' . $errorMessage . '"}}';
+	}
+	
+	function returnSQLError($query, $sqlerror) {
+		return '{"result": {"error":"Cannot execute query ' . $query . '. MySQL error: ' . $sqlerror . '."}}';
+	}
+	
 	function removeFile($filename, $type) {
 		global $path_to_root, $path_trash;
 		
 		$handle = new upload($path_to_root . $filename);
 		
 		$handle->Process($path_to_root . $path_trash . $type);
-		if (! $handle->processed ) returnError($handle->error);
+		if (! $handle->processed ) exit(returnError($handle->error));
 		
 		$handle->clean();
-		if (! $handle->processed ) returnError($handle->error);
+		if (! $handle->processed ) exit(returnError($handle->error));
 	}
 	
 	function removeImage($image_id) {
+		if ($image_id == -1) exit(returnError("Cannot remove default image"));
+		
 		$query = "SELECT * FROM IMAGES WHERE id = " . $image_id;
-		$query_result = mysql_query($query) or die ("Cannot execute '$query'." . mysql_error());
+		$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
 		if ($row = mysql_fetch_array($query_result)) {	
 			$full_src = $row['full_src'];
 			$norm_src = $row['norm_src'];
@@ -37,19 +47,19 @@
 		}
 		
 		$query = "DELETE FROM IMGALBUM WHERE img_id = " . $image_id;
-		$query_result = mysql_query($query) or returnError ("Cannot execute '$query'." . mysql_error());
+		$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
 
 		$query = "SELECT * FROM IMGALBUM WHERE img_id = " . $image_id;
-		$query_result = mysql_query($query) or die ("Cannot execute '$query'." . mysql_error());
+		$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
 		if (!mysql_fetch_array($query_result)) {	
 			$query = "UPDATE ALBUMS SET image_id = -1 WHERE image_id = " . $image_id;
-			$query_result = mysql_query($query) or returnError ("Cannot execute '$query'." . mysql_error());
+			$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
 			
 			$query = "UPDATE CATEGORIES SET image_id = -1 WHERE image_id = " . $image_id;
-			$query_result = mysql_query($query) or returnError ("Cannot execute '$query'." . mysql_error());
+			$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
 			
 			$query = "DELETE FROM IMAGES WHERE id = " . $image_id;
-			$query_result = mysql_query($query) or returnError ("Cannot execute '$query'." . mysql_error());
+			$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
 			
 			removeFile($full_src, "full");
 			removeFile($norm_src, "norm");
@@ -58,35 +68,39 @@
 	}
 	
 	function removeAlbum($album_id) {
+		if ($album_id == -1) exit(returnError("Cannot remove default album"));
+		
 		$query = "DELETE FROM ALBUMCATEGORY WHERE alb_id = " . $album_id;
-		$query_result = mysql_query($query) or returnError ("Cannot execute '$query'." . mysql_error());
+		$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
 		
 		$query = "SELECT * FROM ALBUMCATEGORY WHERE alb_id = " . $album_id;
-		$query_result = mysql_query($query) or die ("Cannot execute '$query'." . mysql_error());
+		$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
 		if (!mysql_fetch_array($query_result)) {						
 			$query = "DELETE FROM IMGALBUM WHERE alb_id = " . $album_id;
-			$query_result = mysql_query($query) or returnError ("Cannot execute '$query'." . mysql_error());
+			$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
 		
 			$query = "DELETE FROM ALBUMS WHERE id = " . $album_id;
-			$query_result = mysql_query($query) or returnError ("Cannot execute '$query'." . mysql_error());
+			$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
 		}
 		
-		$query = "SELECT id FROM IMAGES WHERE id not in " .
+		$query = "SELECT id FROM IMAGES WHERE id != -1 AND id not in " .
 				 "(SELECT img_id FROM IMGALBUM)";
-		$query_result = mysql_query($query) or die ("Cannot execute '$query'." . mysql_error());
+		$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
 		if ($row = mysql_fetch_array($query_result)) removeImage($row['id']);
 	}
 	
 	function removeCategory($category_id) {
+		if ($category_id == -1) exit(returnError("Cannot remove default category"));
+		
 		$query = "DELETE FROM ALBUMCATEGORY WHERE cat_id = " . $category_id;
-		$query_result = mysql_query($query) or returnError ("Cannot execute '$query'." . mysql_error());
+		$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
 		
 		$query = "DELETE FROM CATEGORIES WHERE id = " . $category_id;
-		$query_result = mysql_query($query) or returnError ("Cannot execute '$query'." . mysql_error());
+		$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
 		
-		$query = "SELECT id FROM ALBUMS WHERE id not in " .
+		$query = "SELECT id FROM ALBUMS WHERE id != -1 AND id not in " .
 				 "(SELECT alb_id FROM ALBUMCATEGORY)";
-		$query_result = mysql_query($query) or die ("Cannot execute '$query'." . mysql_error());
+		$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
 		if ($row = mysql_fetch_array($query_result)) removeAlbum($row['id']);
 	}
 	
@@ -102,7 +116,7 @@
 		$handle->Process($path_to_root . $path_full);
 		$full_src = $path_full . $handle->file_dst_name;
 		
-		if (! $handle->processed ) returnError($handle->error);
+		if (! $handle->processed ) exit(returnError($handle->error));
 		
 		//Copy norm-sized image
 		$handle->image_resize   = true;
@@ -111,7 +125,7 @@
 		$handle->Process($path_to_root . $path_norm);
 		$norm_src = $path_norm . $handle->file_dst_name;
 		
-		if (! $handle->processed ) returnError($handle->error);
+		if (! $handle->processed ) exit(returnError($handle->error));
 			
 		//Copy thumb image
 		$handle->image_resize   = true;
@@ -120,7 +134,7 @@
 		$handle->Process($path_to_root . $path_thumb);
 		$thumb_src = $path_thumb . $handle->file_dst_name;
 		
-		if (! $handle->processed ) returnError($handle->error);
+		if (! $handle->processed ) exit(returnError($handle->error));
 		
 		//Insert data in MySQL	
 		connect();
@@ -129,14 +143,14 @@
 				$full_src  . "', '" . $norm_src . "', '" . 
 				$thumb_src . "', curdate() 
 				)";
-		$query_result = mysql_query($query) or returnError ("Could not execute query '$query'." . mysql_error());
+		$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
 			
 		$query = "INSERT INTO IMGALBUM VALUES (LAST_INSERT_ID(), -1)";
-		$query_result = mysql_query($query) or returnError ("Could not execute query '$query'." . mysql_error());
+		$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
 		
 		//Delete original image
 		$handle->clean();
-		if (! $handle->processed ) returnError($handle->error);
+		if (! $handle->processed ) exit(returnError($handle->error));
 		
 		//echo $handle->log;
 		
@@ -174,36 +188,45 @@
 		connect();          		
 		switch ($_REQUEST['action']) {
 			case 'moveimages2albums':
+				//TODO check
 				$query = "DELETE FROM IMGALBUM WHERE img_id = " . $_REQUEST['imageid'] . " AND alb_id = " . $_REQUEST['currentalbumid'];
-				$query_result = mysql_query($query) or returnError ("Cannot execute '$query'." . mysql_error());
+				$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
 				// no break - it's important!!!
 			case 'copyimages2albums':
+				//TODO check
 				$query = "INSERT INTO IMGALBUM VALUES (" . $_REQUEST['imageid'] . ", " . $_REQUEST['albumid'] . ")";
-				$query_result = mysql_query($query) or returnError ("Cannot execute '$query'." . mysql_error());
+				$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
 				$json = new image($_REQUEST['imageid']);
 				break;
 			case 'movealbums2categories':
+				//TODO check
+				if ($_REQUEST['albumid'] == -1) exit(returnError("Cannot move default album"));
 				$query = "DELETE FROM ALBUMCATEGORY WHERE alb_id = " . $_REQUEST['albumid'] . " AND cat_id = " . $_REQUEST['currentcategoryid'];
-				$query_result = mysql_query($query) or returnError ("Cannot execute '$query'." . mysql_error());
+				$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
 				// no break - it's important!!!
 			case 'copyalbums2categories':
+				//TODO check
+				if ($_REQUEST['albumid'] == -1) exit(returnError("Cannot move default album"));
 				$query = "INSERT INTO ALBUMCATEGORY VALUES (" . $_REQUEST['albumid'] . ", " . $_REQUEST['categoryid'] . ")";
-				$query_result = mysql_query($query) or returnError ("Cannot execute '$query'." . mysql_error());
+				$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
 				$json = new album($_REQUEST['albumid']);
 				break;
 			case 'updateimage':
+				if ($_REQUEST['id'] == -1) exit(returnError("Cannot modify default image"));
 				$query = "UPDATE IMAGES SET NAME = '" . $_REQUEST['name'] . "', descr = '" . $_REQUEST['description'] . "' WHERE id = " . $_REQUEST['id'];
-				$query_result = mysql_query($query) or returnError ("Cannot execute '$query'." . mysql_error());
+				$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
 				$json = new image($_REQUEST['id']);
 				break;
 			case 'updatealbum':
+				if ($_REQUEST['id'] == -1) exit(returnError("Cannot modify default album"));
 				$query = "UPDATE ALBUMS SET NAME = '" . $_REQUEST['name'] . "', descr = '" . $_REQUEST['description'] . "' WHERE id = " . $_REQUEST['id'];
-				$query_result = mysql_query($query) or returnError ("Cannot execute '$query'." . mysql_error());
+				$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
 				$json = new album($_REQUEST['id']);
 				break;
 			case 'updatecategory':
+				if ($_REQUEST['id'] == -1) exit(returnError("Cannot modify default category"));
 				$query = "UPDATE CATEGORIES SET NAME = '" . $_REQUEST['name'] . "', descr = '" . $_REQUEST['description'] . "' WHERE id = " . $_REQUEST['id'];
-				$query_result = mysql_query($query) or returnError ("Cannot execute '$query'." . mysql_error());
+				$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
 				$json = new category($_REQUEST['id']);
 				break;
 			case 'removeimage':
@@ -223,14 +246,14 @@
 						$_REQUEST['name'] . "', '" . 
 						$_REQUEST['description'] .
 						"', -1)";
-				$query_result = mysql_query($query) or returnError ("Could not execute query '$query'." . mysql_error());	
+				$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));	
 				
 				$query = "SELECT LAST_INSERT_ID() as id";
-				$query_result = mysql_query($query) or returnError ("Cannot execute '$query'." . mysql_error());
+				$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
 				if ($row = mysql_fetch_array($query_result)) $lastid = $row['id'];
 				
 				$query = "INSERT INTO ALBUMCATEGORY VALUES ($lastid, -1)";
-				$query_result = mysql_query($query) or returnError ("Could not execute query '$query'." . mysql_error());
+				$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
 				
 				$json = new album($lastid);
 				break;
@@ -239,18 +262,25 @@
 						$_REQUEST['name'] . "', '" . 
 						$_REQUEST['description'] .
 						"', -1)";
-				$query_result = mysql_query($query) or returnError ("Could not execute query '$query'." . mysql_error());	
-				$json = new category(LAST_INSERT_ID());
+				$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));	
+				
+				$query = "SELECT LAST_INSERT_ID() as id";
+				$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
+				if ($row = mysql_fetch_array($query_result)) $lastid = $row['id'];
+				
+				$json = new category($lastid);
 				break;
 			case 'editalbumicon':
+				if ($_REQUEST['albumid'] == -1) exit(returnError("Cannot modify default album"));
 				$query = "UPDATE ALBUMS SET image_id = " . $_REQUEST['imageid'] . " WHERE id = " . $_REQUEST['albumid'];
-				$query_result = mysql_query($query) or returnError ("Could not execute query '$query'." . mysql_error());	
+				$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));	
 				mysql_query("COMMIT");
 				$json = new album($_REQUEST['albumid']);
 				break;
 			case 'editcategoryicon':
+				if ($_REQUEST['categoryid'] == -1) exit(returnError("Cannot modify default category"));
 				$query = "UPDATE CATEGORIES SET image_id = " . $_REQUEST['imageid'] . " WHERE id = " . $_REQUEST['categoryid'];
-				$query_result = mysql_query($query) or returnError ("Could not execute query '$query'." . mysql_error());
+				$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
 				mysql_query("COMMIT");	
 				$json = new category($_REQUEST['categoryid']);
 				break;
