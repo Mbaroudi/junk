@@ -37,6 +37,7 @@ $(document).ready( function() {
 	theEditForm.dialog({
 		autoOpen: false,
 		modal: true,
+		resizable: false,
 		width: 320,
 		buttons: {
 			'OK': function() {
@@ -45,7 +46,7 @@ $(document).ready( function() {
 				$('#description').removeClass('ui-state-error');
 
 				bValid = bValid && checkLength($('#title'));
-				bValid = bValid && checkLength($('#description'));
+				//bValid = bValid && checkLength($('#description'));
 				
 				if (mode != 'edit') {
 					myJson = $(this).data('json');
@@ -111,7 +112,9 @@ $(document).ready( function() {
 		},
 		close: function() {
 			$('#title').removeClass('ui-state-error');
+			$('#title').val('');
 			$('#description').removeClass('ui-state-error');
+			$('#description').val('');
 			$('#validateTips').text("Plz, fill-in the information below")
 		}
 	});
@@ -212,29 +215,31 @@ function checkLength(element) {
 }
 
 function addNewElement(jsonData) {
-	var N;
-	
-	if (jsonData.result.album_id) {
-		theAlbumList.children().length + 1;
-		theAlbumList.append('<li><img id="alb' + N + '" class="aThumbs" src="' + jsonData.result.image.thumb_src + '"/> </li>');
-		$('#alb'+N).attr('myID', jsonData.result.album_id);
-		$('#alb'+N).data('json', jsonData.result);
+	if (!catchError(jsonData)) {
+		var N;
+		if (jsonData.result.album_id) {
+			theAlbumList.children().length + 1;
+			theAlbumList.append('<li><img id="alb' + N + '" class="aThumbs" src="' + jsonData.result.image.thumb_src + '"/> </li>');
+			$('#alb' + N).attr('myID', jsonData.result.album_id);
+			$('#alb' + N).data('json', jsonData.result);
+			growl("Album added", jsonData.result.name, jsonData.result.image.thumb_src);
+		}
+		
+		if (jsonData.result.category_id) {
+			theCategoryList.children().length + 1;
+			theCategoryList.append('<li><img id="cat' + N + '" class="cThumbs" src="' + jsonData.result.image.thumb_src + '"/> </li>');
+			$('#cat' + N).attr('myID', jsonData.result.category_id);
+			$('#cat' + N).data('json', jsonData.result);
+			growl("Category added", jsonData.result.name, jsonData.result.image.thumb_src);
+		}
 	}
 	
-	unlockDisplay();
-	
-	if (jsonData.result.category_id) {
-		theCategoryList.children().length + 1;
-		theCategoryList.append('<li><img id="cat' + N + '" class="cThumbs" src="' + jsonData.result.image.thumb_src + '"/> </li>');
-		$('#cat'+N).attr('myID', jsonData.result.category_id);
-		$('#cat'+N).data('json', jsonData.result);
-	}
-	
-	$('#cat0').click();
+	$.getJSON('php/upload.php', {object: 'categories'}, listCategories);
 }
 
 // Init mode and fetch data
 function runMode() {
+	lockDisplay();
 	switch (mode) {
 		case 'copy':
 		case 'move':
@@ -250,12 +255,12 @@ function runMode() {
 			}
 			break;
 		case 'edit':
-			$('#iRemove').show();
-			$('#aRemove').show();
-			$('#cRemove').show();
-			$('#aAdd').show();
-			$('#cAdd').show();
-			$('#modeNew').show();
+			$('#iRemove').show('pulsate', { times:2 }, 1000);
+			$('#aRemove').show('pulsate', { times:2 }, 1000);
+			$('#cRemove').show('pulsate', { times:2 }, 1000);
+			$('#aAdd').show('pulsate', { times:2 }, 1000);
+			$('#cAdd').show('pulsate', { times:2 }, 1000);
+			$('#modeNew').show('pulsate', { times:2 }, 1000);
 			if (!currentCategory) {
 				lockDisplay();
 				$.getJSON('php/upload.php', {object: 'categories'}, listCategories);
@@ -302,6 +307,8 @@ function listCategories(jsonData) {
 
 //Вывод списка объектов типа object
 function list(jsonData, object) {
+	if (catchError(jsonData)) return false;
+	
 	var nObjects;
 	
 	// Очищаем соответствующий список
@@ -349,20 +356,29 @@ function list(jsonData, object) {
 				$('#img'+i)
 					.attr('myID', jsonData.objectlist.image_list[i].image_id)
 					.data('json', jsonData.objectlist.image_list[i]);
+				if (jsonData.objectlist.image_list[i].image_id == currentImage) {
+					$('#img'+i).parent().addClass('active')
+				}
 				break;
 			case 'albums':
 				theAlbumList.append('<li><img id="alb' + i + '" class="aThumbs" src="' + jsonData.objectlist.album_list[i].image.thumb_src + '"/> </li>');
 				$('#alb'+i)
 					.attr('myID', jsonData.objectlist.album_list[i].album_id)
 					.data('json', jsonData.objectlist.album_list[i]);
-				if (jsonData.objectlist.album_list[i].album_id == currentAlbum) $('#alb'+i).parent().addClass('active');
+				if (jsonData.objectlist.album_list[i].album_id == currentAlbum) {
+					$('#alb' + i).parent().addClass('active');
+					//$.getJSON('php/upload.php', {object: 'images',album_id: currentAlbum}, listImages);
+				}
 				break;
 			case 'categories':
 				theCategoryList.append('<li><img id="cat' + i + '" class="cThumbs" src="' + jsonData.objectlist.category_list[i].image.thumb_src + '"/> </li>');
 				$('#cat'+i)
 					.attr('myID', jsonData.objectlist.category_list[i].category_id)
 					.data('json', jsonData.objectlist.category_list[i]);
-				if (jsonData.objectlist.category_list[i].category_id == currentCategory) $('#cat'+i).parent().addClass('active');
+				if (jsonData.objectlist.category_list[i].category_id == currentCategory) {
+					$('#cat' + i).parent().addClass('active');
+					//$.getJSON('php/upload.php', {object: 'albums', category_id: currentCategory}, listAlbums);
+				}
 				break;
 		}
 	}
@@ -374,12 +390,9 @@ function list(jsonData, object) {
 	
 
 	/* Здесь нужно применять разную логику для разных режимов работы:
-	 * manage new images
 	 * copy images/albums
 	 * move images/albums
 	 * create/edit albums/categories/images
-	 * 
-	 * idea: invisible category
 	 */
 	switch (object) {
 		case 'newimages':
@@ -400,6 +413,7 @@ function list(jsonData, object) {
 				if (mode == 'edit') 
 					$('.iThumbs').parent().removeClass('active');
 				$(this).parent().toggleClass('active');
+				if ($(this).parent().hasClass('active')) currentImage = $(this).attr('myID');
 				return false;
 			});
 			
@@ -419,9 +433,11 @@ function list(jsonData, object) {
 		case 'albums':
 			// При выделении альбома подгружаются изображения из него
 			$('.aThumbs').click( function(){
+				lockDisplay();
 				$('.aThumbs').parent().removeClass('active');
 				$(this).parent().addClass('active');
 				$.getJSON('php/upload.php', {object: 'images', album_id: $(this).attr('myID')}, listImages);
+				currentImage = null;
 				currentAlbum = $(this).attr('myID');
 				if (mode != 'edit') {
 					$(".aThumbs").droppable('enable');
@@ -449,6 +465,7 @@ function list(jsonData, object) {
 		case 'categories':
 			// При выделении категории подгружаются ее альбомы
 			$('.cThumbs').click( function(){
+				lockDisplay();
 				$('.cThumbs').parent().removeClass('active');
 				$(this).parent().addClass('active');
 				$.getJSON('php/upload.php', {object: 'albums', category_id: $(this).attr('myID')}, listAlbums);
@@ -476,190 +493,12 @@ function list(jsonData, object) {
 	}
 	
 	unlockDisplay();
+	return true;
 }
 
-$.fn.make_droppable = function(scope) {
-	$(this).droppable({
-		drop: function(event, ui) {
-			lockDisplay();
-			t = $(this);
-			dropObjectID = t.attr('myID');
-			
-			// Перебираем drag'n'drop-нутые альбомы и перемещаем их в новую категорию
-			$('#draggingContainer').children().each(function() {
-				$('#' + $(this).attr('id')).parent().removeClass('active');
-				var dragObjectID = $(this).attr('myID');						
-				
-				switch (scope) {
-					case 'images2albums':     
-						$.getJSON('php/upload.php', {action: mode + scope, imageid: dragObjectID, albumid: dropObjectID, currentalbumid: currentAlbum}, displayDropStatus);
-						break;
-					case 'albums2categories': 
-						$.getJSON('php/upload.php', {action: mode + scope, albumid: dragObjectID, categoryid: dropObjectID, currentcategoryid: currentCategory}, displayDropStatus);
-						break;
-					case 'icon': 
-						if (t.hasClass('aThumbs')) 
-							$.getJSON('php/upload.php', {action: mode + 'album' + scope, imageid: dragObjectID, albumid: dropObjectID}, displayThumbAction);
-						if (t.hasClass('cThumbs'))
-							$.getJSON('php/upload.php', {action: mode + 'category' + scope, imageid: dragObjectID, categoryid: dropObjectID}, displayThumbAction);
-						currentObject = t.attr('id');
-						break;
-				}
-			});
-		},
-		activeClass: 'droptome',
-		hoverClass: 'drophover',
-		scope: scope,
-		tolerance: 'pointer'
-	});
+function findMe (jsonData, removeMe) {
+	if (catchError(jsonData)) return null;
 	
-	return $(this);
-}
-
-$.fn.make_draggable = function(scope) {
-	$(this).draggable({
-		appendTo: 'body',
-		containment: '#containerDiv',
-		delay: 100,
-		//distance: 10, 
-		helper: function(){
-			// Собираем выделенные альбомы в div и тащим...
-			switch (scope) {
-				case 'icon':
-				case 'images2albums':     
-					var selected = $('#imageThumbsUL .active img');
-					break;
-				case 'albums2categories': 
-					var selected = $('#albumThumbsUL .active img');
-					break;
-			}
-			
-			if (selected.length === 0) {
-				selected = $(this);
-			}
-			var container = $('<div/>').attr('id', 'draggingContainer');
-			container.append(selected.clone());
-			return container; 
-		},
-		opacity: 0.5,
-		revert: 'invalid',
-		scope: scope
-	});
-	
-	return $(this);
-}
-
-$.fn.editMe = function(object, jsonData) {
-	currentObject = $(this).attr('id');
-	
-	$('#title').attr('value', jsonData.name);
-	$('#description').attr('value', jsonData.description);
-	
-	theEditForm
-		.data('json', jsonData)
-		.data('object', object);
-	
-	switch (object) {
-		case 'images':
-			theEditForm.dialog('option', 'title', 'Edit image');
-			theFormImg.attr('src', jsonData.thumb_src);
-			break;
-		case 'albums':
-			theEditForm.dialog('option', 'title', 'Edit album');
-			theFormImg.attr('src', jsonData.image.thumb_src);
-			break;
-		case 'categories':
-			theEditForm.dialog('option', 'title', 'Edit category');
-			theFormImg.attr('src', jsonData.image.thumb_src);
-			break;
-	}
-	
-	theEditForm.dialog('open');
-	
-	return $(this);
-}
-
-$.fn.scrollThumbs = function(steps) {
-	var t = $(this);
-	
-	var nElements = t.children().length;
-	
-	if (nElements > 0) {
-	
-		var scroll = t.data('scroll');
-		var myHeight = t.children(':first').outerHeight();
-	
-		if (!scroll) {
-			t.data('scroll', 0);
-			scroll = 0
-		} 
-		
-		if (9 * (scroll + steps) > -nElements && steps < 0) {
-			t.children().animate({
-				"top": "-=" + myHeight * (-steps) + "px"
-			});
-			t.data('scroll', scroll + steps);
-		}
-		
-		if (scroll < 0 && steps > 0) {
-			t.children().animate({
-				"top": "+=" + myHeight * steps + "px"
-			});
-			t.data('scroll', scroll + steps);
-		}
-		
-	}
-	
-	return t;
-}
-
-$.fn.removeElement = function(){
-	var theElement = $(this).children('.active').children('img');
-	var jsonData = theElement.data('json');
-	
-	switch ($(this).attr('id')) {
-		case 'imageThumbsUL':
-			$.getJSON('php/upload.php', {action: 'removeimage', id: theElement.attr('myID')}, getRemoveStatus);
-			break;
-		case 'albumThumbsUL':
-			$.getJSON('php/upload.php', {action: 'removealbum', id: theElement.attr('myID')}, getRemoveStatus);
-			break;
-		case 'categoryThumbsUL':
-			$.getJSON('php/upload.php', {action: 'removecategory', id: theElement.attr('myID')}, getRemoveStatus);
-			break;
-	}
-	
-	return $(this);
-}
-
-$.fn.addElement = function(){
-	switch ($(this).attr('id')) {
-		case 'albumThumbsUL':
-			theFormImg.hide();
-			theEditForm
-				.data('object', 'albums')
-				.dialog('option', 'title', 'Add new album');
-			break;
-		case 'categoryThumbsUL':
-			theFormImg.hide();
-			theEditForm
-				.data('object', 'categories')
-				.dialog('option', 'title', 'Add new category');
-			break;
-	}
-	
-	theEditForm.dialog('open');
-	
-	return $(this);
-}
-
-$.fn.highlightMe = function() {
-	return $(this)
-		.parent()
-		.effect('highlight', { color: '#dd0000' }, 1000);
-}
-
-function findMe (jsonData, remove) {
 	var myClass, myID, myMessage;
 	myMessage = new Array();
 	
@@ -683,17 +522,12 @@ function findMe (jsonData, remove) {
 				myMessage.object = 'Category';
 				myMessage.thumb = jsonData.result.image.thumb_src;
 			}
-			else {
-				unlockDisplay();
-				growl('Error!', jsonData.result.error, null);
-				return null;
-			}
 	
 	$(myClass).each(function(){
 		var t = $(this);
 		if (t.attr('myID') == myID) {
 			t.highlightMe();
-			if (mode == 'move' || remove) t.parent().hide();
+			if (mode == 'move' || removeMe) t.parent().hide('explode');
 		}
 	});
 	
@@ -703,7 +537,16 @@ function findMe (jsonData, remove) {
 
 function getRemoveStatus(jsonData) {
 	var f = findMe(jsonData, true);
-	if (f) growl(f.object + ' successfully removed', jsonData.result.name, f.thumb);
+	if (f) {
+		growl(f.object + ' successfully removed', jsonData.result.name, f.thumb);
+		switch(f.object) {
+			case 'Category':
+				theAlbumList.empty();
+			case 'Album':
+				theImageList.empty();
+				break;
+		}
+	}
 }
 
 // Убираем изображение перемещенного файла и сообщаем об этом
@@ -717,9 +560,10 @@ function displayDropStatus(jsonData) {
 
 // Выводим изображение обработанного файла и сообщаем об этом
 function getUploadStatus(jsonData) {
-	$('#img' + jsonData.result.number).attr('src', jsonData.result.filename);
-	
-	growl('Image imported in gallery', jsonData.result.filename, jsonData.result.filename);
+	if (!catchError(jsonData)) {
+		$('#img' + jsonData.result.number).attr('src', jsonData.result.filename);	
+		growl('Image imported in gallery', jsonData.result.filename, jsonData.result.filename);
+	}
 	
 	progress += dProgress;
 	
@@ -731,11 +575,7 @@ function getUploadStatus(jsonData) {
 }
 
 function displayThumbAction(jsonData) {
-	unlockDisplay();
-	if (jsonData.result.error) {
-		growl('Error!', jsonData.result.error, null);
-	}
-	else {
+	if (!catchError(jsonData)) {
 		$('#' + currentObject)
 			.attr('src', jsonData.result.image.thumb_src)
 			.data('json', jsonData.result)
@@ -756,6 +596,15 @@ function growl(myTitle, myText, myImage) {
 		sticky: false, 
 		time: 8000
 	});
+}
+
+function catchError(jsonData) {
+	unlockDisplay();
+	if (jsonData.result && jsonData.result.error) {
+		growl('Error!', jsonData.result.error, null);
+		return true;
+	}
+	return false;
 }
 
 function lockDisplay() {

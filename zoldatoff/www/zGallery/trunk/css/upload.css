@@ -95,6 +95,7 @@ h2 {
 
 .activeMode {
 	color:#bba;
+	font-size: 30px;
 }
 
 h3 {
@@ -193,5 +194,7 @@ img {
 }
 
 #formImg {
+	max-height: 80px;
+	max-width: 80px;
 	padding:10px;
 }

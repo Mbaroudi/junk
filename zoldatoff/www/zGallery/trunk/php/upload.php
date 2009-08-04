@@ -35,7 +35,7 @@
 		if (! $handle->processed ) exit(returnError($handle->error));
 	}
 	
-	function removeImage($image_id) {
+	function removeImage($image_id, $album_id) {
 		if ($image_id == -1) exit(returnError("Cannot remove default image"));
 		
 		$query = "SELECT * FROM IMAGES WHERE id = " . $image_id;
@@ -46,7 +46,7 @@
 			$thumb_src = $row['thumb_src'];
 		}
 		
-		$query = "DELETE FROM IMGALBUM WHERE img_id = " . $image_id;
+		$query = "DELETE FROM IMGALBUM WHERE img_id = " . $image_id . " AND alb_id = " . $album_id;
 		$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
 
 		$query = "SELECT * FROM IMGALBUM WHERE img_id = " . $image_id;
@@ -67,10 +67,10 @@
 		}
 	}
 	
-	function removeAlbum($album_id) {
+	function removeAlbum($album_id, $categoryid) {
 		if ($album_id == -1) exit(returnError("Cannot remove default album"));
 		
-		$query = "DELETE FROM ALBUMCATEGORY WHERE alb_id = " . $album_id;
+		$query = "DELETE FROM ALBUMCATEGORY WHERE alb_id = " . $album_id . " AND cat_id = " . $categoryid;
 		$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
 		
 		$query = "SELECT * FROM ALBUMCATEGORY WHERE alb_id = " . $album_id;
@@ -86,7 +86,7 @@
 		$query = "SELECT id FROM IMAGES WHERE id != -1 AND id not in " .
 				 "(SELECT img_id FROM IMGALBUM)";
 		$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
-		if ($row = mysql_fetch_array($query_result)) removeImage($row['id']);
+		if ($row = mysql_fetch_array($query_result)) removeImage($row['id'], $album_id);
 	}
 	
 	function removeCategory($category_id) {
@@ -101,7 +101,7 @@
 		$query = "SELECT id FROM ALBUMS WHERE id != -1 AND id not in " .
 				 "(SELECT alb_id FROM ALBUMCATEGORY)";
 		$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
-		if ($row = mysql_fetch_array($query_result)) removeAlbum($row['id']);
+		if ($row = mysql_fetch_array($query_result)) removeAlbum($row['id'], $category_id);
 	}
 	
 	//header('Cache-Control: no-cache, must-revalidate');
@@ -188,54 +188,87 @@
 		connect();          		
 		switch ($_REQUEST['action']) {
 			case 'moveimages2albums':
-				//TODO check
-				$query = "DELETE FROM IMGALBUM WHERE img_id = " . $_REQUEST['imageid'] . " AND alb_id = " . $_REQUEST['currentalbumid'];
+				if ($_REQUEST['imageid'] == -1) exit(returnError("Cannot move default image"));
+				
+				$query = "SELECT * FROM V_IMGALBUM WHERE img_id = " . $_REQUEST['imageid'] . " AND alb_id = " . $_REQUEST['albumid'];
 				$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
+				if ($row = mysql_fetch_array($query_result)) {
+					exit(returnError("Image already exists in album " . $row['alb_name']));
+				}
+				else {
+					$query = "DELETE FROM IMGALBUM WHERE img_id = " . $_REQUEST['imageid'] . " AND alb_id = " . $_REQUEST['currentalbumid'];
+					$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
+				}
 				// no break - it's important!!!
 			case 'copyimages2albums':
-				//TODO check
-				$query = "INSERT INTO IMGALBUM VALUES (" . $_REQUEST['imageid'] . ", " . $_REQUEST['albumid'] . ")";
+				if ($_REQUEST['imageid'] == -1) exit(returnError("Cannot copy default image"));
+				
+				$query = "SELECT * FROM V_IMGALBUM WHERE img_id = " . $_REQUEST['imageid'] . " AND alb_id = " . $_REQUEST['albumid'];
 				$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
-				$json = new image($_REQUEST['imageid']);
+				if ($row = mysql_fetch_array($query_result)) {
+					exit(returnError("Image already exists in album " . $row['alb_name']));
+				}
+				else {
+					$query = "INSERT INTO IMGALBUM VALUES (" . $_REQUEST['imageid'] . ", " . $_REQUEST['albumid'] . ")";
+					$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
+					$json = new image($_REQUEST['imageid']);
+				}
 				break;
 			case 'movealbums2categories':
-				//TODO check
 				if ($_REQUEST['albumid'] == -1) exit(returnError("Cannot move default album"));
-				$query = "DELETE FROM ALBUMCATEGORY WHERE alb_id = " . $_REQUEST['albumid'] . " AND cat_id = " . $_REQUEST['currentcategoryid'];
+				
+				$query = "SELECT * FROM V_ALBUMCATEGORY WHERE alb_id = " . $_REQUEST['albumid'] . " AND cat_id = " . $_REQUEST['categoryid'];
 				$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
+				if ($row = mysql_fetch_array($query_result)) {
+					exit(returnError("Album already exists in category " . $row['cat_name']));
+				}
+				else {
+					$query = "DELETE FROM ALBUMCATEGORY WHERE alb_id = " . $_REQUEST['albumid'] . " AND cat_id = " . $_REQUEST['currentcategoryid'];
+					$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
+				}
 				// no break - it's important!!!
 			case 'copyalbums2categories':
-				//TODO check
-				if ($_REQUEST['albumid'] == -1) exit(returnError("Cannot move default album"));
-				$query = "INSERT INTO ALBUMCATEGORY VALUES (" . $_REQUEST['albumid'] . ", " . $_REQUEST['categoryid'] . ")";
+				if ($_REQUEST['albumid'] == -1) exit(returnError("Cannot copy default album"));
+				
+				$query = "SELECT * FROM V_ALBUMCATEGORY WHERE alb_id = " . $_REQUEST['albumid'] . " AND cat_id = " . $_REQUEST['categoryid'];
 				$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
-				$json = new album($_REQUEST['albumid']);
+				if ($row = mysql_fetch_array($query_result)) {
+					exit(returnError("Album already exists in category " . $row['cat_name']));
+				}
+				else {
+					$query = "INSERT INTO ALBUMCATEGORY VALUES (" . $_REQUEST['albumid'] . ", " . $_REQUEST['categoryid'] . ")";
+					$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
+					$json = new album($_REQUEST['albumid']);
+				}
 				break;
 			case 'updateimage':
 				if ($_REQUEST['id'] == -1) exit(returnError("Cannot modify default image"));
+				
 				$query = "UPDATE IMAGES SET NAME = '" . $_REQUEST['name'] . "', descr = '" . $_REQUEST['description'] . "' WHERE id = " . $_REQUEST['id'];
 				$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
 				$json = new image($_REQUEST['id']);
 				break;
 			case 'updatealbum':
 				if ($_REQUEST['id'] == -1) exit(returnError("Cannot modify default album"));
+				
 				$query = "UPDATE ALBUMS SET NAME = '" . $_REQUEST['name'] . "', descr = '" . $_REQUEST['description'] . "' WHERE id = " . $_REQUEST['id'];
 				$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
 				$json = new album($_REQUEST['id']);
 				break;
 			case 'updatecategory':
 				if ($_REQUEST['id'] == -1) exit(returnError("Cannot modify default category"));
+				
 				$query = "UPDATE CATEGORIES SET NAME = '" . $_REQUEST['name'] . "', descr = '" . $_REQUEST['description'] . "' WHERE id = " . $_REQUEST['id'];
 				$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
 				$json = new category($_REQUEST['id']);
 				break;
 			case 'removeimage':
 				$json = new image($_REQUEST['id']);
-				removeImage($_REQUEST['id']);
+				removeImage($_REQUEST['id'], $_REQUEST['albumid']);
 				break;
 			case 'removealbum':
 				$json = new album($_REQUEST['id']);
-				removeAlbum($_REQUEST['id']);
+				removeAlbum($_REQUEST['id'], $_REQUEST['categoryid']);
 				break;
 			case 'removecategory':
 				$json = new category($_REQUEST['id']);
@@ -272,6 +305,7 @@
 				break;
 			case 'editalbumicon':
 				if ($_REQUEST['albumid'] == -1) exit(returnError("Cannot modify default album"));
+				
 				$query = "UPDATE ALBUMS SET image_id = " . $_REQUEST['imageid'] . " WHERE id = " . $_REQUEST['albumid'];
 				$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));	
 				mysql_query("COMMIT");
@@ -279,6 +313,7 @@
 				break;
 			case 'editcategoryicon':
 				if ($_REQUEST['categoryid'] == -1) exit(returnError("Cannot modify default category"));
+				
 				$query = "UPDATE CATEGORIES SET image_id = " . $_REQUEST['imageid'] . " WHERE id = " . $_REQUEST['categoryid'];
 				$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
 				mysql_query("COMMIT");	
