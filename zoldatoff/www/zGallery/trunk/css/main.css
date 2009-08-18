@@ -3,7 +3,8 @@ html, body { height:100%; }
 body {
 	background:black;
 	color:#bba;
-	font-family:Georgia,Serif;
+	/*font-family:Georgia,Serif;*/
+	font-family:Brush Script MT, Comic Sans MS;
 	overflow: hidden;
 	padding-left:20px;
 	padding-right:20px;
@@ -182,4 +183,41 @@ li.activelithumb { border-color:#444422; }
 #topImage {
 	max-height:100%;
 	max-width:100%;
+}
+
+.ldiv,.rdiv {
+	/*border: 1px solid red;*/
+	height:100px;
+	position:absolute;
+	text-align:center;
+	width:170px;
+}
+
+.ldiv {
+	left: 10px;
+}
+
+.rdiv {
+	right: 10px;
+}
+
+#leftDiv, #rightDiv {
+	overflow: hidden;
+}
+
+.ltitle,.rtitle {
+	line-height:56px;
+	position:absolute;
+	bottom: 0;
+	width: 300px;
+}
+
+.ltitle {
+	left: 120px;
+	text-align: left;
+}
+
+.rtitle {
+	right: 120px;
+	text-align: right;
 }

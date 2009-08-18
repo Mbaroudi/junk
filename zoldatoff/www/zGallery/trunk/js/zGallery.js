@@ -1,5 +1,6 @@
-var DEBUG = true;
-var maxThumbs = 5;
+// TODO: remove click double-binding!!!
+var DEBUG = false;
+var maxThumbs = 7;
 var nThumbs = maxThumbs;
 var imageList = new Array();
 var LScroll = 0;
@@ -21,7 +22,6 @@ var DOM_thumbsDiv;
 var DOM_arrowsDiv;
 var DOM_topDiv;
 
-
 $(document).ready(function(){
 	DOM_image 		= $('#image');
 	DOM_topImage 	= $('#topImage');
@@ -39,13 +39,25 @@ $(document).ready(function(){
 	
 	positionAll();
 	$.getJSON('php/list_images.php', {gallery: 'default'}, fillImages);
-	errorLog("Request sent", "red");
+	$.getJSON('php/list_images.php', {gallery: 'default'}, fillCategories);
+	growl("Request sent");
+	
+	//Скроллинг thumbs-ов
+	$('#toLeft').click(function(){
+		scrollThumbs(nThumbs);
+		return false;
+	})
+	
+	$('#toRight').click(function(){
+		scrollThumbs(-nThumbs);
+		return false;
+	})
 });
 
 $(window).resize(function(){
 	positionAll();
-	DOM_image.centerImg();
-	DOM_topImage.centerImg();
+	DOM_image.center();
+	DOM_topImage.center();
 })
 
 function positionAll() {		
@@ -75,45 +87,84 @@ function positionAll() {
 		.height(thumbY + 'px')
 		.css("left", (maxX-leftX-rightX-thumbX)/2 + 'px');
 	
-	errorLog("Page reformatted", "blue");
+	growl("Page reformatted");
 }
 
-(function ($) {
-	$.fn.centerImg = function() {
-		var iHeight = $(this).height();	
-		var dHeight = $(this).parent().height();
-		var iWidth 	= $(this).width();
-		var dWidth 	= $(this).parent().width();
+function fillSide(jsonData, side /* 'l' or 'r' */) {
+	var theElement = (side == 'l') ? DOM_leftDiv : DOM_rightDiv;
+	var theAction  = (side == 'l') ? fillAlbums : fillImages;
+	theElement.empty();
+	
+	for (var i=0; i<jsonData.imagelist.length; i++){
+		imageList[i] = jsonData.imagelist[i];
 		
-		var myMargin = 0;
+		var newDiv =  $('<div/>')
+			.attr("id", side + "div" + i)
+			.addClass(side + "div")
+			.css("bottom", 100*i);
 		
-		if (dWidth > iWidth && dHeight > iHeight) {
-			myMargin = (dHeight - iHeight)/2;
-		}
-		else if (dWidth/dHeight < iWidth/iHeight) {
-			myMargin = (dHeight*iWidth - iHeight*dWidth)/(2*iWidth);
-		}
-		else {
-			myMargin = 0;
-		}
+		var newImg = $("<img/>")
+			.attr("id", side + "img" + i)
+			.addClass("thumb")
+			.attr("src", imageList[i].thumb_src)
+			.attr('number', i);
 		
-		$(this).css( 'margin-top', myMargin + 'px' );
-     };
-})(jQuery);
+		var newSpan = $("<span/>")
+			.attr("id", side + "title" + i).addClass(side + "title")
+			.html(imageList[i].title)
+			.hide();
+		
+		newDiv
+			.append(newImg)
+			.append(newSpan)
+			.appendTo(theElement)
+			.hide();
+	}
+	
+	var nItems = jsonData.imagelist.length;
+	
+	$("img", theElement).load(function() {
+		$(this).center();
+		if (--nItems == 0) 
+			$("div", theElement)
+				.fadeIn(500, function(){
+					$("span", theElement).fadeIn(500)
+				});
+	})
+	
+	$("img", theElement).click(function() {
+		$.getJSON('php/list_images.php', {gallery: 'default'}, theAction);
+	})
+	
+}
+
+function fillCategories(jsonData) {
+	fillSide(jsonData, 'l');
+}
+
+function fillAlbums(jsonData) {
+	fillSide(jsonData, 'r');
+}
 
 function fillImages(data) {
-	errorLog("Request received: " + data.imagelist.length + " items", "red");
+	growl("Request received", data.imagelist.length + " items");
 	
 	//Отображаем thumbnail-ы
 	var myThumbs = $('#thumbs').empty();
 	for (var i=0; i<data.imagelist.length; i++){
-		myThumbs.append('<li class="lithumb" id="li' + i + '"/>');
-		$('#li'+i).append('<img class="thumb" id="img' + i + '"/>');
-		
 		imageList[i] = data.imagelist[i];
-		$('#img'+i)
+		
+		var newLi = $('<li/>')
+			.attr("id", "li" + i)
+			.addClass("lithumb");
+			
+		var newImg = $('<img/>')
+			.attr("id", "img" + i)
+			.addClass("thumb")
 			.attr('src', imageList[i].thumb_src)
 			.attr('number', i);
+			
+		newLi.append(newImg).appendTo(myThumbs);
 	}
 	
 	//Подгружаем картинки
@@ -124,19 +175,21 @@ function fillImages(data) {
 	tmpN.src = imageList[1].norm_src;
 	//tmpF.src = imageList[1].full_src;
 	
+	var nItems = imageList.length;
+	
 	tmpN.onload = function(){
-		myNum = this.num;
-		errorLog(myNum + ' loaded (norm)', "blue");
-		if (myNum + 1 < imageList.length) {
-			this.num = myNum + 1;
-			this.src = imageList[myNum + 1].norm_src;
+		var myNum = this.num;
+		//growl(myNum + ' loaded (norm)');
+		if (++myNum < nItems) {
+			this.num = myNum;
+			this.src = imageList[myNum].norm_src;
 		}
 	}
 	
 	/*
 	tmpF.onload = function(){
 		myNum = this.num;
-		errorLog(myNum + ' loaded (full)', "red");
+		growl(myNum + ' loaded (full)');
 		if (myNum + 1 < imageList.length) {
 			this.num = myNum + 1;
 			this.src = imageList[myNum + 1].full_src;
@@ -145,14 +198,17 @@ function fillImages(data) {
 	*/
 	
 	//Добавляем обработчик кликов для каждого из thumbnails-ов
-	$('img.thumb').load(function(){
-		$(this).centerImg();
+	$('#thumbsDiv img.thumb').load(function(){
+		$(this).center();
 		
 		$(this).click(function(){
 			var myNumber = $(this).attr('number');
+			
 			DOM_image.hide();
 			$('#loader').show();
+			
 			DOM_image
+				.attr('src', '')
 				.attr('src', imageList[myNumber].norm_src)
 				.attr('number', myNumber);
 			
@@ -167,6 +223,8 @@ function fillImages(data) {
 			
 			// сдвигаем активный thumb ближе к центру 
 			scrollThumbs(LScroll + Math.floor(nThumbs/2) - myNumber);
+			
+			return false;
 		})
 	})
 	
@@ -190,7 +248,7 @@ function fillImages(data) {
 	//Убираем loader image
 	DOM_image.load(function(){
 		$('#loader').hide();
-		DOM_image.centerImg();
+		DOM_image.center();
 		DOM_image.fadeIn(1000);
 	})
 	
@@ -210,27 +268,21 @@ function fillImages(data) {
 			DOM_topImage.show();
 		}
 		DOM_topDiv.css('display','block');
+		
+		return false;
 	})
 	
 	//Позиционируем картинку в full-screen-е по вертикали
 	DOM_topImage.load(function(){
 		$('#topLoader').hide();
-		DOM_topImage.centerImg();
+		DOM_topImage.center();
 		DOM_topImage.fadeIn(1000);
 	})
 	
 	//При клике по картинке возвращаемся к обычному просмотру
 	DOM_topImage.click(function(){
 		DOM_topDiv.fadeOut(1000);
-	})
-	
-	//Скроллинг thumbs-ов
-	$('#toLeft').click(function(){
-		scrollThumbs(nThumbs);
-	})
-	
-	$('#toRight').click(function(){
-		scrollThumbs(-nThumbs);
+		return false;
 	})
 }
 
@@ -247,9 +299,8 @@ function scrollThumbs(steps) {
 	else if (steps < 0 && RScroll < -steps) {
 		scrollThumbs(steps+1);
 	}
-
 	//хотим и можем сдвинуться вправо
-	if (steps > 0 && LScroll >= steps) {
+	else if (steps > 0 && LScroll >= steps) {
 		$('.lithumb').animate({
 			"left": "+=" + liWidth * steps + "px"
 		});
@@ -262,16 +313,3 @@ function scrollThumbs(steps) {
 	}
 }
 
-function errorLog(message, color) {
-	if (DEBUG) {
-		var currentTime = new Date();
-		var hours = currentTime.getHours();
-		var min = currentTime.getMinutes();
-		var sec = currentTime.getSeconds();
-		
-		if (!color) color = "white";
-		
-		DOM_rightDiv.append('<span class="log" style="color:' + color + '">[' + hours + ':' + min + ':' + sec + '] ' + message + '<br></span>');
-		DOM_rightDiv.scrollTop = DOM_rightDiv.scrollHeight;
-	}
-}

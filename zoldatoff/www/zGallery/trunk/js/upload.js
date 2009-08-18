@@ -584,20 +584,6 @@ function displayThumbAction(jsonData) {
 	}
 }
 
-function growl(myTitle, myText, myImage) {
-	if (!myTitle) myTitle = " ";
-	if (!myText) myText = " ";
-	if (!myImage) myImage = "css/new.jpg";
-	
-	$.gritter.add({
-		title: myTitle,
-		text: myText,
-		image: myImage,
-		sticky: false, 
-		time: 8000
-	});
-}
-
 function catchError(jsonData) {
 	unlockDisplay();
 	if (jsonData.result && jsonData.result.error) {

@@ -4,9 +4,9 @@
 
 $.fn.center = function() {
 	var t = $(this);
-	var iHeight = t.height();	
+	var iHeight = t.height() ? t.height() : t[0].height;	
 	var dHeight = t.parent().height();
-	var iWidth 	= t.width();
+	var iWidth 	= t.width() ? t.width() : t[0].width;
 	var dWidth 	= t.parent().width();
 	
 	var myMargin = 0;
@@ -206,4 +206,22 @@ $.fn.highlightMe = function() {
 	return $(this)
 		.parent()
 		.effect('highlight', { color: '#bb0000' }, 1000);
+}
+
+function growl(myTitle, myText, myImage) {
+	if (!myTitle) myTitle = " ";
+	if (!myText) myText = " ";
+	if (!myImage) myImage = "css/new.jpg";
+	
+	$.gritter.add({
+		title: myTitle,
+		text: myText,
+		image: myImage,
+		sticky: false, 
+		time: 8000
+	});
+}
+
+function checkLoad(src) {
+	return $('<img/>').attr("src", src).attr("complete");
 }
