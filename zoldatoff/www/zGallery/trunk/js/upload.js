@@ -39,6 +39,7 @@ $(document).ready( function() {
 		modal: true,
 		resizable: false,
 		width: 320,
+		open: function() {$('#title').focus();},
 		buttons: {
 			'OK': function() {
 				var bValid = true;
@@ -67,7 +68,7 @@ $(document).ready( function() {
 					}
 					
 					if (bValid) {
-						$.getJSON('php/upload.php', {
+						$.getJSON(ajaxPath, {
 							action: myAction,
 							id: myId,
 							name: $('#title').val(),
@@ -93,7 +94,7 @@ $(document).ready( function() {
 					}
 					
 					if (bValid) {
-						$.getJSON('php/upload.php', {
+						$.getJSON(ajaxPath, {
 							action: myAction,
 							name: $('#title').val(),
 							description: $('#description').val()
@@ -218,23 +219,39 @@ function addNewElement(jsonData) {
 	if (!catchError(jsonData)) {
 		var N;
 		if (jsonData.result.album_id) {
-			theAlbumList.children().length + 1;
-			theAlbumList.append('<li><img id="alb' + N + '" class="aThumbs" src="' + jsonData.result.image.thumb_src + '"/> </li>');
-			$('#alb' + N).attr('myID', jsonData.result.album_id);
-			$('#alb' + N).data('json', jsonData.result);
+			N = theAlbumList.children().length + 1;
+
+			var myImg = $('<img/>')
+				.attr('id', 'alb' + N)
+				.attr('src', jsonData.result.image.thumb_src)
+				.attr('myID', jsonData.result.album_id)
+				.addClass('aThumbs')
+				.data('json', jsonData.result)
+				.make_droppable('icon');
+				
+			theAlbumList.append($('<li/>').append(myImg));
+			
 			growl("Album added", jsonData.result.name, jsonData.result.image.thumb_src);
 		}
 		
 		if (jsonData.result.category_id) {
-			theCategoryList.children().length + 1;
-			theCategoryList.append('<li><img id="cat' + N + '" class="cThumbs" src="' + jsonData.result.image.thumb_src + '"/> </li>');
-			$('#cat' + N).attr('myID', jsonData.result.category_id);
-			$('#cat' + N).data('json', jsonData.result);
+			N = theCategoryList.children().length + 1;
+			
+			var myImg = $('<img/>')
+				.attr('id', 'cat' + N)
+				.attr('src', jsonData.result.image.thumb_src)
+				.attr('myID', jsonData.result.category_id)
+				.addClass('cThumbs')
+				.data('json', jsonData.result)
+				.make_droppable('icon');
+							
+			theCategoryList.append($('<li/>').append(myImg));
+
 			growl("Category added", jsonData.result.name, jsonData.result.image.thumb_src);
 		}
 	}
 	
-	$.getJSON('php/upload.php', {object: 'categories'}, listCategories);
+	$.getJSON(ajaxPath, {object: 'categories'}, listCategories);
 }
 
 // Init mode and fetch data
@@ -251,35 +268,35 @@ function runMode() {
 			$('#modeNew').hide();
 			if (!currentCategory) {
 				lockDisplay();
-				$.getJSON('php/upload.php', {object: 'categories'}, listCategories);
+				$.getJSON(ajaxPath, {object: 'categories'}, listCategories);
 			}
 			break;
 		case 'edit':
-			$('#iRemove').show('pulsate', { times:2 }, 1000);
-			$('#aRemove').show('pulsate', { times:2 }, 1000);
-			$('#cRemove').show('pulsate', { times:2 }, 1000);
-			$('#aAdd').show('pulsate', { times:2 }, 1000);
-			$('#cAdd').show('pulsate', { times:2 }, 1000);
-			$('#modeNew').show('pulsate', { times:2 }, 1000);
+			$('#iRemove').show(); //'pulsate', { times:2 }, 1000);
+			$('#aRemove').show(); //'pulsate', { times:2 }, 1000);
+			$('#cRemove').show(); //'pulsate', { times:2 }, 1000);
+			$('#aAdd').show(); //'pulsate', { times:2 }, 1000);
+			$('#cAdd').show(); //'pulsate', { times:2 }, 1000);
+			$('#modeNew').show(); //'pulsate', { times:2 }, 1000);
 			if (!currentCategory) {
 				lockDisplay();
-				$.getJSON('php/upload.php', {object: 'categories'}, listCategories);
+				$.getJSON(ajaxPath, {object: 'categories'}, listCategories);
 			}
 			break;
 		case 'new':
-			$.getJSON('php/upload.php', {object: 'newimages'}, listNewImages);
+			$.getJSON(ajaxPath, {object: 'newimages'}, listNewImages);
 			break;
 	}
 	
 	if (mode != 'new') {
-		$.getJSON('php/upload.php', {object: 'categories'}, listCategories);
+		$.getJSON(ajaxPath, {object: 'categories'}, listCategories);
 		if (currentAlbum) {
 			lockDisplay();
-			$.getJSON('php/upload.php', {object: 'images',album_id: currentAlbum}, listImages);
+			$.getJSON(ajaxPath, {object: 'images',album_id: currentAlbum}, listImages);
 		}
 		if (currentCategory) {
 			lockDisplay();
-			$.getJSON('php/upload.php', {object: 'albums', category_id: currentCategory}, listAlbums);
+			$.getJSON(ajaxPath, {object: 'albums', category_id: currentCategory}, listAlbums);
 		}
 	}
 }
@@ -367,7 +384,7 @@ function list(jsonData, object) {
 					.data('json', jsonData.objectlist.album_list[i]);
 				if (jsonData.objectlist.album_list[i].album_id == currentAlbum) {
 					$('#alb' + i).parent().addClass('active');
-					//$.getJSON('php/upload.php', {object: 'images',album_id: currentAlbum}, listImages);
+					//$.getJSON(ajaxPath, {object: 'images',album_id: currentAlbum}, listImages);
 				}
 				break;
 			case 'categories':
@@ -377,7 +394,7 @@ function list(jsonData, object) {
 					.data('json', jsonData.objectlist.category_list[i]);
 				if (jsonData.objectlist.category_list[i].category_id == currentCategory) {
 					$('#cat' + i).parent().addClass('active');
-					//$.getJSON('php/upload.php', {object: 'albums', category_id: currentCategory}, listAlbums);
+					//$.getJSON(ajaxPath, {object: 'albums', category_id: currentCategory}, listAlbums);
 				}
 				break;
 		}
@@ -403,7 +420,7 @@ function list(jsonData, object) {
 			
 			// Для каждого файла запускаем процедуру импорта в галерею
 			for (var i = 0; i < nObjects; i++) 
-				$.getJSON('php/upload.php', {filename: jsonData.objectlist[i].filename,	number: i}, getUploadStatus);
+				$.getJSON(ajaxPath, {filename: jsonData.objectlist[i].filename,	number: i}, getUploadStatus);
 			
 			break;
 			
@@ -436,7 +453,7 @@ function list(jsonData, object) {
 				lockDisplay();
 				$('.aThumbs').parent().removeClass('active');
 				$(this).parent().addClass('active');
-				$.getJSON('php/upload.php', {object: 'images', album_id: $(this).attr('myID')}, listImages);
+				$.getJSON(ajaxPath, {object: 'images', album_id: $(this).attr('myID')}, listImages);
 				currentImage = null;
 				currentAlbum = $(this).attr('myID');
 				if (mode != 'edit') {
@@ -468,7 +485,7 @@ function list(jsonData, object) {
 				lockDisplay();
 				$('.cThumbs').parent().removeClass('active');
 				$(this).parent().addClass('active');
-				$.getJSON('php/upload.php', {object: 'albums', category_id: $(this).attr('myID')}, listAlbums);
+				$.getJSON(ajaxPath, {object: 'albums', category_id: $(this).attr('myID')}, listAlbums);
 				currentAlbum = null;
 				currentCategory = $(this).attr('myID');
 				if (mode != 'edit') {

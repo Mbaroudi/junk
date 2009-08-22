@@ -2,7 +2,6 @@
 var DEBUG = false;
 var maxThumbs = 7;
 var nThumbs = maxThumbs;
-var imageList = new Array();
 var LScroll = 0;
 var RScroll = 0;
 var maxX;
@@ -10,7 +9,6 @@ var maxY;
 
 var DOM_image;
 var DOM_topImage;
-var DOM_caption;
 
 var DOM_wrapDiv;
 var DOM_leftDiv;
@@ -25,7 +23,6 @@ var DOM_topDiv;
 $(document).ready(function(){
 	DOM_image 		= $('#image');
 	DOM_topImage 	= $('#topImage');
-	DOM_caption		= $('#caption');
 	
 	DOM_wrapDiv 	= $('#wrapDiv');
 	DOM_leftDiv		= $('#leftDiv');
@@ -38,9 +35,8 @@ $(document).ready(function(){
 	DOM_topDiv		= $('#topDiv');
 	
 	positionAll();
-	$.getJSON('php/list_images.php', {gallery: 'default'}, fillImages);
-	$.getJSON('php/list_images.php', {gallery: 'default'}, fillCategories);
-	growl("Request sent");
+	//$.getJSON('php/list_images.php', {gallery: 'default'}, fillImages);
+	$.getJSON(ajaxPath, {object: 'categories'}, fillCategories);
 	
 	//Скроллинг thumbs-ов
 	$('#toLeft').click(function(){
@@ -52,13 +48,22 @@ $(document).ready(function(){
 		scrollThumbs(-nThumbs);
 		return false;
 	})
+	
+	//Позиционируем картинку в full-screen-е по вертикали
+	DOM_topImage.load(function(){
+		$('#topLoader').hide();
+		DOM_topImage.center();
+		DOM_topImage.fadeIn(1000);
+	})
+	
+	//При клике по картинке возвращаемся к обычному просмотру
+	DOM_topImage.click(function(){
+		DOM_topDiv.fadeOut(1000);
+		return false;
+	})
 });
 
-$(window).resize(function(){
-	positionAll();
-	DOM_image.center();
-	DOM_topImage.center();
-})
+$(window).resize(positionAll)
 
 function positionAll() {		
 	maxX 		= $('body').width();
@@ -83,11 +88,10 @@ function positionAll() {
 	DOM_wrapDiv.height(wrapY+'px');
 	DOM_containerDiv.height(containerY+'px');
 	DOM_imagesDiv.width(maxX-leftX-rightX+'px');
-	DOM_thumbsDiv
-		.height(thumbY + 'px')
-		.css("left", (maxX-leftX-rightX-thumbX)/2 + 'px');
+	DOM_thumbsDiv.css("left", (maxX-leftX-rightX-thumbX)/2 + 'px');
 	
-	growl("Page reformatted");
+	DOM_image.center();
+	DOM_topImage.center();
 }
 
 function fillSide(jsonData, side /* 'l' or 'r' */) {
@@ -95,47 +99,96 @@ function fillSide(jsonData, side /* 'l' or 'r' */) {
 	var theAction  = (side == 'l') ? fillAlbums : fillImages;
 	theElement.empty();
 	
-	for (var i=0; i<jsonData.imagelist.length; i++){
-		imageList[i] = jsonData.imagelist[i];
-		
+	var theList = (side == 'l') ? jsonData.objectlist.category_list : jsonData.objectlist.album_list;
+	var nItems = theList.length;
+	
+	for (var i=0; i<nItems; i++){
 		var newDiv =  $('<div/>')
 			.attr("id", side + "div" + i)
 			.addClass(side + "div")
-			.css("bottom", 100*i);
+			.css("top", 100*i+20)
+			.data("object", theList[i]);
 		
 		var newImg = $("<img/>")
 			.attr("id", side + "img" + i)
 			.addClass("thumb")
-			.attr("src", imageList[i].thumb_src)
-			.attr('number', i);
+			.attr("src", theList[i].image.thumb_src)
+			.hide();
+			
+		var newImgBW = $('<img/>')
+			.attr("id", side + "imgBW" + i)
+			.addClass("thumbBW")
+			.attr('src', theList[i].image.thumb_bw_src)
+			.hide();
 		
 		var newSpan = $("<span/>")
 			.attr("id", side + "title" + i).addClass(side + "title")
-			.html(imageList[i].title)
+			.html(theList[i].name)
 			.hide();
 		
 		newDiv
 			.append(newImg)
+			.append(newImgBW)
 			.append(newSpan)
 			.appendTo(theElement)
 			.hide();
 	}
 	
-	var nItems = jsonData.imagelist.length;
-	
-	$("img", theElement).load(function() {
+	$("img.thumb", theElement).load(function() {
 		$(this).center();
-		if (--nItems == 0) 
-			$("div", theElement)
-				.fadeIn(500, function(){
-					$("span", theElement).fadeIn(500)
-				});
 	})
 	
-	$("img", theElement).click(function() {
-		$.getJSON('php/list_images.php', {gallery: 'default'}, theAction);
+	$("img.thumbBW", theElement).load(function() {
+		$(this).center().show();
+		
+		$(this).parent().fadeIn(500, function(){
+			$("span", theElement).fadeIn(500)
+		});
 	})
 	
+	$("div", theElement)
+		.click(function() {
+				$('span', theElement).removeClass("activetitle");
+				$('span', $(this)).addClass("activetitle");
+				
+				$('div', theElement).removeClass("active");
+				$(this).addClass("active");
+				
+				$('.thumb', theElement).hide();
+				$('.thumbBW', theElement).show();
+				$('.thumb', $(this)).show();
+				$('.thumbBW', $(this)).hide();
+				
+				var myID = (side == 'l') ? $(this).data('object').category_id : $(this).data('object').album_id;
+				switch (side) {
+					case 'l':
+						$.getJSON(ajaxPath, {object: 'albums', category_id: myID}, theAction);
+						break;
+					case 'r':
+					 	$.getJSON(ajaxPath, {object: 'images', album_id: myID}, theAction);
+						break;
+				}
+			}
+		)
+		.hover( function(){
+			 	if (!$(this).hasClass("active")) {
+					$(this).children().filter('.thumb').show();
+					$(this).children().filter('.thumbBW').hide();
+				}
+			},
+			function(){
+				if (!$(this).hasClass("active")) {
+					$(this).children().filter('.thumb').hide();
+					$(this).children().filter('.thumbBW').show();
+				}
+			}
+		)
+	
+	$('span', theElement).click(function(){
+		$(this).parent().click();
+	})
+	
+	$("#"+side+"div0").click();
 }
 
 function fillCategories(jsonData) {
@@ -147,105 +200,120 @@ function fillAlbums(jsonData) {
 }
 
 function fillImages(data) {
-	growl("Request received", data.imagelist.length + " items");
+	var imagelist = data.objectlist.image_list;
+	var nItems = imagelist.length;
+	//growl("Request received", nItems + " items");
 	
 	//Отображаем thumbnail-ы
 	var myThumbs = $('#thumbs').empty();
-	for (var i=0; i<data.imagelist.length; i++){
-		imageList[i] = data.imagelist[i];
-		
+	for (var i=0; i<nItems; i++){		
 		var newLi = $('<li/>')
 			.attr("id", "li" + i)
-			.addClass("lithumb");
+			.addClass("lithumb")
+			.data('image', imagelist[i])
+			.data('number', i);
 			
 		var newImg = $('<img/>')
 			.attr("id", "img" + i)
 			.addClass("thumb")
-			.attr('src', imageList[i].thumb_src)
-			.attr('number', i);
+			.attr('src', imagelist[i].thumb_src)
+			.hide();
+		
+		var newImgBW = $('<img/>')
+			.attr("id", "imgBW" + i)
+			.addClass("thumbBW")
+			.attr('src', imagelist[i].thumb_bw_src)
+			.hide();
 			
-		newLi.append(newImg).appendTo(myThumbs);
+		newLi.append(newImg).append(newImgBW).appendTo(myThumbs);
 	}
 	
 	//Подгружаем картинки
-	var tmpN = new Image();
-	var tmpF = new Image();
-	tmpN.num = tmpF.num = 1;
-	
-	tmpN.src = imageList[1].norm_src;
-	//tmpF.src = imageList[1].full_src;
-	
-	var nItems = imageList.length;
-	
-	tmpN.onload = function(){
-		var myNum = this.num;
-		//growl(myNum + ' loaded (norm)');
-		if (++myNum < nItems) {
-			this.num = myNum;
-			this.src = imageList[myNum].norm_src;
-		}
-	}
-	
-	/*
-	tmpF.onload = function(){
-		myNum = this.num;
-		growl(myNum + ' loaded (full)');
-		if (myNum + 1 < imageList.length) {
-			this.num = myNum + 1;
-			this.src = imageList[myNum + 1].full_src;
-		}
-	}
+	/*var num = 1;
+	imageList = data.imagelist;
+	$('<img/>')
+		.attr('src', data.imagelist[1].norm_src)
+		.load( function(){
+			//growl(num + ' loaded (norm)');
+			if (++num < nItems) $(this).attr('src', imageList[num].norm_src);
+		})
 	*/
 	
 	//Добавляем обработчик кликов для каждого из thumbnails-ов
-	$('#thumbsDiv img.thumb').load(function(){
+	$('#thumbs img.thumb').load(function(){
 		$(this).center();
-		
-		$(this).click(function(){
-			var myNumber = $(this).attr('number');
-			
-			DOM_image.hide();
-			$('#loader').show();
-			
-			DOM_image
-				.attr('src', '')
-				.attr('src', imageList[myNumber].norm_src)
-				.attr('number', myNumber);
-			
-			$('img.activethumb', '#thumbs').removeClass("activethumb");
-			$('li.activelithumb', '#thumbs').removeClass("activelithumb");
-			$(this).addClass("activethumb");
-			$('#li'+myNumber).addClass("activelithumb");
-			
-			DOM_caption
-				.html(imageList[myNumber].title)
-				.css('display','none').fadeIn(1000);
-			
-			// сдвигаем активный thumb ближе к центру 
-			scrollThumbs(LScroll + Math.floor(nThumbs/2) - myNumber);
-			
-			return false;
-		})
 	})
+	
+	$('#thumbs img.thumbBW').load(function(){
+		$(this)
+			.center()
+			.css('z-index', '1000')
+			.fadeIn()
+	})
+	
+	$('#thumbs li')
+		.click( function(){
+				var t = $(this);
+				
+				var myNumber = t.data('number');
+				var imageData = t.data('image');
+				
+				DOM_image
+					.hide()
+					.attr('src', '')
+					.attr('src', imageData.norm_src)
+					.data('image', imageData);
+				
+				$('#loader').show();
+				
+				myLi = $('#thumbs li.activelithumb');
+				myLi.removeClass("activelithumb");
+				myLi.children().filter('.thumb').hide();
+				myLi.children().filter('.thumbBW').show();
+				
+				t.addClass("activelithumb");
+				
+				$('#caption').html(imageData.name).hide().fadeIn(1000);
+				
+				// сдвигаем активный thumb ближе к центру 
+				scrollThumbs(LScroll + Math.floor(nThumbs/2) - myNumber);
+				
+				return false;
+			}
+		)
+		.hover( function(){
+			 	if (!$(this).hasClass("activelithumb")) {
+					$(this).children().filter('.thumb').show();
+					$(this).children().filter('.thumbBW').hide();
+				}
+			},
+			function(){
+				if (!$(this).hasClass("activelithumb")) {
+					$(this).children().filter('.thumb').hide();
+					$(this).children().filter('.thumbBW').show();
+				}
+			}
+		);
 	
 	//Выставляем размеры DIV-а с thumb-ами
 	liWidth = parseInt($('#li0').outerWidth()) 
 				+ parseInt($('#li0').css('margin-right')) 
 				+ parseInt($('#li0').css('margin-left'));
-	nThumbs = Math.min( Math.floor( (maxX-leftX-rightX) / liWidth ), maxThumbs);
+	nThumbs = Math.min( Math.min( Math.floor( (maxX-leftX-rightX) / liWidth ), maxThumbs), imagelist.length);
 	LScroll = 0;
-	RScroll = Math.max(0, imageList.length - nThumbs);
+	RScroll = Math.max(0, nItems - nThumbs);
 	
 	DOM_thumbsDiv
 		.width(nThumbs*liWidth + 'px')
 		.css("left", (DOM_imagesDiv.width()-nThumbs*liWidth)/2 + 'px');
 	
 	//Отображаем картинку из первого thumb-а
-	$('#img0').load( function(){
+	$('#imgBW0').load( function(){
 		$(this).click();
 	});
 	
 	//Убираем loader image
+	DOM_image.unbind('load');
 	DOM_image.load(function(){
 		$('#loader').hide();
 		DOM_image.center();
@@ -253,35 +321,22 @@ function fillImages(data) {
 	})
 	
 	//При клике по картинке переходим в full-screen режим
+	DOM_image.unbind('click');
 	DOM_image.click(function(){
-		var myNumber = $(this).attr('number');
+		var imageData = $(this).data('image');
 		
-		if (DOM_topImage.attr('src') != imageList[myNumber].full_src) {
+		if (DOM_topImage.attr('src') != imageData.full_src) {
 			DOM_topImage.hide();
 			$('#topLoader').show();
 			DOM_topImage
 				.css('margin-top', "0px")
-				.attr('src', imageList[myNumber].full_src);
+				.attr('src', imageData.full_src);
 		}
 		else {
-			//DOM_topImage.fadeIn(100);
 			DOM_topImage.show();
 		}
-		DOM_topDiv.css('display','block');
+		DOM_topDiv.show();
 		
-		return false;
-	})
-	
-	//Позиционируем картинку в full-screen-е по вертикали
-	DOM_topImage.load(function(){
-		$('#topLoader').hide();
-		DOM_topImage.center();
-		DOM_topImage.fadeIn(1000);
-	})
-	
-	//При клике по картинке возвращаемся к обычному просмотру
-	DOM_topImage.click(function(){
-		DOM_topDiv.fadeOut(1000);
 		return false;
 	})
 }

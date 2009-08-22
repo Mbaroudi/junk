@@ -17,7 +17,7 @@ div {
 	overflow:hidden;
 	position:absolute;
 	top: 10px;
-	width: 150px;
+	width: 200px;
 }
 
 #containerDiv {
@@ -49,14 +49,15 @@ div {
 }
 
 h2 {
-	font-family:Brush Script MT, Comic Sans MS;
-	font-size:25px;
+	/*font-family:Brush Script MT, Comic Sans MS;*/
+	font-family: Comic Sans MS;
+	font-size:15px;
 	font-style:italic;
 	height:30px;
 	line-height:30px;
 	margin: 0px 0px 0px 0px;
 	position:relative;
-	text-shadow: rgb(100, 100, 100) 0px -2px 0px;
+	/*text-shadow: rgb(100, 100, 100) 0px -2px 0px;*/
 	width:100%;
 }
 
@@ -95,18 +96,19 @@ h2 {
 
 .activeMode {
 	color:#bba;
-	font-size: 30px;
+	font-size: 20px;
 }
 
 h3 {
-	font-family:Brush Script MT, Comic Sans MS;
-	font-size:30px;
+	/*font-family:Brush Script MT, Comic Sans MS;*/
+	font-family: "Comic Sans MS", cursive;
+	font-size:20px;
 	font-style:italic;
 	height:50px;
-	line-height:50px;
+	/*line-height:50px;*/
 	margin: 0px 0px 0px 0px;
 	position:relative;
-	text-shadow: rgb(100, 100, 100) 0px -2px 0px;
+	/*text-shadow: rgb(100, 100, 100) 0px -2px 0px;*/
 	width:100%;
 }
 
@@ -122,30 +124,30 @@ li {
  	border:3px double #330505;
 	display:block;
 	float:left;
- 	height:80px;
-	line-height: 80px;
+ 	height:90px;
+	line-height: 90px;
 	opacity: .5;
 	overflow:hidden;
-	padding: 5px;
+	/*padding: 5px;*/
 	position:relative;
 	text-align:center;
- 	width:80px;
+ 	width:90px;
 }
 
 li.active {
-	background:#202020 none repeat scroll 0 0;
-	border:3px double #550505;
+	background:#303030 none repeat scroll 0 0;
+	border:3px solid #f00;
 	opacity: 1!important;
 }
 
 .drophover {
 	/*background:#206020 none repeat scroll 0 0;*/
-	border:3px double #055005!important;
+	border:3px double #0f0!important;
 	opacity: 1;	
 }
 
 .droptome {
-	border:3px double #50509a;
+	border:3px double #00f;
 }
 
 img {
@@ -198,3 +200,10 @@ img {
 	max-width: 80px;
 	padding:10px;
 }
+
+/*
+#draggingContainer {
+	height: 100px;
+	width: 100px;
+}
+*/

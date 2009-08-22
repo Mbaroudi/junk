@@ -2,6 +2,8 @@
  * @author zoldatoff
  */
 
+var ajaxPath = 'php/upload.php';
+
 $.fn.center = function() {
 	var t = $(this);
 	var iHeight = t.height() ? t.height() : t[0].height;	
@@ -9,20 +11,26 @@ $.fn.center = function() {
 	var iWidth 	= t.width() ? t.width() : t[0].width;
 	var dWidth 	= t.parent().width();
 	
-	var myMargin = 0;
+	var myTop = 0;
+	var myLeft = 0;
 	
 	if (dWidth > iWidth && dHeight > iHeight) {
-		myMargin = (dHeight - iHeight) / 2;
+		myTop = (dHeight - iHeight) / 2;
+		myLeft = (dWidth - iWidth) / 2;
 	}
-	else 
-		if (dWidth / dHeight < iWidth / iHeight) {
-			myMargin = (dHeight * iWidth - iHeight * dWidth) / (2 * iWidth);
-		}
-		else {
-			myMargin = 0;
-		}
+
+	else if (dWidth / dHeight < iWidth / iHeight) {
+		myTop = (dHeight * iWidth - iHeight * dWidth) / (2 * iWidth);
+	} 
 	
-	t.css( 'margin-top', myMargin + 'px' );
+	else if (dWidth / dHeight > iWidth / iHeight) {
+		myLeft = (dWidth * iHeight - iWidth * dHeight) / (2 * iHeight);
+	}
+	
+	return t
+		.css('position', 'absolute')
+		.css('top', myTop + 'px')
+		.css('left', myLeft + 'px');
 }
 
 $.fn.make_droppable = function(scope) {
@@ -39,16 +47,16 @@ $.fn.make_droppable = function(scope) {
 				
 				switch (scope) {
 					case 'images2albums':     
-						$.getJSON('php/upload.php', {action: mode + scope, imageid: dragObjectID, albumid: dropObjectID, currentalbumid: currentAlbum}, displayDropStatus);
+						$.getJSON(ajaxPath, {action: mode + scope, imageid: dragObjectID, albumid: dropObjectID, currentalbumid: currentAlbum}, displayDropStatus);
 						break;
 					case 'albums2categories': 
-						$.getJSON('php/upload.php', {action: mode + scope, albumid: dragObjectID, categoryid: dropObjectID, currentcategoryid: currentCategory}, displayDropStatus);
+						$.getJSON(ajaxPath, {action: mode + scope, albumid: dragObjectID, categoryid: dropObjectID, currentcategoryid: currentCategory}, displayDropStatus);
 						break;
 					case 'icon': 
 						if (t.hasClass('aThumbs')) 
-							$.getJSON('php/upload.php', {action: mode + 'album' + scope, imageid: dragObjectID, albumid: dropObjectID}, displayThumbAction);
+							$.getJSON(ajaxPath, {action: mode + 'album' + scope, imageid: dragObjectID, albumid: dropObjectID}, displayThumbAction);
 						if (t.hasClass('cThumbs'))
-							$.getJSON('php/upload.php', {action: mode + 'category' + scope, imageid: dragObjectID, categoryid: dropObjectID}, displayThumbAction);
+							$.getJSON(ajaxPath, {action: mode + 'category' + scope, imageid: dragObjectID, categoryid: dropObjectID}, displayThumbAction);
 						currentObject = t.attr('id');
 						break;
 				}
@@ -81,12 +89,11 @@ $.fn.make_draggable = function(scope) {
 					break;
 			}
 			
-			if (selected.length === 0) {
-				selected = $(this);
-			}
-			var container = $('<div/>').attr('id', 'draggingContainer');
-			container.append(selected.clone());
-			return container; 
+			if (selected.length == 0) selected = $(this);
+			
+			var myImages = selected.clone().css('position', 'static');
+			
+			return $('<div/>').attr('id', 'draggingContainer').append(myImages); 
 		},
 		opacity: 0.5,
 		revert: 'invalid',
@@ -161,22 +168,38 @@ $.fn.scrollThumbs = function(steps) {
 }
 
 $.fn.removeElement = function(){
-	var theElement = $(this).children('.active').children('img');
-	var jsonData = theElement.data('json');
+	var theElement = $(this).children('img.active');
 	
-	switch ($(this).attr('id')) {
-		case 'imageThumbsUL':
-			$.getJSON('php/upload.php', {action: 'removeimage', id: theElement.attr('myID'), albumid: currentAlbum}, getRemoveStatus);
-			break;
-		case 'albumThumbsUL':
-			$.getJSON('php/upload.php', {action: 'removealbum', id: theElement.attr('myID'), categoryid: currentCategory}, getRemoveStatus);
-			break;
-		case 'categoryThumbsUL':
-			$.getJSON('php/upload.php', {action: 'removecategory', id: theElement.attr('myID')}, getRemoveStatus);
-			break;
+	if (theElement.length) {
+		var jsonData = theElement.data('json');
+		
+		switch ($(this).attr('id')) {
+			case 'imageThumbsUL':
+				$.getJSON(ajaxPath, {
+					action: 'removeimage',
+					id: theElement.attr('myID'),
+					albumid: currentAlbum
+				}, getRemoveStatus);
+				break;
+			case 'albumThumbsUL':
+				$.getJSON(ajaxPath, {
+					action: 'removealbum',
+					id: theElement.attr('myID'),
+					categoryid: currentCategory
+				}, getRemoveStatus);
+				break;
+			case 'categoryThumbsUL':
+				$.getJSON(ajaxPath, {
+					action: 'removecategory',
+					id: theElement.attr('myID')
+				}, getRemoveStatus);
+				break;
+		}
+		
+		lockDisplay();
 	}
-	
-	lockDisplay();
+	else 
+		growl('No data to remove', 'Select something to remove')
 	
 	return $(this);
 }
@@ -205,7 +228,7 @@ $.fn.addElement = function(){
 $.fn.highlightMe = function() {
 	return $(this)
 		.parent()
-		.effect('highlight', { color: '#bb0000' }, 1000);
+		.effect('highlight', { color: '#ff0000' }, 1000);
 }
 
 function growl(myTitle, myText, myImage) {
@@ -222,6 +245,3 @@ function growl(myTitle, myText, myImage) {
 	});
 }
 
-function checkLoad(src) {
-	return $('<img/>').attr("src", src).attr("complete");
-}

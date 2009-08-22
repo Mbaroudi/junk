@@ -33,6 +33,7 @@
 		public $description;
 		public $imagedate;
 		public $thumb_src;
+		public $thumb_bw_src;
 		public $norm_src;
 		public $full_src;
 		public $bgcolor;
@@ -50,6 +51,7 @@
 				$this->full_src = $row['full_src'];
 				$this->norm_src = $row['norm_src'];
 				$this->thumb_src = $row['thumb_src'];
+				$this->thumb_bw_src = $row['thumb_bw_src'];
 				$this->bgcolor = $row['bgcolor'];
 				$this->uploaddate = $row['uploaddate'];
 			}

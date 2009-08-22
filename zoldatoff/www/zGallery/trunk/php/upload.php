@@ -9,9 +9,11 @@
     $path_full = 'img/full/';
     $path_norm = 'img/norm/';
     $path_thumb = 'img/thumb/';
+	$path_thumb_bw = 'img/thumb_bw/';
 	$path_upload = 'img/upload/';
 	$path_trash = 'img/trash/';
 	
+	$full_size_y = 1500;
 	$norm_size_y = 500;
 	$thumb_size_y = 80;
 	
@@ -113,6 +115,9 @@
 		$handle = new upload($path_to_root . $path_upload . $_REQUEST['filename']);
 		
 		//Copy full-sized image
+		$handle->image_resize   = true;
+		$handle->image_ratio_x  = true;
+		$handle->image_y		= $full_size_y;
 		$handle->Process($path_to_root . $path_full);
 		$full_src = $path_full . $handle->file_dst_name;
 		
@@ -136,12 +141,21 @@
 		
 		if (! $handle->processed ) exit(returnError($handle->error));
 		
+		//Copy b&w thumb image
+		$handle->image_resize   = true;
+		$handle->image_ratio_x  = true;
+		$handle->image_y        = $thumb_size_y;
+		$handle->image_greyscale= true;
+		$handle->Process($path_to_root . $path_thumb_bw);
+		$thumb_bw_src = $path_thumb_bw . $handle->file_dst_name;
+		
+		if (! $handle->processed ) exit(returnError($handle->error));
+		
 		//Insert data in MySQL	
 		connect();
 	
-		$query = "INSERT INTO IMAGES (full_src, norm_src, thumb_src, uploaddate) VALUES ('" . 
-				$full_src  . "', '" . $norm_src . "', '" . 
-				$thumb_src . "', curdate() 
+		$query = "INSERT INTO IMAGES (full_src, norm_src, thumb_src, thumb_bw_src, uploaddate) VALUES ('" . 
+				$full_src  . "', '" . $norm_src . "', '" . $thumb_src . "', '" . $thumb_bw_src . "', curdate() 
 				)";
 		$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
 			
