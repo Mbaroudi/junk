@@ -1,11 +1,9 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 from optparse import OptionParser
 import subprocess, os, re
 
-#TODO: remove Makefile, remove source files, prefix or folder for destination files, number of threads
-
-VERSION = "0.1 alpha"
+VERSION = "0.2 beta"
 PROGRAM = "/usr/local/bin/HandBrakeCLI"
 PROFILE = "iPhone & iPod Touch"
 N_THREADS = 2
@@ -48,13 +46,27 @@ def main():
     # Program options definition
     usage = "Usage: %prog [path]"
     parser = OptionParser(usage=usage, version=VERSION)
+    parser.add_option("-l", "--leave",
+                      action="store_true",
+                      default=False,
+                      help="leave Makefile after process completion [default: off]")
+    parser.add_option("-t", "--threads",
+                      type="int",
+                      default=2,
+                      help="number of threads [default: 2]")
+    parser.add_option("-r", "--remove",
+                      action="store_true",
+                      default=False,
+                      help="remove source files after conversion [default: off]")
     opts, args = parser.parse_args()
     if args == []: args = "."
+    os.chdir(args[0])
     
     # Go & see the list of files. Construct Makefile.
-    os.chdir(args[0])
     line = "all:"
     i = 0
+    filelist = []
+    
     cprint("\n======================================================="
            "\nBuilding file list...", "magenta")
     for file in os.listdir(args[0]):
@@ -62,12 +74,22 @@ def main():
         # TODO: MIME
         if (extension != '.py') & (name != 'Makefile') & (not file.startswith(".")): 
             i += 1
-            newname = re.sub('\W+', '_', name)  
-            os.rename(name + extension, newname + '.avi')
-            line += " " + newname + ".m4v"
-            #message = "{0>.2n} {1<.50}  --> {2<}".format(i, name + extension, newname + '.avi')
-            cprint(str(i) + ". " + name + extension + "\t-->\t" + newname + '.avi', "cyan")
+            newname = re.sub('\W+', '_', name)
+            for file in filelist:
+                if newname + '.avi' == file[1]:
+                    newname += str(i)
+            try:       
+                os.rename(name + extension, newname + '.avi')
+                filelist.append( (name + extension, newname + '.avi') )
+                line += " " + newname + ".m4v"
+                message = "{0:>2n}. {1:<.50}  --> {2:<}".format(i, name + extension, newname + '.avi')
+                cprint(message, "cyan")
+            except OSError:
+                cprint("Failed to add file " + name + extension, "red")
     
+    if filelist == []:
+        cprint("Nothing to convert, exiting", "red")
+        return 0
     line += "\n\n%.m4v: %.avi\n\t" 
     line += PROGRAM + " -Z '" + PROFILE 
     line += "' -i $< -o $@\n"
@@ -76,25 +98,51 @@ def main():
     #cprint("\nWriting Makefile...", "magenta")
     fh = None
     try:
-        fh = os.open("Makefile", os.O_CREAT | os.O_WRONLY)
-        os.write(fh, line)
+        fh = open("Makefile", "w")
+        fh.write(line)
     except EnvironmentError:
-        cprint("Error writing to file", "red")
+        cprint("Error writing Makefile, exiting", "red")
+        return 0
     finally:
-        if fh: os.close(fh)
+        if fh: fh.close()
         
     # Run HandBrakeCLI
     cprint("\n======================================================="
            "\nConverting...", "magenta")
     try:
         print(STYLE["green"])
-        res = subprocess.Popen("make -j" + str(N_THREADS), shell=True)
+        n_threads = opts.threads if (opts.threads >= 1) & (opts.threads <= 10) else N_THREADS
+        res = subprocess.Popen("make -j" + str(n_threads), shell=True)
         res.wait()
-        os.remove("Makefile")
-        print(STYLE["white"])
     except OSError:
         cprint("Execution failed", "red")
         
-    cprint("Finished!\n", "magenta")
+    # Renaming/removing source files
+    cprint("\n======================================================="
+           "\nCleaning up...", "magenta")
+    try:
+        if not opts.leave: 
+            os.remove("Makefile")
+        else:
+            print("...Leaving Makefile")
+    except OSError:
+        cprint("Cannot remove Makefile", "red")
+        
+    if not opts.remove:
+        for file in filelist:
+            try:
+                os.rename(file[1], file[0])
+                cprint("...Renamed " + file[1] + " -> " + file[0], "cyan")
+            except OSError:
+                cprint("Cannot rename " + file[1] + " -> " + file[0], "red")
+    else:
+        for file in filelist:
+            try:
+                os.remove(file[1])
+                cprint("...Removed " + file[1], "red")
+            except OSError:
+                cprint("Cannot remove " + file[1], "red")
+                
+    cprint("\nFinished!\n", "magenta")
     
 main()
