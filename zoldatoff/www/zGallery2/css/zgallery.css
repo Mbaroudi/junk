@@ -1,0 +1,205 @@
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    background-color: #000000;
+    color: #a00;
+    font-family: "Comic Sans MS";
+    margin: 0;
+    padding: 0;
+}
+
+div {
+	overflow: hidden;
+}
+
+header, #navCat, #sContent, #sAlbums, #sMainImage, #sImageList, footer {
+	border: 1px solid #a00;
+	overflow: hidden;
+	position: absolute;
+}
+
+header, #navCat, #sContent, #sImageList, footer {
+	left: 0;
+	right: 0;
+}
+
+header {
+    height: 98px;
+	left: 0;
+	line-height: 48px;
+    text-align: left;
+    top: 0;
+	width: 498px;
+}
+
+#navCat {
+    height: 48px;
+	left: 500px;
+	line-height: 48px;
+    text-align: right;
+	top: 50px;
+}
+
+#navUL {
+	position: absolute;
+	right: 0;
+}
+
+.navLI {
+	float: left;
+	padding: 0 10px 0 10px;
+	position: relative;
+}
+
+#sContent {
+    bottom: 30px;
+    top: 100px;
+}
+
+#sAlbums {
+    bottom: 150px;
+    left: 0;
+    top: 0;
+    width: 298px;
+}
+
+#albUp {
+	position: absolute;
+	top: 0;
+	text-align: center;
+	width: 100%;
+}
+
+#albList {
+	bottom: 10px;
+	overflow-y: hidden;
+	position: absolute;
+	top: 10px;
+	width: 100%;
+}
+
+#albDown {
+	bottom: 0;
+	position: absolute;
+	text-align: center;
+	width: 100%;
+}
+
+#albUL {
+	height: 10000px;
+	left: 0;
+	padding-top: 10px;
+	position: absolute;
+	top: 0;
+}
+
+.albLI {
+	float: left;
+	height: 50px;
+	line-height: 50px;
+	margin: 10px 10px 10px 10px;
+	position: relative;
+	text-align: center;
+	width: 100%;
+}
+
+#sMainImage {
+    bottom: 150px;
+    left: 300px;
+    right: 0;
+	top: 0;
+}
+
+#toLeft {
+	bottom: 0;
+	left: 0; 
+	position: absolute;
+	top: 0;
+	width: 30px;
+}
+
+#imgDiv {
+	bottom: 0; 
+	left: 30px;
+	padding: 10px;
+	position: absolute;
+	right: 230px;
+	text-align: center;
+	top: 0;
+}
+
+#toRight {
+	bottom: 0; 
+	position: absolute;
+	right: 200px;
+	top: 0;
+	width: 30px;
+}
+
+#imgInfo {
+	border: 1px solid #a00;
+	bottom: 0; 
+	position: absolute;
+	right: 0;
+	top: 0;
+	width: 200px;
+}
+
+#imgMain {
+	max-height: 100%;
+	max-width: 100%;
+}
+
+#sImageList {
+    bottom: 0;
+    height: 148px;
+	line-height: 148px;
+}
+
+#imgLeft {
+	height: 100%;
+	left: 0;
+	position: absolute;
+	text-align: center;
+	width: 100px;
+}
+
+#imgList {
+	height: 100%;
+	left: 100px;
+	overflow: hidden;
+	position: absolute;
+	right: 100px;
+}
+
+#imgRight {
+	height: 100%;	
+	right: 0;
+	position: absolute;
+	text-align: center;
+	width: 100px;
+}
+
+#imgUL {
+	left: 0;
+	position: absolute;
+	width: 10000px;
+}
+
+.imgLI {
+	float: left;
+	padding: 0 10px 0 10px;
+	position: relative;
+	text-align: center;	
+	width: 150px;
+}
+
+footer {
+    bottom: 0;
+    height: 28px;
+	line-height: 28px;
+    text-align: center;
+}
