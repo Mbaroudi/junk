@@ -1,22 +1,57 @@
+/*
+red #bf5138;
+blue #607992;
+dark gray #141414;
+brown #6b3f2a;
+light gray #4c484c;
+green #82875f;
+*/
+
 html, body {
     height: 100%;
     overflow: hidden;
 }
 
 body {
-    background-color: #000000;
-    color: #a00;
+    background-color: #141414;
+	background-image: url("Particles005.png");
+	background-position: center;
+	background-repeat: no-repeat;
+	
+	-webkit-background-size: 100%; /* Safari */
+	-moz-background-size: 100%; /* Firefox */
+	-o-background-size: 100%; /* Opera */
+	-khtml-background-size: 100%; /* Konqueror */
+	
+    color: #607992;
     font-family: "Comic Sans MS";
     margin: 0;
     padding: 0;
+}
+
+@font-face {
+	font-family: 'Waltograph';
+	src: url('waltographUI.ttf');
+}
+
+.font {
+	font-family: Waltograph, "Comic Sans MS";
+	font-size: 35px;
+	text-shadow: 0 2px 0 #00a;  
 }
 
 div {
 	overflow: hidden;
 }
 
+.loadingdiv {
+	background-image: url("loader.gif");
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
 header, #navCat, #sContent, #sAlbums, #sMainImage, #sImageList, footer {
-	border: 1px solid #a00;
+	border: 1px solid #4c484c;
 	overflow: hidden;
 	position: absolute;
 }
@@ -29,15 +64,22 @@ header, #navCat, #sContent, #sImageList, footer {
 header {
     height: 98px;
 	left: 0;
-	line-height: 48px;
+	line-height: 98px;
     text-align: left;
     top: 0;
-	width: 498px;
+	width: 698px;
+}
+
+header img {
+	float: left;
+	height: 80px;
+	position: relative;
+	width: 80px;
 }
 
 #navCat {
     height: 48px;
-	left: 500px;
+	left: 700px;
 	line-height: 48px;
     text-align: right;
 	top: 50px;
@@ -67,6 +109,7 @@ header {
 }
 
 #albUp {
+	height: 28px;
 	position: absolute;
 	top: 0;
 	text-align: center;
@@ -74,18 +117,30 @@ header {
 }
 
 #albList {
-	bottom: 10px;
-	overflow-y: hidden;
+	bottom: 30px;
+	overflow: hidden;
 	position: absolute;
-	top: 10px;
+	text-align: center;
+	top: 30px;
 	width: 100%;
 }
 
 #albDown {
 	bottom: 0;
+	height: 28px;
 	position: absolute;
 	text-align: center;
 	width: 100%;
+}
+
+#albUp img, #albDown img, #imgLeft img, #imgRight img {
+	height: 25px;
+	opacity: 0.3;
+	width: 25px;
+}
+
+#albUp img:hover, #albDown img:hover, #imgLeft img:hover, #imgRight img:hover, #toLeft img:hover, #toRight img:hover {
+	opacity: 1.0;
 }
 
 #albUL {
@@ -94,16 +149,22 @@ header {
 	padding-top: 10px;
 	position: absolute;
 	top: 0;
+	width: 100%;
 }
 
 .albLI {
 	float: left;
-	height: 50px;
-	line-height: 50px;
-	margin: 10px 10px 10px 10px;
+	height: 130px;
+	line-height: 130px;
+	padding: 10px 0;
 	position: relative;
 	text-align: center;
 	width: 100%;
+}
+
+.albLI img {
+	height: 100px;
+	width: 100px;
 }
 
 #sMainImage {
@@ -113,20 +174,29 @@ header {
 	top: 0;
 }
 
+#toLeft img, #toRight img {
+	height: 45px;
+	margin-top: -22px;
+	opacity: 0.3;
+	position: absolute;
+	top: 50%;
+	width: 45px;
+}
+
 #toLeft {
 	bottom: 0;
 	left: 0; 
 	position: absolute;
 	top: 0;
-	width: 30px;
+	width: 50px;
 }
 
-#imgDiv {
+#imgDiv {	
 	bottom: 0; 
-	left: 30px;
+	left: 50px;
 	padding: 10px;
 	position: absolute;
-	right: 230px;
+	right: 250px;
 	text-align: center;
 	top: 0;
 }
@@ -136,11 +206,11 @@ header {
 	position: absolute;
 	right: 200px;
 	top: 0;
-	width: 30px;
+	width: 50px;
 }
 
 #imgInfo {
-	border: 1px solid #a00;
+	border: 1px solid #4c484c;
 	bottom: 0; 
 	position: absolute;
 	right: 0;
@@ -184,17 +254,25 @@ header {
 }
 
 #imgUL {
+	height: 100%;
 	left: 0;
 	position: absolute;
 	width: 10000px;
 }
 
-.imgLI {
+.imgLI {	
 	float: left;
-	padding: 0 10px 0 10px;
+	height: 100%;
+	padding: 0 10px;
 	position: relative;
 	text-align: center;	
 	width: 150px;
+}
+
+.imgLI img {
+	height: 120px;
+	padding: 15px;
+	width: 120px;
 }
 
 footer {
