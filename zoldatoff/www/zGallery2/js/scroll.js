@@ -1,5 +1,4 @@
-$(document).ready(function(){
-	
+function initAlbumsScroll(){
 	/* Init vertical scroll for albums */
     var $albUL = $("#albUL");
     var scrollHeight = prepareUL($albUL, 'v');
@@ -13,8 +12,21 @@ $(document).ready(function(){
     });
 	
 	$albUL.scrollVertically(0, 0);
-    
-    /* Init horisontal scroll for images */
+	
+	// Rotate albums & images
+	
+	$("#albUL img").each(function(){
+        return $(this).load(function(){
+            var angle = parseInt(Math.random() * 50 - 25, 10);
+            $(this).parent().removeClass('loadingdiv');
+            $(this).css('transform', 'rotate(' + angle + 'deg)');
+            return $(this);
+        });
+    });
+}
+
+function initImagesScroll(){
+	// Init horisontal scroll for images
     
     var $imgUL = $("#imgUL");
     var scrollWidth = prepareUL($imgUL, 'h');
@@ -29,9 +41,9 @@ $(document).ready(function(){
 	
 	$imgUL.scrollHorisontally(0, 0);
 	
-	/* Rotate albums & images */
+	// Rotate albums & images
     
-    $("#albUL img, #imgUL img").each(function(){
+    $("#imgUL img").each(function(){
         return $(this).load(function(){
             var angle = parseInt(Math.random() * 50 - 25, 10);
             $(this).parent().removeClass('loadingdiv');
@@ -39,7 +51,7 @@ $(document).ready(function(){
             return $(this);
         });
     });
-});
+}
 
 /* Determine scrolling parameters */
 function prepareUL($ul, direction){
@@ -109,21 +121,25 @@ function changeIcon($ul, direction, $direction1, $direction2) {
 	
 	var src1 = (direction === 'v') ? "icons/up.png" : "icons/left.png";
 	var src2 = (direction === 'v') ? "icons/down.png" : "icons/right.png";
-	var src1_ = (direction === 'v') ? "icons/up_.png" : "icons/left_.png";
-	var src2_ = (direction === 'v') ? "icons/down_.png" : "icons/right_.png";
+	//var src1_ = (direction === 'v') ? "icons/up_.png" : "icons/left_.png";
+	//var src2_ = (direction === 'v') ? "icons/down_.png" : "icons/right_.png";
     
     if (currentItem <= visibleLength - length) {
-        $direction1.attr("src", src1_);
+        //$direction1.attr("src", src1_);
+		$direction1.hide();
     }
     else {
-        $direction1.attr("src", src1);
+        //$direction1.attr("src", src1);
+		$direction1.show();
     }
 	
     if (currentItem >= 0) {
-        $direction2.attr("src", src2_);
+        //$direction2.attr("src", src2_);
+		$direction2.hide();
     }
     else {
-        $direction2.attr("src", src2);
+        //$direction2.attr("src", src2);
+		$direction2.show();
     }
 	
 	return $ul;
