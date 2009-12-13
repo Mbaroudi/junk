@@ -13,13 +13,9 @@ function initAlbumsScroll(){
 	
 	$albUL.scrollVertically(0, 0);
 	
-	// Rotate albums & images
-	
 	$("#albUL img").each(function(){
         return $(this).load(function(){
-            var angle = parseInt(Math.random() * 50 - 25, 10);
             $(this).parent().removeClass('loadingdiv');
-            $(this).css('transform', 'rotate(' + angle + 'deg)');
             return $(this);
         });
     });
@@ -27,7 +23,6 @@ function initAlbumsScroll(){
 
 function initImagesScroll(){
 	// Init horisontal scroll for images
-    
     var $imgUL = $("#imgUL");
     var scrollWidth = prepareUL($imgUL, 'h');
     
@@ -41,13 +36,9 @@ function initImagesScroll(){
 	
 	$imgUL.scrollHorisontally(0, 0);
 	
-	// Rotate albums & images
-    
     $("#imgUL img").each(function(){
         return $(this).load(function(){
-            var angle = parseInt(Math.random() * 50 - 25, 10);
             $(this).parent().removeClass('loadingdiv');
-            $(this).css('transform', 'rotate(' + angle + 'deg)');
             return $(this);
         });
     });
@@ -68,6 +59,8 @@ function prepareUL($ul, direction){
 	$ul.data("length", $ul.children().length);
 	$ul.data("visibleLength", visibleLength);
     $ul.data("currentItem", 0);
+	
+	$ul.data('scrollDelta', scrollDelta);
 	
 	return scrollDelta;
 }
@@ -121,24 +114,18 @@ function changeIcon($ul, direction, $direction1, $direction2) {
 	
 	var src1 = (direction === 'v') ? "icons/up.png" : "icons/left.png";
 	var src2 = (direction === 'v') ? "icons/down.png" : "icons/right.png";
-	//var src1_ = (direction === 'v') ? "icons/up_.png" : "icons/left_.png";
-	//var src2_ = (direction === 'v') ? "icons/down_.png" : "icons/right_.png";
     
     if (currentItem <= visibleLength - length) {
-        //$direction1.attr("src", src1_);
 		$direction1.hide();
     }
     else {
-        //$direction1.attr("src", src1);
 		$direction1.show();
     }
 	
     if (currentItem >= 0) {
-        //$direction2.attr("src", src2_);
 		$direction2.hide();
     }
     else {
-        //$direction2.attr("src", src2);
 		$direction2.show();
     }
 	

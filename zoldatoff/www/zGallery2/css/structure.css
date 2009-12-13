@@ -1,13 +1,3 @@
-/*
-red #bf5138;
-blue #607992;
-dark gray #141414;
-brown #6b3f2a;
-light gray #4c484c;
-green #82875f;
-neutral gray #7c7c7c;
-*/
-
 /*------------------------------------------------------------------------------
  1. Общий внешний вид
 ------------------------------------------------------------------------------*/
@@ -21,7 +11,6 @@ div {
 }
 
 header, #navCat, #sContent, #sAlbums, #sMainImage, #sImageList, footer {
-	/*border: 1px solid #4c484c;*/
 	overflow: hidden;
 	position: absolute;
 }
@@ -37,15 +26,6 @@ header, #navCat, #sContent, #sImageList, footer {
 
 body {
     background-color: #7c7c7c;
-	/*
-	background-image: url("Particles005.png");
-	background-position: center;
-	background-repeat: no-repeat;	
-	-webkit-background-size: 100%;
-	-moz-background-size: 100%;
-	-o-background-size: 100%;
-	-khtml-background-size: 100%;
-	*/
     color: #6b3f2a;
     font-family: "Comic Sans MS";
     
@@ -190,21 +170,17 @@ header span {
 
 .albLI {
 	float: left;
-	height: 130px;
-	line-height: 130px;
-	padding: 10px 0;
+	height: 100px;
+	line-height: 100px;
+	padding: 5px 0;
 	position: relative;
 	text-align: center;
 	width: 100%;
 }
 
 .albLI img {
-	box-shadow: 5px 5px 2px #333;
-	-moz-box-shadow: 5px 5px 2px #333;
-	-webkit-box-shadow: 5px 5px 2px #333;
-	
 	max-height: 100px;
-	opacity: 0.7;
+	opacity: 0.6;
 	max-width: 100px;
 }
 
@@ -213,9 +189,18 @@ header span {
 	-moz-box-shadow: none;
 	-webkit-box-shadow: none;
 	
+	margin-top: -5px;
 	max-height: 110px;
 	opacity: 1;
 	max-width: 110px;
+}
+
+.albLI img.active {
+	box-shadow: 5px 5px 2px #333;
+	-moz-box-shadow: 5px 5px 2px #333;
+	-webkit-box-shadow: 5px 5px 2px #333;
+	
+	opacity: 1;
 }
 
 .albTitle {
@@ -281,7 +266,6 @@ header span {
 }
 
 #imgInfo {
-	/*border: 1px solid #4c484c;*/
 	bottom: 0; 
 	position: absolute;
 	right: 0;
@@ -352,18 +336,34 @@ header span {
 .imgLI {	
 	float: left;
 	height: 100%;
-	padding: 0 10px;
+	/*padding: 0 10px;*/
 	position: relative;
 	text-align: center;	
 	width: 120px;
 }
 
 .imgLI img {
-	max-height: 90px;
-	padding: 15px 0;
-	max-width: 90px;
+	max-height: 100px;
+	max-width: 100px;
+	opacity: 0.5;
+	margin: 10px 10px;
 }
 
+.imgLI img:hover {
+	margin-left: 5px;
+	margin-top: 5px;
+	max-height: 110px;
+	max-width: 110px;
+	opacity: 1;
+}
+
+.imgLI img.active {
+	box-shadow: 5px 5px 2px #888;
+	-moz-box-shadow: 5px 5px 2px #888;
+	-webkit-box-shadow: 5px 5px 2px #888;
+	
+	opacity: 1;
+}
 /*------------------------------------------------------------------------------
  4. Футер
 ------------------------------------------------------------------------------*/
