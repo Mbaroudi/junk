@@ -1,9 +1,35 @@
 /**
- * @author zoldatoff
+ * @author Zoldatoff zoldatoff@gmail.com
+ * @version 0.1 alpha
  */
 
+/*
+ * Title: jQuery extensions for zGallery
+ */
+
+/*
+ * Constant: ajaxPath
+ * ------------------
+ * Contains the relative path to server-side script  
+ */
 var ajaxPath = 'php/upload.php';
 
+/*
+ * Function: center
+ * ----------------
+ * Centers the image within its parent element
+ * 
+ * Returns: 
+ * 		Original jQuery object
+ * 
+ * Variables:
+ * 		iHeight - image height
+ * 		iWidth - image width
+ * 		dHeight - parent height
+ * 		dWidth - parent width
+ * 		myTop - final image top position
+ * 		myLeft - final iage left position
+ */
 $.fn.center = function() {
 	var t = $(this);
 	var iHeight = t.height() ? t.height() : t[0].height;	
@@ -33,6 +59,25 @@ $.fn.center = function() {
 		.css('left', myLeft + 'px');
 }
 
+/*
+ * Function: make_droppable
+ * ------------------------
+ * 
+ * Implements the *jQuery UI* droppable method to the element.
+ * Works within the scope.
+ * 
+ * Parameters:
+ * 		scope - The name of the scope. Can obtain the following values:
+ * 		- images2albums
+ * 		- albums2categories
+ * 		- icon
+ * 
+ * Returns:
+ * 		Original *jQuery* object
+ * 
+ * See also:
+ * 		<make_draggable>
+ */
 $.fn.make_droppable = function(scope) {
 	$(this).droppable({
 		drop: function(event, ui) {
@@ -71,6 +116,25 @@ $.fn.make_droppable = function(scope) {
 	return $(this);
 }
 
+/*
+ * Function: make_draggable
+ * ------------------------
+ * 
+ * Implements the *jQuery UI* draggable method to the element.
+ * Works within the scope.
+ * 
+ * Parameters:
+ * 		scope - The name of the scope. Can obtain the following values:
+ * 		- images2albums
+ * 		- albums2categories
+ * 		- icon
+ * 
+ * Returns:
+ * 		Original *jQuery* object
+ * 
+ * See also:
+ * 		<make_droppable>
+ */
 $.fn.make_draggable = function(scope) {
 	$(this).draggable({
 		appendTo: 'body',
@@ -103,6 +167,27 @@ $.fn.make_draggable = function(scope) {
 	return $(this);
 }
 
+/*
+ * Function: editMe
+ * ------------------------
+ * 
+ * Sets the EditDialog properties and opens the dialog
+ * 
+ * Parameters:
+ * 		object - The type of the object, which parameters will be edited.
+ * 		Can obtain the following values:
+ * 		- images
+ * 		- albums
+ * 		- categories
+ * 
+ * 		jsonData - Data, related to editing object
+ * 
+ * Returns:
+ * 		Original *jQuery* object
+ * 
+ * See also:
+ * 		<addElement>
+ */
 $.fn.editMe = function(object, jsonData) {
 	currentObject = $(this).attr('id');
 	
@@ -133,6 +218,13 @@ $.fn.editMe = function(object, jsonData) {
 	return $(this);
 }
 
+/**
+ * @namespace $
+ * @classDescription Scrolls the thumbs on admin panel several steps up or down
+ * @method
+ * @param {Number} steps Number of steps to scroll
+ * @return {$} original jQuery object
+ */
 $.fn.scrollThumbs = function(steps) {
 	var t = $(this);
 	
@@ -167,10 +259,16 @@ $.fn.scrollThumbs = function(steps) {
 	return t;
 }
 
+/**
+ * @namespace $
+ * @classDescription Sends AJAX request to server side to remove an element
+ * @method
+ * @return {$} original jQuery object
+ */
 $.fn.removeElement = function(){
-	var theElement = $(this).children('img.active');
+	var theElement = $('li.active img', $(this));
 	
-	if (theElement.length) {
+	if (theElement.length != 0) {
 		var jsonData = theElement.data('json');
 		
 		switch ($(this).attr('id')) {
@@ -204,6 +302,12 @@ $.fn.removeElement = function(){
 	return $(this);
 }
 
+/**
+ * @namespace $
+ * @classDescription Opens a dialog for filling-in new element parameters
+ * @method
+ * @return {$} original jQuery object
+ */
 $.fn.addElement = function(){
 	switch ($(this).attr('id')) {
 		case 'albumThumbsUL':
@@ -225,12 +329,25 @@ $.fn.addElement = function(){
 	return $(this);
 }
 
+/**
+ * @namespace $
+ * @classDescription Highlights an element's parent
+ * @method
+ * @return {$} original jQuery object
+ */
 $.fn.highlightMe = function() {
 	return $(this)
 		.parent()
 		.effect('highlight', { color: '#ff0000' }, 1000);
 }
 
+/**
+ * @namespace $
+ * @classDescription Opens a growl-like message window
+ * @param {String} myTitle The title of the window
+ * @param {String} myText Optional. The message in the window
+ * @param {String} myImage Optional. Path to an image to display in the message
+ */
 function growl(myTitle, myText, myImage) {
 	if (!myTitle) myTitle = " ";
 	if (!myText) myText = " ";

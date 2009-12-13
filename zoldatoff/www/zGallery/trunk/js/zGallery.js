@@ -1,4 +1,3 @@
-// TODO: remove click double-binding!!!
 var DEBUG = false;
 var maxThumbs = 7;
 var nThumbs = maxThumbs;
