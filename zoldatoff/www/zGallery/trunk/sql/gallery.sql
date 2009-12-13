@@ -104,6 +104,7 @@ CREATE TABLE IF NOT EXISTS images (
   full_src varchar(100) NOT NULL COMMENT 'Full-sized image name',
   norm_src varchar(100) NOT NULL COMMENT 'Normal-sized image name',
   thumb_src varchar(100) NOT NULL COMMENT 'Small-sized image name',
+  thumb_bw_src varchar(100) NOT NULL COMMENT 'Small-sized b&w image name',
   bgcolor varchar(6) DEFAULT NULL COMMENT 'Background color',
   uploaddate date NOT NULL COMMENT 'Upload date',
   PRIMARY KEY (id)

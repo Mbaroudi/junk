@@ -5,7 +5,7 @@
     include('class.upload/class.upload.php');
 	include('class.image.php');
 	
-	$path_to_root = '../'; 
+	$path_to_root = '/home/zff/www/site1/public_html/'; 
     $path_full = 'img/full/';
     $path_norm = 'img/norm/';
     $path_thumb = 'img/thumb/';
@@ -18,11 +18,11 @@
 	$thumb_size_y = 80;
 	
 	function returnError($errorMessage) {
-		return '{"result": {"error":"' . $errorMessage . '"}}';
+		echo '{"result": {"error":"' . $errorMessage . '"}}';
 	}
 	
 	function returnSQLError($query, $sqlerror) {
-		return '{"result": {"error":"Cannot execute query ' . $query . '. MySQL error: ' . $sqlerror . '."}}';
+		echo '{"result": {"error":"Cannot execute query ' . $query . '. MySQL error: ' . $sqlerror . '."}}';
 	}
 	
 	function removeFile($filename, $type) {
@@ -115,41 +115,49 @@
 		$handle = new upload($path_to_root . $path_upload . $_REQUEST['filename']);
 		
 		//Copy full-sized image
-		$handle->image_resize   = true;
-		$handle->image_ratio_x  = true;
-		$handle->image_y		= $full_size_y;
-		$handle->Process($path_to_root . $path_full);
-		$full_src = $path_full . $handle->file_dst_name;
-		
-		if (! $handle->processed ) exit(returnError($handle->error));
+		if ($handle->uploaded) {
+			$handle->image_resize   = true;
+			$handle->image_ratio_x  = true;
+			$handle->image_y		= $full_size_y;
+			$handle->process($path_to_root . $path_full);
+			$full_src = $path_full . $handle->file_dst_name;
+			
+			if (! $handle->processed ) exit(returnError($handle->error));
+		}
 		
 		//Copy norm-sized image
-		$handle->image_resize   = true;
-		$handle->image_ratio_x  = true;
-		$handle->image_y		= $norm_size_y;
-		$handle->Process($path_to_root . $path_norm);
-		$norm_src = $path_norm . $handle->file_dst_name;
-		
-		if (! $handle->processed ) exit(returnError($handle->error));
+		if ($handle->uploaded) {
+			$handle->image_resize   = true;
+			$handle->image_ratio_x  = true;
+			$handle->image_y		= $norm_size_y;
+			$handle->Process($path_to_root . $path_norm);
+			$norm_src = $path_norm . $handle->file_dst_name;
+			
+			if (! $handle->processed ) exit(returnError($handle->error));
+		}
 			
 		//Copy thumb image
-		$handle->image_resize   = true;
-		$handle->image_ratio_x  = true;
-		$handle->image_y        = $thumb_size_y;
-		$handle->Process($path_to_root . $path_thumb);
-		$thumb_src = $path_thumb . $handle->file_dst_name;
-		
-		if (! $handle->processed ) exit(returnError($handle->error));
+		if ($handle->uploaded) {
+			$handle->image_resize   = true;
+			$handle->image_ratio_x  = true;
+			$handle->image_y        = $thumb_size_y;
+			$handle->Process($path_to_root . $path_thumb);
+			$thumb_src = $path_thumb . $handle->file_dst_name;
+			
+			if (! $handle->processed ) exit(returnError($handle->error));
+		}
 		
 		//Copy b&w thumb image
-		$handle->image_resize   = true;
-		$handle->image_ratio_x  = true;
-		$handle->image_y        = $thumb_size_y;
-		$handle->image_greyscale= true;
-		$handle->Process($path_to_root . $path_thumb_bw);
-		$thumb_bw_src = $path_thumb_bw . $handle->file_dst_name;
+		if ($handle->uploaded) {
+			$handle->image_resize   = true;
+			$handle->image_ratio_x  = true;
+			$handle->image_y        = $thumb_size_y;
+			$handle->image_greyscale= true;
+			$handle->Process($path_to_root . $path_thumb_bw);
+			$thumb_bw_src = $path_thumb_bw . $handle->file_dst_name;
 		
-		if (! $handle->processed ) exit(returnError($handle->error));
+			if (! $handle->processed ) exit(returnError($handle->error));
+		}
 		
 		//Insert data in MySQL	
 		connect();
@@ -163,10 +171,11 @@
 		$query_result = mysql_query($query) or exit(returnSQLError($query, mysql_error()));
 		
 		//Delete original image
-		$handle->clean();
-		if (! $handle->processed ) exit(returnError($handle->error));
-		
-		//echo $handle->log;
+		if ($handle->uploaded) {
+			$handle->clean();
+			if (! $handle->processed ) exit(returnError($handle->error));
+		}
+		//else echo $handle->log;
 		
 		$json = new imagefile($thumb_src, $_REQUEST['number'] );
 		echo '{"result": ' . json_encode($json) . '}';
