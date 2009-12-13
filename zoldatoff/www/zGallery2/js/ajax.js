@@ -145,5 +145,5 @@ function ajaxComplete(XMLHttpRequest, textStatus){
 }
 
 function ajaxSend(XMLHttpRequest){
-    $('header img').attr('src', 'css/loader.gif');
+    $('header img').attr('src', 'css/loader_.gif');
 }

@@ -32,7 +32,7 @@ body {
 }
 
 .loadingdiv {
-	background-image: url("loader_.gif");
+	background-image: url("loader.gif");
 	background-position: center;
 	background-repeat: no-repeat;
 }
