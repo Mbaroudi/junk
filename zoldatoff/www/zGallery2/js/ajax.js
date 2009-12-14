@@ -2,9 +2,12 @@
  * @author zoldatoff
  */
 
-var ajaxPath = 'http://127.0.0.1/zgallery/php/upload.php';
+var ajaxPath = 'php/upload.php';
 
 $(document).ready(function(){
+	var h = parseInt($('#imgDiv').height(), 10);
+	$('#imgDiv').css('line-height', h + 'px');
+	
     $.ajaxSetup({
         url: ajaxPath,
         timeout: 10000,
@@ -13,7 +16,8 @@ $(document).ready(function(){
         complete: ajaxComplete,
         beforeSend: ajaxSend
     });
-    getCategories();
+    
+	getCategories();
     $('header img').click(getCategories);
 });
 
@@ -65,21 +69,26 @@ function fillAlbums(jsonData){
         myLi = $('<li>').addClass('albLI').addClass('loadingdiv');
         myLi.data('json', theList[i]).data('n', i);
 		
-		myImg = $('<img>').attr('src', theList[i].image.thumb_src).attr('alt',theList[i].image.name);
+		myImg = $('<img>').attr('src', theList[i].image.thumb_bw_src).attr('alt',theList[i].image.name);
 		myDiv = $('<div>').addClass('albTitle').append(theList[i].name);
 
 		myLi.append(myImg).append(myDiv);
 		
         myLi.click(function(){
 			var $albUL = $('#albUL');
-            getImages($(this).data('json').album_id);
+			var jsonData = $(this).data('json');
+            getImages(jsonData.album_id);
 			
 			// Scroll the albums list to center current album
 			var steps =  Math.round($albUL.data('visibleLength')/2) - $albUL.data('currentItem') - $(this).data('n');
 			$albUL.scrollVertically(steps, $albUL.data('scrollDelta'));
 			
-			$('#albUL img').removeClass('active');
-			$(this).children('img').addClass('active');
+			// Change the visual of selected item
+			$albUL.children().each(function(){
+				var jsonData = $(this).data('json');
+				$(this).children('img').removeClass('active').attr('src', jsonData.image.thumb_bw_src);
+			})
+			$(this).children('img').addClass('active').attr('src', jsonData.image.thumb_src);
         });
         $("#albUL").append(myLi);
     }
@@ -98,7 +107,7 @@ function fillImages(jsonData){
         myLi = $('<li>').addClass('imgLI').addClass('loadingdiv');
         myLi.data('json', theList[i]).data('n', i);
 		
-		myImg = $('<img>').attr('src', theList[i].thumb_src).attr('alt',theList[i].name);
+		myImg = $('<img>').attr('src', theList[i].thumb_bw_src).attr('alt',theList[i].name);
 		
         myLi.click(function(){
 			var jsonData = $(this).data('json');
@@ -112,8 +121,12 @@ function fillImages(jsonData){
 			var steps = Math.round($imgUL.data('visibleLength')/2) - $imgUL.data('currentItem') - $(this).data('n');
 			$imgUL.scrollHorisontally(steps, $imgUL.data('scrollDelta'));
 			
-			$('#imgUL img').removeClass('active');
-			$(this).children('img').addClass('active');
+			// Change the visual of selected item
+			$imgUL.children().each(function(){
+				var jsonData = $(this).data('json');
+				$(this).children('img').removeClass('active').attr('src', jsonData.thumb_bw_src);
+			})
+			$(this).children('img').addClass('active').attr('src', jsonData.thumb_src);
         });
 		
 		myLi.append(myImg);
@@ -128,8 +141,11 @@ $.fn.toggleImage = function(newSrc, duration) {
 	
 	$(this).parent().addClass('loadingdiv');
 	$(this).fadeOut(d, function(){
-		$(this).attr('src', newSrc).fadeIn(d);
-		$(this).parent().removeClass('loadingdiv');
+		$(this).attr('src', newSrc);
+		$(this).load(function(){
+			$(this).parent().removeClass('loadingdiv');
+			$(this).fadeIn(d);
+		});
 	});
 }
 
@@ -137,13 +153,13 @@ function ajaxError(XMLHttpRequest, textStatus, errorThrown){
     //console.info(XMLHttpRequest);
     //console.info(textStatus);
     //console.info(errorThrown);
-    $('header img').attr('src', 'icons/w_main.png');
+    //$('header img').attr('src', 'icons/w_main.png');
 }
 
 function ajaxComplete(XMLHttpRequest, textStatus){
-    $('header img').attr('src', 'icons/w_main.png');
+    //$('header img').attr('src', 'icons/w_main.png');
 }
 
 function ajaxSend(XMLHttpRequest){
-    $('header img').attr('src', 'css/w_loader.gif');
+    //$('header img').attr('src', 'css/w_loader.gif');
 }
