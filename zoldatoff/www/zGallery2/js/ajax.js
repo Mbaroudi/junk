@@ -137,13 +137,13 @@ function ajaxError(XMLHttpRequest, textStatus, errorThrown){
     //console.info(XMLHttpRequest);
     //console.info(textStatus);
     //console.info(errorThrown);
-    $('header img').attr('src', 'icons/main_.png');
+    $('header img').attr('src', 'icons/w_main.png');
 }
 
 function ajaxComplete(XMLHttpRequest, textStatus){
-    $('header img').attr('src', 'icons/main_.png');
+    $('header img').attr('src', 'icons/w_main.png');
 }
 
 function ajaxSend(XMLHttpRequest){
-    $('header img').attr('src', 'css/loader_.gif');
+    $('header img').attr('src', 'css/w_loader.gif');
 }

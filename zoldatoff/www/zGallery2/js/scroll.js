@@ -13,10 +13,11 @@ function initAlbumsScroll(){
 	
 	$albUL.scrollVertically(0, 0);
 	
+	$("#albUL img").hide();
 	$("#albUL img").each(function(){
         return $(this).load(function(){
             $(this).parent().removeClass('loadingdiv');
-            return $(this);
+            return $(this).fadeIn();
         });
     });
 }
@@ -36,10 +37,11 @@ function initImagesScroll(){
 	
 	$imgUL.scrollHorisontally(0, 0);
 	
+	$("#imgUL img").hide();
     $("#imgUL img").each(function(){
         return $(this).load(function(){
             $(this).parent().removeClass('loadingdiv');
-            return $(this);
+            return $(this).fadeIn();
         });
     });
 }

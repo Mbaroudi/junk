@@ -32,7 +32,7 @@ body {
 }
 
 .loadingdiv {
-	background-image: url("loader.gif");
+	background-image: url("w_loader.gif");
 	background-position: center;
 	background-repeat: no-repeat;
 }
@@ -77,10 +77,10 @@ header img {
 }
 
 header span {
-	color: #607992;
+	color: #000;
 	font-family: Waltograph, "Comic Sans MS";
 	font-size: 35px;
-	text-shadow: 0 2px 0 #00a;  
+	text-shadow: 0 2px 0 #666;  
 }
 
 #navCat {
@@ -98,8 +98,10 @@ header span {
 
 .navLI {
 	color: #000;
+	cursor: pointer;
 	float: left;
 	font-family: "Sharpie Marker", "Comic Sans MS";
+	font-size: 20px;
 	padding: 0 15px 0 15px;
 	position: relative;
 }
@@ -180,8 +182,9 @@ header span {
 
 .albLI img {
 	max-height: 100px;
-	opacity: 0.6;
 	max-width: 100px;
+	opacity: 0.6;
+	vertical-align: middle;
 }
 
 .albLI img:hover {
@@ -276,6 +279,7 @@ header span {
 #imgMain {
 	max-height: 100%;
 	max-width: 100%;
+	vertical-align: middle;
 }
 
 /*------------------------------------------------------------------------------
@@ -336,17 +340,19 @@ header span {
 .imgLI {	
 	float: left;
 	height: 100%;
+	line-height: 120px;
 	/*padding: 0 10px;*/
 	position: relative;
-	text-align: center;	
+	text-align: center;
 	width: 120px;
 }
 
 .imgLI img {
+	margin: 10px 10px;
 	max-height: 100px;
 	max-width: 100px;
 	opacity: 0.5;
-	margin: 10px 10px;
+	vertical-align: middle;
 }
 
 .imgLI img:hover {
@@ -358,9 +364,9 @@ header span {
 }
 
 .imgLI img.active {
-	box-shadow: 5px 5px 2px #888;
-	-moz-box-shadow: 5px 5px 2px #888;
-	-webkit-box-shadow: 5px 5px 2px #888;
+	box-shadow: 5px 5px 2px #555;
+	-moz-box-shadow: 5px 5px 2px #555;
+	-webkit-box-shadow: 5px 5px 2px #555;
 	
 	opacity: 1;
 }
