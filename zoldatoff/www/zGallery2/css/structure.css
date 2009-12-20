@@ -32,7 +32,7 @@ body {
 }
 
 .loadingdiv {
-	background-image: url("w_loader.gif");
+	background-image: url("w_loader_.gif");
 	background-position: center;
 	background-repeat: no-repeat;
 }
@@ -69,18 +69,20 @@ header {
 	width: 100%;
 }
 
-header img {
+#logo {
 	float: left;
-	height: 80px;
-	position: relative;
-	width: 80px;
+	max-height: 88px;
+	max-width: 88px;
+	opacity: 0.6;
+	padding: 5px 20px;
 }
 
-header span {
+header h1 {
 	color: #000;
 	font-family: Waltograph, "Comic Sans MS";
 	font-size: 35px;
-	text-shadow: 0 2px 0 #666;  
+	text-shadow: 0 2px 0 #666;
+	top: 0;
 }
 
 #navCat {
@@ -94,6 +96,13 @@ header span {
 #navUL {
 	position: absolute;
 	right: 0;
+}
+
+
+#status {
+	position: absolute;
+	right: 10px;
+	top: 10px;
 }
 
 .navLI {
@@ -135,11 +144,12 @@ header span {
 }
 
 #albList {
-	bottom: 30px;
+	height: 100%;
+	margin-top: -165px;
 	overflow: hidden;
 	position: absolute;
 	text-align: center;
-	top: 30px;
+	top: 50%;
 	width: 100%;
 }
 
@@ -164,13 +174,13 @@ header span {
 #albUL {
 	height: 10000px;
 	left: 0;
-	padding-top: 10px;
 	position: absolute;
 	top: 0;
 	width: 100%;
 }
 
 .albLI {
+	cursor: pointer;
 	float: left;
 	height: 100px;
 	line-height: 100px;
@@ -255,7 +265,7 @@ header span {
 	left: 50px;
 	padding: 10px;
 	position: absolute;
-	right: 250px;
+	right: 350px;
 	text-align: center;
 	top: 0;
 }
@@ -263,7 +273,7 @@ header span {
 #toRight {
 	bottom: 0; 
 	position: absolute;
-	right: 200px;
+	right: 300px;
 	top: 0;
 	width: 50px;
 }
@@ -273,7 +283,7 @@ header span {
 	position: absolute;
 	right: 0;
 	top: 0;
-	width: 200px;
+	width: 300px;
 }
 
 #imgMain {
@@ -299,12 +309,14 @@ header span {
 }
 
 #imgLeft {
-	left: 0;
+	margin-right: 420px;
+	right: 50%;
 	text-align: right;
 }
 
 #imgRight {
-	right: 0;
+	left: 50%;
+	margin-left: 420px;
 	text-align: left;
 }
 
@@ -314,7 +326,7 @@ header span {
 	top: 50%;
 }
 
-#imgLeft img, #imgRight img {
+#imgLeft img {
 	right: 10px;
 }
 
@@ -324,10 +336,11 @@ header span {
 
 #imgList {
 	height: 100%;
-	left: 200px;
+	left: 50%;
+	margin-left: -420px;
 	overflow: hidden;
 	position: absolute;
-	right: 200px;
+	width: 840px;
 }
 
 #imgUL {
@@ -338,10 +351,10 @@ header span {
 }
 
 .imgLI {	
+	cursor: pointer;
 	float: left;
 	height: 100%;
 	line-height: 120px;
-	/*padding: 0 10px;*/
 	position: relative;
 	text-align: center;
 	width: 120px;
