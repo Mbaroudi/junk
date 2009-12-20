@@ -32,6 +32,12 @@ body {
 }
 
 .loadingdiv {
+	background-image: url("w_loader.gif");
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+.loadingdiv_ {
 	background-image: url("w_loader_.gif");
 	background-position: center;
 	background-repeat: no-repeat;
@@ -393,4 +399,63 @@ footer {
     height: 28px;
 	line-height: 28px;
     text-align: center;
+}
+
+/*------------------------------------------------------------------------------
+5. Всплывающее окно
+------------------------------------------------------------------------------*/
+
+#topDiv {
+	background-color: #000000;
+	display: none;
+	height: 100%;
+	position: absolute;
+	width: 100%;
+	z-index: 1000;
+}
+
+#topImgDiv {
+	bottom: 20px;
+	left: 50%;
+	margin-left: -35%;
+	position: absolute;
+	text-align: center;
+	top: 20px;
+	width: 70%;
+}
+
+#topLeft {
+	bottom: 20px;
+	margin-right: 35%;
+	position: absolute;
+	right: 50%;
+	top: 20px;
+	width: 50px;
+}
+
+#topRight {
+	bottom: 20px;
+	margin-left: 35%;
+	left: 50%;
+	position: absolute;
+	top: 20px;
+	width: 50px;
+}
+
+#topLeft img, #topRight img {
+	height: 45px;
+	margin-top: -22px;
+	opacity: 0.3;
+	position: absolute;
+	top: 50%;
+	width: 45px;
+}
+
+#topLeft img:hover, #topRight img:hover {
+	opacity: 1;
+}
+
+#imgTop {
+	max-height: 100%;
+	max-width: 100%;
 }

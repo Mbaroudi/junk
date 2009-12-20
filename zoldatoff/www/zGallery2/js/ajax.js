@@ -22,15 +22,66 @@ $(document).ready(function(){
 	$('#toLeft img').click(function(){
 		var n = $('#imgUL img.active').parent().data('n');
 		$('#imgUL li:eq('+(n-1)+')').click();
+		return false;
 	});
 	
 	$('#toRight img').click(function(){
 		var n = $('#imgUL img.active').parent().data('n');
 		$('#imgUL li:eq('+(n+1)+')').click();
+		return false;
+	});
+	
+	$('#topLeft img').click(function(){
+		var n = $('#imgTop').data('n');
+		var jsonData = $('#imgTop').data('json');
+
+		if (jsonData[n-1]) {
+			var src = jsonData[n-1].full_src;
+			$('#imgTop').data('n', n-1);
+			changeTopImage(src);
+		}
+		return false;
+	});
+	
+	$('#topRight img').click(function(){
+		var n = $('#imgTop').data('n');
+		var jsonData = $('#imgTop').data('json');
+
+		if (jsonData[n+1]) {
+			var src = jsonData[n+1].full_src;
+			$('#imgTop').data('n', n+1);
+			changeTopImage(src);
+		}
+		return false;
+	});
+	
+	$('#imgMain').click(function(){
+		$('#topDiv').show();
+		var src = $(this).data('json').full_src;
+		changeTopImage(src);
+		return false;
+	});
+	
+	$('#imgTop').click(function(){
+		$('#topDiv').fadeOut('slow');
+		return false;
 	});
 });
 
 $(window).resize(refreshInterface);
+
+function changeTopImage(src) {
+	$('#imgTop').hide();
+	$('#topImgDiv').addClass('loadingdiv');
+	
+	$('<img>')
+		.attr('src', src)
+		.load(function(){
+			$('#topImgDiv').removeClass('loadingdiv').show();
+			$('#imgTop').attr('src', src).fadeIn('slow');
+			return false;
+		});
+}
 
 function refreshInterface() {
 	var $imgDiv = $('#imgDiv');
@@ -45,6 +96,8 @@ function refreshInterface() {
 	
 	$('#albUL').css('top', '0').prepareUL('v');
 	$('#albUL img.active').parent().click();
+	
+	return false;
 }
 
 function getCategories(){
@@ -94,7 +147,7 @@ function fillAlbums(jsonData){
     $("#albUL").empty().css('top', '0');
     
     for (var i = 0; i < nItems; i++) {
-        myLi = $('<li>').addClass('albLI').addClass('loadingdiv');
+        myLi = $('<li>').addClass('albLI').addClass('loadingdiv_');
         myLi.data('json', theList[i]).data('n', i);
 		
 		myImg = $('<img>').attr('src', theList[i].image.thumb_bw_src).attr('alt',theList[i].image.name);
@@ -108,8 +161,8 @@ function fillAlbums(jsonData){
             getImages(jsonData.album_id);
 			
 			// Scroll the albums list to center current album
-			var steps =  Math.floor($albUL.data('visibleLength')/2) - $albUL.data('currentItem') - $(this).data('n');
-			$albUL.scrollVertically(steps, $albUL.data('scrollDelta'));
+			//var steps =  Math.floor($albUL.data('visibleLength')/2) - $albUL.data('currentItem') - $(this).data('n');
+			//$albUL.scrollVertically(steps, $albUL.data('scrollDelta'));
 			
 			// Change the visual of selected item
 			$albUL.children().each(function(){
@@ -131,24 +184,27 @@ function fillImages(jsonData){
     var myLi;
     
     $("#imgUL").empty().css('left', '0');
+	$('#imgTop').data('json', theList);
     
     for (var i = 0; i < nItems; i++) {
-        myLi = $('<li>').addClass('imgLI').addClass('loadingdiv');
+        myLi = $('<li>').addClass('imgLI').addClass('loadingdiv_');
         myLi.data('json', theList[i]).data('n', i);
 		
 		myImg = $('<img>').attr('src', theList[i].thumb_bw_src).attr('alt',theList[i].name);
 		
         myLi.click(function(){
 			var jsonData = $(this).data('json');
+			var n = $(this).data('n');
 			var $imgMain = $('#imgMain');
 			var $imgUL = $('#imgUL');
 			
 			$imgMain.toggleImage(jsonData.norm_src);
 			$imgMain.data('json', jsonData).data('n', i);
+			$('#imgTop').data('n', n);
 			
 			// Scroll the image list to center current image
-			// TODO: Album with 2 images
-			var steps = Math.floor($imgUL.data('visibleLength')/2) - $imgUL.data('currentItem') - $(this).data('n');
+			// TODO: Женькин метод
+			var steps = Math.floor($imgUL.data('visibleLength')/2) - $imgUL.data('currentItem') - n;
 			$imgUL.scrollHorisontally(steps, $imgUL.data('scrollDelta'));
 			
 			// Change the visual of selected item
@@ -174,11 +230,11 @@ $.fn.toggleImage = function(newSrc, duration) {
 	var $t = $(this);
 	
 	if ($t.attr('src') != newSrc) {
-		$t.parent().addClass('loadingdiv');
+		$t.parent().addClass('loadingdiv_');
 		$t.fadeOut(d, function(){
 			$t.attr('src', newSrc);
 			$t.load(function(){
-				$t.parent().removeClass('loadingdiv');
+				$t.parent().removeClass('loadingdiv_');
 				$t.fadeIn(d);
 			});
 		});

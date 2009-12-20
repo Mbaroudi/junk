@@ -21,7 +21,7 @@ function initAlbumsScroll(){
 	.hide()
 	.each(function(){
         return $(this).load(function(){
-            $(this).parent().removeClass('loadingdiv');
+            $(this).parent().removeClass('loadingdiv_');
             return $(this).fadeIn();
         });
     });
@@ -50,7 +50,7 @@ function initImagesScroll(){
 	.hide()
 	.each(function(){
     	return $(this).load(function(){
-        	$(this).parent().removeClass('loadingdiv');
+        	$(this).parent().removeClass('loadingdiv_');
         	return $(this).fadeIn();
     	});
 	});
@@ -97,31 +97,31 @@ $.fn.scroll = function(steps, scrollSize, direction){
     var visibleLength = $t.data('visibleLength');
     var currentItem = $t.data('currentItem');
 	
-	console.info('------------');
-	console.info('visible length = ' + visibleLength);
-	console.info('length = ' + length);
-	console.info('current item = ' + currentItem);
-	console.info('steps = ' + steps);
+	//console.info('------------');
+	//console.info('visible length = ' + visibleLength);
+	//console.info('length = ' + length);
+	//console.info('current item = ' + currentItem);
+	//console.info('steps = ' + steps);
 	
 	if (steps === 0) {
-		console.info('steps === 0');
+		//console.info('steps === 0');
 		return $t;
 	}
 
 	if (currentItem + steps > length && steps > 0) {
-		console.info('currentItem + steps > length && steps > 0');
-		console.info('continue with steps = ' + (steps-1));
+		//console.info('currentItem + steps > length && steps > 0');
+		//console.info('continue with steps = ' + (steps-1));
         return $t.scroll(steps-1, scrollSize, direction);
     }
 	
 	if (currentItem - steps < -length && steps < 0) {
-		console.info('currentItem - steps < -length && steps < 0');
-		console.info('continue with steps = ' + (steps+1));
+		//console.info('currentItem - steps < -length && steps < 0');
+		//console.info('continue with steps = ' + (steps+1));
         return $t.scroll(steps+1, scrollSize, direction);
     }
     
     $t.data('currentItem', currentItem + steps);
-	console.info('new current item = ' + (currentItem + steps));
+	//console.info('new current item = ' + (currentItem + steps));
     
     if (direction === 'v') {
         return $t.stop().animate({
