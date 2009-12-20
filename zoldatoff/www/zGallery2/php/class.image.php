@@ -1,9 +1,6 @@
 <?php
 
-	$db_host = "localhost";
-	$db_name = "gallery";
-	$db_user = "gallery";
-	$db_password = "zaebis";
+	include('config.php');
 	
 	function connect() {
 		global $db_host;
