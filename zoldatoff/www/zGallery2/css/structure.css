@@ -111,7 +111,7 @@ header h1 {
 	top: 10px;
 }
 
-.navLI {
+#navUL li.navLI {
 	color: #000;
 	cursor: pointer;
 	float: left;
@@ -119,6 +119,10 @@ header h1 {
 	font-size: 20px;
 	padding: 0 15px 0 15px;
 	position: relative;
+}
+
+#navUL li.active {
+	color: #800;
 }
 
 /*------------------------------------------------------------------------------
@@ -288,6 +292,7 @@ header h1 {
 	bottom: 0; 
 	position: absolute;
 	right: 0;
+	text-align:center;
 	top: 0;
 	width: 300px;
 }
@@ -458,4 +463,5 @@ footer {
 #imgTop {
 	max-height: 100%;
 	max-width: 100%;
+	vertical-align: middle;
 }
