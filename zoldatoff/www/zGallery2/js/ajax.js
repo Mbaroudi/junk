@@ -31,33 +31,22 @@ $(document).ready(function(){
     });
     
     $('#topLeft img').click(function(){
-        var n = $('#imgTop').data('n');
-        var jsonData = $('#imgTop').data('json');
-        
-        if (jsonData[n - 1]) {
-            var src = jsonData[n - 1].full_src;
-            $('#imgTop').data('n', n - 1);
-            changeTopImage(src);
-        }
+        fillTopImages(-1);
         return false;
     });
     
     $('#topRight img').click(function(){
-        var n = $('#imgTop').data('n');
-        var jsonData = $('#imgTop').data('json');
-        
-        if (jsonData[n + 1]) {
-            var src = jsonData[n + 1].full_src;
-            $('#imgTop').data('n', n + 1);
-            changeTopImage(src);
-        }
+        fillTopImages(1);
         return false;
     });
     
     $('#imgMain').click(function(){
         $('#topDiv').show();
         var src = $(this).data('json').full_src;
+		
         changeTopImage(src);
+        fillTopImages(0);
+        
         return false;
     });
     
@@ -68,6 +57,37 @@ $(document).ready(function(){
 });
 
 $(window).resize(refreshInterface);
+
+function fillTopImages(step) {
+	var $imgTop = $('#imgTop');
+	var $imgTopRight = $('#topRight img');
+	var $imgTopLeft = $('#topLeft img');
+	
+	var n = $imgTop.data('n');
+    var jsonData = $imgTop.data('json');
+    
+    if (step!==0 && jsonData[n + step]) {
+        var src = jsonData[n + step].full_src;
+        $imgTop.data('n', n + step);
+        changeTopImage(src);
+    }
+    
+    if (jsonData[n + step + 1]) {
+        var src_ = jsonData[n + step + 1].thumb_src;
+        $imgTopRight.attr('src', src_).show();
+    }
+	else {
+		$imgTopRight.hide();
+	}
+	
+	if (jsonData[n + step - 1]) {
+        var _src = jsonData[n + step - 1].thumb_src;
+        $imgTopLeft.attr('src', _src).show();
+    }
+	else {
+		$imgTopLeft.hide();
+	}
+}
 
 function changeTopImage(src){
     $('#imgTop').hide();
@@ -96,7 +116,7 @@ function refreshInterface(){
     
     $('#albUL').css('top', '0').prepareUL('v');
     $('#albUL img.active').parent().click();
-    
+	
     return false;
 }
 
@@ -149,7 +169,7 @@ function fillAlbums(jsonData){
     $("#albUL").empty().css('top', '0');
     
     for (var i = 0; i < nItems; i++) {
-        myLi = $('<li>').addClass('albLI').addClass('loadingdiv_');
+        myLi = $('<li>').addClass('albLI').addClass('loadingdiv');
         myLi.data('json', theList[i]).data('n', i);
         
         myImg = $('<img>').attr('src', theList[i].image.thumb_bw_src).attr('alt', theList[i].image.name);
@@ -193,7 +213,7 @@ function fillImages(jsonData){
     $('#imgTop').data('json', theList);
     
     for (var i = 0; i < nItems; i++) {
-        myLi = $('<li>').addClass('imgLI').addClass('loadingdiv_');
+        myLi = $('<li>').addClass('imgLI').addClass('loadingdiv');
         myLi.data('json', theList[i]).data('n', i);
         
         myImg = $('<img>').attr('src', theList[i].thumb_bw_src).attr('alt', theList[i].name);
@@ -222,12 +242,13 @@ function fillImages(jsonData){
             
             $("#imgUL li").removeClass('active');
             $(this).addClass('active');
-			
-			if (jsonData.name) {
-				$('#imgInfo').text(jsonData.name);
-			} else {
-				$('#imgInfo').text(' ');
-			}
+            
+            if (jsonData.name) {
+                $('#imgInfo').text(jsonData.name);
+            }
+            else {
+                $('#imgInfo').text(' ');
+            }
         });
         
         myLi.append(myImg);
@@ -235,8 +256,8 @@ function fillImages(jsonData){
     }
     
     initImagesScroll();
-   
-	var tmp = Math.min(nItems, 4);
+    
+    var tmp = Math.min(nItems, 4);
     $('#imgUL li:nth-child(' + tmp + ')').click();
 }
 
@@ -245,11 +266,11 @@ $.fn.toggleImage = function(newSrc, duration){
     var $t = $(this);
     
     if ($t.attr('src') != newSrc) {
-        $t.parent().addClass('loadingdiv_');
+        $t.parent().addClass('loadingdiv');
         $t.fadeOut(d, function(){
             $t.attr('src', newSrc);
             $t.load(function(){
-                $t.parent().removeClass('loadingdiv_');
+                $t.parent().removeClass('loadingdiv');
                 $t.fadeIn(d);
             });
         });
