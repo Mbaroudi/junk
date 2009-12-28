@@ -219,6 +219,7 @@ function fillImages(jsonData){
         myImg = $('<img>').attr('src', theList[i].thumb_bw_src).attr('alt', theList[i].name);
         
         myLi.click(function(){
+			// TODO: optimise here
             var jsonData = $(this).data('json');
             var n = $(this).data('n');
             var $imgMain = $('#imgMain');
