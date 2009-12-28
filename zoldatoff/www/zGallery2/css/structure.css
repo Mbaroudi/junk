@@ -31,21 +31,30 @@ body {
     
 }
 
-.loadingdiv {
+div.loadingdiv {
 	background-image: url("w_loader.gif");
 	background-position: center;
 	background-repeat: no-repeat;
 }
 
-.loadingdiv_ {
+div.loadingdiv_ {
 	background-image: url("w_loader_.gif");
 	background-position: center;
 	background-repeat: no-repeat;
 }
 
-header, #sImageList {
-	background-image: -moz-linear-gradient(top, bottom,from(#000000),to(#7c7c7c));
-	background-image: -webkit-gradient(linear, left top, left bottom,color-stop(0.00, #000000),color-stop(1.00, #7c7c7c));
+header {
+	background-image: -moz-linear-gradient(0deg, #202020, #7c7c7c);
+	background-image: -webkit-gradient(linear, left top, right bottom,color-stop(0.00, #202020),color-stop(1.00, #7c7c7c));
+}
+
+#sImageList {
+	background-image: -moz-linear-gradient(-90deg, #7c7c7c, #202020);
+	background-image: -webkit-gradient(linear, left top, left bottom,color-stop(0.00, #7c7c7c),color-stop(1.00, #202020));
+}
+
+footer {
+	background-color: #202020;
 }
 
 /*------------------------------------------------------------------------------
@@ -67,9 +76,10 @@ header, #sImageList {
 ------------------------------------------------------------------------------*/
 
 header {
-    height: 98px;
+	border-bottom: #666 1px solid;
+    height: 99px;
 	left: 0;
-	line-height: 98px;
+	line-height: 99px;
     text-align: left;
     top: 0;
 	width: 100%;
@@ -79,7 +89,7 @@ header {
 	float: left;
 	max-height: 88px;
 	max-width: 88px;
-	opacity: 0.6;
+	opacity: 0.9;
 	padding: 5px 20px;
 }
 
@@ -134,12 +144,22 @@ header h1 {
     top: 100px;
 }
 
+#albUp img, #albDown img, #imgLeft img, #imgRight img {
+	height: 25px;
+	opacity: 0.3;
+	width: 25px;
+}
+
+#albUp img:hover, #albDown img:hover, #imgLeft img:hover, #imgRight img:hover, #toLeft img:hover, #toRight img:hover {
+	opacity: 1.0;
+}
+
 /*------------------------------------------------------------------------------
  3.1. Левая секция
 ------------------------------------------------------------------------------*/
 
 #sAlbums {
-    bottom: 150px;
+    bottom: 120px;
     left: 0;
     top: 0;
     width: 298px;
@@ -171,16 +191,6 @@ header h1 {
 	width: 100%;
 }
 
-#albUp img, #albDown img, #imgLeft img, #imgRight img {
-	height: 25px;
-	opacity: 0.3;
-	width: 25px;
-}
-
-#albUp img:hover, #albDown img:hover, #imgLeft img:hover, #imgRight img:hover, #toLeft img:hover, #toRight img:hover {
-	opacity: 1.0;
-}
-
 #albUL {
 	height: 10000px;
 	left: 0;
@@ -189,7 +199,7 @@ header h1 {
 	width: 100%;
 }
 
-.albLI {
+#albUL li.albLI {
 	cursor: pointer;
 	float: left;
 	height: 100px;
@@ -200,14 +210,14 @@ header h1 {
 	width: 100%;
 }
 
-.albLI img {
+#albUL li.albLI img {
 	max-height: 100px;
 	max-width: 100px;
 	opacity: 0.6;
 	vertical-align: middle;
 }
 
-.albLI img:hover {
+#albUL li.albLI img:hover {
 	box-shadow: none;
 	-moz-box-shadow: none;
 	-webkit-box-shadow: none;
@@ -218,16 +228,16 @@ header h1 {
 	max-width: 110px;
 }
 
-.albLI img.active {
-	box-shadow: 5px 5px 2px #333;
-	-moz-box-shadow: 5px 5px 2px #333;
-	-webkit-box-shadow: 5px 5px 2px #333;
+#albUL li.albLI img.active {
+	box-shadow: 0px 0px 10px #ccc;
+	-moz-box-shadow: 0px 0px 10px #ccc;
+	-webkit-box-shadow: 0px 0px 10px #ccc;
 	
 	opacity: 1;
 }
 
-.albTitle {
-	color: #800;
+#albUL li .albTitle {
+	color: #000;
 	font-family: "Sharpie Marker", "Comic Sans MS";
 	font-size: 15px;
 	height: 30px;
@@ -238,8 +248,11 @@ header h1 {
 	top: 80px;
 	vertical-align: baseline;
 	width: 90px;
-	word-wrap:break-word;
+	word-wrap: break-word;
+}
 
+#albUL li.active .albTitle {
+	color: #800;
 }
 
 /*------------------------------------------------------------------------------
@@ -247,7 +260,7 @@ header h1 {
 ------------------------------------------------------------------------------*/
 
 #sMainImage {
-    bottom: 150px;
+    bottom: 120px;
     left: 300px;
     right: 0;
 	top: 0;
@@ -298,6 +311,10 @@ header h1 {
 }
 
 #imgMain {
+	box-shadow: 0px 0px 10px #111;
+	-moz-box-shadow: 0px 0px 10px #111;
+	-webkit-box-shadow: 0px 0px 10px #111;
+	
 	max-height: 100%;
 	max-width: 100%;
 	vertical-align: middle;
@@ -361,7 +378,7 @@ header h1 {
 	width: 10000px;
 }
 
-.imgLI {	
+#imgUL li.imgLI {	
 	cursor: pointer;
 	float: left;
 	height: 100%;
@@ -371,7 +388,7 @@ header h1 {
 	width: 120px;
 }
 
-.imgLI img {
+#imgUL li.imgLI img {
 	margin: 10px 10px;
 	max-height: 100px;
 	max-width: 100px;
@@ -379,7 +396,7 @@ header h1 {
 	vertical-align: middle;
 }
 
-.imgLI img:hover {
+#imgUL li.imgLI img:hover {
 	margin-left: 5px;
 	margin-top: 5px;
 	max-height: 110px;
@@ -387,10 +404,10 @@ header h1 {
 	opacity: 1;
 }
 
-.imgLI img.active {
-	box-shadow: 5px 5px 2px #555;
-	-moz-box-shadow: 5px 5px 2px #555;
-	-webkit-box-shadow: 5px 5px 2px #555;
+#imgUL li.imgLI img.active {
+	box-shadow: 0px 0px 10px #ccc;
+	-moz-box-shadow: 0px 0px 10px #ccc;
+	-webkit-box-shadow: 0px 0px 10px #ccc;
 	
 	opacity: 1;
 }
@@ -399,10 +416,10 @@ header h1 {
 ------------------------------------------------------------------------------*/
 
 footer {
-	border-top: #666 1px solid;
+	border-top: #333 1px solid;
     bottom: 0;
-    height: 28px;
-	line-height: 28px;
+    height: 29px;
+	line-height: 29px;
     text-align: center;
 }
 
@@ -431,7 +448,7 @@ footer {
 
 #topLeft {
 	bottom: 20px;
-	margin-right: 35%;
+	margin-right: 40%;
 	position: absolute;
 	right: 50%;
 	top: 20px;
@@ -440,7 +457,7 @@ footer {
 
 #topRight {
 	bottom: 20px;
-	margin-left: 35%;
+	margin-left: 40%;
 	left: 50%;
 	position: absolute;
 	top: 20px;
