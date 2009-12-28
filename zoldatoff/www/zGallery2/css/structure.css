@@ -192,6 +192,13 @@ header h1 {
 	width: 100%;
 }
 
+#albUp img, #albDown img {
+	cursor: pointer;
+	height: 15px;
+	top: 7px;
+	width: 15px;
+}
+
 #albUL {
 	height: 10000px;
 	left: 0;
@@ -268,12 +275,14 @@ header h1 {
 }
 
 #toLeft img, #toRight img {
-	height: 45px;
-	margin-top: -22px;
+	cursor: pointer;
+	height: 20px;
+	left: 20px;
+	margin-top: -10px;
 	opacity: 0.3;
 	position: absolute;
 	top: 50%;
-	width: 45px;
+	width: 20px;
 }
 
 #toLeft {
@@ -351,9 +360,12 @@ header h1 {
 }
 
 #imgLeft img, #imgRight img {
+	cursor: pointer;
+	height: 15px;
 	margin-top: -12px;
 	position: absolute;
 	top: 50%;
+	width: 15px;
 }
 
 #imgLeft img {
