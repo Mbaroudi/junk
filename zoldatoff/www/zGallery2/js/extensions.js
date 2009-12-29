@@ -31,7 +31,7 @@ $.fn.center = function() {
 		.css('position', 'absolute')
 		.css('top', myTop + 'px')
 		.css('left', myLeft + 'px');
-}
+};
 
 $.fn.make_droppable = function(scope) {
 	$(this).droppable({
@@ -53,10 +53,20 @@ $.fn.make_droppable = function(scope) {
 						$.getJSON(ajaxPath, {action: mode + scope, albumid: dragObjectID, categoryid: dropObjectID, currentcategoryid: currentCategory}, displayDropStatus);
 						break;
 					case 'icon': 
-						if (t.hasClass('aThumbs')) 
-							$.getJSON(ajaxPath, {action: mode + 'album' + scope, imageid: dragObjectID, albumid: dropObjectID}, displayThumbAction);
-						if (t.hasClass('cThumbs'))
-							$.getJSON(ajaxPath, {action: mode + 'category' + scope, imageid: dragObjectID, categoryid: dropObjectID}, displayThumbAction);
+						if (t.hasClass('aThumbs')) {
+							$.getJSON(ajaxPath, {
+								action: mode + 'album' + scope,
+								imageid: dragObjectID,
+								albumid: dropObjectID
+							}, displayThumbAction);
+						}
+						if (t.hasClass('cThumbs')) {
+							$.getJSON(ajaxPath, {
+								action: mode + 'category' + scope,
+								imageid: dragObjectID,
+								categoryid: dropObjectID
+							}, displayThumbAction);
+						}
 						currentObject = t.attr('id');
 						break;
 				}
@@ -69,7 +79,7 @@ $.fn.make_droppable = function(scope) {
 	});
 	
 	return $(this);
-}
+};
 
 $.fn.make_draggable = function(scope) {
 	$(this).draggable({
@@ -78,18 +88,21 @@ $.fn.make_draggable = function(scope) {
 		delay: 100,
 		//distance: 10, 
 		helper: function(){
+			var selected;
 			// Собираем выделенные альбомы в div и тащим...
 			switch (scope) {
 				case 'icon':
 				case 'images2albums':     
-					var selected = $('#imageThumbsUL .active img');
+					selected = $('#imageThumbsUL .active img');
 					break;
 				case 'albums2categories': 
-					var selected = $('#albumThumbsUL .active img');
+					selected = $('#albumThumbsUL .active img');
 					break;
 			}
 			
-			if (selected.length == 0) selected = $(this);
+			if (selected.length === 0) {
+				selected = $(this);
+			}
 			
 			var myImages = selected.clone().css('position', 'static');
 			
@@ -101,7 +114,7 @@ $.fn.make_draggable = function(scope) {
 	});
 	
 	return $(this);
-}
+};
 
 $.fn.editMe = function(object, jsonData) {
 	currentObject = $(this).attr('id');
@@ -131,7 +144,7 @@ $.fn.editMe = function(object, jsonData) {
 	theEditForm.dialog('open');
 	
 	return $(this);
-}
+};
 
 $.fn.scrollThumbs = function(steps) {
 	var t = $(this);
@@ -145,7 +158,7 @@ $.fn.scrollThumbs = function(steps) {
 	
 		if (!scroll) {
 			t.data('scroll', 0);
-			scroll = 0
+			scroll = 0;
 		} 
 		
 		if (9 * (scroll + steps) > -nElements && steps < 0) {
@@ -165,10 +178,13 @@ $.fn.scrollThumbs = function(steps) {
 	}
 	
 	return t;
-}
+};
 
 $.fn.removeElement = function(){
-	var theElement = $(this).children('img.active');
+	console.info('removing element');
+	console.info($(this));
+	var theElement = $(this).children('li.active').children('img');
+	console.info(theElement.length);
 	
 	if (theElement.length) {
 		var jsonData = theElement.data('json');
@@ -198,11 +214,12 @@ $.fn.removeElement = function(){
 		
 		lockDisplay();
 	}
-	else 
-		growl('No data to remove', 'Select something to remove')
+	else {
+		growl('No data to remove', 'Select something to remove');
+	}
 	
 	return $(this);
-}
+};
 
 $.fn.addElement = function(){
 	switch ($(this).attr('id')) {
@@ -223,18 +240,24 @@ $.fn.addElement = function(){
 	theEditForm.dialog('open');
 	
 	return $(this);
-}
+};
 
 $.fn.highlightMe = function() {
 	return $(this)
 		.parent()
 		.effect('highlight', { color: '#ff0000' }, 1000);
-}
+};
 
 function growl(myTitle, myText, myImage) {
-	if (!myTitle) myTitle = " ";
-	if (!myText) myText = " ";
-	if (!myImage) myImage = "css/new.jpg";
+	if (!myTitle) {
+		myTitle = " ";
+	}
+	if (!myText) {
+		myText = " ";
+	}
+	if (!myImage) {
+		myImage = "css/new.jpg";
+	}
 	
 	$.gritter.add({
 		title: myTitle,

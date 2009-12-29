@@ -4,6 +4,12 @@
 var ajaxPath = 'php/upload.php';
 
 $(document).ready(function(){
+	// Disable right click
+    $(document).bind("contextmenu", function(e){
+        return false;
+    });
+	
+	// Adjust AJAX parameters
     $.ajaxSetup({
         url: ajaxPath,
         timeout: 10000,
@@ -13,11 +19,15 @@ $(document).ready(function(){
         beforeSend: ajaxSend
     });
     
+	// Set several CSS parameters basing on window size
     refreshInterface();
     
+	// Request categories list
     getCategories();
     $('#logo').click(getCategories);
     
+	// Bind actions to controls (left/right etc.)
+	
     $('#toLeft img').click(function(){
         var n = $('#imgUL img.active').parent().data('n');
         $('#imgUL li:eq(' + (n - 1) + ')').click();
@@ -56,8 +66,10 @@ $(document).ready(function(){
     });
 });
 
+// Set several CSS parameters basing on window size
 $(window).resize(refreshInterface);
 
+// Show the images in full-screen mode
 function fillTopImages(step) {
 	var $imgTop = $('#imgTop');
 	var $imgTopRight = $('#topRight img');
@@ -89,6 +101,8 @@ function fillTopImages(step) {
 	}
 }
 
+
+// Change image with fading
 function changeTopImage(src){
     $('#imgTop').hide();
     $('#topImgDiv').addClass('loadingdiv');
@@ -100,6 +114,7 @@ function changeTopImage(src){
     });
 }
 
+// Set several CSS parameters basing on window size
 function refreshInterface(){
     var $imgDiv = $('#imgDiv');
     var h = $imgDiv.height();
@@ -120,6 +135,7 @@ function refreshInterface(){
     return false;
 }
 
+// Several AJAX requests
 function getCategories(){
     $.getJSON(ajaxPath, {
         object: 'categories'
@@ -140,6 +156,7 @@ function getImages(album_id){
     }, fillImages);
 }
 
+// Generate list of categories
 function fillCategories(jsonData){
     var theList = jsonData.objectlist.category_list;
     var nItems = theList.length;
@@ -161,6 +178,7 @@ function fillCategories(jsonData){
     $("#navUL li:first-child").click();
 }
 
+// Generate list of albums
 function fillAlbums(jsonData){
     var theList = jsonData.objectlist.album_list;
     var nItems = theList.length;
@@ -204,6 +222,7 @@ function fillAlbums(jsonData){
     $("#albUL li:first-child").click();
 }
 
+// Generate list of images
 function fillImages(jsonData){
     var theList = jsonData.objectlist.image_list;
     var nItems = theList.length;
@@ -262,6 +281,7 @@ function fillImages(jsonData){
     $('#imgUL li:nth-child(' + tmp + ')').click();
 }
 
+// Change th image if needed
 $.fn.toggleImage = function(newSrc, duration){
     var d = duration ? duration : 500;
     var $t = $(this);
@@ -279,6 +299,7 @@ $.fn.toggleImage = function(newSrc, duration){
     return $t;
 };
 
+// AJAX error callback function
 function ajaxError(XMLHttpRequest, textStatus, errorThrown){
     //console.error(XMLHttpRequest);
     //console.error(textStatus);
@@ -286,10 +307,12 @@ function ajaxError(XMLHttpRequest, textStatus, errorThrown){
     $('#status').stop().hide();
 }
 
+// AJAX complete callback function
 function ajaxComplete(XMLHttpRequest, textStatus){
     $('#status').stop().hide();
 }
 
+// AJAX request send callback function
 function ajaxSend(XMLHttpRequest){
     $('#status').show(1000);
 }
