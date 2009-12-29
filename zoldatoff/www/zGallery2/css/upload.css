@@ -1,0 +1,209 @@
+body {
+	background:black;
+	color:#bba;
+	font-family:Georgia,Serif;
+	font-size:13px;
+	overflow: hidden;
+}
+
+div {
+	height: auto;
+	overflow: hidden;
+}
+
+#modesDiv {
+	height: 170px;
+	left: 20px;
+	overflow:hidden;
+	position:absolute;
+	top: 10px;
+	width: 200px;
+}
+
+#containerDiv {
+	height:100%;
+	left: 50%;
+	margin-left: -460px;
+	overflow:hidden;
+	position: absolute;
+	width: 1000px;
+}
+
+.actions {
+	/*border: 1px dashed #303030;*/
+	float: left;
+	height: 192px;
+	left: 0px;
+	position:relative;
+	top: 50px;
+	width:76px;
+}
+
+.thumbContainer {
+	/*border: 1px dashed #303030;*/
+	float:left;
+	height: 242px;
+	overflow:hidden;
+	position:relative;
+	width: 920px;
+}
+
+h2 {
+	/*font-family:Brush Script MT, Comic Sans MS;*/
+	font-family: Comic Sans MS;
+	font-size:15px;
+	font-style:italic;
+	height:30px;
+	line-height:30px;
+	margin: 0px 0px 0px 0px;
+	position:relative;
+	/*text-shadow: rgb(100, 100, 100) 0px -2px 0px;*/
+	width:100%;
+}
+
+.h2top {
+	position:absolute;
+	right: 10px;
+	text-align: right;
+	top: 5px;
+}
+
+.h2centerup {
+	margin-top: -25px;
+	right: 10px;
+	text-align: right;
+	top: 50%;
+}
+
+.h2centerdown {
+	margin-top: -5px;
+	right: 10px;
+	text-align: right;
+	top: 50%;
+}
+
+.h2bottom {
+	bottom: 5px;
+	position:absolute;
+	right: 10px;
+	text-align: right;
+}
+
+.mode {
+	color: #404040;
+	cursor:pointer;
+}
+
+.activeMode {
+	color:#bba;
+	font-size: 20px;
+}
+
+h3 {
+	/*font-family:Brush Script MT, Comic Sans MS;*/
+	font-family: "Comic Sans MS", cursive;
+	font-size:20px;
+	font-style:italic;
+	height:50px;
+	/*line-height:50px;*/
+	margin: 0px 0px 0px 0px;
+	position:relative;
+	/*text-shadow: rgb(100, 100, 100) 0px -2px 0px;*/
+	width:100%;
+}
+
+.thumbsUL {
+	height: auto;
+	list-style: none;
+	margin: 0px;
+	width:100%;
+}
+
+li {
+	background:#000000 none repeat scroll 0 0;
+ 	border:3px double #330505;
+	display:block;
+	float:left;
+ 	height:90px;
+	line-height: 90px;
+	opacity: .5;
+	overflow:hidden;
+	/*padding: 5px;*/
+	position:relative;
+	text-align:center;
+ 	width:90px;
+}
+
+li.active {
+	background:#303030 none repeat scroll 0 0;
+	border:3px solid #f00;
+	opacity: 1!important;
+}
+
+.drophover {
+	/*background:#206020 none repeat scroll 0 0;*/
+	border:3px double #0f0!important;
+	opacity: 1;	
+}
+
+.droptome {
+	border:3px double #00f;
+}
+
+img {
+	max-height: 100%;
+	max-width: 100%;
+	opacity: 1!important;
+}
+
+.ui-progressbar { 
+	background-image: url(js/jquery-ui/css/ui-lightness/images/pbar-ani.gif); 
+	height: 10px!important;
+	left: 50%;
+	margin-left: -200px;
+	margin-top: -10px;
+	position:absolute;
+	top: 50%!important;
+	width: 400px;
+}
+
+#topDiv {
+	background:#000000;
+	bottom:0px;
+	display:none;
+	left:0px;
+	opacity: 0.5;
+	padding: 20px 20px 20px 20px;
+	position:absolute;
+	right:0px;
+	text-align:center;
+	top:0px;
+	z-index:1000;
+}
+
+#lockDiv {
+	background:#000000;
+	bottom:0px;
+	display:none;
+	left:0px;
+	opacity: 0.5;
+	padding: 20px 20px 20px 20px;
+	position:absolute;
+	right:0px;
+	text-align:center;
+	top:0px;
+	z-index:1000;
+}
+
+#formImg {
+	max-height: 80px;
+	max-width: 80px;
+	padding:10px;
+}
+
+/*
+#draggingContainer {
+	height: 100px;
+	width: 100px;
+}
+*/
