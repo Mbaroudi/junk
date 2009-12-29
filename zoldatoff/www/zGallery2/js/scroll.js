@@ -6,13 +6,13 @@ function initAlbumsScroll(){
 	$("#albUp img")
 	.unbind('click')
 	.click(function(){
-        $albUL.scrollVertically(-1, scrollHeight);
+        $albUL.scrollVertically(1, scrollHeight);
     });
     
     $("#albDown img")
 	.unbind('click')
 	.click(function(){
-        $albUL.scrollVertically(1, scrollHeight);
+        $albUL.scrollVertically(-1, scrollHeight);
     });
     	
 	$albUL.scrollVertically(0, 0);
@@ -35,13 +35,13 @@ function initImagesScroll(){
 	$('#imgLeft img')
 	.unbind('click')
 	.click(function(){
-        $imgUL.scrollHorisontally(-1, scrollWidth);
+        $imgUL.scrollHorisontally(1, scrollWidth);
     });
 	
 	$('#imgRight img')
 	.unbind('click')
 	.click(function(){
-        $imgUL.scrollHorisontally(1, scrollWidth);
+        $imgUL.scrollHorisontally(-1, scrollWidth);
     });
 	
     $imgUL.scrollHorisontally(0, 0);

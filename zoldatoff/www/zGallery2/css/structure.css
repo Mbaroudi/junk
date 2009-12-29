@@ -168,9 +168,11 @@ header h1 {
 
 #albUp {
 	height: 28px;
+	line-height: 28px;
 	position: absolute;
 	top: 0;
 	text-align: center;
+	vertical-align: middle;
 	width: 100%;
 }
 
@@ -187,15 +189,17 @@ header h1 {
 #albDown {
 	bottom: 0;
 	height: 28px;
+	line-height: 28px;
 	position: absolute;
 	text-align: center;
+	vertical-align: middle;
 	width: 100%;
 }
 
 #albUp img, #albDown img {
 	cursor: pointer;
 	height: 15px;
-	top: 7px;
+	position: relative;
 	width: 15px;
 }
 
@@ -274,23 +278,25 @@ header h1 {
 	top: 0;
 }
 
+#toLeft, #toRight {
+	bottom: 0;
+	position: absolute;
+	text-align: center;
+	top: 0;
+	width: 50px;
+}
+
+#toLeft { left: 0; }
+#toRight { right: 300px; }
+
 #toLeft img, #toRight img {
 	cursor: pointer;
 	height: 20px;
-	left: 20px;
 	margin-top: -10px;
 	opacity: 0.3;
-	position: absolute;
+	position: relative;
 	top: 50%;
 	width: 20px;
-}
-
-#toLeft {
-	bottom: 0;
-	left: 0; 
-	position: absolute;
-	top: 0;
-	width: 50px;
 }
 
 #imgDiv {	
@@ -301,14 +307,6 @@ header h1 {
 	right: 350px;
 	text-align: center;
 	top: 0;
-}
-
-#toRight {
-	bottom: 0; 
-	position: absolute;
-	right: 300px;
-	top: 0;
-	width: 50px;
 }
 
 #imgInfo {
@@ -343,7 +341,9 @@ header h1 {
 
 #imgLeft, #imgRight {
 	height: 100%;
+	line-height: 120px;
 	position: absolute;
+	vertical-align: middle;
 	width: 200px;
 }
 
@@ -362,9 +362,7 @@ header h1 {
 #imgLeft img, #imgRight img {
 	cursor: pointer;
 	height: 15px;
-	margin-top: -12px;
-	position: absolute;
-	top: 50%;
+	position: relative;
 	width: 15px;
 }
 
