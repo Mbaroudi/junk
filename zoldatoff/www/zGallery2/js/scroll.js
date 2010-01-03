@@ -97,31 +97,19 @@ $.fn.scroll = function(steps, scrollSize, direction){
     var visibleLength = $t.data('visibleLength');
     var currentItem = $t.data('currentItem');
 	
-	//console.info('------------');
-	//console.info('visible length = ' + visibleLength);
-	//console.info('length = ' + length);
-	//console.info('current item = ' + currentItem);
-	//console.info('steps = ' + steps);
-	
 	if (steps === 0) {
-		//console.info('steps === 0');
 		return $t;
 	}
 
 	if (currentItem + steps > length && steps > 0) {
-		//console.info('currentItem + steps > length && steps > 0');
-		//console.info('continue with steps = ' + (steps-1));
         return $t.scroll(steps-1, scrollSize, direction);
     }
 	
 	if (currentItem - steps < -length && steps < 0) {
-		//console.info('currentItem - steps < -length && steps < 0');
-		//console.info('continue with steps = ' + (steps+1));
         return $t.scroll(steps+1, scrollSize, direction);
     }
     
     $t.data('currentItem', currentItem + steps);
-	//console.info('new current item = ' + (currentItem + steps));
     
     if (direction === 'v') {
         return $t.stop().animate({
@@ -148,17 +136,17 @@ function changeIcon($ul, direction, $direction1, $direction2) {
 	var d = (direction === 'v') ? 1 : 4;
     
     if (currentItem <= d - length) {
-		$direction1.hide();
-    }
-    else {
-		$direction1.show();
-    }
-	
-    if (currentItem >= visibleLength - d) {
 		$direction2.hide();
     }
     else {
 		$direction2.show();
+    }
+	
+    if (currentItem >= visibleLength - d) {
+		$direction1.hide();
+    }
+    else {
+		$direction1.show();
     }
 	
 	return $ul;

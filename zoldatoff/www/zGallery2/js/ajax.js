@@ -1,7 +1,25 @@
-/**
- * @author zoldatoff
+/*
+ * Title: JavaScript functions that manipulate DOM on client-side and interact with JSON data from server-side
  */
-var ajaxPath = 'php/upload.php';
+
+/*
+ * Constant: AJAX_PATH
+ * Path to PHP-files that get/send data from/to DB
+ */
+var AJAX_PATH = 'php/upload.php';
+
+/*
+ * Function: 
+ * 
+ * Adjusts several visual (CSS) parameters and interface behaviour (clicks and more).
+ * 
+ * See Also:
+ * <refreshInterface>
+ * <getCategories>
+ * <fillTopImages>
+ * <changeTopImage>
+ * 
+ */
 
 $(document).ready(function(){
 	// Disable right click
@@ -11,7 +29,7 @@ $(document).ready(function(){
 	
 	// Adjust AJAX parameters
     $.ajaxSetup({
-        url: ajaxPath,
+        url: AJAX_PATH,
         timeout: 10000,
         contentType: 'application/json',
         error: ajaxError,
@@ -60,16 +78,23 @@ $(document).ready(function(){
         return false;
     });
     
-    $('#imgTop').click(function(){
+    $('#topImgDiv').click(function(){
         $('#topDiv').fadeOut('slow');
         return false;
     });
 });
 
-// Set several CSS parameters basing on window size
+/*
+ * Function:
+ * Sets several CSS parameters basing on window size
+ */
 $(window).resize(refreshInterface);
 
-// Show the images in full-screen mode
+/*
+ * Function: fillTopImages
+ * Shows the images in full-screen mode 
+ */
+
 function fillTopImages(step) {
 	var $imgTop = $('#imgTop');
 	var $imgTopRight = $('#topRight img');
@@ -137,20 +162,20 @@ function refreshInterface(){
 
 // Several AJAX requests
 function getCategories(){
-    $.getJSON(ajaxPath, {
+    $.getJSON(AJAX_PATH, {
         object: 'categories'
     }, fillCategories);
 }
 
 function getAlbums(category_id){
-    $.getJSON(ajaxPath, {
+    $.getJSON(AJAX_PATH, {
         object: 'albums',
         category_id: category_id
     }, fillAlbums);
 }
 
 function getImages(album_id){
-    $.getJSON(ajaxPath, {
+    $.getJSON(AJAX_PATH, {
         object: 'images',
         album_id: album_id
     }, fillImages);
