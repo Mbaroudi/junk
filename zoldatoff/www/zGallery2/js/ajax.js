@@ -1,5 +1,6 @@
 /*
- * Title: JavaScript functions that manipulate DOM on client-side and interact with JSON data from server-side
+ * Title: zGallery JS
+ * JavaScript functions that manipulate DOM on client-side and interact with JSON data from server-side
  */
 
 /*
@@ -8,19 +9,18 @@
  */
 var AJAX_PATH = 'php/upload.php';
 
+// Namespace: jQuery
+
 /*
- * Function: 
- * 
+ * Function: jQuery.document.ready
  * Adjusts several visual (CSS) parameters and interface behaviour (clicks and more).
  * 
  * See Also:
- * <refreshInterface>
- * <getCategories>
- * <fillTopImages>
- * <changeTopImage>
- * 
+ * 		<refreshInterface>
+ * 		<getCategories>
+ * 		<fillTopImages>
+ * 		<changeTopImage>
  */
-
 $(document).ready(function(){
 	// Disable right click
     $(document).bind("contextmenu", function(e){
@@ -85,88 +85,62 @@ $(document).ready(function(){
 });
 
 /*
- * Function:
+ * Function: jQuery.window.resize
  * Sets several CSS parameters basing on window size
  */
 $(window).resize(refreshInterface);
 
 /*
- * Function: fillTopImages
- * Shows the images in full-screen mode 
+ * Function: jQuery.toggleImage
+ * Changes the image source path with fading effect and loading icon.
+ * 
+ * Parameters:
+ * 		newSrc - New image source path
+ * 		duration - Effect duration (default: 500ms) 
+ * 
+ * Returns: jQuery object
  */
-
-function fillTopImages(step) {
-	var $imgTop = $('#imgTop');
-	var $imgTopRight = $('#topRight img');
-	var $imgTopLeft = $('#topLeft img');
-	
-	var n = $imgTop.data('n');
-    var jsonData = $imgTop.data('json');
+$.fn.toggleImage = function(newSrc, duration){
+    var d = duration ? duration : 500;
+    var $t = $(this);
     
-    if (step!==0 && jsonData[n + step]) {
-        var src = jsonData[n + step].full_src;
-        $imgTop.data('n', n + step);
-        changeTopImage(src);
+    if ($t.attr('src') != newSrc) {
+        $t.parent().addClass('loadingdiv');
+        $t.fadeOut(d, function(){
+            $t.attr('src', newSrc);
+            $t.load(function(){
+                $t.parent().removeClass('loadingdiv');
+                $t.fadeIn(d);
+            });
+        });
     }
-    
-    if (jsonData[n + step + 1]) {
-        var src_ = jsonData[n + step + 1].thumb_src;
-        $imgTopRight.attr('src', src_).show();
-    }
-	else {
-		$imgTopRight.hide();
-	}
-	
-	if (jsonData[n + step - 1]) {
-        var _src = jsonData[n + step - 1].thumb_src;
-        $imgTopLeft.attr('src', _src).show();
-    }
-	else {
-		$imgTopLeft.hide();
-	}
-}
+    return $t;
+};
 
+// Namespace: zGallery
 
-// Change image with fading
-function changeTopImage(src){
-    $('#imgTop').hide();
-    $('#topImgDiv').addClass('loadingdiv');
-    
-    $('<img>').attr('src', src).load(function(){
-        $('#topImgDiv').removeClass('loadingdiv').show();
-        $('#imgTop').attr('src', src).fadeIn('slow');
-        return false;
-    });
-}
+// Group: AJAX calls
 
-// Set several CSS parameters basing on window size
-function refreshInterface(){
-    var $imgDiv = $('#imgDiv');
-    var h = $imgDiv.height();
-    $imgDiv.css('line-height', h + 'px');
-    
-    h = $('body').height() - 40;
-    $('#topImgDiv').css('line-height', h + 'px');
-    
-    var $albList = $('#albList');
-    $albList.height('100%');
-    h = $albList.height() - 60;
-    var H = Math.floor(h / 110) * 110;
-    $albList.height(H).css('margin-top', '-' + (H / 2) + 'px');
-    
-    $('#albUL').css('top', '0').prepareUL('v');
-    $('#albUL img.active').parent().click();
-	
-    return false;
-}
-
-// Several AJAX requests
+/*
+ * Function: getCategories
+ * Sends an AJAX request for list of categories
+ * 
+ * See Also:
+ * 		<fillCategories>
+ */
 function getCategories(){
     $.getJSON(AJAX_PATH, {
         object: 'categories'
     }, fillCategories);
 }
 
+/*
+ * Function: getAlbums
+ * Sends an AJAX request for list of albums
+ * 
+ * See Also:
+ * 		<fillAlbums>
+ */
 function getAlbums(category_id){
     $.getJSON(AJAX_PATH, {
         object: 'albums',
@@ -174,6 +148,13 @@ function getAlbums(category_id){
     }, fillAlbums);
 }
 
+/*
+ * Function: getImages
+ * Sends an AJAX request for list of images
+ * 
+ * See Also:
+ * 		<fillImages>
+ */
 function getImages(album_id){
     $.getJSON(AJAX_PATH, {
         object: 'images',
@@ -181,7 +162,47 @@ function getImages(album_id){
     }, fillImages);
 }
 
-// Generate list of categories
+// Group: AJAX callbacks
+
+/*
+ * Function: ajaxError
+ * Callback function for AJAX "request error" event.
+ */
+function ajaxError(XMLHttpRequest, textStatus, errorThrown){
+    //console.error(XMLHttpRequest);
+    //console.error(textStatus);
+    console.error(errorThrown);
+    $('#status').stop().hide();
+}
+
+/*
+ * Function: ajaxComplete
+ * Callback function for AJAX "complete request" event.
+ */
+function ajaxComplete(XMLHttpRequest, textStatus){
+    $('#status').stop().hide();
+}
+
+/*
+ * Function: ajaxSend
+ * Callback function for AJAX "send request" event.
+ */
+function ajaxSend(XMLHttpRequest){
+    $('#status').show(1000);
+}
+
+// Group: DOM manipulations
+
+/*
+ * Function: fillCategories
+ * Fills the #navUL element with the list of categories. Binds *onclick* events to the list.
+ * 
+ * Parameters:
+ * 		jsonData - Data from server-side in JSON format with categories information
+ * 
+ * See Also:
+ * 		<getCategories>
+ */
 function fillCategories(jsonData){
     var theList = jsonData.objectlist.category_list;
     var nItems = theList.length;
@@ -203,7 +224,16 @@ function fillCategories(jsonData){
     $("#navUL li:first-child").click();
 }
 
-// Generate list of albums
+/*
+ * Function: fillAlbums
+ * Fills the #albUL element with the list of albums. Binds *onclick* events to the list.
+ * 
+ * Parameters:
+ * 		jsonData - Data from server-side in JSON format with albums information
+ * 
+ * See Also:
+ * 		<getAlbums>
+ */
 function fillAlbums(jsonData){
     var theList = jsonData.objectlist.album_list;
     var nItems = theList.length;
@@ -247,7 +277,16 @@ function fillAlbums(jsonData){
     $("#albUL li:first-child").click();
 }
 
-// Generate list of images
+/*
+ * Function: fillImages
+ * Fills the #imgUL element with the list of images. Binds *onclick* events to the list.
+ * 
+ * Parameters:
+ * 		jsonData - Data from server-side in JSON format with images information
+ * 
+ * See Also:
+ * 		<getImages>
+ */
 function fillImages(jsonData){
     var theList = jsonData.objectlist.image_list;
     var nItems = theList.length;
@@ -306,38 +345,86 @@ function fillImages(jsonData){
     $('#imgUL li:nth-child(' + tmp + ')').click();
 }
 
-// Change th image if needed
-$.fn.toggleImage = function(newSrc, duration){
-    var d = duration ? duration : 500;
-    var $t = $(this);
+/* Group: Auxiliary functions
+ * Some repeating code was placed into these functions
+ */
+
+
+/*
+ * Function: fillTopImages
+ * Shows the images in full-screen mode 
+ * 
+ * Parameters:
+ * 		step - Show the image that is several *steps* from the current
+ */
+
+function fillTopImages(step) {
+	var $imgTop = $('#imgTop');
+	var $imgTopRight = $('#topRight img');
+	var $imgTopLeft = $('#topLeft img');
+	
+	var n = $imgTop.data('n');
+    var jsonData = $imgTop.data('json');
     
-    if ($t.attr('src') != newSrc) {
-        $t.parent().addClass('loadingdiv');
-        $t.fadeOut(d, function(){
-            $t.attr('src', newSrc);
-            $t.load(function(){
-                $t.parent().removeClass('loadingdiv');
-                $t.fadeIn(d);
-            });
-        });
+    if (step!==0 && jsonData[n + step]) {
+        var src = jsonData[n + step].full_src;
+        $imgTop.data('n', n + step);
+        changeTopImage(src);
     }
-    return $t;
-};
-
-// AJAX error callback function
-function ajaxError(XMLHttpRequest, textStatus, errorThrown){
-    //console.error(XMLHttpRequest);
-    //console.error(textStatus);
-    console.error(errorThrown);
-    $('#status').stop().hide();
+    
+    if (jsonData[n + step + 1]) {
+        var src_ = jsonData[n + step + 1].thumb_src;
+        $imgTopRight.attr('src', src_).show();
+    }
+	else {
+		$imgTopRight.hide();
+	}
+	
+	if (jsonData[n + step - 1]) {
+        var _src = jsonData[n + step - 1].thumb_src;
+        $imgTopLeft.attr('src', _src).show();
+    }
+	else {
+		$imgTopLeft.hide();
+	}
 }
 
-// AJAX complete callback function
-function ajaxComplete(XMLHttpRequest, textStatus){
-    $('#status').stop().hide();
+/*
+ * Function: changeTopImage
+ * Changes image source path with fading
+ * 
+ * Parameters:
+ * 		src - String with new image source path
+ */
+function changeTopImage(src){
+    $('#imgTop').hide();
+    $('#topImgDiv').addClass('loadingdiv');
+    
+    $('<img>').attr('src', src).load(function(){
+        $('#topImgDiv').removeClass('loadingdiv').show();
+        $('#imgTop').attr('src', src).fadeIn('slow');
+        return false;
+    });
 }
 
-// AJAX request send callback function
-function ajaxSend(XMLHttpRequest){
-    $('#status').show(1000);
+/*
+ * Function: refreshInterface
+ * Sets several CSS parameters basing on window size
+ */
+function refreshInterface(){
+    var $imgDiv = $('#imgDiv');
+    var h = $imgDiv.height();
+    $imgDiv.css('line-height', h + 'px');
+    
+    h = $('body').height() - 40;
+    $('#topImgDiv').css('line-height', h + 'px');
+    
+    var $albList = $('#albList');
+    $albList.height('100%');
+    h = $albList.height() - 60;
+    var H = Math.floor(h / 110) * 110;
+    $albList.height(H).css('margin-top', '-' + (H / 2) + 'px');
+    
+    $('#albUL').css('top', '0').prepareUL('v');
+    $('#albUL img.active').parent().click();
 }

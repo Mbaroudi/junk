@@ -45,13 +45,18 @@ Format: 1.4
 # 
 # --------------------------------------------------------------------------
 
+Title: zGallery
 
-File: JavaScript functions that manipulate DOM on client-side and interact with JSON data from server-side  (ajax.js)
+File: zGallery JS  (ajax.js)
 
 Group: Index  {
 
    Index: Everything
    Constant Index: Constants
    Function Index: Functions
+   Class Index: Namespaces
    }  # Group: Index
 
+Footer: Copyright (C) Dmitry Soldatov aka <a href="mailto:zoldatoff@gmail.com">Zoldatoff</a> 
+
+Timestamp: Generated on yyyy/mm/dd

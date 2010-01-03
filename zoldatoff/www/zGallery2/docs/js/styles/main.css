@@ -102,7 +102,7 @@ blockquote {
 
 
     .MTitle {
-        font-size: 16pt; font-weight: bold; font-variant: small-caps;
+        font-size: 16pt; font-weight: bold; /* font-variant: small-caps; */
         text-align: center;
         padding: 5px 10px 15px 10px;
         border-bottom: 1px dotted #000000;
@@ -120,7 +120,7 @@ blockquote {
 
 
     .MGroup {
-        font-variant: small-caps; font-weight: bold;
+        /* font-variant: small-caps; */ font-weight: bold;
         margin: 1em 0 1em 10px;
         }
 
@@ -293,12 +293,12 @@ blockquote {
 
 
     .CTitle {
-        font-size: 12pt; font-weight: bold;
+        font-size: 12pt; font-weight: bold; color: #002a5c;;
         border-width: 0 0 1px 0; border-style: solid; border-color: #A0A0A0;
         margin: 0 15px .5em 15px }
 
     .CGroup .CTitle {
-        font-size: 16pt; font-variant: small-caps;
+        font-size: 16pt; /* font-variant: small-caps;*/
         padding-left: 15px; padding-right: 15px;
         border-width: 0 0 2px 0; border-color: #000000;
         margin-left: 0; margin-right: 0 }
@@ -347,6 +347,7 @@ blockquote {
         }
 
     .CHeading {
+    	color: #4f5a82;
         font-weight: bold; font-size: 10pt;
         margin: 1.5em 0 .5em 0;
         }
@@ -382,7 +383,7 @@ blockquote {
         margin: 1em auto;
         }
     .CImageCaption {
-        font-variant: small-caps;
+        /* font-variant: small-caps; */
         font-size: 8pt;
         color: #808080;
         text-align: center;
@@ -516,7 +517,7 @@ blockquote {
         padding-top: .5em; padding-bottom: .25em }
 
     .SGroup .SEntry {
-        font-weight: bold; font-variant: small-caps }
+        font-weight: bold; /* font-variant: small-caps */ }
 
     .SGroup .SEntry a { color: #800000 }
     .SGroup .SEntry a:active { color: #F00000 }
