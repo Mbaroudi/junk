@@ -492,6 +492,10 @@ footer {
 }
 
 #topLeft img, #topRight img {
+	border-radius: 7px;
+	-moz-border-radius: 7px; 
+	-webkit-border-radius: 7px;
+
 	box-shadow: 0px 0px 10px #ccc;
 	-moz-box-shadow: 0px 0px 10px #ccc;
 	-webkit-box-shadow: 0px 0px 10px #ccc;
