@@ -1,0 +1,2 @@
+#!/usr/local/bin/bash
+./google.py http://wicked-child.ru/js/ajax.js > ../js/ajax_compressed.js
