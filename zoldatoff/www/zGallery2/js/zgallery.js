@@ -406,7 +406,7 @@ function fillAlbums(jsonData){
     $("#albUL").empty().css('top', '0');
     
     for (var i = 0; i < nItems; i++) {
-        myLi = $('<li>').addClass('albLI').addClass('loadingdiv');
+        myLi = $('<li>').addClass('loadingdiv');
         myLi.data('json', theList[i]).data('n', i);
         
         myImg = $('<img>').attr('src', theList[i].image.thumb_bw_src).attr('alt', theList[i].image.name);
@@ -460,13 +460,12 @@ function fillImages(jsonData){
     $('#imgTop').data('json', theList);
     
     for (var i = 0; i < nItems; i++) {
-        myLi = $('<li>').addClass('imgLI').addClass('loadingdiv');
+        myLi = $('<li>').addClass('loadingdiv');
         myLi.data('json', theList[i]).data('n', i);
         
         myImg = $('<img>').attr('src', theList[i].thumb_bw_src).attr('alt', theList[i].name);
         
         myLi.click(function(){
-			// TODO: optimise here
             var jsonData = $(this).data('json');
             var n = $(this).data('n');
             var $imgMain = $('#imgMain');
@@ -477,7 +476,6 @@ function fillImages(jsonData){
             $('#imgTop').data('n', n);
             
             // Scroll the image list to center current image
-            // TODO: Женькин метод
             var steps = Math.floor($imgUL.data('visibleLength') / 2) - $imgUL.data('currentItem') - n;
             $imgUL.scrollHorisontally(steps, $imgUL.data('scrollDelta'));
             
@@ -614,7 +612,7 @@ function changeIcon($ul, direction, $direction1, $direction2) {
 	var src1 = (direction === 'v') ? 'icons/up.png' : 'icons/left.png';
 	var src2 = (direction === 'v') ? 'icons/down.png' : 'icons/right.png';
 	
-	var d = (direction === 'v') ? 1 : 4;
+	var d = (direction === 'v') ? 3 : 4;
     
     if (currentItem <= d - length) {
 		$direction2.hide();
