@@ -1,25 +1,29 @@
-/*
+/* *********************************************************************
  * Title: zGallery JS
  * JavaScript functions that manipulate DOM on client-side and interact with JSON data from server-side
- */
+ * *********************************************************************/
 
-/*
+/* *********************************************************************
  * Constant: AJAX_PATH
- * Path to PHP-files that get/send data from/to DB
+ * Path to PHP-files that get/send JSON data from/to DB
  */
 var AJAX_PATH = 'php/upload.php';
 
-// Namespace: jQuery
 
-/*
+
+/* *********************************************************************
+ * Namespace: jQuery
+ * 
+ * Group: Main callback functions
+ * Functions running on document.ready & window.resize events
+ * *********************************************************************/
+
+/* *********************************************************************
  * Function: jQuery.document.ready
  * Adjusts several visual (CSS) parameters and interface behaviour (clicks and more).
  * 
- * See Also:
- * 		<refreshInterface>
- * 		<getCategories>
- * 		<fillTopImages>
- * 		<changeTopImage>
+ * See Also: 
+ * 		<refreshInterface> 		
  */
 $(document).ready(function(){
 	// Disable right click
@@ -84,13 +88,22 @@ $(document).ready(function(){
     });
 });
 
-/*
+/* *********************************************************************
  * Function: jQuery.window.resize
  * Sets several CSS parameters basing on window size
+ * 
+ * See Also: 
+ * 		<refreshInterface> 	
  */
 $(window).resize(refreshInterface);
 
-/*
+
+/* *********************************************************************
+ * Group: jQuery extensions
+ * jQuery extensions for DOM manipulation
+ * *********************************************************************/
+
+/* *********************************************************************
  * Function: jQuery.toggleImage
  * Changes the image source path with fading effect and loading icon.
  * 
@@ -98,7 +111,8 @@ $(window).resize(refreshInterface);
  * 		newSrc - New image source path
  * 		duration - Effect duration (default: 500ms) 
  * 
- * Returns: jQuery object
+ * Returns: 
+ * 		jQuery object
  */
 $.fn.toggleImage = function(newSrc, duration){
     var d = duration ? duration : 500;
@@ -117,11 +131,151 @@ $.fn.toggleImage = function(newSrc, duration){
     return $t;
 };
 
-// Namespace: zGallery
 
-// Group: AJAX calls
+/* *********************************************************************
+ * Function: jQuery.prepareUL
+ * Determines scrolling parameters for UL element and stores them in jQuery.data() attributes
+ * 
+ * Parameters:
+ * 		direction - scrolling direction: 'v' - vertical, 'h' - horisontal
+ * 
+ * Returns: 
+ * 		jQuery object
+ */
+$.fn.prepareUL = function(direction) {
+	var scrollDelta, visibleLength;
+	var $ul = $(this);
+	
+	if (direction === 'v') {
+		scrollDelta = $ul.children(":first-child").fullHeight();
+		visibleLength = Math.floor($ul.parent().innerHeight() / scrollDelta);
+	}
+	else {
+		scrollDelta = $ul.children(":first-child").fullWidth();
+		visibleLength = Math.floor($ul.parent().innerWidth() / scrollDelta);
+	}
+	
+	$ul
+		.data('length', $ul.children().length)
+		.data('visibleLength', visibleLength)
+    	.data('currentItem', 0)
+		.data('scrollDelta', scrollDelta);
+	
+	return $ul;
+};
 
-/*
+/* *********************************************************************
+ * Function: jQuery.fullHeight
+ * Determines the height of an element including margins
+ * 
+ * Returns: 
+ * 		jQuery object
+ */
+$.fn.fullHeight = function(){
+    return parseInt($(this).outerHeight(), 10) +
+    parseInt($(this).css("margin-top"), 10) +
+    parseInt($(this).css("margin-bottom"), 10);
+};
+
+/* *********************************************************************
+ * Function: jQuery.fullWidth
+ * Determines the width of an element including margins
+ * 
+ * Returns: 
+ * 		jQuery object
+ */
+$.fn.fullWidth = function(){
+    return parseInt($(this).outerWidth(), 10) +
+    parseInt($(this).css("margin-left"), 10) +
+    parseInt($(this).css("margin-right"), 10);
+};
+
+/* *********************************************************************
+ * Function: jQuery.scroll
+ * Scrolls the UL element in selected direction
+ * 
+ * Parameters:
+ * 		steps - number of steps to scroll (can be zero or negative)
+ * 		scrollSize - size of scrolling step (in pixels)
+ * 		direction - scrolling direction: 'v' - vertical, 'h' - horisontal
+ * 
+ * Returns: 
+ * 		jQuery object
+ */
+$.fn.scroll = function(steps, scrollSize, direction){
+    var $t = $(this);
+    var length = $t.data('length');
+    var visibleLength = $t.data('visibleLength');
+    var currentItem = $t.data('currentItem');
+	
+	if (steps === 0) {
+		return $t;
+	}
+
+	if (currentItem + steps > length && steps > 0) {
+        return $t.scroll(steps-1, scrollSize, direction);
+    }
+	
+	if (currentItem - steps < -length && steps < 0) {
+        return $t.scroll(steps+1, scrollSize, direction);
+    }
+    
+    $t.data('currentItem', currentItem + steps);
+    
+    if (direction === 'v') {
+        return $t.stop().animate({
+            'top': '+=' + scrollSize * steps + 'px'
+        });
+    }
+    
+    if (direction === 'h') {
+        return $t.stop().animate({
+            'left': '+=' + scrollSize * steps + 'px'
+        });
+    }
+};
+
+/* *********************************************************************
+ * Function: jQuery.scrollVertically
+ * Scrolls the UL element vertically
+ * 
+ * Parameters:
+ * 		steps - number of steps to scroll (can be zero or negative)
+ * 		scrollHeight - size of scrolling step (in pixels)
+ * 
+ * Returns: 
+ * 		jQuery object
+ */
+$.fn.scrollVertically = function(steps, scrollHeight){
+	var $t = $(this).scroll(steps, scrollHeight, 'v');
+	return changeIcon($t, 'v', $('#albUp img'), $("#albDown img"));
+};
+
+/* *********************************************************************
+ * Function: jQuery.scrollHorisontally
+ * Scrolls the UL element horisontally
+ * 
+ * Parameters:
+ * 		steps - number of steps to scroll (can be zero or negative)
+ * 		scrollHeight - size of scrolling step (in pixels)
+ * 
+ * Returns: 
+ * 		jQuery object
+ */
+$.fn.scrollHorisontally = function(steps, scrollWidth){
+    var $t = $(this).scroll(steps, scrollWidth, 'h');
+	return changeIcon($t, 'h', $('#imgLeft img'), $("#imgRight img"));
+};
+
+
+/* *********************************************************************
+ * Namespace: zGallery
+ * 
+ * Group: AJAX calls
+ * Functions that send AJAX requests and react on success/failure
+ * *********************************************************************/
+
+/* *********************************************************************
  * Function: getCategories
  * Sends an AJAX request for list of categories
  * 
@@ -134,7 +288,7 @@ function getCategories(){
     }, fillCategories);
 }
 
-/*
+/* *********************************************************************
  * Function: getAlbums
  * Sends an AJAX request for list of albums
  * 
@@ -148,7 +302,7 @@ function getAlbums(category_id){
     }, fillAlbums);
 }
 
-/*
+/* *********************************************************************
  * Function: getImages
  * Sends an AJAX request for list of images
  * 
@@ -162,9 +316,12 @@ function getImages(album_id){
     }, fillImages);
 }
 
-// Group: AJAX callbacks
+/* *********************************************************************
+ * Group: AJAX callbacks
+ * Functions that react on success/failure AJAX requests
+ * *********************************************************************/
 
-/*
+/* *********************************************************************
  * Function: ajaxError
  * Callback function for AJAX "request error" event.
  */
@@ -175,7 +332,7 @@ function ajaxError(XMLHttpRequest, textStatus, errorThrown){
     $('#status').stop().hide();
 }
 
-/*
+/* *********************************************************************
  * Function: ajaxComplete
  * Callback function for AJAX "complete request" event.
  */
@@ -183,7 +340,7 @@ function ajaxComplete(XMLHttpRequest, textStatus){
     $('#status').stop().hide();
 }
 
-/*
+/* *********************************************************************
  * Function: ajaxSend
  * Callback function for AJAX "send request" event.
  */
@@ -191,9 +348,14 @@ function ajaxSend(XMLHttpRequest){
     $('#status').show(1000);
 }
 
-// Group: DOM manipulations
 
-/*
+
+/* *********************************************************************
+ * Group: DOM manipulations
+ * Main JS function that fill UL elements with images and bind events to them
+ * *********************************************************************/
+
+/* *********************************************************************
  * Function: fillCategories
  * Fills the #navUL element with the list of categories. Binds *onclick* events to the list.
  * 
@@ -224,7 +386,7 @@ function fillCategories(jsonData){
     $("#navUL li:first-child").click();
 }
 
-/*
+/* *********************************************************************
  * Function: fillAlbums
  * Fills the #albUL element with the list of albums. Binds *onclick* events to the list.
  * 
@@ -277,7 +439,7 @@ function fillAlbums(jsonData){
     $("#albUL li:first-child").click();
 }
 
-/*
+/* *********************************************************************
  * Function: fillImages
  * Fills the #imgUL element with the list of images. Binds *onclick* events to the list.
  * 
@@ -345,12 +507,14 @@ function fillImages(jsonData){
     $('#imgUL li:nth-child(' + tmp + ')').click();
 }
 
-/* Group: Auxiliary functions
+
+
+/* *********************************************************************
+ * Group: Auxiliary functions
  * Some repeating code was placed into these functions
- */
+ * *********************************************************************/
 
-
-/*
+/* *********************************************************************
  * Function: fillTopImages
  * Shows the images in full-screen mode 
  * 
@@ -389,7 +553,7 @@ function fillTopImages(step) {
 	}
 }
 
-/*
+/* *********************************************************************
  * Function: changeTopImage
  * Changes image source path with fading
  * 
@@ -407,7 +571,7 @@ function changeTopImage(src){
     });
 }
 
-/*
+/* *********************************************************************
  * Function: refreshInterface
  * Sets several CSS parameters basing on window size
  */
@@ -427,4 +591,90 @@ function refreshInterface(){
     
     $('#albUL').css('top', '0').prepareUL('v');
     $('#albUL img.active').parent().click();
+}
+
+function initAlbumsScroll(){
+	/* Init vertical scroll for albums */
+	var $albUL = $("#albUL").prepareUL('v');
+    var scrollHeight = $albUL.data('scrollDelta');
+	
+	$("#albUp img")
+	.unbind('click')
+	.click(function(){
+        $albUL.scrollVertically(1, scrollHeight);
+    });
+    
+    $("#albDown img")
+	.unbind('click')
+	.click(function(){
+        $albUL.scrollVertically(-1, scrollHeight);
+    });
+    	
+	$albUL.scrollVertically(0, 0);
+	
+	$("#albUL img")
+	.hide()
+	.each(function(){
+        return $(this).load(function(){
+            $(this).parent().removeClass('loadingdiv_');
+            return $(this).fadeIn();
+        });
+    });
+}
+
+function initImagesScroll(){
+	// Init horisontal scroll for images
+	var $imgUL = $('#imgUL').prepareUL('h');
+    var scrollWidth = $imgUL.data('scrollDelta');
+	
+	$('#imgLeft img')
+	.unbind('click')
+	.click(function(){
+        $imgUL.scrollHorisontally(1, scrollWidth);
+    });
+	
+	$('#imgRight img')
+	.unbind('click')
+	.click(function(){
+        $imgUL.scrollHorisontally(-1, scrollWidth);
+    });
+	
+    $imgUL.scrollHorisontally(0, 0);
+	
+	$('#imgUL img')
+	.hide()
+	.each(function(){
+    	return $(this).load(function(){
+        	$(this).parent().removeClass('loadingdiv_');
+        	return $(this).fadeIn();
+    	});
+	});
+}
+
+/* Determine wether to change scrolling icons or not */
+function changeIcon($ul, direction, $direction1, $direction2) {
+	var length = $ul.data('length');
+    var visibleLength = $ul.data('visibleLength');
+    var currentItem = $ul.data('currentItem');
+	
+	var src1 = (direction === 'v') ? 'icons/up.png' : 'icons/left.png';
+	var src2 = (direction === 'v') ? 'icons/down.png' : 'icons/right.png';
+	
+	var d = (direction === 'v') ? 1 : 4;
+    
+    if (currentItem <= d - length) {
+		$direction2.hide();
+    }
+    else {
+		$direction2.show();
+    }
+	
+    if (currentItem >= visibleLength - d) {
+		$direction1.hide();
+    }
+    else {
+		$direction1.show();
+    }
+	
+	return $ul;
 }

@@ -318,7 +318,7 @@ header h1 {
 	top: 0;
 }
 
-#imgInfo {
+#imgInfo {		
 	bottom: 20px; 
 	position: absolute;
 	right: 0;
@@ -328,10 +328,12 @@ header h1 {
 }
 
 #imgMain {
+	filter:progid:DXImageTransform.Microsoft.Glow(color='#ffffff', Strength='5');
+	
 	box-shadow: 0px 0px 10px #eee;
 	-moz-box-shadow: 0px 0px 10px #eee;
 	-webkit-box-shadow: 0px 0px 10px #eee;
-	
+
 	cursor: pointer;
 	max-height: 100%;
 	max-width: 100%;
