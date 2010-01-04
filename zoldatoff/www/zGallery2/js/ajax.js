@@ -98,6 +98,7 @@ $(document).ready(function(){
 $(window).resize(refreshInterface);
 
 
+
 /* *********************************************************************
  * Group: jQuery extensions
  * jQuery extensions for DOM manipulation
@@ -130,7 +131,6 @@ $.fn.toggleImage = function(newSrc, duration){
     }
     return $t;
 };
-
 
 /* *********************************************************************
  * Function: jQuery.prepareUL
@@ -315,6 +315,8 @@ function getImages(album_id){
         album_id: album_id
     }, fillImages);
 }
+
+
 
 /* *********************************************************************
  * Group: AJAX callbacks
@@ -515,13 +517,129 @@ function fillImages(jsonData){
  * *********************************************************************/
 
 /* *********************************************************************
+ * Function: refreshInterface
+ * Sets several CSS parameters basing on window size
+ */
+function refreshInterface(){
+    var $imgDiv = $('#imgDiv');
+    var h = $imgDiv.height();
+    $imgDiv.css('line-height', h + 'px');
+    
+    h = $('body').height() - 40;
+    $('#topImgDiv').css('line-height', h + 'px');
+    
+    var $albList = $('#albList');
+    $albList.height('100%');
+    h = $albList.height() - 60;
+    var H = Math.floor(h / 110) * 110;
+    $albList.height(H).css('margin-top', '-' + (H / 2) + 'px');
+    
+    $('#albUL').css('top', '0').prepareUL('v');
+    $('#albUL img.active').parent().click();
+}
+
+/* *********************************************************************
+ * Function: initAlbumsScroll
+ * Initializes albums list: binds click&load events, determines scrolling parameters
+ */
+function initAlbumsScroll(){
+	/* Init vertical scroll for albums */
+	var $albUL = $("#albUL").prepareUL('v');
+    var scrollHeight = $albUL.data('scrollDelta');
+	
+	$("#albUp img").unbind('click').click(function(){
+        $albUL.scrollVertically(1, scrollHeight);
+    });
+    
+    $("#albDown img").unbind('click').click(function(){
+        $albUL.scrollVertically(-1, scrollHeight);
+    });
+    	
+	$albUL.scrollVertically(0, 0);
+	
+	$("#albUL img")
+	.hide()
+	.each(function(){
+        return $(this).load(function(){
+            $(this).parent().removeClass('loadingdiv_');
+            return $(this).fadeIn();
+        });
+    });
+}
+
+/* *********************************************************************
+ * Function: initImagesScroll
+ * Initializes images list: binds click&load events, determines scrolling parameters
+ */
+function initImagesScroll(){
+	// Init horisontal scroll for images
+	var $imgUL = $('#imgUL').prepareUL('h');
+    var scrollWidth = $imgUL.data('scrollDelta');
+	
+	$('#imgLeft img').unbind('click').click(function(){
+        $imgUL.scrollHorisontally(1, scrollWidth);
+    });
+	
+	$('#imgRight img').unbind('click').click(function(){
+        $imgUL.scrollHorisontally(-1, scrollWidth);
+    });
+	
+    $imgUL.scrollHorisontally(0, 0);
+	
+	$('#imgUL img')
+	.hide()
+	.each(function(){
+    	return $(this).load(function(){
+        	$(this).parent().removeClass('loadingdiv_');
+        	return $(this).fadeIn();
+    	});
+	});
+}
+
+/* *********************************************************************
+ * Function: changeIcon
+ * Determines wether to hide or show scrolling icons
+ * 
+ * Parameters:
+ * 		$ul - jQuery object for UL element
+ * 		direction - scrolling direction: 'v' - vertical, 'h' - horisontal
+ * 		$direction1 - jQuery object for left/up arrow
+ * 		$direction2 - jQuery object for right/down arrow
+ */
+function changeIcon($ul, direction, $direction1, $direction2) {
+	var length = $ul.data('length');
+    var visibleLength = $ul.data('visibleLength');
+    var currentItem = $ul.data('currentItem');
+	
+	var src1 = (direction === 'v') ? 'icons/up.png' : 'icons/left.png';
+	var src2 = (direction === 'v') ? 'icons/down.png' : 'icons/right.png';
+	
+	var d = (direction === 'v') ? 1 : 4;
+    
+    if (currentItem <= d - length) {
+		$direction2.hide();
+    }
+    else {
+		$direction2.show();
+    }
+	
+    if (currentItem >= visibleLength - d) {
+		$direction1.hide();
+    }
+    else {
+		$direction1.show();
+    }
+	
+	return $ul;
+}
+
+/* *********************************************************************
  * Function: fillTopImages
  * Shows the images in full-screen mode 
  * 
  * Parameters:
  * 		step - Show the image that is several *steps* from the current
  */
-
 function fillTopImages(step) {
 	var $imgTop = $('#imgTop');
 	var $imgTopRight = $('#topRight img');
@@ -558,7 +676,7 @@ function fillTopImages(step) {
  * Changes image source path with fading
  * 
  * Parameters:
- * 		src - String with new image source path
+ * 		src - String with new image *source* path
  */
 function changeTopImage(src){
     $('#imgTop').hide();
@@ -569,112 +687,4 @@ function changeTopImage(src){
         $('#imgTop').attr('src', src).fadeIn('slow');
         return false;
     });
-}
-
-/* *********************************************************************
- * Function: refreshInterface
- * Sets several CSS parameters basing on window size
- */
-function refreshInterface(){
-    var $imgDiv = $('#imgDiv');
-    var h = $imgDiv.height();
-    $imgDiv.css('line-height', h + 'px');
-    
-    h = $('body').height() - 40;
-    $('#topImgDiv').css('line-height', h + 'px');
-    
-    var $albList = $('#albList');
-    $albList.height('100%');
-    h = $albList.height() - 60;
-    var H = Math.floor(h / 110) * 110;
-    $albList.height(H).css('margin-top', '-' + (H / 2) + 'px');
-    
-    $('#albUL').css('top', '0').prepareUL('v');
-    $('#albUL img.active').parent().click();
-}
-
-function initAlbumsScroll(){
-	/* Init vertical scroll for albums */
-	var $albUL = $("#albUL").prepareUL('v');
-    var scrollHeight = $albUL.data('scrollDelta');
-	
-	$("#albUp img")
-	.unbind('click')
-	.click(function(){
-        $albUL.scrollVertically(1, scrollHeight);
-    });
-    
-    $("#albDown img")
-	.unbind('click')
-	.click(function(){
-        $albUL.scrollVertically(-1, scrollHeight);
-    });
-    	
-	$albUL.scrollVertically(0, 0);
-	
-	$("#albUL img")
-	.hide()
-	.each(function(){
-        return $(this).load(function(){
-            $(this).parent().removeClass('loadingdiv_');
-            return $(this).fadeIn();
-        });
-    });
-}
-
-function initImagesScroll(){
-	// Init horisontal scroll for images
-	var $imgUL = $('#imgUL').prepareUL('h');
-    var scrollWidth = $imgUL.data('scrollDelta');
-	
-	$('#imgLeft img')
-	.unbind('click')
-	.click(function(){
-        $imgUL.scrollHorisontally(1, scrollWidth);
-    });
-	
-	$('#imgRight img')
-	.unbind('click')
-	.click(function(){
-        $imgUL.scrollHorisontally(-1, scrollWidth);
-    });
-	
-    $imgUL.scrollHorisontally(0, 0);
-	
-	$('#imgUL img')
-	.hide()
-	.each(function(){
-    	return $(this).load(function(){
-        	$(this).parent().removeClass('loadingdiv_');
-        	return $(this).fadeIn();
-    	});
-	});
-}
-
-/* Determine wether to change scrolling icons or not */
-function changeIcon($ul, direction, $direction1, $direction2) {
-	var length = $ul.data('length');
-    var visibleLength = $ul.data('visibleLength');
-    var currentItem = $ul.data('currentItem');
-	
-	var src1 = (direction === 'v') ? 'icons/up.png' : 'icons/left.png';
-	var src2 = (direction === 'v') ? 'icons/down.png' : 'icons/right.png';
-	
-	var d = (direction === 'v') ? 1 : 4;
-    
-    if (currentItem <= d - length) {
-		$direction2.hide();
-    }
-    else {
-		$direction2.show();
-    }
-	
-    if (currentItem >= visibleLength - d) {
-		$direction1.hide();
-    }
-    else {
-		$direction1.show();
-    }
-	
-	return $ul;
 }
