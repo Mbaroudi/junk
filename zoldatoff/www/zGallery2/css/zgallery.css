@@ -62,15 +62,33 @@ footer {
 ------------------------------------------------------------------------------*/
 
 @font-face {
-	font-family: 'Waltograph';
-	src: url('waltographUI.ttf');
+	font-family: 'WaltographUIBold';
+	src: url('fonts/waltographUI.eot');
+	src: local('Waltograph UI Bold'), 
+		 local('WaltographUI-Bold'), 
+		 url('fonts/waltographUI.woff') format('woff'), 
+		 url('fonts/waltographUI.ttf') format('truetype'), 
+		 url('fonts/waltographUI.svg#WaltographUI-Bold') format('svg');
 }
 
 @font-face {
 	font-family: 'Sharpie Marker';
-	src: url('fonts/title.eot');
-	src: url('title.ttf') format('truetype'),
-		 url('fonts/title.woff') format('woff');
+	src: url('fonts/sharpie.eot');
+}
+	
+@font-face {
+	font-family: 'Sharpie Marker';
+	src: url('fonts/sharpie.ttf') format('truetype');
+}
+
+@font-face {
+	font-family: 'Sharpie Marker';
+	src: url('fonts/sharpie.woff') format('woff');
+}
+		 
+@font-face {
+	font-family: 'Sharpie Marker';
+	src: url('fonts/sharpie.svg') format('svg');
 }
 
 /*------------------------------------------------------------------------------

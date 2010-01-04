@@ -6,27 +6,9 @@ header {
 	filter:progid:DXImageTransform.Microsoft.Gradient(GradientType=0,StartColorStr='#090909',EndColorStr='#202020');
 }
 
-/*
-@font-face {
-	font-family: 'Waltograph';
-	src: url('waltographUI.ttf');
-}
-
-@font-face {
-	font-family: 'Sharpie Marker';
-	src: url('title.ttf');
-}
-*/
-
 #logo {
 	filter:progid:DXImageTransform.Microsoft.Alpha(opacity=60);
 }
-
-/*
-#navUL li.navLI, #albUL li .albTitle {
-	font-family: "Sharpie Marker", "Comic Sans MS";
-}
-*/
 
 #albUL li, #imgUL li {
 	filter:progid:DXImageTransform.Microsoft.Alpha(opacity=60);
