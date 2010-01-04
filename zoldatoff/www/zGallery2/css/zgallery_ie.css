@@ -1,0 +1,535 @@
+/*------------------------------------------------------------------------------
+ 1. Общий внешний вид
+------------------------------------------------------------------------------*/
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+
+div {
+	overflow: hidden;
+}
+
+header, #navCat, #sContent, #sAlbums, #sMainImage, #sImageList, footer {
+	overflow: hidden;
+	position: absolute;
+}
+
+header, #navCat, #sContent, #sImageList, footer {
+	left: 0;
+	right: 0;
+}
+
+/*------------------------------------------------------------------------------
+ 1.1. Цвета и фон
+------------------------------------------------------------------------------*/
+
+body {
+    background-color: #090909;
+    color: #6b3f2a;
+    font-family: "Comic Sans MS";
+    
+}
+
+div.loadingdiv {
+	background-image: url("w_loader.gif");
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+div.loadingdiv_ {
+	background-image: url("w_loader_.gif");
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+header {
+	background-image: -moz-linear-gradient(0deg, #202020, #090909);
+	background-image: -webkit-gradient(linear, left top, right bottom,color-stop(0.00, #202020),color-stop(1.00, #090909));
+	filter:progid:DXImageTransform.Microsoft.Gradient(GradientType=0,StartColorStr='#202020',EndColorStr='#090909');
+}
+
+#sImageList {
+	background-image: -moz-linear-gradient(-90deg, #090909, #202020);
+	background-image: -webkit-gradient(linear, left top, left bottom,color-stop(0.00, #090909),color-stop(1.00, #202020));
+	filter:progid:DXImageTransform.Microsoft.Gradient(GradientType=0,StartColorStr='#090909',EndColorStr='#202020');
+}
+
+footer {
+	background-color: #202020;
+}
+
+/*------------------------------------------------------------------------------
+ 1.2. Шрифты
+------------------------------------------------------------------------------*/
+
+@font-face {
+	font-family: 'Waltograph';
+	src: url('waltographUI.ttf');
+}
+
+@font-face {
+	font-family: 'Sharpie Marker';
+	src: url('title.ttf');
+}
+
+/*------------------------------------------------------------------------------
+ 2. Заголовок и главное навигационное меню
+------------------------------------------------------------------------------*/
+
+header {
+	border-bottom: #202020 1px solid;
+    height: 99px;
+	left: 0;
+	line-height: 99px;
+    text-align: left;
+    top: 0;
+	width: 100%;
+}
+
+#logo {
+	cursor: pointer;
+	float: left;
+	max-height: 88px;
+	max-width: 88px;
+	opacity: 0.6;
+	filter:progid:DXImageTransform.Microsoft.Alpha(opacity=60);
+	padding: 5px 20px;
+}
+
+header h1 {
+	color: #999;
+	font-family: Waltograph, "Comic Sans MS";
+	font-size: 35px;
+	text-shadow: 2px 2px 4px #666;
+	top: 0;
+}
+
+#navCat {
+    height: 48px;
+	line-height: 48px;
+	right: 0;
+    text-align: right;
+	top: 50px;
+}
+
+#navUL {
+	position: absolute;
+	right: 0;
+}
+
+
+#status {
+	position: absolute;
+	right: 10px;
+	top: 10px;
+}
+
+#navUL li.navLI {
+	color: #6b3f2a;
+	cursor: pointer;
+	float: left;
+	font-family: "Sharpie Marker", "Comic Sans MS";
+	font-size: 20px;
+	padding: 0 15px;
+	position: relative;
+}
+
+#navUL li.active {
+	color: #a00;
+}
+
+/*------------------------------------------------------------------------------
+3. Основные секции
+------------------------------------------------------------------------------*/
+
+#sContent {
+    bottom: 30px;
+    top: 100px;
+}
+
+#albUp img, #albDown img, #imgLeft img, #imgRight img {
+	height: 25px;
+	opacity: 0.3;
+	filter:progid:DXImageTransform.Microsoft.Alpha(opacity=30);
+	width: 25px;
+}
+
+#albUp img:hover, #albDown img:hover, #imgLeft img:hover, #imgRight img:hover, #toLeft img:hover, #toRight img:hover {
+	filter:progid:DXImageTransform.Microsoft.Alpha(opacity=100);
+	opacity: 1.0;
+}
+
+/*------------------------------------------------------------------------------
+ 3.1. Левая секция
+------------------------------------------------------------------------------*/
+
+#sAlbums {
+    bottom: 120px;
+    left: 0;
+    top: 0;
+    width: 298px;
+}
+
+#albUp {
+	height: 28px;
+	line-height: 28px;
+	position: absolute;
+	top: 0;
+	text-align: center;
+	vertical-align: middle;
+	width: 100%;
+}
+
+#albList {
+	height: 100%;
+	margin-top: -165px;
+	overflow: hidden;
+	position: absolute;
+	text-align: center;
+	top: 50%;
+	width: 100%;
+}
+
+#albDown {
+	bottom: 0;
+	height: 28px;
+	line-height: 28px;
+	position: absolute;
+	text-align: center;
+	vertical-align: middle;
+	width: 100%;
+}
+
+#albUp img, #albDown img {
+	cursor: pointer;
+	height: 15px;
+	position: relative;
+	width: 15px;
+}
+
+#albUL {
+	height: 10000px;
+	left: 0;
+	position: absolute;
+	top: 0;
+	width: 100%;
+}
+
+#albUL li.albLI {
+	cursor: pointer;
+	float: left;
+	height: 100px;
+	line-height: 100px;
+	padding: 5px 0;
+	position: relative;
+	text-align: center;
+	width: 100%;
+}
+
+#albUL li.albLI img {
+	max-height: 100px;
+	max-width: 100px;
+	filter:progid:DXImageTransform.Microsoft.Alpha(opacity=60);
+	opacity: 0.6;
+	vertical-align: middle;
+}
+
+#albUL li.albLI img:hover {
+	box-shadow: none;
+	-moz-box-shadow: none;
+	-webkit-box-shadow: none;
+	
+	margin-top: -5px;
+	max-height: 110px;
+	filter:progid:DXImageTransform.Microsoft.Alpha(opacity=100);
+	opacity: 1;
+	max-width: 110px;
+}
+
+#albUL li.albLI img.active {
+	box-shadow: 0px 0px 10px #ccc;
+	-moz-box-shadow: 0px 0px 10px #ccc;
+	-webkit-box-shadow: 0px 0px 10px #ccc;
+	
+	filter:progid:DXImageTransform.Microsoft.Alpha(opacity=100);
+	opacity: 1;
+}
+
+#albUL li .albTitle {
+	color: #eee;
+	font-family: "Sharpie Marker", "Comic Sans MS";
+	font-size: 15px;
+	height: 30px;
+	left: 190px;
+	line-height: 15px;
+	position: absolute;
+	text-align: left;
+	top: 80px;
+	vertical-align: baseline;
+	width: 90px;
+	word-wrap: break-word;
+}
+
+#albUL li.active .albTitle {
+	color: #a00;
+}
+
+/*------------------------------------------------------------------------------
+ 3.2. Центральная секция
+------------------------------------------------------------------------------*/
+
+#sMainImage {
+    bottom: 120px;
+    left: 300px;
+    right: 0;
+	top: 0;
+}
+
+#toLeft, #toRight {
+	bottom: 0;
+	position: absolute;
+	text-align: center;
+	top: 0;
+	width: 50px;
+}
+
+#toLeft { left: 0; }
+#toRight { right: 300px; }
+
+#toLeft img, #toRight img {
+	cursor: pointer;
+	height: 20px;
+	margin-top: -10px;
+	filter:progid:DXImageTransform.Microsoft.Alpha(opacity=30);
+	opacity: 0.3;
+	position: relative;
+	top: 50%;
+	width: 20px;
+}
+
+#imgDiv {	
+	bottom: 0; 
+	left: 50px;
+	padding: 10px;
+	position: absolute;
+	right: 350px;
+	text-align: center;
+	top: 0;
+}
+
+#imgInfo {		
+	bottom: 20px; 
+	position: absolute;
+	right: 0;
+	text-align:center;
+	top: 50px;
+	width: 300px;
+}
+
+#imgMain {
+	filter:progid:DXImageTransform.Microsoft.Glow(color='#ffffff', Strength='5');
+	
+	box-shadow: 0px 0px 10px #eee;
+	-moz-box-shadow: 0px 0px 10px #eee;
+	-webkit-box-shadow: 0px 0px 10px #eee;
+
+	cursor: pointer;
+	max-height: 100%;
+	max-width: 100%;
+	vertical-align: middle;
+}
+
+/*------------------------------------------------------------------------------
+ 3.3. Нижняя секция
+------------------------------------------------------------------------------*/
+
+#sImageList {
+    bottom: 0;
+    height: 120px;
+	line-height: 120px;
+}
+
+#imgLeft, #imgRight {
+	height: 100%;
+	line-height: 120px;
+	position: absolute;
+	vertical-align: middle;
+	width: 200px;
+}
+
+#imgLeft {
+	margin-right: 420px;
+	right: 50%;
+	text-align: right;
+}
+
+#imgRight {
+	left: 50%;
+	margin-left: 420px;
+	text-align: left;
+}
+
+#imgLeft img, #imgRight img {
+	cursor: pointer;
+	height: 15px;
+	position: relative;
+	width: 15px;
+}
+
+#imgLeft img {
+	right: 10px;
+}
+
+#imgRight img {
+	left: 10px;
+}
+
+#imgList {
+	height: 100%;
+	left: 50%;
+	margin-left: -420px;
+	overflow: hidden;
+	position: absolute;
+	width: 840px;
+}
+
+#imgUL {
+	height: 100%;
+	left: 0;
+	position: absolute;
+	width: 10000px;
+}
+
+#imgUL li.imgLI {	
+	cursor: pointer;
+	float: left;
+	height: 100%;
+	line-height: 120px;
+	position: relative;
+	text-align: center;
+	width: 120px;
+}
+
+#imgUL li.imgLI img {
+	margin: 10px 10px;
+	max-height: 100px;
+	max-width: 100px;
+	filter:progid:DXImageTransform.Microsoft.Alpha(opacity=50);
+	opacity: 0.5;
+	vertical-align: middle;
+}
+
+#imgUL li.imgLI img:hover {
+	margin-left: 5px;
+	margin-top: 5px;
+	max-height: 110px;
+	max-width: 110px;
+	filter:progid:DXImageTransform.Microsoft.Alpha(opacity=100);
+	opacity: 1;
+}
+
+#imgUL li.imgLI img.active {
+	box-shadow: 0px 0px 10px #ccc;
+	-moz-box-shadow: 0px 0px 10px #ccc;
+	-webkit-box-shadow: 0px 0px 10px #ccc;
+	
+	filter:progid:DXImageTransform.Microsoft.Alpha(opacity=100);
+	opacity: 1;
+}
+/*------------------------------------------------------------------------------
+ 4. Футер
+------------------------------------------------------------------------------*/
+
+footer {
+	border-top: #202020 1px solid;
+    bottom: 0;
+    height: 29px;
+	line-height: 29px;
+    text-align: center;
+}
+
+/*------------------------------------------------------------------------------
+5. Всплывающее окно
+------------------------------------------------------------------------------*/
+
+#topDiv {
+	background-color: #000000;
+	display: none;
+	height: 100%;
+	position: absolute;
+	width: 100%;
+	z-index: 1000;
+}
+
+#topImgDiv {
+	bottom: 20px;
+	left: 50%;
+	margin-left: -35%;
+	overflow:visible;
+	position: absolute;
+	text-align: center;
+	top: 20px;
+	width: 70%;
+}
+
+#topLeft, #topRight {
+	bottom: 20px;
+	overflow:visible;
+	position: absolute;
+	top: 20px;
+	width: 100px;
+}
+
+#topLeft {
+	margin-right: 40%;
+	right: 50%;
+}
+
+#topRight {
+	margin-left: 40%;
+	left: 50%;
+}
+
+#topLeft img, #topRight img {
+	border-radius: 7px;
+	-moz-border-radius: 7px; 
+	-webkit-border-radius: 7px;
+
+	box-shadow: 0px 0px 10px #ccc;
+	-moz-box-shadow: 0px 0px 10px #ccc;
+	-webkit-box-shadow: 0px 0px 10px #ccc;
+	
+	cursor: pointer;
+	margin-top: -50px;
+	max-height: 100px;
+	max-width: 100px;
+	filter:progid:DXImageTransform.Microsoft.Alpha(opacity=50);
+	opacity: 0.5;
+	position: absolute;
+	top: 50%;
+}
+
+#topLeft img {
+	right: 5px;
+}
+
+#topRight img {
+	left: 5px;
+}
+
+#topLeft img:hover, #topRight img:hover {
+	filter:progid:DXImageTransform.Microsoft.Alpha(opacity=100);
+	opacity: 1;
+}
+
+#imgTop {
+	box-shadow: 0px 0px 10px #eee;
+	-moz-box-shadow: 0px 0px 10px #eee;
+	-webkit-box-shadow: 0px 0px 10px #eee;
+	
+	cursor: pointer;
+	max-height: 100%;
+	max-width: 100%;
+	vertical-align: middle;
+}
