@@ -26,6 +26,8 @@ var AJAX_PATH = 'php/upload.php';
  * 		<refreshInterface> 		
  */
 $(document).ready(function(){
+	Cufon.replace('h1', { fontFamily: 'Waltograph'});
+	
 	// Disable right click
     $(document).bind("contextmenu", function(e){
         return false;
@@ -381,10 +383,12 @@ function fillCategories(jsonData){
             getAlbums($(this).data('json').category_id);
             $('#navUL li').removeClass('active');
             $(this).addClass('active');
+			Cufon.refresh('#navUL');
         });
         $("#navUL").append(myLi);
     }
     
+	Cufon.replace('#navUL', { fontFamily: 'Sharpie Marker'});
     $("#navUL li:first-child").click();
 }
 
@@ -432,12 +436,13 @@ function fillAlbums(jsonData){
             
             $("#albUL li").removeClass('active');
             $(this).addClass('active');
+			Cufon.refresh('.albTitle');
         });
         $("#albUL").append(myLi);
     }
     
     initAlbumsScroll();
-    
+    Cufon.replace('.albTitle', { fontFamily: 'Sharpie Marker'});
     $("#albUL li:first-child").click();
 }
 

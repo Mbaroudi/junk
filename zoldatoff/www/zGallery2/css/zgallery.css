@@ -62,33 +62,23 @@ footer {
 ------------------------------------------------------------------------------*/
 
 @font-face {
-	font-family: 'WaltographUIBold';
+	font-family: 'Waltograph';
 	src: url('fonts/waltographUI.eot');
 	src: local('Waltograph UI Bold'), 
 		 local('WaltographUI-Bold'), 
-		 url('fonts/waltographUI.woff') format('woff'), 
-		 url('fonts/waltographUI.ttf') format('truetype'), 
+		 url('fonts/waltographUI.woff') format('woff'),
+		 url('fonts/waltographUI.ttf') format('truetype'),
 		 url('fonts/waltographUI.svg#WaltographUI-Bold') format('svg');
 }
 
 @font-face {
 	font-family: 'Sharpie Marker';
 	src: url('fonts/sharpie.eot');
-}
-	
-@font-face {
-	font-family: 'Sharpie Marker';
-	src: url('fonts/sharpie.ttf') format('truetype');
-}
-
-@font-face {
-	font-family: 'Sharpie Marker';
-	src: url('fonts/sharpie.woff') format('woff');
-}
-		 
-@font-face {
-	font-family: 'Sharpie Marker';
-	src: url('fonts/sharpie.svg') format('svg');
+	src: local("Sam's Sharpie Marker Medium"), 
+		 local("Sam'sSharpieMarker"), 
+		 url('fonts/sharpie.woff') format('woff'), 
+		 url('fonts/sharpie.ttf') format('truetype'), 
+		 url("fonts/sharpie.svg#Sam'sSharpieMarker") format('svg');
 }
 
 /*------------------------------------------------------------------------------
@@ -116,7 +106,7 @@ header {
 
 header h1 {
 	color: #999;
-	font-family: Waltograph, "Comic Sans MS";
+	font-family: "Waltograph", "Comic Sans MS", "Arial";
 	font-size: 35px;
 	text-shadow: 2px 2px 4px #666;
 	top: 0;
@@ -146,7 +136,7 @@ header h1 {
 	color: #6b3f2a;
 	cursor: pointer;
 	float: left;
-	font-family: "Sharpie Marker", "Comic Sans MS";
+	font-family: "Sharpie Marker", "Comic Sans MS", "Arial";
 	font-size: 20px;
 	padding: 0 15px;
 	position: relative;
@@ -264,7 +254,7 @@ header h1 {
 	max-width: 110px;
 }
 
-#albUL li img.active {
+#albUL img.active {
 	box-shadow: 0px 0px 10px #ccc;
 	-moz-box-shadow: 0px 0px 10px #ccc;
 	-webkit-box-shadow: 0px 0px 10px #ccc;
@@ -272,9 +262,9 @@ header h1 {
 	opacity: 1;
 }
 
-#albUL li .albTitle {
+#albUL li div.albTitle {
 	color: #eee;
-	font-family: "Sharpie Marker", "Comic Sans MS";
+	font-family: "Sharpie Marker", "Comic Sans MS", "Arial";
 	font-size: 15px;
 	height: 30px;
 	left: 190px;
@@ -287,7 +277,7 @@ header h1 {
 	word-wrap: break-word;
 }
 
-#albUL li.active .albTitle {
+#albUL li.active div.albTitle {
 	color: #a00;
 }
 
