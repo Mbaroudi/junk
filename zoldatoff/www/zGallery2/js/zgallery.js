@@ -65,14 +65,20 @@ $(document).ready(function(){
 	// Bind actions to controls (left/right etc.)
 	
     $('#toLeft img').click(function(){
-        var n = $('#imgUL img.active').parent().data('n');
-        $('#imgUL li:eq(' + (n - 1) + ')').click();
+		if ($(':animated').length) {
+        	return false;
+    	}
+		var n = $('#imgUL img.active').parent().data('n');
+	    $('#imgUL li:eq(' + (n - 1) + ')').click();
         return false;
     });
     
     $('#toRight img').click(function(){
-        var n = $('#imgUL img.active').parent().data('n');
-        $('#imgUL li:eq(' + (n + 1) + ')').click();
+		if ($(':animated').length) {
+        	return false;
+    	}
+		var n = $('#imgUL img.active').parent().data('n');
+	    $('#imgUL li:eq(' + (n + 1) + ')').click();
         return false;
     });
     
@@ -575,11 +581,19 @@ function initAlbumsScroll(){
     var scrollHeight = $albUL.data('scrollDelta');
 	
 	$("#albUp img").unbind('click').click(function(){
-        $albUL.scrollVertically(1, scrollHeight);
+		if ($(':animated').length) {
+			return false;
+		}
+		$albUL.scrollVertically(1, scrollHeight);
+		return false;
     });
     
     $("#albDown img").unbind('click').click(function(){
-        $albUL.scrollVertically(-1, scrollHeight);
+		if ($(':animated').length) {
+			return false;
+		}
+		$albUL.scrollVertically(-1, scrollHeight);
+		return false;
     });
     	
 	$albUL.scrollVertically(0, 0);
@@ -604,11 +618,19 @@ function initImagesScroll(){
     var scrollWidth = $imgUL.data('scrollDelta');
 	
 	$('#imgLeft img').unbind('click').click(function(){
-        $imgUL.scrollHorisontally(1, scrollWidth);
+		if ($(':animated').length) {
+			return false;	
+		}
+		$imgUL.scrollHorisontally(1, scrollWidth);
+		return false;
     });
 	
 	$('#imgRight img').unbind('click').click(function(){
-        $imgUL.scrollHorisontally(-1, scrollWidth);
+		if ($(':animated').length) {
+			return false;
+		}
+		$imgUL.scrollHorisontally(-1, scrollWidth);
+		return false;
     });
 	
     $imgUL.scrollHorisontally(0, 0);
