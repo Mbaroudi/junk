@@ -6,8 +6,12 @@
 /* *********************************************************************
  * Constant: AJAX_PATH
  * Path to PHP-files that get/send JSON data from/to DB
+ * 
+ * Constant: USE_CUFON
+ * Wether to use Cufon for rendering fonts or not
  */
 var AJAX_PATH = 'php/upload.php';
+var USE_CUFON = true;
 
 
 
@@ -26,7 +30,15 @@ var AJAX_PATH = 'php/upload.php';
  * 		<refreshInterface> 		
  */
 $(document).ready(function(){
-	Cufon.replace('h1', { fontFamily: 'Waltograph'});
+	if ($.browser.safari) {
+		USE_CUFON = false;
+	}
+	
+	if (USE_CUFON) {
+		Cufon.replace('h1', {
+			fontFamily: 'Waltograph'
+		});
+	}
 	
 	// Disable right click
     $(document).bind("contextmenu", function(e){
@@ -383,12 +395,18 @@ function fillCategories(jsonData){
             getAlbums($(this).data('json').category_id);
             $('#navUL li').removeClass('active');
             $(this).addClass('active');
-			Cufon.refresh('#navUL');
+			if (USE_CUFON) {
+				Cufon.refresh('#navUL');
+			}
         });
         $("#navUL").append(myLi);
     }
     
-	Cufon.replace('#navUL', { fontFamily: 'Sharpie Marker'});
+	if (USE_CUFON) {
+		Cufon.replace('#navUL', {
+			fontFamily: 'Sharpie Marker'
+		});
+	}
     $("#navUL li:first-child").click();
 }
 
@@ -436,13 +454,19 @@ function fillAlbums(jsonData){
             
             $("#albUL li").removeClass('active');
             $(this).addClass('active');
-			Cufon.refresh('.albTitle');
+			if (USE_CUFON) {
+				Cufon.refresh('.albTitle');
+			}
         });
         $("#albUL").append(myLi);
     }
     
     initAlbumsScroll();
-    Cufon.replace('.albTitle', { fontFamily: 'Sharpie Marker'});
+    if (USE_CUFON) {
+		Cufon.replace('.albTitle', {
+			fontFamily: 'Sharpie Marker'
+		});
+	}
     $("#albUL li:first-child").click();
 }
 
