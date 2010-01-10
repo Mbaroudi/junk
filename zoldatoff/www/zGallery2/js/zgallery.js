@@ -231,14 +231,18 @@ $.fn.scroll = function(steps, scrollSize, direction){
 	if (steps === 0) {
 		return $t;
 	}
-
-	if (currentItem + steps > length && steps > 0) {
-        return $t.scroll(steps-1, scrollSize, direction);
-    }
 	
-	if (currentItem - steps < -length && steps < 0) {
-        return $t.scroll(steps+1, scrollSize, direction);
-    }
+	if (currentItem + steps > 0 && steps > 0) {
+		return $t.scroll(steps-1, scrollSize, direction);
+	}
+	
+	if (currentItem + steps < visibleLength - length && steps < 0) {
+		return $t.scroll(steps+1, scrollSize, direction);
+	}
+	
+	//if (currentItem - steps < -length && steps < 0) {
+    //    return $t.scroll(steps+1, scrollSize, direction);
+    //}
     
     $t.data('currentItem', currentItem + steps);
     
@@ -448,8 +452,8 @@ function fillAlbums(jsonData){
             getImages(jsonData.album_id);
             
             // Scroll the albums list to center current album
-            //var steps =  Math.floor($albUL.data('visibleLength')/2) - $albUL.data('currentItem') - $(this).data('n');
-            //$albUL.scrollVertically(steps, $albUL.data('scrollDelta'));
+            var steps =  Math.floor($albUL.data('visibleLength')/2) - $albUL.data('currentItem') - $(this).data('n');
+            $albUL.scrollVertically(steps, $albUL.data('scrollDelta'));
             
             // Change the visual of selected item
             $albUL.children().each(function(){
@@ -659,20 +663,15 @@ function changeIcon($ul, direction, $direction1, $direction2) {
 	var length = $ul.data('length');
     var visibleLength = $ul.data('visibleLength');
     var currentItem = $ul.data('currentItem');
-	
-	var src1 = (direction === 'v') ? 'icons/up.png' : 'icons/left.png';
-	var src2 = (direction === 'v') ? 'icons/down.png' : 'icons/right.png';
-	
-	var d = (direction === 'v') ? 3 : 4;
     
-    if (currentItem <= d - length) {
+    if (currentItem <= visibleLength - length) {
 		$direction2.hide();
     }
     else {
 		$direction2.show();
     }
 	
-    if (currentItem >= visibleLength - d) {
+    if (currentItem >= 0) {
 		$direction1.hide();
     }
     else {

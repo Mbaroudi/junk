@@ -236,19 +236,19 @@ header h1 {
 	width: 100%;
 }
 
-#albUL li img {
+#albUL img {
 	max-height: 100px;
 	max-width: 100px;
 	opacity: 0.6;
 	vertical-align: middle;
 }
 
-#albUL li img:hover {
+#albUL img:hover {
 	box-shadow: none;
 	-moz-box-shadow: none;
 	-webkit-box-shadow: none;
 	
-	margin-top: -5px;
+	margin: -5px -5px;
 	max-height: 110px;
 	opacity: 1;
 	max-width: 110px;
@@ -262,7 +262,7 @@ header h1 {
 	opacity: 1;
 }
 
-#albUL li div.albTitle {
+#albUL div.albTitle {
 	color: #eee;
 	font-family: "Sharpie Marker", "Comic Sans MS", "Arial";
 	font-size: 15px;
@@ -413,7 +413,7 @@ header h1 {
 	width: 120px;
 }
 
-#imgUL li img {
+#imgUL img {
 	margin: 10px 10px;
 	max-height: 100px;
 	max-width: 100px;
@@ -421,15 +421,14 @@ header h1 {
 	vertical-align: middle;
 }
 
-#imgUL li img:hover {
-	margin-left: 5px;
-	margin-top: 5px;
+#imgUL img:hover {
+	margin: 5px 5px;
 	max-height: 110px;
 	max-width: 110px;
 	opacity: 1;
 }
 
-#imgUL li img.active {
+#imgUL img.active {
 	box-shadow: 0px 0px 10px #ccc;
 	-moz-box-shadow: 0px 0px 10px #ccc;
 	-webkit-box-shadow: 0px 0px 10px #ccc;
