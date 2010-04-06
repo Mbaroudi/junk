@@ -52,6 +52,7 @@ def read_data(con, filename, filetype):
                 if i%10000==0: print('    Loaded %i records' % i)
                 
             except Exception as err:
+                #print(err)
                 j+=1
             
         con.commit()        
@@ -61,66 +62,79 @@ def read_data(con, filename, filetype):
         
     except EnvironmentError as err:
         print('Error importing file "%s"' % filename)
+        #print(err)
         return False
+    
     except Exception as err:
         print(err)
+        return False
+        
     finally:
         if fh is not None: fh.close() 
-        return True
+        
+    return True
         
         
 def main(host="localhost",user="traffic", passwd="zaebis",db="traffic"):
     locale.setlocale(locale.LC_ALL, "ru_RU.UTF-8")
     
-    con=mysql.connect(host=host,user=user, passwd=passwd,db=db)
-    con.query('create table if not exists vertices('
-                'node       INTEGER(7) NOT NULL,'
-                'node_group INTEGER(7) NOT NULL, '
-                'PRIMARY KEY (node))')
-    con.query('create table if not exists edges(' 
-                'edge       INTEGER(7) NOT NULL,'
-                'edge_group INTEGER(7) NOT NULL,'
-                'node_start INTEGER(7) NOT NULL,'
-                'node_end   INTEGER(7) NOT NULL,'
-                'PRIMARY KEY (edge))')
-    con.query('create table if not exists edge_data ('
-                'edge_group INTEGER(7) NOT NULL,'
-                'length     REAL(7,2)  NOT NULL,'
-                'speed      REAL(5,2)  NOT NULL,'
-                'PRIMARY KEY (edge_group))')
-    con.query('create table if not exists jams('
-                'edge_group INTEGER(7) NOT NULL,'
-                'jam_time   INTEGER(8) NOT NULL,'
-                'jam_speed  INTEGER(3) NOT NULL,'
-                'PRIMARY KEY (edge_group))')
+    try:
     
-    con.query('create table if not exists m_vertices('
-                'node       INTEGER(7) NOT NULL,'
-                'node_group INTEGER(7) NOT NULL, '
-                'PRIMARY KEY (node)) ENGINE=MEMORY')
-    con.query('create table if not exists m_edges(' 
-                'edge       INTEGER(7) NOT NULL,'
-                'edge_group INTEGER(7) NOT NULL,'
-                'node_start INTEGER(7) NOT NULL,'
-                'node_end   INTEGER(7) NOT NULL,'
-                'PRIMARY KEY (edge)) ENGINE=MEMORY')
-    con.query('create table if not exists m_edge_data ('
-                'edge_group INTEGER(7) NOT NULL,'
-                'length     REAL(7,2)  NOT NULL,'
-                'speed      REAL(5,2)  NOT NULL,'
-                'PRIMARY KEY (edge_group)) ENGINE=MEMORY')
-    con.query('create table if not exists m_jams('
-                'edge_group INTEGER(7) NOT NULL,'
-                'jam_time   INTEGER(8) NOT NULL,'
-                'jam_speed  INTEGER(3) NOT NULL,'
-                'PRIMARY KEY (edge_group)) ENGINE=MEMORY')
+        con=mysql.connect(host=host,user=user, passwd=passwd,db=db)
+        con.query('create table if not exists vertices('
+                    'node       INTEGER(7) NOT NULL,'
+                    'node_group INTEGER(7) NOT NULL, '
+                    'PRIMARY KEY (node))')
+        con.query('create table if not exists edges(' 
+                    'edge       INTEGER(7) NOT NULL,'
+                    'edge_group INTEGER(7) NOT NULL,'
+                    'node_start INTEGER(7) NOT NULL,'
+                    'node_end   INTEGER(7) NOT NULL,'
+                    'PRIMARY KEY (edge))')
+        con.query('create table if not exists edge_data ('
+                    'edge_group INTEGER(7) NOT NULL,'
+                    'length     REAL(7,2)  NOT NULL,'
+                    'speed      REAL(5,2)  NOT NULL,'
+                    'PRIMARY KEY (edge_group))')
+        con.query('create table if not exists jams('
+                    'edge_group INTEGER(7) NOT NULL,'
+                    'jam_time   INTEGER(8) NOT NULL,'
+                    'jam_speed  INTEGER(3) NOT NULL,'
+                    'UNIQUE KEY (edge_group,jam_time))')
+        
+        con.query('create table if not exists m_vertices('
+                    'node       INTEGER(7) NOT NULL,'
+                    'node_group INTEGER(7) NOT NULL, '
+                    'PRIMARY KEY (node)) ENGINE=MEMORY')
+        con.query('create table if not exists m_edges(' 
+                    'edge       INTEGER(7) NOT NULL,'
+                    'edge_group INTEGER(7) NOT NULL,'
+                    'node_start INTEGER(7) NOT NULL,'
+                    'node_end   INTEGER(7) NOT NULL,'
+                    'PRIMARY KEY (edge)) ENGINE=MEMORY')
+        con.query('create table if not exists m_edge_data ('
+                    'edge_group INTEGER(7) NOT NULL,'
+                    'length     REAL(7,2)  NOT NULL,'
+                    'speed      REAL(5,2)  NOT NULL,'
+                    'PRIMARY KEY (edge_group)) ENGINE=MEMORY')
+        con.query('create table if not exists m_jams('
+                    'edge_group INTEGER(7) NOT NULL,'
+                    'jam_time   INTEGER(8) NOT NULL,'
+                    'jam_speed  INTEGER(3) NOT NULL,'
+                    'UNIQUE KEY (edge_group,jam_time)) ENGINE=MEMORY')
+        
+        read_data(con, 'data/vertices.txt', 0)
+        read_data(con, 'data/edges.txt', 1)
+        read_data(con, 'data/edge_data.txt', 2)
+        read_data(con, 'data/jams.txt', 3)
     
-    read_data(con, 'data/vertices.txt', 0)
-    read_data(con, 'data/edges.txt', 1)
-    read_data(con, 'data/edge_data.txt', 2)
-    read_data(con, 'data/jams.txt', 3)
-    
-    con.close()
+    except Exception as err:
+        print(err)
+        return False
+        
+    finally:
+        if con is not None: con.close()
+        
     return True        
      
 main()
