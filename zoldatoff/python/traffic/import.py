@@ -18,6 +18,8 @@ def read_data(con, filename, filetype):
             con.query('truncate table edge_data')
         elif filetype==3:   #jams
             con.query('truncate table jams')
+        elif filetype==4:   #jams
+            con.query('truncate table result')
         else:
             fh.close()
             return False
@@ -51,12 +53,25 @@ def read_data(con, filename, filetype):
                     #jam_timestamp=int(d)*24*60 + int(h)*60 + int(m)
                     #print('insert into jams values (%i, `%s`, %i)' % (edge_group,jam_timestamp,jam_speed))
                     con.query('insert into jams values (%i, \"%s\", %i)' % (edge_group,jam_timestamp,jam_speed))
+                elif filetype==4:   #result
+                    edge_group,jam_time,jam_speed=line.split("\t")
+                    edge_group=int(edge_group)
+                    
+                    d,t=jam_time.split(" ")
+                    if int(d)<=31: 
+                        jam_timestamp = "2010-01-" + jam_time + ":00"
+                    else:
+                        jam_timestamp = "2010-02-" + str(int(d)-31) + " " + t + ":00"
+                    #h,m=t.split(":")
+                    #jam_timestamp=int(d)*24*60 + int(h)*60 + int(m)
+                    #print('insert into result values (%i, \"%s\", NULL)' % (edge_group,jam_timestamp))
+                    con.query('insert into result values (%i, \"%s\", NULL)' % (edge_group,jam_timestamp))
                     
                 i+=1
                 if i%10000==0: print('    Loaded %i records' % i)
                 
             except Exception as err:
-                print(err)
+                #print(err)
                 j+=1
             
         con.commit()        
@@ -106,31 +121,18 @@ def main(host="localhost",user="traffic", passwd="zaebis",db="traffic"):
                     'jam_speed  INTEGER    NOT NULL,'
                     'UNIQUE KEY (edge_group,jam_time))')
         
-        con.query('create table if not exists m_vertices('
-                    'node       INTEGER NOT NULL,'
-                    'node_group INTEGER NOT NULL, '
-                    'PRIMARY KEY (node)) ENGINE=MEMORY')
-        con.query('create table if not exists m_edges(' 
-                    'edge       INTEGER NOT NULL,'
-                    'edge_group INTEGER NOT NULL,'
-                    'node_start INTEGER NOT NULL,'
-                    'node_end   INTEGER NOT NULL,'
-                    'PRIMARY KEY (edge)) ENGINE=MEMORY')
-        con.query('create table if not exists m_edge_data ('
-                    'edge_group INTEGER NOT NULL,'
-                    'length     REAL(7,2)  NOT NULL,'
-                    'speed      REAL(5,2)  NOT NULL,'
-                    'PRIMARY KEY (edge_group)) ENGINE=MEMORY')
-        con.query('create table if not exists m_jams('
+        con.query('create table if not exists result('
                     'edge_group INTEGER    NOT NULL,'
                     'jam_time   DATETIME   NOT NULL,'
-                    'jam_speed  INTEGER    NOT NULL,'
-                    'UNIQUE KEY (edge_group,jam_time)) ENGINE=MEMORY')
+                    'jam_speed  INTEGER,'
+                    'UNIQUE KEY (edge_group,jam_time))')
+       
         
-        read_data(con, 'data/vertices.txt', 0)
-        read_data(con, 'data/edges.txt', 1)
-        read_data(con, 'data/edge_data.txt', 2)
-        read_data(con, 'data/jams.txt', 3)
+        #read_data(con, 'data/vertices.txt', 0)
+        #read_data(con, 'data/edges.txt', 1)
+        #read_data(con, 'data/edge_data.txt', 2)
+        #read_data(con, 'data/jams.txt', 3)
+        read_data(con, 'data/task.txt', 4)
     
     except Exception as err:
         print(err)
