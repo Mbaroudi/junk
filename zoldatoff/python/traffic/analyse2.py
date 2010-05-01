@@ -4,14 +4,18 @@ import MySQLdb as mysql
 from math import sqrt
 import locale
 
-MAX_SHIFT = 7
+#INFO: 30 for testing, 31 for competition
 MAX_DAY = 30
+MAX_SHIFT = 8
 CUT = 30
-MIN_T = 45722
+MIN_T = MAX_DAY*24*60+18*60+2
+DEBUG = False
 
 def get_data(con, edge_group, d=MAX_DAY):
     cursor = con.cursor()
-    cursor.execute("Select ifnull(j.jam_speed, -1) from hm left join jams0 j "
+    #INFO: Case when speed > 100 then speed -= 100
+    cursor.execute("Select case when ifnull(j.jam_speed, -1) > 100 then j.jam_speed-100 else ifnull(j.jam_speed, -1) end "
+                   "from hm left join jams0 j "
                    "on hm.h=j.h and hm.m=j.m and j.edge_group=%s and j.d=%i "
                    "order by hm.h, hm.m" % (edge_group, d))
     rows = cursor.fetchall()
@@ -19,24 +23,37 @@ def get_data(con, edge_group, d=MAX_DAY):
     ds = []
     v0 = 0
     
-    for i in range(1, len(s)):
-        if s[i]==-1 or s[i-1]==-1: 
+    #INFO: We emulate lack of data on the last day
+    if d==MAX_DAY:
+        l = CUT
+    else:
+        l = len(s)
+    
+    #INFO: Calc speed deltas and last known speed    
+    for i in range(1, l):
+        if s[i]==-1 or s[i-1]==-1 or abs(s[i]-s[i-1]) > 50: 
             ds.append(0)
         else:
             ds.append(s[i]-s[i-1]) 
             
-        if s[i] != -1: v0 = s[i]
-        
-    if d==MAX_DAY:
-        return ds[:CUT-1], v0
-    else:
-        return ds, 0
+        if s[i] > 0 and s[i] < 150 : v0 = s[i]
+    
+    if DEBUG and d==MAX_DAY:
+        print("This is last day speeds & deltas")
+        for i in range(len(ds)):
+            print(s[i], ds[i])
+    
+    return ds, v0
 
 def set_data(con, edge_group, s):
-    cursor = con.cursor()
-    for i in range(len(s)):
-        cursor.execute("INSERT INTO TASK VALUES "
-                       "(%i,  %i, %i)" % (edge_group, MIN_T+i*4, s[i]) )
+    if DEBUG:
+        for i in range(len(s)):
+            print(edge_group, MIN_T+i*4, s[i])
+    else:
+        cursor = con.cursor()
+        for i in range(len(s)):
+            cursor.execute("INSERT INTO TASK VALUES "
+                           "(%i,  %i, %i)" % (edge_group, MIN_T+i*4, s[i]) )
 
 def correlation(s1,s2):
     z = zip(s1,s2)
@@ -82,7 +99,13 @@ def analyse(con, edge_group):
     res=[]
     res.append(v0)
     for i in range(1, len(x)+1):
-        res.append(res[i-1]+x[i-1])
+        d = res[i-1]+x[i-1]
+        if d<0: d=0
+        res.append(d)
+    
+    if DEBUG:
+        print("v0=%i" % v0)
+        print("Best day=%i, best_shift=%i, best_corr=%f" % (best_day, best_shift, best_corr))
        
     set_data(con, edge_group, res)
 
@@ -105,7 +128,10 @@ def main(host="localhost",user="traffic", passwd="zaebis",db="traffic"):
     con=mysql.connect(host=host,user=user, passwd=passwd,db=db)
     con.autocommit(0)
     
-    analyse_all(con) #467014
+    if DEBUG:
+        analyse(con, 839741)
+    else:
+        analyse_all(con) #467014
     
     con.commit()
     con.close()
