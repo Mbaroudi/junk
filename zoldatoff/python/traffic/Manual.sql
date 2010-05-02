@@ -98,6 +98,8 @@ FROM
 CREATE TABLE hm AS
 SELECT DISTINCT h, m FROM jams0 ORDER BY h, m
 
+create table edge_avg_speed as
+select edge_group, round(avg(jam_speed),0) jam_speed from jams0 where h >= 18 group by edge_group
 
 ##########################################
 # Manual calculations
@@ -111,14 +113,10 @@ CREATE TABLE task (
 # Выгрузка результата
 select r.edge_group, 
 	   concat(r.d+10, " ", r.h, case when r.m<10 then ":0" else ":" end, r.m) dtime, 
-   	   case when ifnull(t.jam_speed,0) <= 0 then j.jam_speed else t.jam_speed end speed
+   	   case when ifnull(t.jam_speed,0) <= 0 then ifnull(j.jam_speed, 50) else t.jam_speed end speed
 from result0 r 
 	 left join task t on r.t = t.t and r.edge_group = t.edge_group
-	 left join (select edge_group, avg(jam_speed) jam_speed 
-	 			 from jams0 
-	 			 where h >= 18 
-	 			 group by edge_group
-	 			 ) j on j.edge_group = r.edge_group
+	 left join edge_avg_speed j on j.edge_group = r.edge_group
 into outfile '/tmp/20100428.txt';
 
 scp zoldatoff@pro.local:/tmp/20100428.txt ~/Downloads

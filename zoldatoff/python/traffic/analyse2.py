@@ -6,16 +6,18 @@ import locale
 
 
 DEBUG = False
+TEST_EDGE = 927078
 
 #INFO: 30 for testing, 31 for competition
-if DEBUG:
-    MAX_DAY = 30
-else:
-    MAX_DAY = 31
+MAX_DAY = 30
+#MAX_DAY = 31
+
 MAX_SHIFT = 8
 CUT = 30
 MIN_T = MAX_DAY*24*60+18*60+2
 
+MAX_SPEED = 120
+MAX_DELTA = 40
 
 def get_data(con, edge_group, d=MAX_DAY):
     cursor = con.cursor()
@@ -27,7 +29,7 @@ def get_data(con, edge_group, d=MAX_DAY):
     rows = cursor.fetchall()
     s = [float(row[0]) for row in rows]
     ds = []
-    v0 = 0
+    v0 = s[0]
     
     #INFO: We emulate lack of data on the last day
     if d==MAX_DAY:
@@ -37,17 +39,16 @@ def get_data(con, edge_group, d=MAX_DAY):
     
     #INFO: Calc speed deltas and last known speed    
     for i in range(1, l):
-        if s[i]==-1 or s[i-1]==-1 or abs(s[i]-s[i-1]) > 50: 
+        v1 = s[i]
+        
+        if v1 < 0 or v1 > MAX_SPEED or abs(v0-v1) > MAX_DELTA:
             ds.append(0)
+        elif v0 < 0 or v0 > MAX_SPEED:
+            ds.append(0)
+            v0 = v1
         else:
-            ds.append(s[i]-s[i-1]) 
-            
-        if s[i] > 0 and s[i] < 150 : v0 = s[i]
-    
-    if DEBUG and d==MAX_DAY:
-        print("This is last day speeds & deltas")
-        for i in range(len(ds)):
-            print(s[i], ds[i])
+            ds.append(v1-v0)
+            v0 = v1
     
     return ds, v0
 
@@ -135,14 +136,13 @@ def main(host,user="traffic", passwd="zaebis",db="traffic"):
     con.autocommit(0)
     
     if DEBUG:
-        analyse(con, 447046)
+        analyse(con, TEST_EDGE)
     else:
-        analyse_all(con) #467014
+        analyse_all(con)
     
     con.commit()
     con.close()
     
-#main(host="pro.local")
 if DEBUG:
     main("pro")
 else:
