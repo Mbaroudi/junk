@@ -4,12 +4,18 @@ import MySQLdb as mysql
 from math import sqrt
 import locale
 
+
+DEBUG = False
+
 #INFO: 30 for testing, 31 for competition
-MAX_DAY = 30
+if DEBUG:
+    MAX_DAY = 30
+else:
+    MAX_DAY = 31
 MAX_SHIFT = 8
 CUT = 30
 MIN_T = MAX_DAY*24*60+18*60+2
-DEBUG = False
+
 
 def get_data(con, edge_group, d=MAX_DAY):
     cursor = con.cursor()
@@ -123,13 +129,13 @@ def analyse_all(con):
             print("%i edge groups completed" % i)
         analyse(con, row[0])
 
-def main(host="localhost",user="traffic", passwd="zaebis",db="traffic"):
+def main(host,user="traffic", passwd="zaebis",db="traffic"):
     locale.setlocale(locale.LC_ALL, "ru_RU.UTF-8")
     con=mysql.connect(host=host,user=user, passwd=passwd,db=db)
     con.autocommit(0)
     
     if DEBUG:
-        analyse(con, 839741)
+        analyse(con, 447046)
     else:
         analyse_all(con) #467014
     
@@ -137,4 +143,7 @@ def main(host="localhost",user="traffic", passwd="zaebis",db="traffic"):
     con.close()
     
 #main(host="pro.local")
-main()
+if DEBUG:
+    main("pro")
+else:
+    main("localhost")
