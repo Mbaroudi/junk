@@ -117,7 +117,16 @@ select r.edge_group,
 from result0 r 
 	 left join task t on r.t = t.t and r.edge_group = t.edge_group
 	 left join edge_avg_speed j on j.edge_group = r.edge_group
-into outfile '/tmp/20100428.txt';
+into outfile '/tmp/20100502.txt';
+
+# Экспериментальная выгрузка результата
+select r.edge_group, 
+	   concat(r.d+10, " ", r.h, case when r.m<10 then ":0" else ":" end, r.m) dtime, 
+   	   case when ifnull(j.jam_speed, ifnull(t.jam_speed, 50)) <= 0 then 50 else ifnull(j.jam_speed, ifnull(t.jam_speed, 50)) end speed
+from result0 r 
+	 left join task t on r.t = t.t and r.edge_group = t.edge_group
+	 left join edge_avg_speed j on j.edge_group = r.edge_group
+into outfile '/tmp/20100502.txt';
 
 scp zoldatoff@pro.local:/tmp/20100428.txt ~/Downloads
 scp pro:/tmp/20*.txt ~/Downloads

@@ -9,8 +9,7 @@ DEBUG = False
 TEST_EDGE = 927078
 
 #INFO: 30 for testing, 31 for competition
-MAX_DAY = 30
-#MAX_DAY = 31
+MAX_DAY = 31
 
 MAX_SHIFT = 8
 CUT = 30
