@@ -82,6 +82,10 @@ nav {
 	float:  left;
 }
 
+#main_menu li.selected {
+	color: #765c4f;
+}
+
 #main_menu li:hover {
 	
 	font-size: 20px;
@@ -94,6 +98,19 @@ nav {
 	margin-left: 10px;
 	margin-right: 10px;
 	width: 160px;
+}
+
+#left_list {
+	cursor: pointer;
+}
+
+#left_list li:hover {
+	color: #765c4f;
+}
+
+#left_list li.selected {
+	color: #765c4f;
+	text-shadow: 0px 0px 4px #8a7a60;;
 }
 
 #aside_r {
@@ -131,7 +148,7 @@ h2 {
 	overflow-y: hidden;
 }
 
-#folder_list {
+#main_list {
 	width: 100%;
 }
 
@@ -166,7 +183,7 @@ h2 {
 	text-decoration: line-through;
 }
 
-.c_input_folder {
+.c_input_level1 {
 	font-size: 20px;
 	font-weight:bold;
 	margin-top: 15px;
@@ -174,7 +191,7 @@ h2 {
 	width: 500px;
 }
 
-.c_input_project {
+.c_input_level2 {
 	/*color: #494a3f;*/
 	font-size: 16px;
 	font-weight: bold;
@@ -194,18 +211,18 @@ h2 {
 	width: 150px;
 }
 
-.c_project_list {
+.c_level2_list {
 	/*list-style-type: none;*/
 	margin-left: 30px;
 }
 
-.c_project_list li {
+.c_level2_list li {
 	list-style-type: none;
 	border-bottom: 1px solid transparent;
 	border-top: 1px solid transparent;
 }
 
-.c_project_list li:hover {
+.c_level2_list li:hover {
 	list-style-type: disc;
 	border-bottom: 1px dashed #000;
 	border-top: 1px dashed #000;
