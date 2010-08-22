@@ -9,7 +9,7 @@ DEBUG = False
 TEST_EDGE = 927078
 
 #INFO: 30 for testing, 31 for competition
-MAX_DAY = 31
+MAX_DAY = 30
 
 MAX_SHIFT = 8
 CUT = 30
@@ -51,7 +51,7 @@ def get_data(con, edge_group, d=MAX_DAY):
     
     return ds, v0
 
-def set_data(con, edge_group, s):
+def set_data(con, edge_group, s, best_day, best_shift, best_corr):
     if DEBUG:
         for i in range(len(s)):
             print(edge_group, MIN_T+i*4, s[i])
@@ -59,7 +59,7 @@ def set_data(con, edge_group, s):
         cursor = con.cursor()
         for i in range(len(s)):
             cursor.execute("INSERT INTO TASK VALUES "
-                           "(%i,  %i, %i)" % (edge_group, MIN_T+i*4, s[i]) )
+                           "(%i, %i, %i, %i, %i, %f)" % (edge_group, MIN_T+i*4, s[i], best_day, best_shift, best_corr) )
 
 def correlation(s1,s2):
     z = zip(s1,s2)
@@ -113,10 +113,18 @@ def analyse(con, edge_group):
         print("v0=%i" % v0)
         print("Best day=%i, best_shift=%i, best_corr=%f" % (best_day, best_shift, best_corr))
        
-    set_data(con, edge_group, res)
+    set_data(con, edge_group, res, best_day, best_shift, best_corr)
 
 def analyse_all(con):
     cursor = con.cursor()
+    cursor.execute("CREATE TABLE if not exists task ("
+                          "edge_group int(11) NOT NULL,"
+                          "t bigint(17) NOT NULL DEFAULT '0',"
+                          "jam_speed int(3) not null default '0',"
+                          "best_day integer(3),"
+                          "best_shift integer(2),"
+                          "best_corr double(7,6)"
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8")
     cursor.execute("truncate table task")
     cursor.execute("Select distinct edge_group from result0")
     rows = cursor.fetchall()
