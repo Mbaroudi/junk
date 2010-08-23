@@ -28,7 +28,7 @@ $(document).ready(function(){
 	/* $(".c_text_button[title]").tooltip({ position: "bottom center" }); */
 	$(".scrollable").scrollable({ vertical: true, mousewheel: false});	
 	
-	$(".c_input_folder, .c_input_project, .c_input_date")
+	$(".c_input_level1, .c_input_level2, .c_input_date")
 		.live("focusin", function(){
 			$(this).css("border-color", "#494a3f");
 		})
@@ -90,6 +90,11 @@ $(document).ready(function(){
 		t.siblings().removeClass("c_task_active").removeClass("c_task_skipped");
 		t.siblings(".c_input_level2").addClass("c_task_done");
 		t.siblings(".c_input_date").addClass("c_task_done");
+		//TODO: Поправить сам task
+	});
+	
+	$("span.c_star_button").live("click", function(){
+		$(this).toggleClass("c_star_button_v");
 		//TODO: Поправить сам task
 	});
 	

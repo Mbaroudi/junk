@@ -1,7 +1,7 @@
 html, body {
 	height: 100%;
 	overflow: hidden;
-	font-family: /*"Comic Sans MS",*/ "Courier New", Courier, monospace;
+	font-family: "Courier New", Courier, monospace;
 	color: #494a3f;
 }
 	
@@ -23,7 +23,7 @@ input, inbox {
 	background: transparent;
 	border: 1px solid transparent;
 	color: #494a3f;
-	font-family: /*"Comic Sans MS",*/ "Courier New", Courier, monospace; 
+	font-family: "Courier New", Courier, monospace; 
 	font-size: 14px;
 }
 
@@ -51,7 +51,7 @@ header {
 h1 { 
 	color: #362c1f;
 	font-size: 40px;
-	font-family: "Crimson+Text", "Courier New", Courier, monospace;
+	font-family: "IM Fell DW Pica", "Courier New", Courier, monospace;
 	float: right;
 	right: 50px;
 	position: relative;
@@ -232,10 +232,6 @@ h2 {
 	background-color: #b1986f;
 }
 
-/*.c_star_list {
-	list-style-image:url("../img/star.gif");
-}*/
-
 .c_list_label {
 	cursor: pointer;
 	font-size: 20px;
@@ -259,7 +255,7 @@ h2 {
 }
 
 .c_star_button {
-	color: #494a3f;
+	color: #696a5f;
 	cursor: pointer;
 	font-family: Arial, Helvetica, sans-serif;
 	font-size: 12px;
@@ -271,6 +267,7 @@ h2 {
 
 .c_star_button_v {
 	opacity: 1!important;
+	color: #362c1f;
 }
 
 .c_star_button:hover {

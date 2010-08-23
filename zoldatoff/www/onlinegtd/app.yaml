@@ -13,5 +13,13 @@ handlers:
 - url: /js
   static_dir: js
   
+- url: /a/.*
+  script: gtd.py
+  login: required
+  
+- url: /admin/.*
+  script: admin.py
+  login: admin
+  
 - url: .*
   script: main.py

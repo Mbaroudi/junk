@@ -21,11 +21,23 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 from google.appengine.ext.webapp import template
 
+from google.appengine.api import users
+
+
 
 class MainHandler(webapp.RequestHandler):
 	def get(self):
-		path = os.path.join(os.path.dirname(__file__), 'index.html')
-		self.response.out.write(template.render(path, None))
+		user = users.get_current_user()
+		
+		template_values = {
+			'user': user
+		}
+		
+		if user:
+			path = os.path.join(os.path.dirname(__file__), 'index.html')
+			self.response.out.write(template.render(path, template_values))
+		else:
+			self.redirect(users.create_login_url(self.request.uri))
 
 
 def main():

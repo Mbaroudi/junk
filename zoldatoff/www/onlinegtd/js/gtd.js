@@ -240,7 +240,7 @@ $.fn.genList2 = function(list2, p) {
 			el.append("<span class='c_text_button' title= '" + v[0] + "'>" + v[1] + " &nbsp;</span>");
 		});
 		
-		el.data("id", val.id).data("name", val.name);
+		el.data("id", val.id);
 		t.append(el);
 	});
 	
