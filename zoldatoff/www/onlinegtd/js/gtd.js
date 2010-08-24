@@ -72,7 +72,7 @@ var task_list = '[{\
 "starred": "0",\
 "status": "active",\
 "attachments": [],\
-"context_id": [0],\
+"context_id": [15],\
 "start_date": "01.01.2010",\
 "due_date": "31.01.2010",\
 "complete_date": "01.03.2010"\
@@ -84,7 +84,7 @@ var task_list = '[{\
 "starred": "1",\
 "status": "skipped",\
 "attachments": [],\
-"context_id": [1],\
+"context_id": [14],\
 "start_date": "01.01.2010",\
 "due_date": "31.01.2010",\
 "complete_date": "01.03.2010"\
@@ -96,7 +96,7 @@ var task_list = '[{\
 "starred": "0",\
 "status": "completed",\
 "attachments": [],\
-"context_id": [2],\
+"context_id": 13,\
 "start_date": "01.01.2010",\
 "due_date": "31.01.2010",\
 "complete_date": "01.03.2010"\
@@ -116,7 +116,7 @@ var context_list = '[{\
 var folders_list = $.parseJSON(folder_list);
 var projects_list = $.parseJSON(project_list);
 var tasks_list = $.parseJSON(task_list);
-var contexts_list = $.parseJSON(context_list);
+var contexts_list; // = $.parseJSON(context_list);
 
 function grepArray(list, p) {
 	return $.grep(list, function(e, i) {
@@ -125,6 +125,7 @@ function grepArray(list, p) {
 		if (p.name) ret = ret && (p.name == e.name);		
 		if (p.id) ret = ret && (p.id == e.id);
 		if (p.parent_id) ret = ret && (p.parent_id == e.parent_id);
+		if (p.context_id) ret = ret && (p.context_id == e.context_id);
 		
 		return ret;
 	});
@@ -185,15 +186,24 @@ function genList1(list1, list2, p) {
 	var el;
 	var list, filtered_list;
 	
+	//$(".scrollable").data("scrollable").begin(0);
+	
 	//Список 1-го уровня
 	$.each(list1, function(ind, val) {
-		var el = $("<div>")
+		var el = $("<div class=item>")
 			.append("<span class=c_list_label>▾</span>")
 			.append("<input type='text' value='" + val.name + "' class='c_input_level1'/>")
 			.append("<ul class='c_level2_list'>");
 			
 		//Список 2-го уровня
-		list = grepArray(list2, {parent_id: val.id});
+		switch(p.type) {
+			case "Contexts": 
+				list = grepArray(list2, {context_id: val.id});
+				break;
+			default:
+				list = grepArray(list2, {parent_id: val.id});
+		}
+		
 		el.children("ul.c_level2_list").genList2(list);
 		
 		//Раскрытие списка
@@ -213,6 +223,8 @@ function genList1(list1, list2, p) {
 function genLeftList(list1, list2, p) {	
 	$("#aside_l h2").text(p.type);
 	var ul = $("#left_list").empty();
+	
+	$(".scrollable").data("scrollable").begin(0);
 	
 	$.each(list1, function(ind, val) {
 		el = $("<li>").text(val.name);

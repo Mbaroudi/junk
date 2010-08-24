@@ -44,8 +44,14 @@
 		<span style="line-height: 27px">&nbsp;</span>
 	
 		<h2>List</h2>
-		<ul id="left_list" class="c_aside_list">
-		</ul>
+		<ul id="left_list" class="c_aside_list"></ul>
+		<span id="left_control" class="add">+</span>
+		
+		<form id="left_form">
+			<!--input type="hidden" class="c_input_level2" name="action" value="create"/-->
+			<input type="text" id="left_input" name="name" required="required"/>
+			<input type="submit" name="OK" value="OK"/>
+		</form>
 	</aside>
 	
 	<aside id="aside_r">
@@ -86,9 +92,9 @@
 		
 		<div>
 			Scroll:
-			<a class="prev disabled">↑↑</a>
+			<a class="prev">↑↑</a>
    			<a class="next">↓↓</a>
-		</div>
+   		</div>
 		
 		<div class="scrollable vertical">
 			<div id="main_list" class="items">

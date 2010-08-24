@@ -34,21 +34,13 @@ class UniqueConstraintViolation(Exception):
 	def __init__(self, scope, value):
 		super(UniqueConstraintViolation, self).__init__("Value '%s' is not unique within scope '%s'." % (value, scope))
 
-# Context
-class Context(db.Model):
+class GtdObject(db.Model):
 	user = db.UserProperty()
 	name = db.StringProperty(required=True)
 	change_date = db.DateTimeProperty(auto_now_add=True)
-	
-	def put(self):
-		if Context.gql("WHERE user=:user AND name=:name", user=self.user, name=self.name).count():
-			raise UniqueConstraintViolation("name", self.name)
-        	
-		#self._key_name = self.name
-		return db.Model.put(self)
 		
 	def text(self):
-		print 'key = ' + str(self.key().id()) + \
+		return 'key = ' + str(self.key().id()) + \
 				' name = ' + self.name + \
 				' user = ' + str(self.user) + \
 				' change_date = ' + str(self.change_date)
@@ -56,16 +48,38 @@ class Context(db.Model):
 	def json(self):
 		return dict(id=self.key().id(), name=self.name)
 
+class GtdUniqueObject(GtdObject):
+	def put(self):
+		if GtdUniqueObject.gql("WHERE user=:user AND name=:name", user=self.user, name=self.name).count():
+			raise UniqueConstraintViolation("name", self.name)
+        	
+		#self._key_name = self.name
+		return db.Model.put(self)
+
+
+# Context
+class Context(GtdUniqueObject):
+	None
+	
+# Folder
+class Folder(GtdUniqueObject):
+	None
+	
+# Project
+class Project(GtdObject):
+	None
+	
+# Project
+class Task(GtdObject):
+	None
+
 # Context web request hander	
 class ContextHandler(webapp.RequestHandler):
 	def get(self):
-	
-		print 'Content-Type: text/plain'
-		print ''
 			
 		action = self.request.get('action')
 		
-		if action == 'get':
+		if action == 'list':
 			contexts = Context.gql("WHERE user = :user ORDER BY change_date", user=users.get_current_user())
 			result = []
 			
@@ -78,10 +92,22 @@ class ContextHandler(webapp.RequestHandler):
 			context = Context(name=self.request.get('name'))
 			context.user = users.get_current_user()
 			context.put()
-			print 'Created context: ' + context.text()
+			
+			self.response.out.write(simplejson.dumps(context.json()))
+			
+		elif action == 'delete':
+			context = Context.get_by_id(self.request.get('id'))
+			self.response.out.write(simplejson.dumps(context.json()))
+			context.delete()
+			
+		elif action == 'rename':
+			context = Context.get_by_id(self.request.get('id'))
+			context.name = self.request.get('name')
+			context.put()
+			self.response.out.write(simplejson.dumps(context.json()))
 		
 		else:
-			print 'Nothing happened'
+			self.response.out.write('Nothing happened')
 			
 
 

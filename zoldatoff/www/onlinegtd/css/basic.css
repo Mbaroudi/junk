@@ -139,6 +139,33 @@ h2 {
 	width: 100%;
 }
 
+#left_control {
+	color: #494a3f;
+	cursor: pointer;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 25px;
+	line-height: 45px;
+	text-shadow: 0 0 2px #333;
+}
+
+#left_form {
+	width: 150px;
+	display: none;
+}
+
+#left_form input[type=text] {
+	border: 1px solid #494a3f;
+	color: #494a3f;
+	float: left;
+	width: 110px;
+}
+
+#left_form input[type=submit] {
+	font-weight: bold;
+	cursor: pointer;
+	float: right;
+}
+
 #main_sec {
 	line-height: 18px;
 	position: relative;
@@ -198,7 +225,6 @@ h2 {
 	/*margin-top: 7px;
 	margin-bottom: 2px;*/
 	width: 400px;
-	text-overflow: ellipsis;
 	white-space: nowrap;
 	overflow: hidden;
 }
@@ -236,7 +262,6 @@ h2 {
 	cursor: pointer;
 	font-size: 20px;
 	margin-right: 5px;
-	text-weight: bold;
 }
 
 .c_text_button {
@@ -244,7 +269,7 @@ h2 {
 	cursor: pointer;
 	font-family: Arial, Helvetica, sans-serif;
 	font-size: 15px;
-	line-height: 12px;
+	/*line-height: 12px;*/
 	/*margin-left: 10px;*/
 	text-shadow: 0 0 2px #333;
 }
@@ -278,7 +303,7 @@ footer {
 	background-color: transparent;
 	background-image: url("../img/bg_footer.png");
 	background-position: bottom;
-	background-repeat: none;
+	background-repeat: repeat-x;
 	
 	color: #494a3f;
 	font-weight: bold;
@@ -290,11 +315,11 @@ footer {
 	bottom: 0;
 }
 
-.tooltip {
+/*.tooltip {
 	font-family: Arial, Helvetica;
 	font-size: 15px;
 	top: 30px;
-}
+}*/
 
 .scrollable {
 	position: relative;
@@ -317,9 +342,9 @@ a.prev, a.next {
 }
 
 a.prev:hover, a.next:hover {
-	color: #494a3f;
+	color: #292a1f;
 }
 
-a.prev.disabled, a.next.disabled {
+.disabled {
 	visibility: hidden;
 }
