@@ -15,21 +15,16 @@
 # limitations under the License.
 #
 
-import cgi
-import os
 
 from google.appengine.ext import webapp
-from google.appengine.ext.webapp import util
-from google.appengine.ext.webapp import template
-
 from google.appengine.ext import db
-
 from google.appengine.api import users
 
 from django.utils import simplejson
 
 ##########################################################################################################
-
+### Exceptions ###########################################################################################	
+##########################################################################################################
 
 # Exception on inserting not unique value
 class UniqueConstraintViolation(Exception):
@@ -37,7 +32,13 @@ class UniqueConstraintViolation(Exception):
 		super(UniqueConstraintViolation, self).__init__("Value '%s' is not unique within scope '%s'." % (value, scope))
 		
 ##########################################################################################################
+### Models ###############################################################################################	
+##########################################################################################################
 
+# TODO: How to save attachments		
+class Attachment(db.Model): pass
+
+# Parent class for all objects
 class GtdObject(db.Model):
 	user = db.UserProperty()
 	name = db.StringProperty(required=True)
@@ -52,6 +53,7 @@ class GtdObject(db.Model):
 	def json(self):
 		return dict(id=self.key().id(), name=self.name)
 
+# Parent class for objects with unique name
 class GtdUniqueObject(GtdObject):
 	def put(self):
 		if GtdUniqueObject.gql("WHERE user=:user AND name=:name", user=self.user, name=self.name).count():
@@ -60,21 +62,39 @@ class GtdUniqueObject(GtdObject):
 		#self._key_name = self.name
 		return db.Model.put(self)
 
-
-# Context
+# Parent class for tasks & projects		
+class GtdTask(GtdObject):
+	description = db.StringProperty()
+	starred = db.BooleanProperty(default=False)
+	status = db.StringProperty(default="active")	#skipped, paused, completed, dropped, future, next
+	start_date = db.DateTimeProperty()
+	due_date = db.DateTimeProperty()
+	complete_date = db.DateTimeProperty()
+	attachments = db.ReferenceProperty(Attachment)
+		
+		
+# Context class
 class Context(GtdUniqueObject): pass
 	
-# Folder
+# Folder class
 class Folder(GtdUniqueObject): pass
+
+# Project class
+class Project(GtdTask):
+	parent_id = db.ReferenceProperty(Folder)
+	ptype = db.StringProperty(default="single") 	#sequential, parallel
+
+# Task class
+class Task(GtdTask):
+	parent_id = db.ReferenceProperty(Project)
+	context_id = db.ReferenceProperty(Context)
 	
-# Project
-class Project(GtdObject): pass
-	
-# Project
-class Task(GtdObject): pass
-	
+
+##########################################################################################################
+### Handlers #############################################################################################	
 ##########################################################################################################
 
+# Parent class for all handlers
 class GtdObjectHandler(webapp.RequestHandler):
 	
 	def __init__(self, gtdobjname):
@@ -115,32 +135,54 @@ class GtdObjectHandler(webapp.RequestHandler):
 		else:
 			self.response.out.write('Nothing happened')
 
+# Parent class for tasks and projects
+class GtdTaskHandler(GtdObjectHandler):
+	def __init__(self, gtdobjname):
+		self.Gobject = gtdobjname
+		super(GtdTaskHandler, self).__init__(self.Gobject)
+		
+	def get(self):
+		super(GtdTaskHandler, self).get()
+
 # Context web request hander	
 class ContextHandler(GtdObjectHandler):
 	def __init__(self):
 		super(ContextHandler, self).__init__(Context)
 
+# Folder web request handler
 class FolderHandler(GtdObjectHandler):
 	def __init__(self):
 		super(FolderHandler, self).__init__(Folder)
+		
+# Task web request handler
+class TaskHandler(GtdTaskHandler):
+	def __init__(self):
+		super(TaskHandler, self).__init__(Task)
+		
+# Project web request handler
+class ProjectHandler(GtdTaskHandler):
+	def __init__(self):
+		super(ProjectHandler, self).__init__(Project)
 			
 ##########################################################################################################
 
 class MainHandler(webapp.RequestHandler):
 	def get(self):		
 		if users.get_current_user():
-			None
+			pass
 		else:
 			self.redirect(users.create_login_url(self.request.uri))
 			
 			
 def main():
     application = webapp.WSGIApplication([('/a/', MainHandler),
-    									  ('/a/context', ContextHandler),
-    									  ('/a/folder', FolderHandler)
+    									  ('/a/contexts', ContextHandler),
+    									  ('/a/folders', FolderHandler),
+    									  ('/a/projects', ProjectHandler),
+    									  ('/a/tasks', TaskHandler)
     									],
                                          debug=True)
-    util.run_wsgi_app(application)
+    webapp.util.run_wsgi_app(application)
 
 
 if __name__ == '__main__':

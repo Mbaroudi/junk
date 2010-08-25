@@ -31,9 +31,9 @@
 		<h1>GTD Online</h1>Special for {{user}}
 		<nav>
 		<ul id="main_menu">
-			<li id="folder">Folders</li>
-			<li id="project">Projects</li>
-			<li id="context">Contexts</li>
+			<li id="folders">Folders</li>
+			<li id="projects">Projects</li>
+			<li id="contexts">Contexts</li>
 			<li id="review">Review</li>
 			<li id="settings">Settings</li>
 		</ul>
@@ -55,8 +55,10 @@
 	</aside>
 	
 	<aside id="aside_r">
-		<input type="text" name="Searchbox" value="Поиск" id="input_search" />
-		<input type="button" name="OK" value="OK" id="ok_search" />
+		<form id="search_form">
+			<input type="text" name="Searchbox" value="Search" id="input_search" />
+			<input type="submit" name="OK" value="OK" id="ok_search" />
+		</form>
 		
 		<!--h2>Вид списка</h2>
 		<ul id="right_view_list" class="c_aside_list">
@@ -86,9 +88,11 @@
 		</ul>
 	</aside>
 	
-	<section id="main_sec">    
-		<input type="text" name="Inbox" value="Inbox" id="input_inbox" />
-		<input type="button" name="OK" value="OK" id="ok_inbox" />
+	<section id="main_sec">
+		<form id="inbox_form">  
+			<input type="text" name="Inbox" value="Inbox" id="input_inbox" />
+			<input type="submit" name="OK" value="OK" id="ok_inbox" />
+		</form>
 		
 		<div>
 			Scroll:

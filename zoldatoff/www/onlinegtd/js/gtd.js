@@ -1,22 +1,8 @@
 "use strict";
 
-var folder_list = '[{\
-"id": "0",\
-"parent_id": null,\
-"name": "Current projects"\
-},{\
-"id": "1",\
-"parent_id": null,\
-"name": "Single actions"\
-},{\
-"id": "2",\
-"parent_id": null,\
-"name": "Programming"\
-}]';
-
 var project_list = '[{\
 "id": "0",\
-"parent_id": "0",\
+"parent_id": "22",\
 "name": "Похозяйничать",\
 "description": "Кухня и ванная",\
 "starred": "1",\
@@ -28,7 +14,7 @@ var project_list = '[{\
 "type": "sequential"\
 },{\
 "id": "1",\
-"parent_id": "1",\
+"parent_id": "23",\
 "name": "Read",\
 "description": "Books etc.",\
 "starred": "0",\
@@ -40,7 +26,7 @@ var project_list = '[{\
 "type": "single actions"\
 },{\
 "id": "2",\
-"parent_id": "2",\
+"parent_id": "23",\
 "name": "Zoldatoff.ru",\
 "description": "A site about me...",\
 "starred": "0",\
@@ -52,7 +38,7 @@ var project_list = '[{\
 "type": "parallel"\
 },{\
 "id": "3",\
-"parent_id": "2",\
+"parent_id": "22",\
 "name": "onlinegtd.ru",\
 "description": "GTD",\
 "starred": "1",\
@@ -66,7 +52,7 @@ var project_list = '[{\
 
 var task_list = '[{\
 "id": "0",\
-"parent_id": "0",\
+"parent_id": "3",\
 "name": "Купить герметик и водостойкий клей",\
 "description": "3 герметика и 1 клей",\
 "starred": "0",\
@@ -102,12 +88,11 @@ var task_list = '[{\
 "complete_date": "01.03.2010"\
 }]';
 
-
-
-var folders_list; // = $.parseJSON(folder_list);
-var projects_list = $.parseJSON(project_list);
-var tasks_list = $.parseJSON(task_list);
-var contexts_list;
+var list = Object()
+list.tasks = Array()
+list.projects = $.parseJSON(project_list);
+list.tasks = $.parseJSON(task_list);
+list.contexts = Array()
 
 function grepArray(list, p) {
 	return $.grep(list, function(e, i) {
@@ -146,29 +131,37 @@ function parseStar(star) {
 
 function switchList1(type) {
 	switch(type) {
-		case "folder":
-			return(folders_list);
-		case "project":
-			return(projects_list);
-		case "context":
-			return(contexts_list);
-		case "task":
-			return(tasks_list);
+		case "tasks":
+			return(list[$("#main_menu").data('selected')]);
 		default:
-			return(folders_list);
+			return(list[type]);
 	}
 }
 
 function switchList2(type) {
 	switch(type) {
-		case "folder":
-			return(projects_list);
-		case "project":
-			return(tasks_list);
-		case "context":
-			return(tasks_list);
+		case "folders":
+			return(list.projects);
 		default:
-			return(tasks_list);
+			return(list.tasks);
+	}
+}
+
+function switchType1(type) {
+	switch(type) {
+		case "tasks":
+			return($("#main_menu").data('selected'));
+		default:
+			return("tasks");
+	}
+}
+
+function switchType2(type) {
+	switch(type) {
+		case "folders":
+			return("projects");
+		default:
+			return("tasks");
 	}
 }
 
@@ -176,7 +169,7 @@ function genList1(list1, list2, p) {
 	$(".scrollable").data("scrollable").begin(0);
 	
 	var t = $("#main_list").empty();
-	var list, filtered_list;
+	var l, filtered_list;
 	
 	//Список 1-го уровня
 	$.each(list1, function(ind, val) {
@@ -187,22 +180,22 @@ function genList1(list1, list2, p) {
 			
 		//Список 2-го уровня
 		switch(p.type) {
-			case "context": 
-				list = grepArray(list2, {context_id: val.id});
+			case "contexts": 
+				l = grepArray(list2, {context_id: val.id});
 				break;
 			default:
-				list = grepArray(list2, {parent_id: val.id});
+				l = grepArray(list2, {parent_id: val.id});
 		}
 		
 		var ch = el.children("ul.c_level2_list");
-		ch.genList2(list);
+		ch.genList2(l, switchType2(p.type));
 		
 		//Раскрытие списка
-		el.children("span.c_list_label").toggle(function() {
+		/*el.children("span.c_list_label").toggle(function() {
 				ch.show_list2();
 			}, function() {
 				ch.hide_list2();
-		});
+		});*/
 		
 		t.append(el);
 	});
@@ -257,13 +250,13 @@ $.fn.genList2 = function(list2, p) {
 	return t;	
 };
 
-$.fn.hide_list2 = function() {
+$.fn.show_list2 = function() {
 	$(this).slideDown("fast");
 	$(this).siblings("span.c_list_label").text("▾");
 	return $(this);
 };
 
-$.fn.show_list2 = function() {
+$.fn.hide_list2 = function() {
 	$(this).slideUp("fast");
 	$(this).siblings("span.c_list_label").text("▸");
 	return $(this);
