@@ -94,8 +94,8 @@ $(document).ready(function(){
 	$("#left_form").submit(function(){
 		var i = $("#left_form input[type=text]");
 		if (i.val() !== "") {
-			$.getJSON(ajax_path + 'context', {action: 'create', name: i.val()}, cbContextCreate);
-			//TODO: select action
+			var type = $("#main_menu").data('selected')
+			$.getJSON(ajax_path + type, {action: 'create', name: i.val()}, cbObjectCreate);
 			i.val("");
 			$("#left_control.add").click();
 		}	
@@ -103,38 +103,44 @@ $(document).ready(function(){
 	});
 	
 	// Main menu	
-	$("#folders").click(function(){
-		if ($("#main_menu").data('selected') !== "Folders") {
+	$("#folder, #project, #context").click(function(){
+		var type = $(this).attr("id")
+		if ($("#main_menu").data('selected') !== type) {
 			$("#main_menu")
-				.data('selected', "Folders")
+				.data('selected', type)
 				.children("li").removeClass("selected");
 			$(this).addClass("selected");
 		}
-		genList1(folders_list, projects_list, {type: "Folders"});
+		genList1(switchList1(type), switchList2(type), {type: type});
 	});
 	
-	$("#projects").click(function(){
-		if ($("#main_menu").data('selected') !== "Projects") {
+	/*$("#projects").click(function(){
+		if ($("#main_menu").data('selected') !== "project") {
 			$("#main_menu")
-				.data('selected', "Projects")
+				.data('selected', "project")
 				.children("li").removeClass("selected");
 			$(this).addClass("selected");
 		}
-		genList1(projects_list, tasks_list, {type: "Projects"});
+		genList1(projects_list, tasks_list, {type: "project"});
 	});
 	
 	$("#contexts").click(function(){
-		if ($("#main_menu").data('selected') !== "Contexts") {
+		if ($("#main_menu").data('selected') !== "context") {
 			$("#main_menu")
-				.data('selected', "Contexts")
+				.data('selected', "context")
 				.children("li").removeClass("selected");
 			$(this).addClass("selected");
 		}
-		genList1(contexts_list, tasks_list, {type: "Contexts"});
-	});
+		genList1(contexts_list, tasks_list, {type: "context"});
+	});*/
 	
 	// Query server data
-	$.getJSON(ajax_path + 'context', {action: 'list'}, cbContextList);
+	$.getJSON(ajax_path + 'context', {action: 'list'}, function(json) {
+		contexts_list = json;
+	});
+	$.getJSON(ajax_path + 'folder', {action: 'list'}, function(json) {
+		folders_list = json;
+	});
 	//TODO: get folders, projects, tasks
 	
 	// Draw interface
@@ -142,12 +148,7 @@ $(document).ready(function(){
 	
 });
 
-
-function cbContextList(json) {
-	contexts_list = json;
-}
-
-function cbContextCreate(json) {
+function cbObjectCreate(json) {	
 	$.merge(contexts_list, $.makeArray(json));
-	genList1(contexts_list, tasks_list, {type: "Contexts"});
+	genList1(contexts_list, tasks_list, {type: "context"});
 }

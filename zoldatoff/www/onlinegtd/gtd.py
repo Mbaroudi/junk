@@ -28,11 +28,15 @@ from google.appengine.api import users
 
 from django.utils import simplejson
 
+##########################################################################################################
+
 
 # Exception on inserting not unique value
 class UniqueConstraintViolation(Exception):
 	def __init__(self, scope, value):
 		super(UniqueConstraintViolation, self).__init__("Value '%s' is not unique within scope '%s'." % (value, scope))
+		
+##########################################################################################################
 
 class GtdObject(db.Model):
 	user = db.UserProperty()
@@ -58,73 +62,82 @@ class GtdUniqueObject(GtdObject):
 
 
 # Context
-class Context(GtdUniqueObject):
-	None
+class Context(GtdUniqueObject): pass
 	
 # Folder
-class Folder(GtdUniqueObject):
-	None
+class Folder(GtdUniqueObject): pass
 	
 # Project
-class Project(GtdObject):
-	None
+class Project(GtdObject): pass
 	
 # Project
-class Task(GtdObject):
-	None
+class Task(GtdObject): pass
+	
+##########################################################################################################
 
-# Context web request hander	
-class ContextHandler(webapp.RequestHandler):
+class GtdObjectHandler(webapp.RequestHandler):
+	
+	def __init__(self, gtdobjname):
+		self.Gobject = gtdobjname #globals().get(gtdobjname)
+		super(GtdObjectHandler, self).__init__()
+
 	def get(self):
 			
 		action = self.request.get('action')
 		
 		if action == 'list':
-			contexts = Context.gql("WHERE user = :user ORDER BY change_date", user=users.get_current_user())
+			gtdobjects = self.Gobject.gql("WHERE user = :user ORDER BY change_date", user=users.get_current_user())
 			result = []
 			
-			for context in contexts:
-				result.append(context.json())
+			for gtdobject in gtdobjects:
+				result.append(gtdobject.json())
 				
 			self.response.out.write(simplejson.dumps(result))
 				
 		elif action == 'create':
-			context = Context(name=self.request.get('name'))
-			context.user = users.get_current_user()
-			context.put()
+			gtdobject = self.Gobject(name=self.request.get('name'))
+			gtdobject.user = users.get_current_user()
+			gtdobject.put()
 			
-			self.response.out.write(simplejson.dumps(context.json()))
+			self.response.out.write(simplejson.dumps(gtdobject.json()))
 			
 		elif action == 'delete':
-			context = Context.get_by_id(self.request.get('id'))
-			self.response.out.write(simplejson.dumps(context.json()))
-			context.delete()
+			gtdobject = self.Gobject.get_by_id(self.request.get('id'))
+			self.response.out.write(simplejson.dumps(gtdobject.json()))
+			gtdobject.delete()
 			
 		elif action == 'rename':
-			context = Context.get_by_id(self.request.get('id'))
-			context.name = self.request.get('name')
-			context.put()
-			self.response.out.write(simplejson.dumps(context.json()))
+			gtdobject = self.Gobject.get_by_id(self.request.get('id'))
+			gtdobject.name = self.request.get('name')
+			gtdobject.put()
+			self.response.out.write(simplejson.dumps(gtdobject.json()))
 		
 		else:
 			self.response.out.write('Nothing happened')
-			
 
+# Context web request hander	
+class ContextHandler(GtdObjectHandler):
+	def __init__(self):
+		super(ContextHandler, self).__init__(Context)
+
+class FolderHandler(GtdObjectHandler):
+	def __init__(self):
+		super(FolderHandler, self).__init__(Folder)
+			
+##########################################################################################################
 
 class MainHandler(webapp.RequestHandler):
-	def get(self):
-		user = users.get_current_user()
-		
-		if user:
-			path = os.path.join(os.path.dirname(__file__), 'index.html')
-			self.response.out.write(template.render(path, None))
+	def get(self):		
+		if users.get_current_user():
+			None
 		else:
 			self.redirect(users.create_login_url(self.request.uri))
 			
 			
 def main():
     application = webapp.WSGIApplication([('/a/', MainHandler),
-    									  ('/a/context', ContextHandler)
+    									  ('/a/context', ContextHandler),
+    									  ('/a/folder', FolderHandler)
     									],
                                          debug=True)
     util.run_wsgi_app(application)

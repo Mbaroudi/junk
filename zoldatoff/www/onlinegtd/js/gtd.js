@@ -102,21 +102,12 @@ var task_list = '[{\
 "complete_date": "01.03.2010"\
 }]';
 
-var context_list = '[{\
-"id": "0",\
-"name": "Moscow"\
-},{\
-"id": "1",\
-"name": "iPad"\
-},{\
-"id": "2",\
-"name": "Home"\
-}]';
 
-var folders_list = $.parseJSON(folder_list);
+
+var folders_list; // = $.parseJSON(folder_list);
 var projects_list = $.parseJSON(project_list);
 var tasks_list = $.parseJSON(task_list);
-var contexts_list; // = $.parseJSON(context_list);
+var contexts_list;
 
 function grepArray(list, p) {
 	return $.grep(list, function(e, i) {
@@ -155,13 +146,13 @@ function parseStar(star) {
 
 function switchList1(type) {
 	switch(type) {
-		case "Folders":
+		case "folder":
 			return(folders_list);
-		case "Projects":
+		case "project":
 			return(projects_list);
-		case "Contexts":
+		case "context":
 			return(contexts_list);
-		case "Tasks":
+		case "task":
 			return(tasks_list);
 		default:
 			return(folders_list);
@@ -170,11 +161,11 @@ function switchList1(type) {
 
 function switchList2(type) {
 	switch(type) {
-		case "Folders":
+		case "folder":
 			return(projects_list);
-		case "Projects":
+		case "project":
 			return(tasks_list);
-		case "Contexts":
+		case "context":
 			return(tasks_list);
 		default:
 			return(tasks_list);
@@ -182,11 +173,10 @@ function switchList2(type) {
 }
 
 function genList1(list1, list2, p) {	
-	var t = $("#main_list").empty();
-	var el;
-	var list, filtered_list;
+	$(".scrollable").data("scrollable").begin(0);
 	
-	//$(".scrollable").data("scrollable").begin(0);
+	var t = $("#main_list").empty();
+	var list, filtered_list;
 	
 	//Список 1-го уровня
 	$.each(list1, function(ind, val) {
@@ -197,20 +187,21 @@ function genList1(list1, list2, p) {
 			
 		//Список 2-го уровня
 		switch(p.type) {
-			case "Contexts": 
+			case "context": 
 				list = grepArray(list2, {context_id: val.id});
 				break;
 			default:
 				list = grepArray(list2, {parent_id: val.id});
 		}
 		
-		el.children("ul.c_level2_list").genList2(list);
+		var ch = el.children("ul.c_level2_list");
+		ch.genList2(list);
 		
 		//Раскрытие списка
 		el.children("span.c_list_label").toggle(function() {
-				el.children("ul.c_level2_list").show_list2();
+				ch.show_list2();
 			}, function() {
-				el.children("ul.c_level2_list").hide_list2();
+				ch.hide_list2();
 		});
 		
 		t.append(el);
@@ -223,8 +214,7 @@ function genList1(list1, list2, p) {
 function genLeftList(list1, list2, p) {	
 	$("#aside_l h2").text(p.type);
 	var ul = $("#left_list").empty();
-	
-	$(".scrollable").data("scrollable").begin(0);
+	var el;
 	
 	$.each(list1, function(ind, val) {
 		el = $("<li>").text(val.name);
@@ -240,14 +230,22 @@ function genLeftList(list1, list2, p) {
 
 $.fn.genList2 = function(list2, p) {
 	var t = $(this).empty();
+	var el, arr;
 	
 	$.each(list2, function(ind, val){
-		var el = $("<li>")
+		el = $("<li>")
 			.append("<span class='c_star_button " + parseStar(val.starred) + "'>★ &nbsp;</span>")
 			.append("<input type='text' value='" + val.name + "' class='c_input_level2 " + parseStatus(val.status) + "'/>")
 			.append("<input type='text' value='" + val.due_date + "' class='c_input_date " + parseStatus(val.status) + "' />");
 			
-		var arr = [["Complete", "✓"], ["Delete", "✘"], ["Edit", "➜"], ["Attachment", "⌘"]]; 
+		switch (val.status) {
+			case 'completed':
+				arr = [["Uncomplete", "☑"], ["Delete", "✘"], ["Edit", "➜"], ["Attachment", "⌘"]]; 
+				break;
+			default:
+				arr = [["Complete", "✓"], ["Delete", "✘"], ["Edit", "➜"], ["Attachment", "⌘"]]; 
+		}
+		
 		$.each(arr, function(i, v) {
 			el.append("<span class='c_text_button' title= '" + v[0] + "'>" + v[1] + " &nbsp;</span>");
 		});
@@ -262,9 +260,11 @@ $.fn.genList2 = function(list2, p) {
 $.fn.hide_list2 = function() {
 	$(this).slideDown("fast");
 	$(this).siblings("span.c_list_label").text("▾");
+	return $(this);
 };
 
 $.fn.show_list2 = function() {
 	$(this).slideUp("fast");
 	$(this).siblings("span.c_list_label").text("▸");
+	return $(this);
 };
