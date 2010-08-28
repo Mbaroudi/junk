@@ -100,10 +100,10 @@ $(document).ready(function(){
 	
 	$(".c_input_level1, .c_input_level2, .c_input_date")
 		.live("focusin", function(){
-			$(this).css("border-color", "#494a3f");
+			$(this).addClass("selected");
 		})
 		.live("focusout", function(){
-			$(this).css("border-color", "transparent");
+			$(this).removeClass("selected");
 		})
 		.live("keydown", function(event){
 	  		if (event.keyCode == 13){
