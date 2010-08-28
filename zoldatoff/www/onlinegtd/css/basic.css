@@ -1,14 +1,13 @@
 html, body {
-	height: 100%;
-	overflow: hidden;
 	font-family: "Courier New", Courier, monospace;
 	color: #494a3f;
+	height: 100%;
 }
 	
 body {
 	background-color: #bbaa88;
 	background-image: url("../img/bg2.png");
-	height: 100%;
+	overflow-y: hidden;
 }
 
 header, nav, section, article, aside, footer {
@@ -32,20 +31,23 @@ input, inbox {
 	background-image: url("../img/bg_page.png");
 	background-repeat: repeat-x;
 	
-	height: 100%;
 	position: relative;
 	width: 90%;
-	float: left;
-	margin: 0 5%;
+	min-width: 1100px;
+	max-width: 1200px;
+	margin: 5px auto;
+	padding: 10px;
 }
 
 header {
+	position: relative;
 	float: left;
 	width: 100%;
 	height: 95px;
 	background-image: url("../img/rule.png");
 	background-position: bottom center;
 	background-repeat: no-repeat;
+	z-index: 99;
 }
 
 h1 { 
@@ -87,17 +89,33 @@ nav {
 }
 
 #main_menu li:hover {
-	
-	font-size: 20px;
+	color: #69553A;
 }
 
-#aside_l {
-	float: left;
+#aside_l, #aside_l {
 	font-family: "Comic Sans MS", "Courier New", Courier, monospace; 
+	position: relative;
 	line-height: 20px;
 	margin-left: 10px;
 	margin-right: 10px;
 	width: 160px;
+}
+
+#aside_l {
+	float: left;
+	z-index: 100;
+}
+
+#aside_r {
+	float: right;
+	z-index: 99;
+}
+
+#main_sec {
+	position: relative;
+	padding: 100px 180px 50px 180px;
+	margin: 0 auto;
+	z-index: 20;
 }
 
 #left_list {
@@ -111,15 +129,6 @@ nav {
 #left_list li.selected {
 	color: #765c4f;
 	text-shadow: 0px 0px 4px #8a7a60;;
-}
-
-#aside_r {
-	float: right;
-	font-family: "Comic Sans MS", "Courier New", Courier, monospace; 
-	line-height: 20px;
-	margin-left: 10px;
-	margin-right: 10px;
-	width: 160px;
 }
 
 h2 {
@@ -164,15 +173,6 @@ h2 {
 	font-weight: bold;
 	cursor: pointer;
 	float: right;
-}
-
-#main_sec {
-	line-height: 18px;
-	position: relative;
-	/*width: 100%;*/
-	margin: auto;
-	padding: 0 10px;
-	overflow-y: hidden;
 }
 
 #main_list {
@@ -311,8 +311,10 @@ footer {
 	line-height: 50px;
 	text-align: center;
 	width: 100%;
+	margin: 0;
 	position: absolute;
 	bottom: 0;
+	z-index: 100;
 }
 
 /*.tooltip {

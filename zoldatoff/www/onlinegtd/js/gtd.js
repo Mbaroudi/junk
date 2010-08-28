@@ -187,15 +187,7 @@ function genList1(list1, list2, p) {
 				l = grepArray(list2, {parent_id: val.id});
 		}
 		
-		var ch = el.children("ul.c_level2_list");
-		ch.genList2(l, switchType2(p.type));
-		
-		//Раскрытие списка
-		/*el.children("span.c_list_label").toggle(function() {
-				ch.show_list2();
-			}, function() {
-				ch.hide_list2();
-		});*/
+		el.children("ul.c_level2_list").genList2(l, switchType2(p.type));
 		
 		t.append(el);
 	});
