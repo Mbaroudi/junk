@@ -20,7 +20,10 @@
 	<key>com.macrabbit.Espresso.FileManager.FileControllerState</key>
 	<dict>
 		<key>ExpandedURLs</key>
-		<array/>
+		<array>
+			<string>file://localhost/Users/zoldatoff/Dropbox/Programming/svn_zoldatoff/www/onlinegtd/css</string>
+			<string>file://localhost/Users/zoldatoff/Dropbox/Programming/svn_zoldatoff/www/onlinegtd/img</string>
+		</array>
 	</dict>
 	<key>com.macrabbit.Espresso.Publisher.DisclosureCollapsed</key>
 	<false/>
@@ -44,12 +47,6 @@
 			</dict>
 			<dict>
 				<key>DocumentURL</key>
-				<string>file://localhost/Users/zoldatoff/Dropbox/Programming/svn_zoldatoff/www/onlinegtd/css/basic.css</string>
-				<key>StateType</key>
-				<string>DefaultTab</string>
-			</dict>
-			<dict>
-				<key>DocumentURL</key>
 				<string>file://localhost/Users/zoldatoff/Dropbox/Programming/svn_zoldatoff/www/onlinegtd/js/basic.js</string>
 				<key>StateType</key>
 				<string>DefaultTab</string>
@@ -63,6 +60,12 @@
 			<dict>
 				<key>DocumentURL</key>
 				<string>file://localhost/Users/zoldatoff/Dropbox/Programming/svn_zoldatoff/www/onlinegtd/main.py</string>
+				<key>StateType</key>
+				<string>DefaultTab</string>
+			</dict>
+			<dict>
+				<key>DocumentURL</key>
+				<string>file://localhost/Users/zoldatoff/Dropbox/Programming/svn_zoldatoff/www/onlinegtd/css/basic.css</string>
 				<key>StateType</key>
 				<string>DefaultTab</string>
 			</dict>

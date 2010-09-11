@@ -12,35 +12,41 @@
 
 <link rel="shortcut icon" href="img/ico.png" />
 
-<link href='http://meyerweb.com/eric/tools/css/reset/reset.css' rel='stylesheet' type='text/css'>
+<!--link href='http://meyerweb.com/eric/tools/css/reset/reset.css' rel='stylesheet' type='text/css'-->
 <link href='css/basic.css' rel='stylesheet' type='text/css'>
-<link href='http://fonts.googleapis.com/css?family=IM+Fell+DW+Pica' rel='stylesheet' type='text/css'>
+<!--link href='http://fonts.googleapis.com/css?family=IM+Fell+DW+Pica' rel='stylesheet' type='text/css'-->
 
  <!--script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript"></script-->
- <script src="http://cdn.jquerytools.org/1.2.3/full/jquery.tools.min.js"></script>
+ <!--script src="http://cdn.jquerytools.org/1.2.3/full/jquery.tools.min.js"></script>
  <script src="js/basic.js" type="text/javascript"></script>
- <script src="js/gtd.js" type="text/javascript"></script>
+ <script src="js/gtd.js" type="text/javascript"></script-->
  
 </head>
 
 <body>
 
-<div id="wrapper">
-
-	<header>
-		<h1>GTD Online</h1>Special for {{user}}
-		<nav>
-		<ul id="main_menu">
-			<li id="folders">Folders</li>
-			<li id="projects">Projects</li>
-			<li id="contexts">Contexts</li>
-			<li id="review">Review</li>
-			<li id="settings">Settings</li>
-		</ul>
+<header class="convex">
+	<h1><span>GTD Online</span></h1>
+	<!--Hello, {{user}}-->
+	<nav>
+	<ul id="main_menu">
+		<li id="folders" class="convex concave_text">Folders</li>
+		<li id="projects" class="convex concave_text">Projects</li>
+		<li id="contexts" class="convex concave_text">Contexts</li>
+		<li id="review" class="convex concave_text">Review</li>
+		<li id="settings" class="convex concave_text">Settings</li>
+	</ul>
 	</nav>
-	</header>
 	
-	<aside id="aside_l">
+	<form id="search_form">
+		<input type="text" name="Searchbox" value="Search" id="input_search" class="concave" />
+		<input type="submit" name="OK" value="OK" id="ok_search" class="convex concave_text"/>
+	</form>
+</header>
+
+<div id="wrapper">
+	
+	<aside id="aside_l" class="convex">
 		<span style="line-height: 27px">&nbsp;</span>
 	
 		<h2>List</h2>
@@ -54,12 +60,7 @@
 		</form>
 	</aside>
 	
-	<aside id="aside_r">
-		<form id="search_form">
-			<input type="text" name="Searchbox" value="Search" id="input_search" />
-			<input type="submit" name="OK" value="OK" id="ok_search" />
-		</form>
-		
+	<aside id="aside_r" class="convex">		
 		<!--h2>Вид списка</h2>
 		<ul id="right_view_list" class="c_aside_list">
 			<li>Папки</li>
@@ -89,9 +90,13 @@
 	</aside>
 	
 	<section id="main_sec">
-		<form id="inbox_form">  
-			<input type="text" name="Inbox" value="Inbox" id="input_inbox" />
-			<input type="submit" name="OK" value="OK" id="ok_inbox" />
+		<form id="inbox_form">
+			<table id="t">
+			<tr>
+			<td><input type="text" name="Inbox" value="Inbox" id="input_inbox" class="concave" /></td>
+			<td id="t2"><input type="submit" name="OK" value="OK" id="ok_inbox" class="convex concave_text" /></td>
+			</tr>
+			</table>
 		</form>
 		
 		<div>
@@ -110,8 +115,9 @@
 	
 </div>
 
-<footer>Design: Wicked Child / Programming: Zoldatoff </footer>
+<!--div style="clear: both;"></div-->
 
+<footer class="convex">Design: Wicked Child / Programming: Zoldatoff </footer>
 
 
 </body>
