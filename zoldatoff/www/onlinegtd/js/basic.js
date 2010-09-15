@@ -51,7 +51,7 @@ $(document).ready(function(){
 	$("#left_control.add").toggle(function(){
 		$("#left_form").show();
 		$("#left_form input[type=text]").focus();
-		$(this).text('-');		
+		$(this).text('—');		
 	}, function(){
 		$("#left_form").hide();
 		$(this).text('+');
