@@ -4,6 +4,11 @@ var ajax_path = '/a/'
 
 $(document).ready(function(){
 	
+	var H = $("#wrapper").height();	
+	$("#aside_l, #aside_r").height(H);
+	$("#main_sec").height(H-22);
+	
+	
 	/********************************************************************************/
 	// Inbox
 	$("#input_inbox")
