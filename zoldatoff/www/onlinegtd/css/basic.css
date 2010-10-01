@@ -134,6 +134,7 @@ margin-top: 30px;
 }
 
 h1 span{
+color: #ca5a5a;							
 background: -webkit-gradient(linear, 
 							/*left top, 
 							right bottom, */
@@ -143,10 +144,17 @@ background: -webkit-gradient(linear,
 							color-stop(0.50, rgb(250,140,140)),
 							color-stop(0.55, rgb(190,80,80))
 							);
+										
 -webkit-background-clip: text;
 -webkit-text-fill-color: transparent;
-/*text-decoration: none; */
+/*text-decoration: none;*/
 position: absolute; 
+}
+
+h1:after {
+content : 'GTD Online';
+color: #bf4f4f;
+text-shadow: -1px 1px 1px #444, 2px -2px 2px #111;
 }  
 
 #hello {
@@ -408,9 +416,7 @@ background-color:#b1986f;
 .c_list_label {
 cursor:pointer;
 font-family: monospace;
-font-size:20px;
-text-align: left;
-width: 10px;
+font-size: 16px;
 }
 
 .c_text_button {
