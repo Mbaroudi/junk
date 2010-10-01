@@ -89,11 +89,10 @@ $(document).ready(function(){
 	
 	/********************************************************************************/	
 	// Lists: Folders, Projects, Contexts, Tasks
-	$(".scrollable").scrollable({ vertical: true, mousewheel: false});	
+	//$(".scrollable").scrollable({ vertical: true, mousewheel: false});	
 	
 	$("span.c_list_label").live("click", function(){
 		var el = $(this).siblings("ul.c_level2_list");
-		console.log('click');
 		if (el.is(':visible')) {
 			el.hide_list2();
 		}

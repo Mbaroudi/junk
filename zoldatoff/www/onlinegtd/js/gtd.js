@@ -166,7 +166,7 @@ function switchType2(type) {
 }
 
 function genList1(list1, list2, p) {	
-	$(".scrollable").data("scrollable").begin(0);
+	//$(".scrollable").data("scrollable").begin(0);
 	
 	var t = $("#main_list").empty();
 	var l, filtered_list;
@@ -219,7 +219,7 @@ $.fn.genList2 = function(list2, p) {
 	
 	$.each(list2, function(ind, val){
 		el = $("<li>")
-			.append("<span class='c_star_button " + parseStar(val.starred) + "'>★ &nbsp;</span>")
+			.append("<span class='c_star_button " + parseStar(val.starred) + "'>★</span>")
 			.append("<input type='text' value='" + val.name + "' class='c_input_level2 " + parseStatus(val.status) + "'/>")
 			.append("<input type='text' value='" + val.due_date + "' class='c_input_date " + parseStatus(val.status) + "' />");
 			
