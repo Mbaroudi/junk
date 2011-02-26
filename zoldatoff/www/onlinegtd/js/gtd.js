@@ -174,7 +174,7 @@ function genList1(list1, list2, p) {
 	//Список 1-го уровня
 	$.each(list1, function(ind, val) {
 		var el = $("<div class=item>")
-			.append("<span class=c_list_label>↓</span>")
+			.append("<span class=c_list_label>▾</span>")
 			.append("<input type='text' value='" + val.name + "' class='c_input_level1'/>")
 			.append("<ul class='c_level2_list'>");
 			
@@ -225,10 +225,10 @@ $.fn.genList2 = function(list2, p) {
 			
 		switch (val.status) {
 			case 'completed':
-				arr = [["Uncomplete", "☑"], ["Delete", "✘"], ["Edit", "➜"], ["Attachment", "⌘"]]; 
+				arr = [["Uncomplete", "☑"], ["Delete", "✘"], ["Edit", "▸"], ["Attachment", "⌘"]]; 
 				break;
 			default:
-				arr = [["Complete", "✓"], ["Delete", "✘"], ["Edit", "➜"], ["Attachment", "⌘"]]; 
+				arr = [["Complete", "✓"], ["Delete", "✘"], ["Edit", "▸"], ["Attachment", "⌘"]]; 
 		}
 		
 		$.each(arr, function(i, v) {
@@ -244,12 +244,12 @@ $.fn.genList2 = function(list2, p) {
 
 $.fn.show_list2 = function() {
 	$(this).slideDown("fast");
-	$(this).siblings("span.c_list_label").text("↓");
+	$(this).siblings("span.c_list_label").text("▾");
 	return $(this);
 };
 
 $.fn.hide_list2 = function() {
 	$(this).slideUp("fast");
-	$(this).siblings("span.c_list_label").text("→");
+	$(this).siblings("span.c_list_label").text("▸");
 	return $(this);
 };

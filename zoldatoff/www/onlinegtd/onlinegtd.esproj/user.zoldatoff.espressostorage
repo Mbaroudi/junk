@@ -2,6 +2,13 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>ESProjectIconConfiguration</key>
+	<dict>
+		<key>ColorIdentifier</key>
+		<string>orange</string>
+		<key>GlyphIdentifier</key>
+		<string>fire</string>
+	</dict>
 	<key>ESProjectShowHiddenFilesKey</key>
 	<false/>
 	<key>ESProjectWindowState</key>
