@@ -20,7 +20,7 @@
 		<key>StateType</key>
 		<string>ProjectWindow</string>
 		<key>TopLeftPoint</key>
-		<string>{0, 878}</string>
+		<string>{639, 1116}</string>
 	</dict>
 	<key>com.macrabbit.Espresso.FileManager.DisclosureCollapsed</key>
 	<false/>
@@ -30,6 +30,7 @@
 		<array>
 			<string>file://localhost/Users/zoldatoff/Dropbox/Programming/svn_zoldatoff/www/onlinegtd/css</string>
 			<string>file://localhost/Users/zoldatoff/Dropbox/Programming/svn_zoldatoff/www/onlinegtd/img</string>
+			<string>file://localhost/Users/zoldatoff/Dropbox/Programming/svn_zoldatoff/www/onlinegtd/js</string>
 		</array>
 	</dict>
 	<key>com.macrabbit.Espresso.Publisher.DisclosureCollapsed</key>
