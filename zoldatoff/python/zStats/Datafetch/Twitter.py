@@ -11,10 +11,14 @@ ACCESS_KEY = "20695488-0ERLzheHs9mTIq5NNlmB0jxxFFsc4I9I0rcbbY3Wi"
 ACCESS_SECRET = "8kzFkmHjvvDsXTPsrUE1wYEfvMBVWbEwDhnQr4ZUzg"
 
 def getwords(text):
-	#words = re.compile(r'[^A-Z^a-z^А-Я^а-я]+').split(text)
+	r"""
+	Разделяет слова (наборы букв без разделителей)
+
+	>>> getwords("What does tiki-wiki mean?")
+	['what', 'does', 'tiki', 'wiki', 'mean']
+	"""
 	splitter = re.compile(r'\W*', re.U)
 	words = [ s for s in splitter.split(text) if s ]
-	#print len(words)
 
 	return [word.lower() for word in words]	
 
@@ -39,14 +43,16 @@ class Twitter:
 		print 'now you only have', limit, 'API calls.'
 
 	def getwordcounts(self, user, count=5):
+		r""" 
+		Функция считает количество упоминаний каждого слова в count сообщениях пользователя user
+		"""
+
 		wc={}
 
 		for status in tweepy.Cursor(self.api.user_timeline, id = user.id).items(count):
-			print user.screen_name, status.text
 			words = getwords(status.text)
 
 			for word in words:
-				#print word
 				wc.setdefault(word, 0)
 				wc[word] += 1
 
@@ -55,47 +61,11 @@ class Twitter:
 	def getfriends(self, count=5):
 		friendlist = []
 		for friend in tweepy.Cursor(self.api.friends).items(count):
-			print friend.screen_name
 			friendlist += [friend]
 		return friendlist
-				
 
-import codecs
-code = 'utf-8'
-out = codecs.open('words.txt','w',code)
 
-apcount = {}
-wordcounts = {}
-z = Twitter('zoldatoff')
-fiendlist = z.getfriends()
-
-for friend in fiendlist:
-	user, wc = z.getwordcounts(friend)
-	wordcounts[user] = wc
-	for word, count in wc.items():
-		apcount.setdefault(word, 0)
-		if count > 1:
-			apcount[word] += 1
-
-wordlist = []
-for w,bc in apcount.items():
-	frac = float(bc) / len(fiendlist)
-	if 0.1 < frac < 0.5:
-		wordlist.append(w)
-
-print apcount		
-print wordlist
-
-#out = file('words.txt', 'w')
-out.write('User')
-for word in wordlist: 
-	print type(word)
-	out.write('\t%s' % word)
-out.write('\n')
-
-for user, wc in wordcounts.items():
-	out.write(user.screen_name)
-	for word in wordlist:
-		if word in wc: out.write('\t%d' % wc[word])
-		else: out.write('\t0')
-	out.write('\n')
+# Run internal tests on methods in class Twitter				
+if __name__ == "__main__":
+	import doctest
+	doctest.testmod()
