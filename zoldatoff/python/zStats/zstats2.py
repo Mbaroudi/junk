@@ -9,7 +9,7 @@ api = tweepy.API(auth)
 
 class zstats:
 		def __init__(self,dbname,username):
-			limit= api.rate_limit_status()['remaining_hits']
+			limit = api.rate_limit_status()['remaining_hits']
 			print 'you have', limit, 'API calls remaining until next hour'
 			self.user = api.get_user(username)
 			#self.friendList = []
@@ -87,7 +87,7 @@ z = zstats('zstats', 'zoldatoff')
 #z.t_getuserfriends( )
 #z.t_getfriends( )
 #z.db_getfriend(15850593)
-z.db_getfriendlist(15850593)
+z.db_getfriendfriendlist(15850593)
 			
 
 		
