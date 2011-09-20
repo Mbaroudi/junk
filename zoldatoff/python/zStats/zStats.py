@@ -9,8 +9,8 @@ import random
 import codecs
 
 code = 'utf-8'
-FRIEND_COUNT = 30
-MESSAGE_COUNT = 200
+FRIEND_COUNT = 50
+MESSAGE_COUNT = 100
 
 def getwordstats():
 # Collect word statistics
@@ -20,7 +20,7 @@ def getwordstats():
 	fiendlist = z.getfriends(FRIEND_COUNT)
 
 	for friend in fiendlist:
-		if friend.screen_name == 'temalebedev': continue
+		#if friend.screen_name == 'temalebedev': continue
 		user, wc = z.getwordcounts(friend, MESSAGE_COUNT)
 		wordcounts[user] = wc
 		for word, count in wc.items():
@@ -30,9 +30,9 @@ def getwordstats():
 
 	wordlist = []
 	for w,bc in apcount.items():
-		frac = float(bc) / len(fiendlist)
-		if 0.1 < frac < 0.5:
-			wordlist.append(w)
+		#frac = float(bc) / len(fiendlist)
+		#if 0.1 < frac < 0.5:
+		wordlist.append(w)
 
 	# Write statistics to file
 	out = codecs.open('words.txt','w',code)
@@ -61,7 +61,24 @@ def readfile(filename):
 		rownames.append(p[0])
 		# Остальные ячейки содержат данные этой строки
 		data.append([float(x) for x in p[1:]])
-	return rownames,colnames,data
+	
+	totals = []
+	colnumber = len(colnames)
+	for i in range(colnumber):
+		totals += [sum(1 for k in range(len(rownames)) if data[k][i] > 0)]
+
+	stripdata = []
+	stripnames = [colnames[i] for i in range(colnumber) if totals[i] > 5 and len(colnames[i])>6]
+	striprows = []
+	for i in range(len(rownames)):
+		if sum([data[i][k] for k in range(colnumber) if totals[k] > 5 and len(colnames[k])>6]) > 0:
+			striprows += rownames[i]		
+			stripdata.append([data[i][k] for k in range(colnumber) if totals[k] > 5 and len(colnames[k])>6])
+		else:
+			print 'skipping ', rownames[i]
+	 	
+	#return rownames,colnames,data
+	return rownames,stripnames,stripdata
 
 
 def pearson(v1,v2):
@@ -335,28 +352,28 @@ def draw2d(data,labels,jpeg='mds2d.jpg'):
 	img.save(jpeg,'JPEG')  
 
 
-getwordstats()
+#getwordstats()
+
 users,words,data = readfile('words.txt')
 
-#
 clust = hcluster(data)		
 printclust(clust,labels=users)
 drawdendrogram(clust,users,jpeg='words.jpg')
 
 # Кластеризация методом К-средних
-kclust=kcluster(data,k=10)
+kclust=kcluster(data,k=5)
 print [users[r] for r in kclust[0]]
 print [users[r] for r in kclust[1]]
 print [users[r] for r in kclust[2]]
 print [users[r] for r in kclust[3]]
 print [users[r] for r in kclust[4]]
-print [users[r] for r in kclust[5]]
-print [users[r] for r in kclust[6]]
-print [users[r] for r in kclust[7]]
-print [users[r] for r in kclust[8]]
-print [users[r] for r in kclust[9]]
+# print [users[r] for r in kclust[5]]
+# print [users[r] for r in kclust[6]]
+# print [users[r] for r in kclust[7]]
+# print [users[r] for r in kclust[8]]
+# print [users[r] for r in kclust[9]]
 
 # 2-D визуализация
-users,words,data = readfile('words.txt')
+# users,words,data = readfile('words.txt')
 coords=scaledown(data, users)
 draw2d(coords,users,jpeg='words2d.jpg')
