@@ -83,11 +83,11 @@ class zstats:
 			
 z = zstats('zstats', 'zoldatoff')
 #z.db_create( )	
-#z.db_clear( )	
-#z.t_getuserfriends( )
-#z.t_getfriends( )
+z.db_clear( )	
+z.t_getuserfriends( )
+z.t_getfriends( )
 #z.db_getfriend(15850593)
-z.db_getfriendfriendlist(15850593)
+#z.db_getfriendfriendlist(15850593)
 			
 
 		

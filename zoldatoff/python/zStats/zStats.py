@@ -71,14 +71,14 @@ def readfile(filename):
 	stripnames = [colnames[i] for i in range(colnumber) if totals[i] > 5 and len(colnames[i])>6]
 	striprows = []
 	for i in range(len(rownames)):
-		if sum([data[i][k] for k in range(colnumber) if totals[k] > 5 and len(colnames[k])>6]) > 0:
-			striprows += rownames[i]		
+		if sum([data[i][k] for k in range(colnumber) if totals[k] > 5 and len(colnames[k])>6]) > 5:
+			striprows.append(rownames[i])		
 			stripdata.append([data[i][k] for k in range(colnumber) if totals[k] > 5 and len(colnames[k])>6])
 		else:
 			print 'skipping ', rownames[i]
 	 	
 	#return rownames,colnames,data
-	return rownames,stripnames,stripdata
+	return striprows,stripnames,stripdata
 
 
 def pearson(v1,v2):
@@ -352,7 +352,7 @@ def draw2d(data,labels,jpeg='mds2d.jpg'):
 	img.save(jpeg,'JPEG')  
 
 
-#getwordstats()
+getwordstats()
 
 users,words,data = readfile('words.txt')
 
