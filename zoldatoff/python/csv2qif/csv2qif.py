@@ -47,7 +47,7 @@ def genattr(instr):
 	elif str.find(u'DVE PALOCHKI')		>= 0: ret = {'category': 'Питание: Рестораны', 'contragent': ''}
 	elif str.find(u'SHOKOLADNITSA')		>= 0: ret = {'category': 'Питание: Рестораны', 'contragent': 'Шоколадница'}
 	elif str.find(u'GALEREYA ALEKS')	>= 0: ret = {'category': 'Питание: Рестораны', 'contragent': 'Шоколадница'}
-	elif str.find(u'TERRITORIA')		>= 0: ret = {'category': 'Питание: Рестораны', 'contragent': 'Территория'}
+	elif str.find(u'TERRITORIYA')		>= 0: ret = {'category': 'Питание: Рестораны', 'contragent': 'Территория'}
 
 	elif str.find(u'PEREKRESTOK')		>= 0: ret = {'category': 'Питание: Продукты', 'contragent': 'Перекресток'}
 	elif str.find(u'STANEM DRUZYAMI')	>= 0: ret = {'category': 'Питание: Продукты', 'contragent': 'Станем друзьями'}
@@ -157,5 +157,5 @@ def csv2qif(filename):
 		writetrans(trans, outfile)
 
 outfile = codecs.open('output.qif','w',encode)
-writeacc('3542', outfile)
-csv2qif('./cvs/wage/68.csv')
+writeacc('3709', outfile)
+csv2qif('./cvs/tr/06.csv')
