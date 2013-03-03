@@ -16,9 +16,9 @@ height = 600			# main window height
 pacman_velocity = 400	# max velocity of eaters
 hamburger_velocity = 0	# max velocity of food
 
-cnt_pacman = 10			# number of eaters
+cnt_pacman = 5			# number of eaters
 cnt_hamburgers = 10		# number of food
-cnt_hidden = 20 		# number of neurons in hidden layer
+cnt_hidden = 10 		# number of neurons in hidden layer
 
 eat_distance = 10.0		# расстояние, на котором пожиратель может съесть еду
 
@@ -39,7 +39,7 @@ def reset_actors():
 	global hamburgers
 	global time
 
-	time = 0
+	time = 0.0
 
 	for i in range(cnt_hamburgers):
 		if hamburgers[i] != None:
@@ -82,16 +82,16 @@ def run_neural():
 				if distance <= eat_distance:		# съедаем еду
 					#hamburgers[j] = None # еда исчезает
 					hamburgers[j] = Visual.Actor(window, batch, hamburger_velocity*random(), 'burger.png')
-					pacmans[i].add_food()
+					pacmans[i].inc_food()
 
-			input += [ eat_distance / distance, angle / (2.0*math.pi)]
+			input += [ eat_distance / distance, (angle % (2.0*math.pi)) / (2.0*math.pi) ]
 		
 		# Запускаем нейронную сеть пожирателя
 		neural = neurals[i]
 		output = neural.run(input)
 
 		# Меняем направление движения пожирателя
-		pacmans[i].set_radian(2.0 * math.pi * output[0])
+		pacmans[i].inc_angle(math.pi /2.0 * output[0])
 
 		# Сохраняем информацию о съеденной еде
 		eaten_food += pacmans[i].food

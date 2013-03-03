@@ -38,7 +38,7 @@ class Actor(pyglet.sprite.Sprite):
 		self.set_xy( x, y )
 
 		# define a random direction
-		self.set_radian(random.random() * 2.0 * math.pi )
+		self.inc_angle(random.random() * 2.0 * math.pi )
 
 
 	def set_xy(self, x, y):
@@ -50,14 +50,14 @@ class Actor(pyglet.sprite.Sprite):
 	# 	self.vx, self.vy = math.cos(angle) * self.velocity, math.sin(angle) * self.velocity
 
 
-	def set_radian(self, radian):
-		self.angle += radian
+	def inc_angle(self, radian):
+		self.angle = (self.angle + radian) % (2.0*math.pi)
 		self.rotation = - self.angle*180.0/math.pi
 		
 		self.vx, self.vy = math.cos(self.angle) * self.velocity, math.sin(self.angle) * self.velocity
 
 
-	def add_food(self):
+	def inc_food(self):
 		self.food += 1
 
 

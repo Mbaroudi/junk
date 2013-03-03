@@ -10,7 +10,7 @@ def mutate(person, probability=0.05):
 	mutant = list()
 	for i in range(len(person)):
 		if random() < probability:
-			mutant.append(uniform(-1.0, 1.0))
+			mutant.append(uniform(-2.0, 2.0))
 		else:
 			mutant.append(person[i])
 
