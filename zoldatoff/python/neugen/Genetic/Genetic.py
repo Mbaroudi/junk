@@ -45,7 +45,8 @@ class Population():
 		for i in range(self.len):
 			tup = (self.results[i], self.persons[i])
 			sortlist.append(tup)
-		sortlist.sort(key=lambda tup: tup[0])
+			
+		sortlist.sort(key=lambda tup: -tup[0])
 		self.persons = [sortlist[i][1] for i in range(self.len)]
 
 

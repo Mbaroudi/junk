@@ -84,6 +84,7 @@ def run_neural():
 					hamburgers[j] = Visual.Actor(window, batch, hamburger_velocity*random(), 'burger.png')
 					pacmans[i].inc_food()
 
+			# нормализация значений на промежутке [0,1]		
 			input += [ eat_distance / distance, (angle % (2.0*math.pi)) / (2.0*math.pi) ]
 		
 		# Запускаем нейронную сеть пожирателя
@@ -91,7 +92,8 @@ def run_neural():
 		output = neural.run(input)
 
 		# Меняем направление движения пожирателя
-		pacmans[i].inc_angle(math.pi /2.0 * output[0])
+		# Значение на выходе принадлежит промежутку [-1,1] Изменяем на [-π, π]
+		pacmans[i].inc_angle(math.pi * output[0])
 
 		# Сохраняем информацию о съеденной еде
 		eaten_food += pacmans[i].food
