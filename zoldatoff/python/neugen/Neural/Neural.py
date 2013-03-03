@@ -38,7 +38,6 @@ class Neuron():
 		for i in range(self.cnt_input):
 			if input[i] != None and self.weight_input[i] != None:
 				sum += input[i] * self.weight_input[i]
-				#print str(i) + ' ' + str(input[i]) + ' ' + str(self.weight_input[i])
 
 		return self.func(sum)
 
@@ -46,7 +45,6 @@ class Neuron():
 		return self.weight_input
 
 	def import_vector(self, vector):
-		print vector
 		self.weight_input = vector
 		self.cnt_input = len(vector)
 
@@ -117,12 +115,6 @@ class MLP(Neuron):
 			neuron = self.output[i]
 			output.append(neuron.run(hidden_output))
 
-
-		# print input	
-		# print hidden_output
-		# print output	
-		# print "----"
-
 		return output
 
 
@@ -138,24 +130,20 @@ class MLP(Neuron):
 	def export2vector(self):
 		vector = list()
 		for neuron in self.hidden:
-			vector.append(neuron.export2vector())
+			vector += neuron.export2vector()
 		for neuron in self.output:
-			vector.append(neuron.export2vector())
+			vector += neuron.export2vector()
 		return vector
 
 	def import_vector(self, vector):
 		for i in range(self.cnt_hidden):
-			neuron_vector = vector[i*self.cnt_input : (i+1)*self.cnt_input-1]
+			neuron_vector = vector[i*self.cnt_input : (i+1)*self.cnt_input]
 			self.hidden[i].import_vector(neuron_vector)
 
 		for i in range(self.cnt_output):
-			neuron_vector = vector[self.cnt_hidden*self.cnt_input + i*self.cnt_hidden : self.cnt_hidden*self.cnt_input + (i+1)*self.cnt_hidden-1]
+			neuron_vector = vector[self.cnt_hidden*self.cnt_input + i*self.cnt_hidden : self.cnt_hidden*self.cnt_input + (i+1)*self.cnt_hidden]
 			self.output[i].import_vector(neuron_vector)
 
-
-#mlp = MLP(5, 5, 1)
-#input = [1,2,3,4,5]
-#print mlp.run(input)
 
 
 

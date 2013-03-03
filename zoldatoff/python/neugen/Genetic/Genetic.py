@@ -57,8 +57,8 @@ class Population():
 			superpersons.append(self.persons[i])
 
 		for i in range(self.len-cnt_elite):
-			p1 = randomindex()
-			p2 = randomindex()
+			p1 = min(randomindex(), self.len-1)
+			p2 = min(randomindex(), self.len-1)
 			person = self.crossover(p1, p2)
 			superpersons.append(mutate(person))
 

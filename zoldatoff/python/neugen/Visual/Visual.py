@@ -30,13 +30,6 @@ class Actor(pyglet.sprite.Sprite):
 
 		self.reset()
 
-		# setup a key handler to track keyboard input
-		self.keymap = pyglet.window.key.KeyStateHandler()
-		self.window.push_handlers(self.keymap)
-
-		#pyglet.text.Label('Angle', font_name='Arial', font_size=24, x=40, y=60, anchor_x='center', anchor_y='center', batch=batch)
-		#self.angle_label = pyglet.text.Label('000', font_name='Arial', font_size=24, x=40, y=30, anchor_x='center', anchor_y='center', batch=batch)
-
 
 	def reset(self):
 		# place eater in the random place
@@ -60,7 +53,7 @@ class Actor(pyglet.sprite.Sprite):
 	def set_radian(self, radian):
 		self.angle += radian
 		self.rotation = - self.angle*180.0/math.pi
-		#print self.rotation
+		
 		self.vx, self.vy = math.cos(self.angle) * self.velocity, math.sin(self.angle) * self.velocity
 
 
@@ -71,10 +64,6 @@ class Actor(pyglet.sprite.Sprite):
 	def update(self, dt):
 		x = self.x + self.vx * dt
 		y = self.y + self.vy * dt
-		#print self.velocity
-		#print self.vx * dt
-		#print self.vy * dt
-		#print "------"
 
 		if x >= self.window.width-self.image.anchor_x:	# right side
 			x = self.x
@@ -90,8 +79,5 @@ class Actor(pyglet.sprite.Sprite):
 
 		self.x = x
 		self.y = y
-
-		if self.keymap[pyglet.window.key.SPACE]:
-			self.reset()
 
 
