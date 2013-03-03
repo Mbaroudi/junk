@@ -6,13 +6,18 @@ import random
 
 def sigmoid(x):
 	alpha = 1.0
-	sig = 1.0 / ( 1.0 + exp(-alpha*x) )
+	if x < -30:
+		sig = 0
+	elif x > 30:
+		sig = 1
+	else:
+		sig = 1.0 / ( 1.0 + exp(-alpha*x) )
 	return (sig - 0.5) * 2.0
 
 class Neuron():
 	def __init__(self, cnt_input):
 
-		self.cnt_input = 0 #cnt_input
+		self.cnt_input = 0 
 		self.weight_input = list()
 		
 		random.seed()
