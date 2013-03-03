@@ -1,11 +1,7 @@
 #!/usr/bin/python
 
 import random, math
-
 import pyglet
-#from pyglet.gl import *
-
-#velocity = 200 # px per sec
 
 marginx = 50
 marginy = 50
@@ -13,9 +9,9 @@ marginy = 50
 
 # Draws an eater and moves it in a random direction
 class Actor(pyglet.sprite.Sprite):
-	def __init__(self, window, batch, velocity, image_path):
+	def __init__(self, window, batch, speed, image_path):
 		self.window = window
-		self.velocity = velocity
+		self.speed = speed
 		self.angle = 0
 		self.food = 0
 
@@ -28,10 +24,14 @@ class Actor(pyglet.sprite.Sprite):
 		#pass it all on to the superclass constructor http://www.pyglet.org/doc/api/pyglet.sprite.Sprite-class.html
 		self.sprite = pyglet.sprite.Sprite.__init__(self, image, batch=batch)
 
-		self.reset()
+		self.color=(255, 255, 255)
+
+		self.reset(speed)
+
+		self.sound = pyglet.resource.media('pacman.wav', streaming=False)
 
 
-	def reset(self):
+	def reset(self, speed):
 		# place eater in the random place
 		x = random.uniform(marginx, self.window.width-marginx)
 		y = random.uniform(marginy, self.window.height-marginy)
@@ -40,25 +40,36 @@ class Actor(pyglet.sprite.Sprite):
 		# define a random direction
 		self.inc_angle(random.random() * 2.0 * math.pi )
 
+		self.speed = speed
+
+		self.color = (255, max(255 - 30 * self.food, 0), max(255 - 30 * self.food, 0))
+
 
 	def set_xy(self, x, y):
 		self.x, self.y = x, y	
 
 
-	# def set_degree(self, degree):
-	# 	angle += degree /180 * math.pi 
-	# 	self.vx, self.vy = math.cos(angle) * self.velocity, math.sin(angle) * self.velocity
+	# def set_speed(self, speed):
+	# 	self.speed = speed
 
-
-	def inc_angle(self, radian):
-		self.angle = (self.angle + radian) % (2.0*math.pi)
+	def inc_angle(self, inc_angle):
+		self.angle = (self.angle + inc_angle) % (2.0*math.pi)
 		self.rotation = - self.angle*180.0/math.pi
 		
-		self.vx, self.vy = math.cos(self.angle) * self.velocity, math.sin(self.angle) * self.velocity
+		self.vx, self.vy = math.cos(self.angle) * self.speed, math.sin(self.angle) * self.speed
 
+	def inc_angle_speed(self, inc_angle, inc_speed):
+		self.angle = (self.angle + inc_angle) % (2.0*math.pi)
+		self.rotation = - self.angle*180.0/math.pi
+
+		self.speed = max(self.speed + inc_speed, 0)
+		
+		self.vx, self.vy = math.cos(self.angle) * self.speed, math.sin(self.angle) * self.speed
 
 	def inc_food(self):
 		self.food += 1
+		self.color = (255, max(255 - 30 * self.food, 0), max(255 - 30 * self.food, 0))
+		self.sound.play()
 
 
 	def update(self, dt):

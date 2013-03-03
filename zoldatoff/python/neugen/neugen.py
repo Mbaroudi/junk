@@ -11,12 +11,12 @@ from random import random, uniform
 ##############################################################
 
 width = 800				# main window width
-height = 600			# main window height
+height = 700			# main window height
 
-pacman_velocity = 400	# max velocity of eaters
-hamburger_velocity = 0	# max velocity of food
+pacman_speed = 10		# max speed of eaters
+hamburger_speed = 0		# max speed of food
 
-cnt_pacman = 5			# number of eaters
+cnt_pacman = 10			# number of eaters
 cnt_hamburgers = 10		# number of food
 cnt_hidden = 10 		# number of neurons in hidden layer
 
@@ -24,7 +24,7 @@ eat_distance = 10.0		# расстояние, на котором пожират�
 
 max_food = 8 			# на каком количестве съеденной пищи запускается генетический алгоритм
 
-time_to_reset = 5.0		# через сколько секунд обновить положение игроков на экране
+time_to_reset = 30.0	# через сколько секунд обновить положение игроков на экране
 
 
 ##############################################################
@@ -42,16 +42,14 @@ def reset_actors():
 	time = 0.0
 
 	for i in range(cnt_hamburgers):
-		if hamburgers[i] != None:
-			hamburgers[i].reset()
+		if hamburgers[i] == None:
+			hamburgers[i] = Visual.Actor(window, batch, hamburger_speed*random(), 'burger.png')
+		else:
+			hamburgers[i].reset(hamburger_speed*random())
 	
 	for i in range(cnt_pacman):
-		pacmans[i].reset()
+		pacmans[i].reset(pacman_speed*random())
 
-def reset_food():
-	for i in range(cnt_hamburgers):
-		if hamburgers[i] == None:
-			hamburgers[i] = Visual.Actor(window, batch, hamburger_velocity*random(), 'burger.png')
 
 def run_neural():
 	global time
@@ -80,8 +78,8 @@ def run_neural():
 					angle = - math.acos( (hamburgers[j].x - pacmans[i].x) / distance ) - pacmans[i].angle
 
 				if distance <= eat_distance:		# съедаем еду
-					#hamburgers[j] = None # еда исчезает
-					hamburgers[j] = Visual.Actor(window, batch, hamburger_velocity*random(), 'burger.png')
+					hamburgers[j] = None # еда исчезает
+					#hamburgers[j] = Visual.Actor(window, batch, hamburger_speed*random(), 'burger.png')
 					pacmans[i].inc_food()
 
 			# нормализация значений на промежутке [0,1]		
@@ -91,9 +89,8 @@ def run_neural():
 		neural = neurals[i]
 		output = neural.run(input)
 
-		# Меняем направление движения пожирателя
-		# Значение на выходе принадлежит промежутку [-1,1] Изменяем на [-π, π]
-		pacmans[i].inc_angle(math.pi * output[0])
+		# Меняем направление и скорость движения пожирателя
+		pacmans[i].inc_angle_speed(math.pi * output[0], pacman_speed/10.0*output[1])
 
 		# Сохраняем информацию о съеденной еде
 		eaten_food += pacmans[i].food
@@ -130,8 +127,8 @@ def next_evolution():
 
 	evolution_num += 1	
 	evolution_label.text = 'Evolution = ' + str(evolution_num)
+	evolution_sound.play()
 
-	reset_food()
 	reset_actors()
 
 
@@ -190,6 +187,8 @@ window.push_handlers(keymap)
 # create a batch to perform all our rendering
 batch = pyglet.graphics.Batch()
 
+evolution_sound = pyglet.resource.media('genetic.wav', streaming=False)
+
 # Crete text labels with information about the state 
 evolution_label = pyglet.text.Label(
 	'Evolution = 0', 
@@ -211,15 +210,15 @@ food_label = pyglet.text.Label(
 # Neural networks will control the eaters
 pacmans = list()
 for i in range(cnt_pacman):
-	pacmans.append( Visual.Actor(window, batch, pacman_velocity*uniform(0.5, 1.0), 'pacman.png') )
+	pacmans.append( Visual.Actor(window, batch, pacman_speed*random(), 'pacman.png') )
 
 hamburgers = list()
 for i in range(cnt_hamburgers):	
-	hamburgers.append( Visual.Actor(window, batch, hamburger_velocity*random(), 'burger.png') )
+	hamburgers.append( Visual.Actor(window, batch, hamburger_speed*random(), 'burger.png') )
 
 neurals = list()
 for i in range(cnt_pacman):
-	neurals.append( Neural.MLP(cnt_hamburgers, cnt_hidden, 1) )
+	neurals.append( Neural.MLP(cnt_hamburgers, cnt_hidden, 2) )
 
 
 # schedule the update function, 60 times per second
