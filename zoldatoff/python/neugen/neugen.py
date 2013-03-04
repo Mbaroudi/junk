@@ -8,31 +8,22 @@ import pyglet
 import math
 from random import random, uniform
 
-##############################################################
-
-width = 800				# main window width
-height = 700			# main window height
-
-pacman_speed = 100		# max speed of eaters
-hamburger_speed = 0		# max speed of food
-
-cnt_pacman = 10			# number of eaters
-cnt_hamburgers = 10		# number of food
-cnt_hidden = 10 		# number of neurons in hidden layer
-
-eat_distance = 10.0		# расстояние, на котором пожиратель может съесть еду
-
-max_food = 20 			# на каком количестве съеденной пищи запускается генетический алгоритм
-
-time_to_reset = 60.0	# через сколько секунд обновить положение игроков на экране
-
+from config import *
 
 ##############################################################
-
-##########################################
 
 def dist(x, y):
 	return math.sqrt(x*x+y*y)
+
+def create_food():
+	global window
+	global batch
+	return Visual.Actor(window, batch, SPEED_OF_FOOD*random(), 'burger.png')
+
+def create_eater():
+	global window
+	global batch
+	return Visual.Actor(window, batch, SPEED_OF_EATER*random(), 'pacman.png')
 
 def reset_actors():
 	global pacmans
@@ -41,61 +32,72 @@ def reset_actors():
 
 	time = 0.0
 
-	for i in range(cnt_hamburgers):
+	for i in range(CNT_FOOD):
 		if hamburgers[i] == None:
-			hamburgers[i] = Visual.Actor(window, batch, hamburger_speed*random(), 'burger.png')
+			# Восстанавливаем съеденный гамбургер
+			hamburgers[i] = create_food()
 		else:
-			hamburgers[i].reset(hamburger_speed*random())
+			hamburgers[i].reset(SPEED_OF_FOOD*random())
 	
-	for i in range(cnt_pacman):
-		pacmans[i].reset(pacman_speed*random())
+	for i in range(CNT_EATERS):
+		pacmans[i].reset(SPEED_OF_EATER*random())
 
 
 def run_neural():
 	global time
 	global food_label
-	global eat_distance
-	global max_food
+	global hamburgers
+	global pacmans
+	global neurals
 
 	# Локальная переменна для подсчета всей съеденной еды
 	eaten_food = 0
 
-	for i in range(cnt_pacman):
+	for i in range(CNT_EATERS):
 		# Для каждого пожирателя перебираем всю еду 
 		# подготавливаем входной вектор (input) для нейронной сети
 		input = list()
 
-		for j in range(cnt_hamburgers):
-			if hamburgers[j] == None:	# еда уже съедена
-				angle = 0.0
-				distance = 100000.0
+		for j in range(CNT_FOOD):
+			if hamburgers[j] == None:			
+				# еда уже съедена
+				angle, distance = 0.0, 100000.0
 			else:	
+				# расстояние до еды
 				distance = dist(pacmans[i].x - hamburgers[j].x, pacmans[i].y - hamburgers[j].y)
 
-				theangle = math.acos( (hamburgers[j].x - pacmans[i].x) / distance )
+				# направление к еде
+				angle = math.acos( (hamburgers[j].x - pacmans[i].x) / distance )
 
+				# поворок к еде
 				if hamburgers[j].y > pacmans[i].y:
-					angle = theangle - pacmans[i].angle
+					delta_angle = (angle - pacmans[i].angle) % (2*math.pi)
 				else:
-					angle = - theangle - pacmans[i].angle
+					delta_angle = (- angle - pacmans[i].angle) % (2*math.pi)
 
-				if math.pi/2 < (theangle-angle)%(2*math.pi) < 3*math.pi/2:
-					distance = 100000.0
+				# видим ли мы под этим углом	
+				if VISUAL_ANGLE/2 < delta_angle < 2*math.pi - VISUAL_ANGLE/2:
+					distance = 100000.0		
 
-				if distance <= eat_distance:		# съедаем еду
-					#hamburgers[j] = None # еда исчезает
-					hamburgers[j] = Visual.Actor(window, batch, hamburger_speed*random(), 'burger.png')
+				# съедаем ли мы еду	
+				if distance <= EAT_DISTANCE:		
+					#hamburgers[j] = None 			# еда исчезает
+					hamburgers[j] = create_food()	# еда появляется в другом месте
 					pacmans[i].inc_food()
 
 			# нормализация значений на промежутке [0,1]		
-			input += [ eat_distance / distance, (angle % (2.0*math.pi)) / (2.0*math.pi) ]
+			input += [ EAT_DISTANCE / distance, delta_angle / (2.0*math.pi) ]
 		
 		# Запускаем нейронную сеть пожирателя
 		neural = neurals[i]
 		output = neural.run(input)
 
 		# Меняем направление и скорость движения пожирателя
-		pacmans[i].inc_angle_speed(math.pi * output[0], pacman_speed/100.0*output[1])
+		if 0 < pacmans[i].speed + SPEED_OF_EATER/100.0*output[1] < SPEED_OF_EATER:
+			pacmans[i].inc_angle_speed(math.pi * output[0], SPEED_OF_EATER/100.0*output[1])
+		else:
+			# Скорость вышла за пределы - не меняем её
+			pacmans[i].inc_angle_speed(math.pi * output[0], 0)
 
 		# Сохраняем информацию о съеденной еде
 		eaten_food += pacmans[i].food
@@ -104,7 +106,7 @@ def run_neural():
 	food_label.text = 'Food = ' + str(eaten_food)	
 
 	# Запускаем генетический алгоритм
-	if eaten_food >= max_food:
+	if eaten_food >= MAX_FOOD:
 		next_evolution()
 
 
@@ -114,24 +116,23 @@ def next_evolution():
 	global pacmans
 	global hamburgers
 	global neurals
-	global cnt_pacman
 
+	# Параметры эволюционного алогоритма: особи и их ранги
 	persons = list()
 	results = list()
-	for i in range(cnt_pacman):
+	for i in range(CNT_EATERS):
 		person = neurals[i].export2vector()
 		persons.append(person)
 		results.append(pacmans[i].food)
 		pacmans[i].food = 0
 
-
+	# Создание популляции и нового поколения	
 	population = Genetic.Population(persons, results)
 	superpersons = population.evolution()
-
-	for i in range(cnt_pacman):
+	for i in range(CNT_EATERS):
 		neurals[i].import_vector(superpersons[i])
 
-
+	# рекация на создание нового поколения	
 	evolution_num += 1	
 	evolution_label.text = 'Evolution = ' + str(evolution_num)
 	evolution_sound.play()
@@ -143,21 +144,19 @@ def update(dt):
 	global time
 	global pacmans
 	global hamburgers
-	global cnt_pacman
-	global cnt_hamburgers
 
 	time += dt
 
 	run_neural()
 
-	for i in range(cnt_pacman):
+	for i in range(CNT_EATERS):
 		pacmans[i].update(dt)
 
-	for i in range(cnt_hamburgers):
+	for i in range(CNT_FOOD):
 		if hamburgers[i]: 
 			hamburgers[i].update(dt)
 
-	if keymap[pyglet.window.key.SPACE] or time > time_to_reset:
+	if keymap[pyglet.window.key.SPACE] or time > TIME_TO_RESET:
 		reset_actors()
 
 
@@ -172,8 +171,8 @@ time = 0.0
 # create the window, but keep it offscreen until we are done with setup
 # http://www.pyglet.org/doc/api/pyglet.window.Window-class.html
 window = pyglet.window.Window(
-	width=width, 
-	height=height, 
+	width=WIDTH, 
+	height=HEIGHT, 
 	style=pyglet.window.Window.WINDOW_STYLE_BORDERLESS, 
 	visible=False, 
 	caption="Neutral network evolution")
@@ -216,16 +215,16 @@ food_label = pyglet.text.Label(
 # Initialize the actors: eaters will eat the food.
 # Neural networks will control the eaters
 pacmans = list()
-for i in range(cnt_pacman):
-	pacmans.append( Visual.Actor(window, batch, pacman_speed*random(), 'pacman.png') )
+for i in range(CNT_EATERS):
+	pacmans.append( create_eater() )
 
 hamburgers = list()
-for i in range(cnt_hamburgers):	
-	hamburgers.append( Visual.Actor(window, batch, hamburger_speed*random(), 'burger.png') )
+for i in range(CNT_FOOD):	
+	hamburgers.append( create_food() )
 
 neurals = list()
-for i in range(cnt_pacman):
-	neurals.append( Neural.MLP(cnt_hamburgers, cnt_hidden, 2) )
+for i in range(CNT_EATERS):
+	neurals.append( Neural.MLP(CNT_FOOD, CNT_HIDDEN, 2) )
 
 
 # schedule the update function, 60 times per second
