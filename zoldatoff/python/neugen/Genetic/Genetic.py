@@ -22,6 +22,8 @@ class Population():
 		self.results = results
 		self.len = min(len(self.persons), len(self.results))
 
+		self.sort()
+
 	def __del__(self):
 		None
 
@@ -45,13 +47,13 @@ class Population():
 		for i in range(self.len):
 			tup = (self.results[i], self.persons[i])
 			sortlist.append(tup)
-			
+
 		sortlist.sort(key=lambda tup: -tup[0])
+		self.results = [sortlist[i][0] for i in range(self.len)]
 		self.persons = [sortlist[i][1] for i in range(self.len)]
 
 
 	def evolution(self, cnt_elite=2):
-		sortlist = self.sort()
 		superpersons = list()
 
 		for i in range(cnt_elite):

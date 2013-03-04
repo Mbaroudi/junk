@@ -13,7 +13,7 @@ from random import random, uniform
 width = 800				# main window width
 height = 700			# main window height
 
-pacman_speed = 10		# max speed of eaters
+pacman_speed = 100		# max speed of eaters
 hamburger_speed = 0		# max speed of food
 
 cnt_pacman = 10			# number of eaters
@@ -22,9 +22,9 @@ cnt_hidden = 10 		# number of neurons in hidden layer
 
 eat_distance = 10.0		# расстояние, на котором пожиратель может съесть еду
 
-max_food = 8 			# на каком количестве съеденной пищи запускается генетический алгоритм
+max_food = 20 			# на каком количестве съеденной пищи запускается генетический алгоритм
 
-time_to_reset = 30.0	# через сколько секунд обновить положение игроков на экране
+time_to_reset = 60.0	# через сколько секунд обновить положение игроков на экране
 
 
 ##############################################################
@@ -72,14 +72,19 @@ def run_neural():
 			else:	
 				distance = dist(pacmans[i].x - hamburgers[j].x, pacmans[i].y - hamburgers[j].y)
 
+				theangle = math.acos( (hamburgers[j].x - pacmans[i].x) / distance )
+
 				if hamburgers[j].y > pacmans[i].y:
-					angle = math.acos( (hamburgers[j].x - pacmans[i].x) / distance ) - pacmans[i].angle
+					angle = theangle - pacmans[i].angle
 				else:
-					angle = - math.acos( (hamburgers[j].x - pacmans[i].x) / distance ) - pacmans[i].angle
+					angle = - theangle - pacmans[i].angle
+
+				if math.pi/2 < (theangle-angle)%(2*math.pi) < 3*math.pi/2:
+					distance = 100000.0
 
 				if distance <= eat_distance:		# съедаем еду
-					hamburgers[j] = None # еда исчезает
-					#hamburgers[j] = Visual.Actor(window, batch, hamburger_speed*random(), 'burger.png')
+					#hamburgers[j] = None # еда исчезает
+					hamburgers[j] = Visual.Actor(window, batch, hamburger_speed*random(), 'burger.png')
 					pacmans[i].inc_food()
 
 			# нормализация значений на промежутке [0,1]		
@@ -90,7 +95,7 @@ def run_neural():
 		output = neural.run(input)
 
 		# Меняем направление и скорость движения пожирателя
-		pacmans[i].inc_angle_speed(math.pi * output[0], pacman_speed/10.0*output[1])
+		pacmans[i].inc_angle_speed(math.pi * output[0], pacman_speed/100.0*output[1])
 
 		# Сохраняем информацию о съеденной еде
 		eaten_food += pacmans[i].food
@@ -119,11 +124,13 @@ def next_evolution():
 		results.append(pacmans[i].food)
 		pacmans[i].food = 0
 
+
 	population = Genetic.Population(persons, results)
 	superpersons = population.evolution()
 
-	for superperson in superpersons:
-		neurals[i].import_vector(superperson)
+	for i in range(cnt_pacman):
+		neurals[i].import_vector(superpersons[i])
+
 
 	evolution_num += 1	
 	evolution_label.text = 'Evolution = ' + str(evolution_num)

@@ -49,6 +49,9 @@ class Actor(pyglet.sprite.Sprite):
 		self.x, self.y = x, y	
 
 
+	def set_rgb(self, r, g, b):
+		self.color=(r, g, b)
+
 	# def set_speed(self, speed):
 	# 	self.speed = speed
 
