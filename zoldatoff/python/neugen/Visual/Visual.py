@@ -79,17 +79,17 @@ class Actor(pyglet.sprite.Sprite):
 		x = self.x + self.vx * dt
 		y = self.y + self.vy * dt
 
-		if x >= self.window.width-self.image.anchor_x:	# right side
-			x = self.x
+		# if x >= self.window.width-self.image.anchor_x:	# right side
+		# 	x = self.x
 
-		if self.x <= self.image.anchor_x:		# left side
-			x = self.x
+		# if self.x <= self.image.anchor_x:		# left side
+		# 	x = self.x
 
-		if self.y >= self.window.height-self.image.anchor_y:	#top
-			y = self.y
+		# if self.y >= self.window.height-self.image.anchor_y:	#top
+		# 	y = self.y
 
-		if self.y <= self.image.anchor_y:			# bottom
-			y = self.y
+		# if self.y <= self.image.anchor_y:			# bottom
+		# 	y = self.y
 
 		self.x = x
 		self.y = y

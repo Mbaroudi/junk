@@ -25,6 +25,14 @@ def create_eater():
 	global batch
 	return Visual.Actor(window, batch, SPEED_OF_EATER*random(), 'pacman.png')
 
+def create_neural():
+	# на вход сети подаем расстояние до пищи и пожирателей и направление на них
+	# на выходе получаем угол поворота и прирост скорости
+	#cnt_input = 2*CNT_FOOD + 2*CNT_EATERS - 2
+	cnt_input = 2*CNT_FOOD 
+	return Neural.MLP(cnt_input, CNT_HIDDEN, 2)
+
+
 def reset_actors():
 	global pacmans
 	global hamburgers
@@ -61,10 +69,12 @@ def run_neural():
 		for j in range(CNT_FOOD):
 			if hamburgers[j] == None:			
 				# еда уже съедена
-				angle, distance = 0.0, 100000.0
+				delta_angle, distance = 0.0, 100000.0
+				#delta_angle, distance = None, None
 			else:	
 				# расстояние до еды
 				distance = dist(pacmans[i].x - hamburgers[j].x, pacmans[i].y - hamburgers[j].y)
+				distance = max(distance, 1)
 
 				# направление к еде
 				angle = math.acos( (hamburgers[j].x - pacmans[i].x) / distance )
@@ -78,6 +88,8 @@ def run_neural():
 				# видим ли мы под этим углом	
 				if VISUAL_ANGLE/2 < delta_angle < 2*math.pi - VISUAL_ANGLE/2:
 					distance = 100000.0		
+					#distance = None
+					delta_angle = 0
 
 				# съедаем ли мы еду	
 				if distance <= EAT_DISTANCE:		
@@ -86,14 +98,41 @@ def run_neural():
 					pacmans[i].inc_food()
 
 			# нормализация значений на промежутке [0,1]		
-			input += [ EAT_DISTANCE / distance, delta_angle / (2.0*math.pi) ]
+			#input += [ EAT_DISTANCE / distance, delta_angle / (2.0*math.pi) ]
+			input += [ distance / dist(WIDTH, HEIGHT), delta_angle / (2.0*math.pi) ]
+	
+
+		# for j in range(CNT_EATERS):
+		# 	if i == j:			
+		# 		# это сам пожиратель
+		# 		angle, distance = 0.0, 100000.0
+		# 	else:	
+		# 		# расстояние до другого пожирателя
+		# 		distance = dist(pacmans[i].x - pacmans[j].x, pacmans[i].y - pacmans[j].y)
+		# 		distance = max(distance, 1)
+
+		# 		# направление к еде
+		# 		angle = math.acos( (pacmans[j].x - pacmans[i].x) / distance )
+
+		# 		# поворок к еде
+		# 		if pacmans[j].y > pacmans[i].y:
+		# 			delta_angle = (angle - pacmans[i].angle) % (2*math.pi)
+		# 		else:
+		# 			delta_angle = (- angle - pacmans[i].angle) % (2*math.pi)
+
+		# 		# видим ли мы под этим углом	
+		# 		if VISUAL_ANGLE/2 < delta_angle < 2*math.pi - VISUAL_ANGLE/2:
+		# 			distance = 100000.0		
+
+		# 	# нормализация значений на промежутке [0,1]		
+		# 	input += [ EAT_DISTANCE / distance, delta_angle / (2.0*math.pi) ]
 		
 		# Запускаем нейронную сеть пожирателя
 		neural = neurals[i]
 		output = neural.run(input)
 
 		# Меняем направление и скорость движения пожирателя
-		if 0 < pacmans[i].speed + SPEED_OF_EATER/100.0*output[1] < SPEED_OF_EATER:
+		if 0 < pacmans[i].speed + SPEED_OF_EATER/100.0*output[1] < 100*SPEED_OF_EATER:
 			pacmans[i].inc_angle_speed(math.pi * output[0], SPEED_OF_EATER/100.0*output[1])
 		else:
 			# Скорость вышла за пределы - не меняем её
@@ -224,7 +263,7 @@ for i in range(CNT_FOOD):
 
 neurals = list()
 for i in range(CNT_EATERS):
-	neurals.append( Neural.MLP(CNT_FOOD, CNT_HIDDEN, 2) )
+	neurals.append( create_neural() )
 
 
 # schedule the update function, 60 times per second
