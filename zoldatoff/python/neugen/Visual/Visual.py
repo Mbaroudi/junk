@@ -31,7 +31,7 @@ class Actor(pyglet.sprite.Sprite):
 
 		self.reset(speed)
 
-		self.sound = pyglet.resource.media('pacman.wav', streaming=False)
+		self.sound = pyglet.resource.media('pacman.mp3', streaming=False)
 
 
 	def reset(self, speed):
@@ -46,6 +46,7 @@ class Actor(pyglet.sprite.Sprite):
 		self.speed = speed
 
 		self.color = (255, max(255 - 30 * self.food, 0), max(255 - 30 * self.food, 0))
+		self.scale = 0.5
 
 
 	def set_xy(self, x, y):
@@ -55,8 +56,6 @@ class Actor(pyglet.sprite.Sprite):
 	def set_rgb(self, r, g, b):
 		self.color=(r, g, b)
 
-	# def set_speed(self, speed):
-	# 	self.speed = speed
 
 	def inc_angle(self, inc_angle):
 		self.angle = (self.angle + inc_angle) % (2.0*math.pi)
@@ -77,6 +76,7 @@ class Actor(pyglet.sprite.Sprite):
 	def inc_food(self):
 		self.food += 1
 		self.color = (255, max(255 - 30 * self.food, 0), max(255 - 30 * self.food, 0))
+		self.scale += 0.1
 		self.sound.play()
 
 

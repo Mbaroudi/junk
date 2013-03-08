@@ -4,6 +4,7 @@
 from Visual import Visual
 from Neural import Neural
 from Genetic import Genetic
+from Chart import Chart
 import pyglet
 import math
 from random import random, uniform
@@ -18,23 +19,25 @@ def dist(x, y):
 
 def fitness(food, distance, spin):
 	#print  food, 2*distance / 100000,  2*spin / 10000
-	return food  #- 	2*distance / 100000 - 2*spin / 10000
+	return food - 2*distance / 100000 - 2*spin / 10000
 
 def create_food():
 	global window
 	global batch
-	return Visual.Actor(window, batch, SPEED_OF_FOOD*random(), 'burger.png')
+	return Visual.Actor(window, batch, SPEED_OF_FOOD*random(), 'food.png')
 
 def create_eater():
 	global window
 	global batch
-	return Visual.Actor(window, batch, SPEED_OF_EATER*random(), 'pacman.png')
+	eater = Visual.Actor(window, batch, SPEED_OF_EATER*random(), 'pacman.png')
+	return eater
 
 def create_neural():
 	# на вход сети подаем расстояние до пищи и пожирателей и направление на них
 	# на выходе получаем угол поворота и прирост скорости
 	
-	cnt_input = 2*CNT_FOOD + 2*CNT_EATERS - 2
+	#cnt_input = 2*CNT_FOOD + 2*CNT_EATERS - 2
+	cnt_input = 2*CNT_INPUT_FOOD + 2*CNT_INPUT_EATERS
 	cnt_hidden = cnt_input
 	cnt_output = 2
 
@@ -81,10 +84,13 @@ def normalize_position(actor1, actor2):
 		delta_angle = delta_angle - 2*math.pi
 
 	# видим ли мы под этим углом	
-	if - VISUAL_ANGLE/2 < delta_angle < VISUAL_ANGLE/2:
+	if -VISUAL_ANGLE/2 < delta_angle < VISUAL_ANGLE/2:
 		distance = inf_distance		
 		#distance = None
 		#delta_angle = 0
+
+	#if distance > dist(WIDTH, HEIGHT) / 2:
+	#	distance = inf_distance
 
 	if distance < EAT_DISTANCE:
 		eaten = True
@@ -106,6 +112,7 @@ def run_neural():
 		# подготавливаем входной вектор (input) для нейронной сети
 		input = list()
 
+		input_food = list()
 		for j in range(CNT_FOOD):
 			position = normalize_position(eaters[i], food[j])
 
@@ -113,14 +120,27 @@ def run_neural():
 				food[j] = create_food()
 				eaters[i].inc_food()
 
-			input += [ position['distance'], position['delta_angle'] ]
+			input_food.append(position) 
+			#input += [ position['distance'], position['delta_angle'] ]
 	
-
+		input_eaters = list()	
 		for j in range(CNT_EATERS):
 			if i != j:
 				position = normalize_position(eaters[i], eaters[j])
-				input += [ position['distance'], position['delta_angle'] ]
+				input_eaters.append(position)
+				#input += [ position['distance'], position['delta_angle'] ]
 		
+		input_food.sort(key=lambda x:x['distance'], reverse=True)
+		input_eaters.sort(key=lambda x:x['distance'], reverse=True)
+
+		for j in range(CNT_INPUT_FOOD):
+			input.append(input_food[j]['distance'])
+			input.append(input_food[j]['delta_angle'])
+
+		for j in range(CNT_INPUT_EATERS):
+			input.append(input_eaters[j]['distance'])
+			input.append(input_eaters[j]['delta_angle'])				
+
 		# Запускаем нейронную сеть пожирателя
 		neural = neurals[i]
 		output = neural.run(input)
@@ -145,6 +165,7 @@ def next_evolution():
 	global eaters
 	global food
 	global neurals
+	global start_time
 
 	# Параметры эволюционного алогоритма: особи и их ранги
 	persons = list()
@@ -170,7 +191,12 @@ def next_evolution():
 	evolution_num += 1	
 	evolution_label.text = 'Evolution = ' + str(evolution_num)
 	evolution_sound.play()
-	print str(evolution_num) + '\t' + str(systime())
+	
+	current_time = systime()
+	chart_x.append(evolution_num)
+	chart_y.append(current_time - start_time)
+	chart = Chart.LineChart(chart_x, chart_y)
+	start_time = current_time
 
 	reset_actors()
 
@@ -199,7 +225,10 @@ def update(dt):
 
 # Количество "прогонов" генетического алгоритма
 evolution_num = 0
-print str(evolution_num) + '\t' + str(systime())
+chart_x = list()
+chart_y = list()
+
+start_time = systime()
 
 # Время, прошедшее с последней перестановки "игроков"
 time = 0.0
@@ -229,7 +258,7 @@ window.push_handlers(keymap)
 # create a batch to perform all our rendering
 batch = pyglet.graphics.Batch()
 
-evolution_sound = pyglet.resource.media('genetic.wav', streaming=False)
+evolution_sound = pyglet.resource.media('genetic.mp3', streaming=False)
 
 # Crete text labels with information about the state 
 evolution_label = pyglet.text.Label(
