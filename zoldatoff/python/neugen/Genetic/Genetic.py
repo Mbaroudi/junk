@@ -6,7 +6,7 @@ from math import log
 def randomindex(pexp=0.7):
 		return int( log(random()) / log(pexp) )
 
-def mutate(person, probability=0.05):
+def mutate(person, probability=0.02):
 	mutant = list()
 	for i in range(len(person)):
 		if random() < probability:
@@ -28,7 +28,7 @@ class Population():
 		None
 
 
-	def crossover(self, p1, p2, probswap=0.7):
+	def crossover(self, p1, p2, probswap=0.8):
 		person1 = self.persons[p1]
 		person2 = self.persons[p2]
 		person = list()

@@ -13,7 +13,10 @@ class Actor(pyglet.sprite.Sprite):
 		self.window = window
 		self.speed = speed
 		self.angle = 0
+		
 		self.food = 0
+		self.distance = 0
+		self.spin = 0
 
 		# load a Pacman image
 		image = pyglet.image.load(image_path)
@@ -58,16 +61,18 @@ class Actor(pyglet.sprite.Sprite):
 	def inc_angle(self, inc_angle):
 		self.angle = (self.angle + inc_angle) % (2.0*math.pi)
 		self.rotation = - self.angle*180.0/math.pi
+
+		self.spin += abs(inc_angle)
 		
 		self.vx, self.vy = math.cos(self.angle) * self.speed, math.sin(self.angle) * self.speed
+
 
 	def inc_angle_speed(self, inc_angle, inc_speed):
-		self.angle = (self.angle + inc_angle) % (2.0*math.pi)
-		self.rotation = - self.angle*180.0/math.pi
+		self.inc_angle(inc_angle)
 
-		self.speed = max(self.speed + inc_speed, 0)
-		
+		self.speed = max(self.speed + inc_speed, 0)		
 		self.vx, self.vy = math.cos(self.angle) * self.speed, math.sin(self.angle) * self.speed
+
 
 	def inc_food(self):
 		self.food += 1
@@ -78,6 +83,8 @@ class Actor(pyglet.sprite.Sprite):
 	def update(self, dt):
 		x = self.x + self.vx * dt
 		y = self.y + self.vy * dt
+
+		self.distance += math.sqrt(self.vx*self.vx+self.vy*self.vy) * dt
 
 		# if x >= self.window.width-self.image.anchor_x:	# right side
 		# 	x = self.x

@@ -6,13 +6,11 @@ from math import pi
 WIDTH = 800				# main window width
 HEIGHT = 700			# main window height
 
-SPEED_OF_EATER = 400	# max speed of eaters
-SPEED_OF_FOOD = 10		# max speed of food
+SPEED_OF_EATER = 200	# max speed of eaters
+SPEED_OF_FOOD = 0		# max speed of food
 
 CNT_EATERS = 10			# number of eaters
 CNT_FOOD = 10			# number of food
-#CNT_HIDDEN = 2*CNT_FOOD + 2*CNT_EATERS - 2 		# number of neurons in hidden layer
-CNT_HIDDEN = 2*CNT_FOOD 		# number of neurons in hidden layer
 
 EAT_DISTANCE = 10.0		# расстояние, на котором пожиратель может съесть еду
 VISUAL_ANGLE = pi  		# угол зрения, под которым пожиратели видят еду (и других пожирателей)

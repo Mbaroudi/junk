@@ -7,6 +7,7 @@ from Genetic import Genetic
 import pyglet
 import math
 from random import random, uniform
+from time import time as systime
 
 from config import *
 
@@ -14,6 +15,10 @@ from config import *
 
 def dist(x, y):
 	return math.sqrt(x*x+y*y)
+
+def fitness(food, distance, spin):
+	#print  food, 2*distance / 100000,  2*spin / 10000
+	return food  #- 	2*distance / 100000 - 2*spin / 10000
 
 def create_food():
 	global window
@@ -28,34 +33,69 @@ def create_eater():
 def create_neural():
 	# на вход сети подаем расстояние до пищи и пожирателей и направление на них
 	# на выходе получаем угол поворота и прирост скорости
-	#cnt_input = 2*CNT_FOOD + 2*CNT_EATERS - 2
-	cnt_input = 2*CNT_FOOD 
-	return Neural.MLP(cnt_input, CNT_HIDDEN, 2)
+	
+	cnt_input = 2*CNT_FOOD + 2*CNT_EATERS - 2
+	cnt_hidden = cnt_input
+	cnt_output = 2
+
+	return Neural.MLP(cnt_input, cnt_hidden, cnt_output)
 
 
 def reset_actors():
-	global pacmans
-	global hamburgers
+	global eaters
+	global food
 	global time
 
 	time = 0.0
 
 	for i in range(CNT_FOOD):
-		if hamburgers[i] == None:
+		if food[i] == None:
 			# Восстанавливаем съеденный гамбургер
-			hamburgers[i] = create_food()
+			food[i] = create_food()
 		else:
-			hamburgers[i].reset(SPEED_OF_FOOD*random())
+			food[i].reset(SPEED_OF_FOOD*random())
 	
 	for i in range(CNT_EATERS):
-		pacmans[i].reset(SPEED_OF_EATER*random())
+		eaters[i].reset(SPEED_OF_EATER*random())
 
+def normalize_position(actor1, actor2):
+	inf_distance = 100000.0
+	eaten = False
+
+	if actor2 == None:
+		return {'delta_angle': 0.0, 'distance': EAT_DISTANCE / inf_distance, 'eaten': eaten}
+
+	distance = dist(actor2.x - actor1.x, actor2.y - actor1.y)
+	distance = max(distance, 1)
+
+	# направление к еде
+	angle = math.acos( (actor2.x - actor1.x) / distance )
+
+	# поворок к еде
+	if actor2.y > actor1.y:
+		delta_angle = (angle - actor1.angle) % (2*math.pi)
+	else:
+		delta_angle = (- angle - actor1.angle) % (2*math.pi)
+
+	if delta_angle > math.pi:
+		delta_angle = delta_angle - 2*math.pi
+
+	# видим ли мы под этим углом	
+	if - VISUAL_ANGLE/2 < delta_angle < VISUAL_ANGLE/2:
+		distance = inf_distance		
+		#distance = None
+		#delta_angle = 0
+
+	if distance < EAT_DISTANCE:
+		eaten = True
+
+	return {'delta_angle': delta_angle / (2.0*math.pi), 'distance': EAT_DISTANCE / distance, 'eaten': eaten}
 
 def run_neural():
 	global time
 	global food_label
-	global hamburgers
-	global pacmans
+	global food
+	global eaters
 	global neurals
 
 	# Локальная переменна для подсчета всей съеденной еды
@@ -67,79 +107,29 @@ def run_neural():
 		input = list()
 
 		for j in range(CNT_FOOD):
-			if hamburgers[j] == None:			
-				# еда уже съедена
-				delta_angle, distance = 0.0, 100000.0
-				#delta_angle, distance = None, None
-			else:	
-				# расстояние до еды
-				distance = dist(pacmans[i].x - hamburgers[j].x, pacmans[i].y - hamburgers[j].y)
-				distance = max(distance, 1)
+			position = normalize_position(eaters[i], food[j])
 
-				# направление к еде
-				angle = math.acos( (hamburgers[j].x - pacmans[i].x) / distance )
+			if position['eaten']:
+				food[j] = create_food()
+				eaters[i].inc_food()
 
-				# поворок к еде
-				if hamburgers[j].y > pacmans[i].y:
-					delta_angle = (angle - pacmans[i].angle) % (2*math.pi)
-				else:
-					delta_angle = (- angle - pacmans[i].angle) % (2*math.pi)
-
-				# видим ли мы под этим углом	
-				if VISUAL_ANGLE/2 < delta_angle < 2*math.pi - VISUAL_ANGLE/2:
-					distance = 100000.0		
-					#distance = None
-					delta_angle = 0
-
-				# съедаем ли мы еду	
-				if distance <= EAT_DISTANCE:		
-					#hamburgers[j] = None 			# еда исчезает
-					hamburgers[j] = create_food()	# еда появляется в другом месте
-					pacmans[i].inc_food()
-
-			# нормализация значений на промежутке [0,1]		
-			#input += [ EAT_DISTANCE / distance, delta_angle / (2.0*math.pi) ]
-			input += [ distance / dist(WIDTH, HEIGHT), delta_angle / (2.0*math.pi) ]
+			input += [ position['distance'], position['delta_angle'] ]
 	
 
-		# for j in range(CNT_EATERS):
-		# 	if i == j:			
-		# 		# это сам пожиратель
-		# 		angle, distance = 0.0, 100000.0
-		# 	else:	
-		# 		# расстояние до другого пожирателя
-		# 		distance = dist(pacmans[i].x - pacmans[j].x, pacmans[i].y - pacmans[j].y)
-		# 		distance = max(distance, 1)
-
-		# 		# направление к еде
-		# 		angle = math.acos( (pacmans[j].x - pacmans[i].x) / distance )
-
-		# 		# поворок к еде
-		# 		if pacmans[j].y > pacmans[i].y:
-		# 			delta_angle = (angle - pacmans[i].angle) % (2*math.pi)
-		# 		else:
-		# 			delta_angle = (- angle - pacmans[i].angle) % (2*math.pi)
-
-		# 		# видим ли мы под этим углом	
-		# 		if VISUAL_ANGLE/2 < delta_angle < 2*math.pi - VISUAL_ANGLE/2:
-		# 			distance = 100000.0		
-
-		# 	# нормализация значений на промежутке [0,1]		
-		# 	input += [ EAT_DISTANCE / distance, delta_angle / (2.0*math.pi) ]
+		for j in range(CNT_EATERS):
+			if i != j:
+				position = normalize_position(eaters[i], eaters[j])
+				input += [ position['distance'], position['delta_angle'] ]
 		
 		# Запускаем нейронную сеть пожирателя
 		neural = neurals[i]
 		output = neural.run(input)
 
 		# Меняем направление и скорость движения пожирателя
-		if 0 < pacmans[i].speed + SPEED_OF_EATER/100.0*output[1] < 100*SPEED_OF_EATER:
-			pacmans[i].inc_angle_speed(math.pi * output[0], SPEED_OF_EATER/100.0*output[1])
-		else:
-			# Скорость вышла за пределы - не меняем её
-			pacmans[i].inc_angle_speed(math.pi * output[0], 0)
+		eaters[i].inc_angle_speed(math.pi * output[0], SPEED_OF_EATER/100.0*output[1])
 
 		# Сохраняем информацию о съеденной еде
-		eaten_food += pacmans[i].food
+		eaten_food += eaters[i].food
 
 	# Выводим инфмормацию о съеденной еде
 	food_label.text = 'Food = ' + str(eaten_food)	
@@ -152,8 +142,8 @@ def run_neural():
 def next_evolution():
 	global evolution_num
 	global evolution_label
-	global pacmans
-	global hamburgers
+	global eaters
+	global food
 	global neurals
 
 	# Параметры эволюционного алогоритма: особи и их ранги
@@ -162,8 +152,13 @@ def next_evolution():
 	for i in range(CNT_EATERS):
 		person = neurals[i].export2vector()
 		persons.append(person)
-		results.append(pacmans[i].food)
-		pacmans[i].food = 0
+
+		result = fitness(eaters[i].food, eaters[i].distance, eaters[i].spin)
+		results.append(eaters[i].food)
+		
+		eaters[i].food = 0
+		eaters[i].spin = 0
+		eaters[i].distance = 0
 
 	# Создание популляции и нового поколения	
 	population = Genetic.Population(persons, results)
@@ -175,25 +170,26 @@ def next_evolution():
 	evolution_num += 1	
 	evolution_label.text = 'Evolution = ' + str(evolution_num)
 	evolution_sound.play()
+	print str(evolution_num) + '\t' + str(systime())
 
 	reset_actors()
 
 
 def update(dt):
 	global time
-	global pacmans
-	global hamburgers
+	global eaters
+	global food
 
 	time += dt
 
 	run_neural()
 
 	for i in range(CNT_EATERS):
-		pacmans[i].update(dt)
+		eaters[i].update(dt)
 
 	for i in range(CNT_FOOD):
-		if hamburgers[i]: 
-			hamburgers[i].update(dt)
+		if food[i]: 
+			food[i].update(dt)
 
 	if keymap[pyglet.window.key.SPACE] or time > TIME_TO_RESET:
 		reset_actors()
@@ -203,6 +199,7 @@ def update(dt):
 
 # Количество "прогонов" генетического алгоритма
 evolution_num = 0
+print str(evolution_num) + '\t' + str(systime())
 
 # Время, прошедшее с последней перестановки "игроков"
 time = 0.0
@@ -253,13 +250,13 @@ food_label = pyglet.text.Label(
 
 # Initialize the actors: eaters will eat the food.
 # Neural networks will control the eaters
-pacmans = list()
+eaters = list()
 for i in range(CNT_EATERS):
-	pacmans.append( create_eater() )
+	eaters.append( create_eater() )
 
-hamburgers = list()
+food = list()
 for i in range(CNT_FOOD):	
-	hamburgers.append( create_food() )
+	food.append( create_food() )
 
 neurals = list()
 for i in range(CNT_EATERS):
