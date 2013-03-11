@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+# Sounds were taken from this site: http://www.classicgaming.cc/classics/pacman/sounds.php
+
 import random, math
 import pyglet
 

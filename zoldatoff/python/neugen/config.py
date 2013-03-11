@@ -11,13 +11,14 @@ SPEED_OF_FOOD = 0		# max speed of food
 
 CNT_EATERS = 10			# number of eaters
 CNT_FOOD = 10			# number of food
+CNT_NEURALS = CNT_EATERS		# number of neural networks
 
-CNT_INPUT_FOOD = 6
-CNT_INPUT_EATERS = 2
+CNT_INPUT_FOOD = 5
+CNT_INPUT_EATERS = 3
 
 EAT_DISTANCE = 10.0		# расстояние, на котором пожиратель может съесть еду
 VISUAL_ANGLE = pi  		# угол зрения, под которым пожиратели видят еду (и других пожирателей)
 
-MAX_FOOD = 10 			# на каком количестве съеденной пищи запускается генетический алгоритм
+MAX_FOOD = 15 			# на каком количестве съеденной пищи запускается генетический алгоритм
 
-TIME_TO_RESET = 60.0	# через сколько секунд обновить положение игроков на экране
+TIME_TO_RESET = 20.0	# через сколько секунд обновить положение игроков на экране

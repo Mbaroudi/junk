@@ -18,8 +18,10 @@ def dist(x, y):
 	return math.sqrt(x*x+y*y)
 
 def fitness(food, distance, spin):
-	#print  food, 2*distance / 100000,  2*spin / 10000
-	return food - 2*distance / 100000 - 2*spin / 10000
+	weight_distance = - 5 / 1e5
+	weight_spin = - 2 / 1e4
+	#print  food, weight_distance*distance,  weight_spin*spin
+	return food + weight_distance*distance + weight_spin*spin
 
 def create_food():
 	global window
@@ -61,7 +63,17 @@ def reset_actors():
 	for i in range(CNT_EATERS):
 		eaters[i].reset(SPEED_OF_EATER*random())
 
-def normalize_position(actor1, actor2):
+def reset_actors2():
+	global eaters
+	global food
+	global time
+
+	time = 0.0
+
+	eaters = [ create_eater() for i in range(CNT_EATERS) ]
+	food = [ create_food() for i in range(CNT_FOOD) ]
+
+def relative_position(actor1, actor2):
 	inf_distance = 100000.0
 	eaten = False
 
@@ -114,7 +126,7 @@ def run_neural():
 
 		input_food = list()
 		for j in range(CNT_FOOD):
-			position = normalize_position(eaters[i], food[j])
+			position = relative_position(eaters[i], food[j])
 
 			if position['eaten']:
 				food[j] = create_food()
@@ -126,7 +138,7 @@ def run_neural():
 		input_eaters = list()	
 		for j in range(CNT_EATERS):
 			if i != j:
-				position = normalize_position(eaters[i], eaters[j])
+				position = relative_position(eaters[i], eaters[j])
 				input_eaters.append(position)
 				#input += [ position['distance'], position['delta_angle'] ]
 		
@@ -156,10 +168,71 @@ def run_neural():
 
 	# Запускаем генетический алгоритм
 	if eaten_food >= MAX_FOOD:
-		next_evolution()
+		next_generation()
 
 
-def next_evolution():
+
+def run_neural2():
+	global time
+	global food_label
+	global food
+	global eaters
+	global neurals
+	global current_neural
+
+	# Локальная переменна для подсчета всей съеденной еды
+	results[current_neural] = 0
+
+	for i in range(CNT_EATERS):
+		# Для каждого пожирателя перебираем всю еду 
+		# подготавливаем входной вектор (input) для нейронной сети
+		input = list()
+
+		input_food = list()
+		for j in range(CNT_FOOD):
+			position = relative_position(eaters[i], food[j])
+
+			if position['eaten']:
+				food[j] = create_food()
+				eaters[i].inc_food()
+
+			input_food.append(position) 
+			#input += [ position['distance'], position['delta_angle'] ]
+	
+		input_eaters = list()	
+		for j in range(CNT_EATERS):
+			if i != j:
+				position = relative_position(eaters[i], eaters[j])
+				input_eaters.append(position)
+				#input += [ position['distance'], position['delta_angle'] ]
+		
+		input_food.sort(key=lambda x:x['distance'], reverse=True)
+		input_eaters.sort(key=lambda x:x['distance'], reverse=True)
+
+		for j in range(CNT_INPUT_FOOD):
+			input.append(input_food[j]['distance'])
+			input.append(input_food[j]['delta_angle'])
+
+		for j in range(CNT_INPUT_EATERS):
+			input.append(input_eaters[j]['distance'])
+			input.append(input_eaters[j]['delta_angle'])				
+
+		# Запускаем нейронную сеть пожирателя
+		neural = neurals[current_neural]
+		output = neural.run(input)
+
+		# Меняем направление и скорость движения пожирателя
+		eaters[i].inc_angle_speed(math.pi * output[0], SPEED_OF_EATER/100.0*output[1])
+
+		# Сохраняем информацию о съеденной еде
+		results[current_neural] += fitness(eaters[i].food, eaters[i].distance, eaters[i].spin)
+
+	# Выводим инфмормацию о съеденной еде
+	food_label.text = 'Food = ' + str(results[current_neural])	
+
+
+
+def next_generation():
 	global evolution_num
 	global evolution_label
 	global eaters
@@ -175,7 +248,7 @@ def next_evolution():
 		persons.append(person)
 
 		result = fitness(eaters[i].food, eaters[i].distance, eaters[i].spin)
-		results.append(eaters[i].food)
+		results.append(result)
 		
 		eaters[i].food = 0
 		eaters[i].spin = 0
@@ -201,6 +274,39 @@ def next_evolution():
 	reset_actors()
 
 
+def next_generation2():
+	global evolution_num
+	global evolution_label
+	global eaters
+	global food
+	global neurals
+	global results
+	global start_time
+
+	# Параметры эволюционного алогоритма: особи и их ранги
+	persons = list()
+	for i in range(CNT_NEURALS):
+		person = neurals[i].export2vector()
+		persons.append(person)
+
+	print 'results', results
+
+	# Создание популляции и нового поколения	
+	population = Genetic.Population(persons, results)
+	superpersons = population.evolution()
+	for i in range(CNT_NEURALS):
+		neurals[i].import_vector(superpersons[i])
+
+	# рекация на создание нового поколения	
+	evolution_num += 1	
+	evolution_label.text = 'Evolution = ' + str(evolution_num)
+	evolution_sound.play()
+
+	reset_actors2()
+
+	print 'evolution_num', evolution_num
+
+
 def update(dt):
 	global time
 	global eaters
@@ -221,7 +327,39 @@ def update(dt):
 		reset_actors()
 
 
+def update2(dt):
+	global time
+	global eaters
+	global food
+	global current_neural
+
+	time += dt
+
+	run_neural2()
+
+	for i in range(CNT_EATERS):
+		eaters[i].update(dt)
+
+	for i in range(CNT_FOOD):
+		if food[i]: 
+			food[i].update(dt)
+
+	if keymap[pyglet.window.key.SPACE] or time > TIME_TO_RESET:
+		if current_neural + 1 < CNT_NEURALS:
+			current_neural += 1
+			reset_actors2()
+			print 'result', results[current_neural-1]
+			print '-----' 
+			print 'current_neural', current_neural
+		else:
+			next_generation2()
+			current_neural = 0
+			print '-----' 
+			print '-----' 
+
 ############################################################
+
+current_neural = 0
 
 # Количество "прогонов" генетического алгоритма
 evolution_num = 0
@@ -279,21 +417,13 @@ food_label = pyglet.text.Label(
 
 # Initialize the actors: eaters will eat the food.
 # Neural networks will control the eaters
-eaters = list()
-for i in range(CNT_EATERS):
-	eaters.append( create_eater() )
-
-food = list()
-for i in range(CNT_FOOD):	
-	food.append( create_food() )
-
-neurals = list()
-for i in range(CNT_EATERS):
-	neurals.append( create_neural() )
-
+eaters = [ create_eater() for i in range(CNT_EATERS) ]
+food = [ create_food() for i in range(CNT_FOOD) ]
+neurals = [ create_neural() for i in range(CNT_NEURALS) ]
+results = [ 0 for i in range(CNT_NEURALS) ]
 
 # schedule the update function, 60 times per second
-pyglet.clock.schedule_interval(update, 1.0/60.0)
+pyglet.clock.schedule_interval(update2, 1.0/60.0)
 
 # clear and flip the window, otherwise we see junk in the buffer before the first frame
 window.clear()				# Clear the window
