@@ -21,7 +21,7 @@ def fitness(food, distance, spin):
 	weight_distance = - 5 / 1e5
 	weight_spin = - 2 / 1e4
 	#print  food, weight_distance*distance,  weight_spin*spin
-	return food + weight_distance*distance + weight_spin*spin
+	return food #+ weight_distance*distance + weight_spin*spin
 
 def create_food():
 	global window
@@ -111,7 +111,7 @@ def relative_position(actor1, actor2):
 
 def run_neural():
 	global time
-	global food_label
+	global fitness_label
 	global food
 	global eaters
 	global neurals
@@ -164,7 +164,7 @@ def run_neural():
 		eaten_food += eaters[i].food
 
 	# Выводим инфмормацию о съеденной еде
-	food_label.text = 'Food = ' + str(eaten_food)	
+	fitness_label.text = 'Food = ' + str(eaten_food)	
 
 	# Запускаем генетический алгоритм
 	if eaten_food >= MAX_FOOD:
@@ -174,7 +174,7 @@ def run_neural():
 
 def run_neural2():
 	global time
-	global food_label
+	global fitness_label
 	global food
 	global eaters
 	global neurals
@@ -228,7 +228,7 @@ def run_neural2():
 		results[current_neural] += fitness(eaters[i].food, eaters[i].distance, eaters[i].spin)
 
 	# Выводим инфмормацию о съеденной еде
-	food_label.text = 'Food = ' + str(results[current_neural])	
+	fitness_label.text = 'Fitness = ' + str(results[current_neural])	
 
 
 
@@ -283,17 +283,22 @@ def next_generation2():
 	global results
 	global start_time
 
+	chart_x.append(evolution_num)
+	chart_y.append(max(results))
+	chart2_y.append(results[0])
+	chart3_y.append(results[1])
+	chart = Chart.LineChart(chart_x, chart_y, chart2_y, chart3_y)
+
+
 	# Параметры эволюционного алогоритма: особи и их ранги
 	persons = list()
 	for i in range(CNT_NEURALS):
 		person = neurals[i].export2vector()
 		persons.append(person)
 
-	print 'results', results
-
 	# Создание популляции и нового поколения	
 	population = Genetic.Population(persons, results)
-	superpersons = population.evolution()
+	superpersons = population.evolution(3)
 	for i in range(CNT_NEURALS):
 		neurals[i].import_vector(superpersons[i])
 
@@ -303,8 +308,6 @@ def next_generation2():
 	evolution_sound.play()
 
 	reset_actors2()
-
-	print 'evolution_num', evolution_num
 
 
 def update(dt):
@@ -348,14 +351,9 @@ def update2(dt):
 		if current_neural + 1 < CNT_NEURALS:
 			current_neural += 1
 			reset_actors2()
-			print 'result', results[current_neural-1]
-			print '-----' 
-			print 'current_neural', current_neural
 		else:
 			next_generation2()
 			current_neural = 0
-			print '-----' 
-			print '-----' 
 
 ############################################################
 
@@ -365,6 +363,8 @@ current_neural = 0
 evolution_num = 0
 chart_x = list()
 chart_y = list()
+chart2_y = list()
+chart3_y = list()
 
 start_time = systime()
 
@@ -407,8 +407,8 @@ evolution_label = pyglet.text.Label(
 	anchor_x='left', anchor_y='center', 
 	batch=batch)
 
-food_label = pyglet.text.Label(
-	'Food = 0', 
+fitness_label = pyglet.text.Label(
+	'Fitness = 0', 
 	font_name='Arial', 
 	font_size=24, 
 	x=10, y=30, 
