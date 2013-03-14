@@ -53,9 +53,6 @@ class Neuron():
 		self.weight_input = vector
 		self.cnt_input = len(vector)
 
-	def train(self):
-		None
-
 
 
 

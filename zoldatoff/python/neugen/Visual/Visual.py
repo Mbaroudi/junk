@@ -13,12 +13,8 @@ marginy = 50
 class Actor(pyglet.sprite.Sprite):
 	def __init__(self, window, batch, speed, image_path):
 		self.window = window
-		self.speed = speed
-		self.angle = 0
-		
-		self.food = 0
-		self.distance = 0
-		self.spin = 0
+		self.speed = 0
+		self.angle = 0		
 
 		# load a Pacman image
 		image = pyglet.image.load(image_path)
@@ -29,78 +25,85 @@ class Actor(pyglet.sprite.Sprite):
 		#pass it all on to the superclass constructor http://www.pyglet.org/doc/api/pyglet.sprite.Sprite-class.html
 		self.sprite = pyglet.sprite.Sprite.__init__(self, image, batch=batch)
 
-		self.color=(255, 255, 255)
+		self.scale = 0.5
 
-		self.reset(speed)
-
-		self.sound = pyglet.resource.media('pacman.mp3', streaming=False)
+		self.reborn(speed)
 
 
-	def reset(self, speed):
+	def reborn(self, speed):
 		# place eater in the random place
-		x = random.uniform(marginx, self.window.width-marginx)
-		y = random.uniform(marginy, self.window.height-marginy)
-		self.set_xy( x, y )
+		self.x = random.uniform(marginx, self.window.width-marginx)
+		self.y = random.uniform(marginy, self.window.height-marginy)
 
 		# define a random direction
 		self.inc_angle(random.random() * 2.0 * math.pi )
 
 		self.speed = speed
 
-		self.color = (255, max(255 - 30 * self.food, 0), max(255 - 30 * self.food, 0))
-		self.scale = 0.5
-
-
-	def set_xy(self, x, y):
-		self.x, self.y = x, y	
-
-
-	def set_rgb(self, r, g, b):
-		self.color=(r, g, b)
-
 
 	def inc_angle(self, inc_angle):
 		self.angle = (self.angle + inc_angle) % (2.0*math.pi)
 		self.rotation = - self.angle*180.0/math.pi
-
-		self.spin += abs(inc_angle)
-		
 		self.vx, self.vy = math.cos(self.angle) * self.speed, math.sin(self.angle) * self.speed
 
 
-	def inc_angle_speed(self, inc_angle, inc_speed):
-		self.inc_angle(inc_angle)
-
+	def inc_speed(self, inc_speed):
 		self.speed = max(self.speed + inc_speed, 0)		
 		self.vx, self.vy = math.cos(self.angle) * self.speed, math.sin(self.angle) * self.speed
 
 
-	def inc_food(self):
+	def movement(self, dt):
+		dx = self.vx * dt
+		dy = self.vy * dt
+
+		self.x += dx
+		self.y += dy
+
+
+class Eater(Actor):
+	def __init__(self, window, batch, speed, image_path='pacman.png'):
+		self.food = 0
+		self.distance = 0
+		self.spin = 0
+		super(Eater, self).__init__(window, batch, speed, image_path)
+
+		self.color = (255, 255, 255)
+		self.sound = pyglet.resource.media('pacman.mp3', streaming=False)
+
+	def reborn(self, speed):
+		super(Eater, self).reborn(speed)
+		self.color = (255, max(255 - 30 * self.food, 0), max(255 - 30 * self.food, 0))
+
+	def inc_food(self, inc_food = 1):
 		self.food += 1
 		self.color = (255, max(255 - 30 * self.food, 0), max(255 - 30 * self.food, 0))
 		self.scale += 0.1
 		self.sound.play()
 
+	def inc_angle(self, inc_angle):
+		super(Eater, self).inc_angle(inc_angle)
+		self.rotation = - self.angle*180.0/math.pi
+		self.spin += abs(inc_angle)
 
-	def update(self, dt):
-		x = self.x + self.vx * dt
-		y = self.y + self.vy * dt
+	def set_rgb(self, r, g, b):
+		self.color=(r, g, b)
 
-		self.distance += math.sqrt(self.vx*self.vx+self.vy*self.vy) * dt
+	def fitness(self):
+		weight_distance = - 5 / 1e5
+		weight_spin = - 2 / 1e4
+		return self.food + weight_distance*self.distance + weight_spin*self.spin
 
-		# if x >= self.window.width-self.image.anchor_x:	# right side
-		# 	x = self.x
+	def movement(self, dt):
+		dx = self.vx * dt
+		dy = self.vy * dt
 
-		# if self.x <= self.image.anchor_x:		# left side
-		# 	x = self.x
+		self.distance += math.sqrt(dx*dx + dy*dy) * dt
 
-		# if self.y >= self.window.height-self.image.anchor_y:	#top
-		# 	y = self.y
-
-		# if self.y <= self.image.anchor_y:			# bottom
-		# 	y = self.y
-
-		self.x = x
-		self.y = y
+		self.x += dx
+		self.y += dy
 
 
+class Food(Actor):
+	def __init__(self, window, batch, speed, image_path='food.png'):
+		super(Food, self).__init__(window, batch, speed, image_path)
+	
