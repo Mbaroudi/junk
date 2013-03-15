@@ -1,14 +1,17 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 import pygal
 from pygal.style import NeonStyle
 from math import floor
 
-npoints = 15
+# The number of points on plot will be reduced to 2*``npoints``
+npoints = 15	
 
-# Скользящее среднее
+
 def movavg(x, y, dx):
+	"""
+	Function reduces the data length using moving average algorythm
+	"""
 	if dx <= 0:
 		return (x, y)
 
@@ -22,8 +25,10 @@ def movavg(x, y, dx):
 	return (xx, yy)
 
 
-# Скользящее максимальное
 def movmax(x, y, dx):
+	"""
+	Function reduces the data length using moving maximum algorythm
+	"""
 	if dx <= 0:
 		return (x, y)
 
@@ -38,6 +43,9 @@ def movmax(x, y, dx):
 
 
 class LineChart():
+	"""
+	Class LineChart contains of 3 2D plots
+	"""
 	def __init__(self, x, y1, y2, y3, fmov = movmax):
 		
 		chart = pygal.Line(
@@ -56,12 +64,17 @@ class LineChart():
 
 		(xx, yy) = fmov(x, y1, dx)
 		
+		# X-labels
 		chart.x_labels = map(str, xx)
+
+		# First plot
 		chart.add('Best', yy)
 
+		# Second plot
 		(xx, yy) = fmov(x, y2, dx)
 		chart.add('#1', yy)
 
+		# Third plot
 		(xx, yy) = fmov(x, y3, dx)
 		chart.add('#2', yy)
 
