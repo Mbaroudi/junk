@@ -14,7 +14,7 @@ def sigmoid(x):
 
 	Activation funtion of a neuron
 	"""
-	alpha = 1.0
+	alpha = 1.5
 	if x < -30:
 		sig = 0
 	elif x > 30:

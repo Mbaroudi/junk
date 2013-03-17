@@ -36,12 +36,12 @@ def dist(x, y):
 
 def create_food(window, batch):
 	""" Create actor (food) in a random position """
-	return Visual.Food(window, batch, SPEED_OF_FOOD*random())
+	return Visual.Food(window, batch, SPEED_OF_FOOD*random(), food_image)
 
 
 def create_eater(window, batch):
 	""" Create actor (eater) in a random position """
-	return Visual.Eater(window, batch, SPEED_OF_EATER*random())
+	return Visual.Eater(window, batch, SPEED_OF_EATER*random(), eater_image)
 
 
 def create_neural():
@@ -118,11 +118,6 @@ def draw_chart(x, yy):
 	One point on each plot after every revolution
 	"""
 
-	global chart_x
-	global chart1_y
-	global chart2_y
-	global chart3_y
-
 	chart_x.append( x )
 	chart1_y.append( max(yy) )
 	chart2_y.append( yy[0] )
@@ -139,9 +134,6 @@ def revolution():
 	 * Run genetic algorithm and produce new neural networks
 	"""
 	global evolution_num
-	global evolution_label
-	global evolution_sound
-	global env
 
 	# Neural networks ant their efficiency
 	neurals = [ env[i].export2vector() for i in range(CNT_ENV) ]
@@ -172,7 +164,6 @@ def update(dt):
 	 * revolution occurs after the last (``CNT_ENV``) environment fell asleep
 	"""
 	global time
-	global env
 	global current_env
 
 	time += dt
@@ -248,6 +239,7 @@ class Environ():
 				# Recreate eaten food
 				if position['eaten']:	
 					self.eaters[i].inc_food()
+					eat_sound.play()
 					self.food[j] = create_food(self.window, self.batch)
 				
 		
@@ -344,8 +336,17 @@ fitness_label = pyglet.text.Label(
 	anchor_x='left', anchor_y='center', 
 	batch=batch)
 
-# Sound of the next evolution
+# Sounds
 evolution_sound = pyglet.resource.media('genetic.mp3', streaming=False)
+eat_sound = pyglet.resource.media('pacman.mp3', streaming=False)
+
+# Images
+eater_image = pyglet.image.load('pacman.png')
+food_image = pyglet.image.load('food.png')
+
+# Center the images
+eater_image.anchor_x, eater_image.anchor_y = eater_image.width/2, eater_image.height/2
+food_image.anchor_x, food_image.anchor_y = food_image.width/2, food_image.height/2
 
 # Schedule the update function, 60 times per second
 pyglet.clock.schedule_interval(update, 1.0/60.0)

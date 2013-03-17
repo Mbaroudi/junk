@@ -26,20 +26,13 @@ class Actor(pyglet.sprite.Sprite):
 
 	"""
 
-	def __init__(self, window, batch, speed, image_path):
-		self.window = window
-		self.speed = 0
-		self.angle = 0		
-
-		# load a Pacman image
-		image = pyglet.image.load(image_path)
-
-		#centre for rotation and rendering
-		image.anchor_x, image.anchor_y = image.width/2, image.height/2
-
+	def __init__(self, window, batch, speed, image):
 		#pass it all on to the superclass constructor http://www.pyglet.org/doc/api/pyglet.sprite.Sprite-class.html
 		self.sprite = pyglet.sprite.Sprite.__init__(self, image, batch=batch)
 
+		self.window = window
+		self.speed = 0
+		self.angle = 0		
 		self.scale = 0.5
 
 		self.reborn(speed)
@@ -89,10 +82,8 @@ class Eater(Actor):
 	 * sound of eating process
 	"""
 
-	def __init__(self, window, batch, speed, image_path='pacman.png'):
-		super(Eater, self).__init__(window, batch, speed, image_path)
-
-		self.sound = pyglet.resource.media('pacman.mp3', streaming=False)
+	def __init__(self, window, batch, speed, image):
+		super(Eater, self).__init__(window, batch, speed, image)
 
 
 	def reborn(self, speed):
@@ -109,7 +100,6 @@ class Eater(Actor):
 		self.food += inc_food
 		self.color = (255, max(255 - 30 * self.food, 0), max(255 - 30 * self.food, 0))
 		self.scale += 0.1
-		self.sound.play()
 
 
 	def inc_angle(self, inc_angle):
@@ -141,6 +131,6 @@ class Food(Actor):
 	"""
 	Food is an actor with special default image
 	"""
-	def __init__(self, window, batch, speed, image_path='food.png'):
-		super(Food, self).__init__(window, batch, speed, image_path)
+	def __init__(self, window, batch, speed, image):
+		super(Food, self).__init__(window, batch, speed, image)
 	
