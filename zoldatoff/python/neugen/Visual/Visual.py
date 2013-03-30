@@ -60,11 +60,12 @@ class Actor(pyglet.sprite.Sprite):
 	def inc_speed(self, inc_speed):
 		""" Increases the speed of an actor by ``inc_speed`` """
 		self.speed = max(self.speed + inc_speed, 0)		
-		self.vx, self.vy = math.cos(self.angle) * self.speed, math.sin(self.angle) * self.speed
 
 
 	def movement(self, dt):
 		""" Calculates new position of an actor after ``dt`` seconds of movement """
+		self.vx, self.vy = math.cos(self.angle) * self.speed, math.sin(self.angle) * self.speed
+
 		dx = self.vx * dt
 		dy = self.vy * dt
 
@@ -118,6 +119,9 @@ class Eater(Actor):
 
 	def movement(self, dt):
 		""" Calculates new position of an eater after ``dt`` seconds of movement """
+
+		self.vx, self.vy = math.cos(self.angle) * self.speed, math.sin(self.angle) * self.speed
+		
 		dx = self.vx * dt
 		dy = self.vy * dt
 

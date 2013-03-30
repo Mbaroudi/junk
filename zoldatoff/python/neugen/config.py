@@ -16,10 +16,10 @@ CNT_EATERS = 15			# number of eaters
 CNT_FOOD = 10			# number of food
 CNT_ENV = 10				# number of environments
 
-CNT_INPUT_FOOD = 5		# amount of seen food
-CNT_INPUT_EATERS = 3	# count of seen eaters
+CNT_INPUT_FOOD = 3		# amount of seen food
+CNT_INPUT_EATERS = 0	# count of seen eaters
 
 EAT_DISTANCE = 10 		# on this distance the eater can eat the food
-VISUAL_ANGLE = pi/2.0  	# the vision angle of the eater
+VISUAL_ANGLE = pi  	# the vision angle of the eater
 
 TIME_TO_RESET = 10		# the period of time for an environment observation
