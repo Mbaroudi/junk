@@ -1,0 +1,155 @@
+\documentclass[a4paper,12pt,unicode,russian]{moderncv}
+
+% moderncv themes
+% style options are 'casual' (default), 'classic', 'oldstyle' and 'banking'
+% color options 'blue' (default), 'orange', 'green', 'red', 'purple', 'grey' and 'black'
+\moderncvtheme[blue]{banking}
+
+\usepackage[top=3cm, bottom=3cm]{geometry}
+
+
+%\usepackage{moderntimeline}
+%\tlmaxdates{2007}{2012}
+
+
+% ботанский вариант
+\doublehyphendemerits=100000\finalhyphendemerits=5000\righthyphenmin=2\lefthyphenmin=2\clubpenalty=1000\widowpenalty=1000\pretolerance=100\tolerance=9999
+
+\usepackage{fontspec}		% The fontspec package allows users to load OpenType fonts in a LATEX document
+\usepackage{xecyr}			% cyrillic support
+\usepackage{xunicode}		% provides access to latin accents and many other characters in Unicode lower plane
+\usepackage{xltxtra}			% implements some odds-and-ends features and improved functionality for broken LATEX methods
+
+%\setmainfont[Mapping=tex-text]{Times New Roman} % задаёт основной шрифт документа
+% Cambria
+% Georgia
+% Times New Roman
+% Hoefler Text
+% Courier New
+\setmainfont[Mapping=tex-text, Diacritics=Decompose]{Georgia} %{Georgia}  % задаёт основной шрифт документа
+\defaultfontfeatures{Scale=MatchLowercase, Mapping=tex-text}  % устанавливает поведение шрифтов по умолчанию
+\newfontfamily\cyrillicfont{Georgia}
+\newfontfamily\titlefont{Cambria}
+
+\usepackage{enumitem}
+
+
+\nopagenumbers{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Пакет многоязыкой вёрстки
+%%%%%%%%%%
+\usepackage{polyglossia}
+\setdefaultlanguage[spelling=modern]{russian}
+\setkeys{russian}{babelshorthands=true}
+\setotherlanguage{english}
+
+
+
+\firstname{\titlefont Дмитрий}
+\familyname{Солдатов}
+\title{Руководитель группы аналитиков/разработчиков}               % optional, remove the line if not wanted
+%\address{105187 Москва, Щербаковская ул., д. 40/42, кв. 171}{}    % optional, remove the line if not wanted
+%\mobile{+7~(926)~362~99~29}                     % optional, remove the line if not wanted
+\phone{+7~(926)~362~99~29}                      % optional, remove the line if not wanted
+%\fax{+3~(456)~789~012}                        % optional, remove the line if not wanted
+\email{dsoldatov@me.com}                          % optional, remove the line if not wanted
+%\homepage{www.johndoe.com}                    % optional, remove the line if not wanted
+\extrainfo{дата рождения: 11 января 1983 г.}            % optional, remove the line if not wanted
+%\photo[64pt][0.4pt]{cv.tif}                  % '64pt' is the height the picture must be resized to, 0.4pt is the thickness of the frame around it (put it to 0pt for no frame) and 'picture' is the name of the picture file; optional, remove the line if not wanted
+%\quote{Some quote (optional)}                 % optional, remove the line if not wanted
+
+
+\begin{document}
+
+\makecvtitle
+
+\section{\titlefont Образование}
+\subsection{\titlefont Основное}
+\cventry{1999 - 2005}{Дипломированный специалист}{Физический факультет МГУ}{Москва}{}{Специальность <<физика>>, специализация <<теоретическая физика>>}
+\vspace{.2\baselineskip}
+\cventry{2006 - 2008}{Аспирантура не окончена}{Аспирантура Физического факультета МГУ}{Москва}{}{}
+\vspace{.2\baselineskip}
+\cventry{2010 - по н.в.}{Второе высшее образование}{Финансовый университет при Правительстве РФ}{Москва}{}{Специальность <<финансы и кредит>>, специализация <<банковское дело>>}
+\vspace{.2\baselineskip}
+\subsection{\titlefont Повышение квалификации/курсы}
+\cvline{2010}{Тренинг <<Professional negotiations and business development>>}
+%\cvline{2006}{Курс Microsoft <<Внедрение, управление и поддержка сетевой инфраструктуры Microsoft Windows Server 2003: сетевые службы>>}%\cvline{2006}{Курс Microsoft <<Планирование, внедрение и поддержка службы каталогов Active Directory Microsoft Windows Server 2003>>}
+
+\vspace{.6\baselineskip}
+\section{\titlefont Профессиональный опыт}
+\cventry{2010 - н.в.}{Начальник отдела}{ЗАО Банк <<Русский стандарт>>}{Москва}{}{
+\vspace{.2\baselineskip}
+Отдел Информационно-аналитического обеспечения входит в состав Финансового департамента, занимается проектированием и разработкой хранилища данных, ориенированного на подготовку аналитической отчетности.
+\begin{itemize}[topsep=4pt, itemsep=0pt]
+\item Руководство отделом из 5 человек. Повышение эффективности процессов внутри отдела, организация результативного взаимодействия с другими подразделениями. 
+\item Проектирование и развитие архитектуры хранилища данных, внедрение новых сегментов отчетности.
+\item Организация взаимодействия с подразделениями Банка на Украине, внедрение автоматизированной отчетности по украинскому бизнесу.
+\item Участие в разработке новых аналитических подходов в отчетности Банка.
+\item Участие в общебанковских проектах, в частности, внедрение таргетированного продуктового предложения клиентам Банка.
+\item Участие в рабочих группах по развитию информационных систем Банка.
+\item Организация закупок программного обеспечения и расширения аппаратных мощностей сервера базы данных.
+\item Консультирование руководства по вопросам, связанным с IT.
+\end{itemize}
+}
+
+\vspace{.6\baselineskip}
+\cventry{2008 - 2010}{Аналитик, ведущий специалист}{ЗАО <<Неофлекс>>}{Москва}{}{
+\vspace{.2\baselineskip}
+Основная деятельность связана с аналитической работой на проекте по внедрению хранилища данных и локализации иностранной АБС в западном банке. 
+\begin{itemize}[topsep=4pt, itemsep=0pt]
+\item Аналитическая деятельность, связанная с разработкой и согласованием бизнес-требований и технических заданий по автоматизации обязательной и внутренней банковской отчетности.
+\item Изучение нормативной базы, в первую очередь положений и инструкций ЦБ, связанных с банковской отчетностью.
+\item Изучение ряда направлений банковской деятельности: кредитование юридических лиц, МБК, срочные сделки, хозяйственные расчеты.
+\item Проектирование архитектуры хранилища данных, оптимизация потоков данных на хранилище.
+\item Взаимодействие с подразделениями заказчика в части координации задач, связанных с интеграцией банковских систем.
+\item Подготовка проектной документации (статус проекта и отдельных его направлений, планирование и обоснование трудозатрат и пр.)
+\item Подготовка предпродажных документов, участие в презентациях продуктов Компании.
+\item Консультирование разработчиков и непосредственное участие в разработке отчетности.
+\end{itemize}
+}
+
+\vspace{.6\baselineskip}
+\cventry{2006 - 2008}{Заместитель начальника отдела}{ЗАО Банк <<Русский стандарт>>}{Москва}{}{
+\vspace{.2\baselineskip}
+Отдел Информационно-анилитического обеспечения занимается проектированием и разработкой хранилища данных, ориенированного на подготовку аналитической отчетности.
+\begin{itemize}[topsep=4pt, itemsep=0pt]
+\item Поддержка, развитие и оптимизация хранилища данных. Автоматизация внутренних процессов Финансового департамента в части подготовки отчетности. 
+\item Изучение бизнес-процессов, связанных с розничным бизнесом банка. 
+\item Участие в проектах по автоматизации расчета резервов, по секьюритизации кредитного портфеля, по интеграции с системой бюджетирования.
+\end{itemize}
+}
+
+\vspace{.6\baselineskip}
+\cventry{2001 - 2006}{Системный администратор}{ОАО МТЗ <<Рубин>>}{Москва}{}{
+\vspace{.2\baselineskip}
+Администрирование корпоративной сети и провайдерской сети.
+\begin{itemize}[topsep=4pt, itemsep=0pt]\item Проектирование, развитие и поддержка корпоративной сети на платформах Linux и Windows. Разработка корпоративных IT-стандартов. Техподдержка пользователей. \item Проектирование и построение провайдерской сети ТЦ <<Горбушкин двор>>, внедрение систем анализа и мониторинга сети, внедрение биллинговой системы, построение веб-хостинга. 
+\end{itemize}
+}
+
+
+\section{\titlefont Дополнительная информация}
+\subsection{\titlefont Знание иностранных языков}
+\cvitemwithcomment{английский}{разговорный}{}
+\cvitemwithcomment{немецкий}{базовый}{}
+
+\subsection{\titlefont Технические навыки}
+\cvitem{Языки программирования}{PL/SQL и др.} %, C, C++, Pascal, VBA, shell scripts, HTML, JavaScript}
+\vspace{.2\baselineskip}
+\cvitem{СУБД}{Oracle} %, MySQL}
+
+%\subsection{Личностные характеристики}
+%\cvitem{}{Интерес к приобретению новых знаний и опыта, стремление к оптимизации рабочего процесса}
+
+%\subsection{Хобби}
+%\cvitem{}{Фотография, гитара, бильярд, боулинг, велосипед, ролики}
+
+%\renewcommand{\listitemsymbol}{-~}            % change the symbol for lists
+
+%\tlcventry{2010}{0}{I'm still doing this!}{}{}{}{}
+%\tlcventry{2009}{2010}{Тест.}{}{}{}{}
+%\tldatecventry{2009}{I did something cool for just one year.}{}{}{}{}
+%\tlcventry{2007}{2009}{A regular entry}{}{}{}{}
+
+\end{document}
