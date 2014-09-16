@@ -14,6 +14,35 @@ def deltaAngles(angle1, angle2):
     ret = (ret + 2.0*pi) % (2.0*pi)
     return ret
 
+def canPass(unit1, unit2, unit3): # unit3 is the point
+    px = unit2.x-unit1.x
+    py = unit2.y-unit1.y
+
+    something = px*px + py*py
+
+    u =  ((unit3.x - unit1.x) * px + (unit3.y - unit1.y) * py) / float(something)
+
+    if u > 1:
+        u = 1
+    elif u < 0:
+        u = 0
+
+    x = unit1.x + u * px
+    y = unit1.y + u * py
+
+    dx = x - unit3.x
+    dy = y - unit3.y
+
+    dist = sqrt(dx*dx + dy*dy)
+    #print dist
+
+    if dist > 1.5 * unit3.radius:
+        return True
+    else:
+        return False
+
+
+
 class Strategy:
     def __init__(self, me, world, game):
         self.me = me
@@ -49,6 +78,8 @@ class Strategy:
                         ]
         if goalies:
             self.goalie = goalies[0]
+        else:
+            self.goalie = None
 
 
         self.opponentUnits = [hockeyist
@@ -101,9 +132,24 @@ class Strategy:
         dist0 = sum([self.me.get_distance_to_unit(opponentUnit) for opponentUnit in self.opponentUnits])
         dist1 = sum([   unit.get_distance_to_unit(opponentUnit) for opponentUnit in self.opponentUnits])
 
+        puck_can_pass = True
+        for opponentUnit in self.opponentUnits:
+            puck_can_pass = puck_can_pass and canPass(self.me, unit, opponentUnit)
+
+        #print "================"
+        #if not puck_can_pass:
+        #    print "not puck_can_pass"
+        #if dist0 > dist1:
+        #    print "dist0 > dist1"
+        #if not abs(self.me.x - self.opponentPlayer.net_front) - abs(unit.x - self.opponentPlayer.net_front) > self.game.world_width/10.0:
+        #    print "abs-abs"
+
+
         if ( dist0 < dist1
              and
-             abs(self.me.x - self.opponentPlayer.net_front) - abs(unit.x - self.opponentPlayer.net_front) > self.game.world_width/4.0
+             abs(self.me.x - self.opponentPlayer.net_front) - abs(unit.x - self.opponentPlayer.net_front) > self.game.world_width/10.0
+             and
+             puck_can_pass
             ):
 
             angle = self.me.get_angle_to_unit(unit)
@@ -128,7 +174,8 @@ class Strategy:
     def setStrategyDefendNet(self):
 
         # if puck is close - let's catch it!
-        if (self.me.get_distance_to_unit(self.world.puck) < 2.0*self.game.stick_length
+        if (self.me.get_distance_to_unit(self.world.puck) < #2.0*self.game.stick_length
+                0.3*self.me.get_distance_to_unit(self.opponentUnits[0])
             and
             abs(self.me.x - self.player.net_front) < 6.0*self.me.radius
             and
@@ -174,7 +221,7 @@ class Strategy:
             unit.state != HockeyistState.KNOCKED_DOWN
             ):
             self.move_action = ActionType.STRIKE
-            print "strike opponent"
+            #print "strike opponent"
             return True
         else:
             return False
@@ -285,7 +332,7 @@ class Strategy:
                   #and
                   #self.me.state != HockeyistState.SWINGING
                   ):
-                print "swing+1"
+                print "swing"
                 self.move_action = ActionType.SWING
 
                 return True
