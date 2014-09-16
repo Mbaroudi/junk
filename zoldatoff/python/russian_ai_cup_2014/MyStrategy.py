@@ -9,135 +9,350 @@ from model.World import World
 from model.HockeyistState import HockeyistState
 from model.HockeyistType import HockeyistType
 
+def deltaAngles(angle1, angle2):
+    ret = angle1 - angle2
+    ret = (ret + 2.0*pi) % (2.0*pi)
+    return ret
 
-def getPlayer(me, world):
-    for player in world.players:
-        if player.id == me.player_id:
-            return player
+class Strategy:
+    def __init__(self, me, world, game):
+        self.me = me
+        self.world = world
+        self.game = game
 
-def getNearestOpponent(me, world):
-    nearestOpponent = None
-    nearestOpponentRange = 1.0e8
-
-    for hockeyist in world.hockeyists:
-        if (not(hockeyist.teammate)
-            and hockeyist.type != HockeyistType.GOALIE
-            and hockeyist.state != HockeyistState.KNOCKED_DOWN
-            and hockeyist.state != HockeyistState.RESTING
-            and me.get_distance_to_unit(hockeyist) < nearestOpponentRange):
-            nearestOpponent = hockeyist
-            nearestOpponentRange = me.get_distance_to_unit(hockeyist)
-
-    return nearestOpponent
+        self.move_turn = None
+        self.move_speed_up = None
+        self.move_action = None
+        self.move_pass_angle = None
+        self.move_pass_power = None
 
 
-def getPartner(me, world, game):
+        self.speed = sqrt(self.me.speed_x*self.me.speed_x+self.me.speed_y*self.me.speed_y)
 
-    opponentPlayer = world.get_opponent_player()
-    targetX = opponentPlayer.net_front
-    targetY = 0.5 * (opponentPlayer.net_bottom + opponentPlayer.net_top)
-
-    bestPartner = None
-    bestPartnerRange = 1.0e8 #me.get_distance_to(targetX, targetY)
-
-    for hockeyist in world.hockeyists:
-        if (hockeyist.teammate
-            and hockeyist.type != HockeyistType.GOALIE
-            and hockeyist.state == HockeyistState.ACTIVE
-            and hockeyist.get_distance_to(targetX, targetY) < bestPartnerRange):
-            bestPartner = hockeyist
-            bestPartnerRange = hockeyist.get_distance_to(targetX, targetY)
-
-    return bestPartner
+        self.player = self.world.get_my_player()
+        self.opponentPlayer = self.world.get_opponent_player()
 
 
+        self.myUnits = [hockeyist
+                         for hockeyist in self.world.hockeyists
+                         if hockeyist.teammate
+                            and hockeyist.id != self.me.id
+                            and hockeyist.type != HockeyistType.GOALIE
+                            and hockeyist.state != HockeyistState.RESTING
+                         ]
+        self.myUnits.sort(key=lambda x:self.me.get_distance_to_unit(x))
 
-def chooseSkate(me, world, game):
-    if not(me):
-        return None
-
-    if me.state != HockeyistState.ACTIVE:
-        return None
-
-    opponentPlayer = world.get_opponent_player()
-    rink_center_x = 0.5 * (game.rink_left + game.rink_right)
-    rink_center_y = 0.5 * (game.rink_top + game.rink_bottom)
-    min_strike_dist_x = 0.8 * (opponentPlayer.net_bottom - opponentPlayer.net_top)
-    max_strike_dist_x = 2.0 * (opponentPlayer.net_bottom - opponentPlayer.net_top)
-    min_strike_dist_y = 0.6 * (opponentPlayer.net_bottom - opponentPlayer.net_top)
-    max_strike_dist_y = 1.3 * (opponentPlayer.net_bottom - opponentPlayer.net_top)
-
-    if world.tick > game.tick_count:
-        min_strike_dist_x = 0
-        max_strike_dist_x = game.world_width
-        min_strike_dist_y = 0
-        max_strike_dist_y = game.world_height
-
-    if (min_strike_dist_x < abs(me.x - opponentPlayer.net_front) < max_strike_dist_x
-        and
-        min_strike_dist_y < abs(me.y - rink_center_y) < max_strike_dist_y
-        ):
-        return None
-
-    if abs(me.x - opponentPlayer.net_front) < min_strike_dist_x and opponentPlayer.net_front < rink_center_x:
-        gotoX = opponentPlayer.net_front + min_strike_dist_x + 1
-    elif abs(me.x - opponentPlayer.net_front) > min_strike_dist_x and opponentPlayer.net_front < rink_center_x:
-        gotoX = opponentPlayer.net_front + max_strike_dist_x - 1
-    elif abs(me.x - opponentPlayer.net_front) < min_strike_dist_x and opponentPlayer.net_front > rink_center_x:
-        gotoX = opponentPlayer.net_front - min_strike_dist_x - 1
-    elif abs(me.x - opponentPlayer.net_front) > min_strike_dist_x and opponentPlayer.net_front > rink_center_x:
-        gotoX = opponentPlayer.net_front - max_strike_dist_x + 1
-    else:
-        gotoX = me.x
+        goalies = [hockeyist
+                         for hockeyist in self.world.hockeyists
+                         if hockeyist.teammate
+                            and hockeyist.type == HockeyistType.GOALIE
+                        ]
+        if goalies:
+            self.goalie = goalies[0]
 
 
-    if me.y < rink_center_y - max_strike_dist_y:
-        gotoY = rink_center_y - max_strike_dist_y + 1
-    elif rink_center_y - min_strike_dist_y < me.y < rink_center_y:
-        gotoY = rink_center_y - min_strike_dist_y - 1
-    elif rink_center_y < me.y < rink_center_y +  min_strike_dist_y:
-        gotoY = rink_center_y + min_strike_dist_y + 1
-    elif me.y > rink_center_y + max_strike_dist_y:
-        gotoY = rink_center_y + max_strike_dist_y - 1
-    else:
-        gotoY = me.y
+        self.opponentUnits = [hockeyist
+                         for hockeyist in self.world.hockeyists
+                         if not hockeyist.teammate
+                            and hockeyist.type != HockeyistType.GOALIE
+                            and hockeyist.state != HockeyistState.RESTING
+                         ]
+        self.opponentUnits.sort(key=lambda x:self.me.get_distance_to_unit(x))
 
-    return me.get_angle_to(gotoX, gotoY)
+        self.rink_center_x = 0.5 * (self.game.rink_left + self.game.rink_right)
+        self.rink_center_y = 0.5 * (self.game.rink_top  + self.game.rink_bottom)
+
+        if self.player.net_front < self.rink_center_x:
+            self.position = "left"
+        else:
+            self.position = "right"
 
 
 
-def chooseSwing(me, world, game):
-    if not(me):
-        return None
 
-    if me.state != HockeyistState.ACTIVE:
-        return None
+    def getStrategy(self):
+        if self.world.puck.owner_hockeyist_id == self.me.id:
+            if self.tryPass():
+                return True
+            else:
+                self.setStrategyAttackNet()
+                return True
 
-    if chooseSkate(me, world, game) != None:
-        return None
+        elif self.me.state == HockeyistState.SWINGING:
+            self.move_action = ActionType.CANCEL_STRIKE
+            return True
 
-    opponentPlayer = world.get_opponent_player()
-    rink_center_x = 0.5 * (game.rink_left + game.rink_right)
-    rink_center_y = 0.5 * (game.rink_top + game.rink_bottom)
-
-    if me.y < rink_center_y:
-        swingtoY = opponentPlayer.net_bottom - world.puck.radius
-    else:
-        swingtoY = opponentPlayer.net_top + world.puck.radius
-
-    if me.x < rink_center_x:
-        swingtoX = opponentPlayer.net_front #+ world.puck.radius
-    else:
-        swingtoX = opponentPlayer.net_front #- world.puck.radius
-
-    return me.get_angle_to(swingtoX, swingtoY)
+        elif self.world.puck.owner_player_id == self.me.player_id:
+            self.setStrategyDefendNet()
+            return True
 
 
-def chooseStrike(me, world, game):
-    if me.state != HockeyistState.SWINGING:
-        return None
+        elif abs(self.me.x - self.player.net_front) < abs(self.myUnits[0].x - self.player.net_front):
+            self.setStrategyDefendNet()
+            return True
 
-    return True
+        else:
+            self.setStrategyTakePuck()
+            return True
+
+
+    def tryPass(self):
+        unit = self.myUnits[-1]
+        dist0 = sum([self.me.get_distance_to_unit(opponentUnit) for opponentUnit in self.opponentUnits])
+        dist1 = sum([   unit.get_distance_to_unit(opponentUnit) for opponentUnit in self.opponentUnits])
+
+        if ( dist0 < dist1
+             and
+             abs(self.me.x - self.opponentPlayer.net_front) - abs(unit.x - self.opponentPlayer.net_front) > self.game.world_width/4.0
+            ):
+
+            angle = self.me.get_angle_to_unit(unit)
+
+            if -pi/3.0 < angle < pi/3.0:
+                self.move_pass_angle = angle
+                self.move_pass_power = 0.8
+                self.move_action = ActionType.PASS
+                print "pass"
+            else:
+                self.move_turn = angle
+
+
+            return True
+
+        else:
+            return False
+
+
+
+
+    def setStrategyDefendNet(self):
+
+        # if puck is close - let's catch it!
+        if (self.me.get_distance_to_unit(self.world.puck) < 2.0*self.game.stick_length
+            and
+            abs(self.me.x - self.player.net_front) < 6.0*self.me.radius
+            and
+            abs(self.me.y - self.rink_center_y) < 0.6*self.game.goal_net_height
+            ):
+            self.setStrategyTakePuck()
+            return True
+
+
+        # The best place to defend net
+        if not(self.goalie):
+            skateY = self.rink_center_y
+        elif self.goalie.y < self.rink_center_y:
+            skateY = self.goalie.y + 0.5*(self.player.net_bottom - self.goalie.y)
+        else:
+            skateY = self.goalie.y - 0.5*(self.goalie.y - self.player.net_top)
+
+        if self.position == "left":
+            skateX = self.player.net_front + 4.0*self.me.radius
+        else:
+            skateX = self.player.net_front - 4.0*self.me.radius
+
+
+        # To stand or to move
+        if self.me.get_distance_to(skateX, skateY) < self.me.radius/1.5:
+            angle = self.me.get_angle_to_unit(self.world.puck)
+            self.move_turn = angle
+            self.move_speed_up = -self.speed
+        else:
+            self.trySkate(skateX, skateY)
+
+        return True
+
+
+
+    def tryStrikeOpponent(self):
+        unit = self.opponentUnits[0]
+
+        if (self.me.get_distance_to_unit(unit) < self.game.stick_length
+            and
+            abs(self.me.get_angle_to_unit(unit)) < 0.5 * self.game.stick_sector
+            and
+            unit.state != HockeyistState.KNOCKED_DOWN
+            ):
+            self.move_action = ActionType.STRIKE
+            print "strike opponent"
+            return True
+        else:
+            return False
+
+
+    def setStrategyTakePuck(self):
+        if self.tryStrikeOpponent():
+            return True
+        else:
+            speed = self.speed
+            if speed == 0: speed = 1.0
+
+            n_tick = self.me.get_distance_to_unit(self.world.puck) / speed
+            if n_tick > 40: n_tick = 40
+            if n_tick < 7: n_tick = 0
+
+            gotoX = self.world.puck.x + self.world.puck.speed_x * n_tick
+            if gotoX < self.game.rink_left:  gotoX = self.me.x
+            if gotoX > self.game.rink_right: gotoX = self.me.x
+
+            gotoY = self.world.puck.y + self.world.puck.speed_y * n_tick
+            if gotoY < self.game.rink_top:     gotoY = self.me.y
+            if gotoY > self.game.rink_bottom:  gotoY = self.me.y
+
+            self.move_speed_up = 1.0
+            self.move_turn = self.me.get_angle_to(gotoX, gotoY)
+            self.move_action = ActionType.TAKE_PUCK
+
+        return True
+
+
+    def setStrategyAttackNet(self):
+
+        if self.world.tick > self.game.tick_count:
+            min_strike_dist_x = 0
+            max_strike_dist_x = self.game.world_width
+            min_strike_dist_y = 0
+            max_strike_dist_y = self.game.world_height
+        else:
+            min_strike_dist_x = 0.1 * self.game.world_width
+            max_strike_dist_x = 0.4 * self.game.world_width
+            min_strike_dist_y = 0.2 * self.game.world_height
+            max_strike_dist_y = 0.4 * self.game.world_height
+
+
+        # if the position is good or i am swinging >> let's strike!
+        if (
+            (min_strike_dist_x < abs(self.me.x - self.opponentPlayer.net_front) < max_strike_dist_x
+             and
+             min_strike_dist_y < abs(self.me.y - self.rink_center_y) < max_strike_dist_y
+             )
+            or self.me.state == HockeyistState.SWINGING
+            ):
+            strikeX = self.opponentPlayer.net_front
+            if self.me.y < self.rink_center_y:
+                strikeY = self.opponentPlayer.net_bottom - self.world.puck.radius
+            else:
+                strikeY = self.opponentPlayer.net_top + self.world.puck.radius
+            self.tryStrike(strikeX, strikeY)
+            return True
+
+
+        if self.position == "right":
+            if abs(self.me.x - self.opponentPlayer.net_front) < min_strike_dist_x:
+                skateX = self.opponentPlayer.net_front + min_strike_dist_x + 1
+            elif abs(self.me.x - self.opponentPlayer.net_front) > max_strike_dist_x:
+                skateX = self.opponentPlayer.net_front + max_strike_dist_x - 1
+            else:
+                skateX = self.me.x
+        else: #self.position == "left":
+            if abs(self.me.x - self.opponentPlayer.net_front) < min_strike_dist_x:
+                skateX = self.opponentPlayer.net_front - min_strike_dist_x - 1
+            elif abs(self.me.x - self.opponentPlayer.net_front) > max_strike_dist_x:
+                skateX = self.opponentPlayer.net_front - max_strike_dist_x + 1
+            else:
+                skateX = self.me.x
+
+
+        if self.me.y < self.rink_center_y - max_strike_dist_y:
+            skateY = self.rink_center_y - max_strike_dist_y + 1
+        elif self.rink_center_y - min_strike_dist_y < self.me.y < self.rink_center_y:
+            skateY = self.rink_center_y - min_strike_dist_y - 1
+        elif self.rink_center_y < self.me.y < self.rink_center_y + min_strike_dist_y:
+            skateY = self.rink_center_y + min_strike_dist_y + 1
+        elif self.me.y > self.rink_center_y + max_strike_dist_y:
+            skateY = self.rink_center_y + max_strike_dist_y - 1
+        else:
+            skateY = self.me.y
+
+        self.trySkate(skateX, skateY)
+        return True
+
+
+
+
+    def tryStrike(self, strikeX, strikeY):
+        STRIKE_ACCURACY = 1.0 * pi / 180.0
+
+        angle = self.me.get_angle_to(strikeX, strikeY)
+
+        self.move_turn = angle
+        self.move_speed_up = 0
+
+        if abs(angle) < STRIKE_ACCURACY:
+            if (self.me.swing_ticks < self.game.max_effective_swing_ticks
+                  and
+                  self.me.get_distance_to_unit(self.opponentUnits[0]) > 3.0*self.me.radius
+                  #and
+                  #self.me.state != HockeyistState.SWINGING
+                  ):
+                print "swing+1"
+                self.move_action = ActionType.SWING
+
+                return True
+
+        if (self.me.state == HockeyistState.SWINGING or abs(angle) < STRIKE_ACCURACY):
+            print "strike puck"
+            self.move_action = ActionType.STRIKE
+
+            return True
+
+
+    def trySkate(self, skateX, skateY):
+        if self.world.puck.owner_hockeyist_id == self.me.id:
+            # i have a puck
+            dangerUnits = [opponentUnit
+                           for opponentUnit in self.opponentUnits
+                           if self.me.get_distance_to_unit(opponentUnit) < 3.0*self.me.radius
+                              and abs(self.me.get_angle_to_unit(opponentUnit)) < pi/3.0 ]
+
+            dangerAngles = [self.me.get_angle_to_unit(dangerUnit)
+                            for dangerUnit in dangerUnits
+                            if abs(self.me.get_angle_to_unit(dangerUnit)) < pi/3.0 ]
+
+            angle = self.me.get_angle_to(skateX, skateY)
+
+
+            if dangerAngles:
+                res1 = sum([deltaAngles(0, dangerAngle) for dangerAngle in dangerAngles])
+                res2 = sum([deltaAngles(-self.game.hockeyist_turn_angle_factor, dangerAngle) for dangerAngle in dangerAngles])
+                res3 = sum([deltaAngles(+self.game.hockeyist_turn_angle_factor, dangerAngle) for dangerAngle in dangerAngles])
+                if res2 > res1 and res2 > res3 and angle < 0:
+                    bestAngle = angle
+                elif res3 > res1 and res3 > res2 and angle > 0:
+                    bestAngle = angle
+                else:
+                    bestAngle = 0
+            else:
+                bestAngle = angle
+
+
+            self.move_turn = bestAngle
+            self.move_speed_up = 1.0
+            self.move_action = None
+            return True
+
+        else:
+            # i don't have a puck
+            if self.tryStrikeOpponent():
+                return True
+            else:
+                self.move_turn = self.me.get_angle_to(skateX, skateY)
+
+                if self.speed == 0.0:
+                    self.move_speed_up = 1.0
+                elif (self.me.get_distance_to(skateX, skateY) / self.speed
+                      <
+                      self.speed / self.game.hockeyist_speed_down_factor):
+                    self.move_speed_up = -self.speed
+                elif self.me.get_distance_to(skateX, skateY) < 4.0*self.me.radius and self.speed > 1.0:
+                    self.move_speed_up = 0.0
+                else:
+                    self.move_speed_up = 1.0
+
+                self.move_action = None
+
+                return True
+
 
 
 class MyStrategy:
@@ -146,102 +361,15 @@ class MyStrategy:
         """
         @type me: Hockeyist
         @type world: World
-        @type game: Game
+        @type game: game
         @type move: Move
         """
 
-        STRIKE_ANGLE = 1.0 * pi / 180.0
-
-        #print world.tick
-
-        if world.puck.owner_player_id == me.player_id:
-            if world.puck.owner_hockeyist_id == me.id:
-                # Try to move closer to net
-                angle = chooseSkate(me, world, game)
-                if angle:
-                    # Is it better to make a pass?
-                    partner = getPartner(me, world, game)
-                    if (chooseSwing(partner, world, game)
-                        and
-                        me.get_distance_to_unit(partner) > 100
-                        and
-                        -pi/3.0 < me.get_angle_to_unit(partner) < pi/3.0
-                        ):
-                        move.pass_angle = me.get_angle_to_unit(partner)
-                        move.pass_power = 0.9
-                        move.action = ActionType.PASS
-                        print "PASS"
-                    else:
-                        move.turn = angle
-                        move.speed_up = 1.0
-                    return
-
-                # Try to swing
-                angle = chooseSwing(me, world, game)
-                if angle:
-                    move.turn = angle
-                    if (abs(angle) < STRIKE_ANGLE):
-                        move.action = ActionType.SWING
-                    return
-
-                # Try to strike
-                if chooseStrike(me, world, game):
-                    move.action = ActionType.STRIKE
-                    #print "STRIKE PUCK"
-                    return
-
-
-            else:
-                # prepare for pass
-                angle = chooseSkate(me, world, game)
-                if angle:
-                    move.turn = angle
-                    move.speed_up = 1.0
-                    return
-                else: # try to strike opponent
-                    nearestOpponent = getNearestOpponent(me, world)
-                    if nearestOpponent:
-                        if me.get_distance_to_unit(nearestOpponent) > game.stick_length:
-                            move.speed_up = 1.0
-                        elif abs(me.get_angle_to_unit(nearestOpponent)) < 0.5 * game.stick_sector:
-                            move.action = ActionType.STRIKE
-                            #print "STRIKE OPPONENT"
-                        move.turn = me.get_angle_to_unit(nearestOpponent)
-
-        else:
-            partner = getPartner(me, world, game)
-            if (partner == None
-               or
-               me.get_distance_to_unit(world.puck) < partner.get_distance_to_unit(world.puck) + 30
-               or
-               abs(world.puck.x - getPlayer(me, world).net_front) < game.world_width/3.0
-               ):
-                # Try to catch a puck
-                speed = sqrt(me.speed_x*me.speed_x+me.speed_y*me.speed_y)
-                if speed == 0: speed = 1.0
-                n_tick = me.get_distance_to_unit(world.puck) / speed
-                if n_tick > 40: n_tick = 40
-                if n_tick < 7: n_tick = 0
-
-                gotoX = world.puck.x + world.puck.speed_x * n_tick
-                if gotoX < game.rink_left:  gotoX = me.x
-                if gotoX > game.rink_right: gotoX = me.x
-
-                gotoY = world.puck.y + world.puck.speed_y * n_tick
-                if gotoY < game.rink_top:     gotoY = me.y
-                if gotoY > game.rink_bottom:  gotoY = me.y
-
-                move.speed_up = 1.0
-                move.turn = me.get_angle_to(gotoX, gotoY)
-                move.action = ActionType.TAKE_PUCK
-
-            else:
-                # prepare for pass
-                angle = chooseSkate(me, world, game)
-                if angle:
-                    move.turn = angle
-                    move.speed_up = 1.0
-                    return
-                else:
-                    move.speed_up = -0.2
-                    return
+        s = Strategy(me, world, game)
+        s.getStrategy()
+        if s.move_turn: move.turn = s.move_turn
+        if s.move_speed_up: move.speed_up = s.move_speed_up
+        if s.move_action: move.action = s.move_action
+        if s.move_pass_angle: move.pass_angle = s.move_pass_angle
+        if s.move_pass_power: move.pass_power = s.move_pass_power
+        return True
