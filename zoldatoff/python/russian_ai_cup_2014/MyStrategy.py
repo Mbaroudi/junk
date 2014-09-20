@@ -199,17 +199,19 @@ class Strategy:
 
 
         # The best place to defend net
-        if not(self.goalie):
-            skateY = self.rink_center_y
-        elif self.goalie.y < self.rink_center_y:
-            skateY = self.goalie.y + 0.5*(self.player.net_bottom - self.goalie.y)
-        else:
-            skateY = self.goalie.y - 0.5*(self.goalie.y - self.player.net_top)
+        # if not(self.goalie):
+        #     skateY = self.rink_center_y
+        # elif self.goalie.y < self.rink_center_y:
+        #     skateY = self.goalie.y + 0.5*(self.player.net_bottom - self.goalie.y)
+        # else:
+        #     skateY = self.goalie.y - 0.5*(self.goalie.y - self.player.net_top)
+
+        skateY = self.rink_center_y
 
         if self.position == "left":
             skateX = self.player.net_front + 3.5*self.me.radius
         else:
-            skateX = self.player.net_front -3.5*self.me.radius
+            skateX = self.player.net_front - 3.5*self.me.radius
 
 
         # To stand or to move
@@ -344,13 +346,13 @@ class Strategy:
                   #and
                   #self.me.state != HockeyistState.SWINGING
                   ):
-                print "swing"
+                print "swing: " + str(self.me.swing_ticks)
                 self.move_action = ActionType.SWING
 
                 return True
 
         if (self.me.state == HockeyistState.SWINGING or abs(angle) < STRIKE_ACCURACY):
-            print "strike puck"
+            print "strike puck: " + str(self.me.swing_ticks)
             self.move_action = ActionType.STRIKE
 
             return True
