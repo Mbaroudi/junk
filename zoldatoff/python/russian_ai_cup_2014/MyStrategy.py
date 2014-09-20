@@ -44,10 +44,9 @@ def canPass(unit1, unit2, unit3): # unit3 is the point
         return False
 
 
-
 class Strategy:
     def __init__(self, me, world, game):
-        print "================ " + str(world.tick)
+        #print "================ " + str(world.tick)
 
         self.me = me
         self.world = world
@@ -156,14 +155,6 @@ class Strategy:
         for opponentUnit in self.opponentUnits:
             puck_can_pass = puck_can_pass and canPass(self.me, unit, opponentUnit)
 
-        #print "================"
-        #if not puck_can_pass:
-        #    print "not puck_can_pass"
-        #if dist0 > dist1:
-        #    print "dist0 > dist1"
-        #if not abs(self.me.x - self.opponentPlayer.net_front) - abs(unit.x - self.opponentPlayer.net_front) > self.game.world_width/10.0:
-        #    print "abs-abs"
-
 
         if ( dist0 < dist1
              and
@@ -223,12 +214,9 @@ class Strategy:
 
         # To stand or to move
         if self.me.get_distance_to(skateX, skateY) < 1.0*self.me.radius:
-            print "turn to puck"
             angle = self.me.get_angle_to_unit(self.world.puck)
             self.move_turn = angle
-            # self.move_speed_up = -self.speed
         else:
-            print "go to defence place"
             self.trySkate(skateX, skateY, True)
 
         return True
@@ -408,20 +396,12 @@ class Strategy:
         else:
             # i don't have a puck
 
-            print "x=" + str(self.me.x)
-            print "y=" + str(self.me.y)
-
             angle = self.me.get_angle_to(skateX, skateY)
             dist = self.me.get_distance_to(skateX, skateY)
-
-            print "angle=" + str(angle)
-            print "dist=" + str(dist)
-            print "speed=" + str(self.speed)
 
             #if dist < 10.0*self.me.radius and abs(angle) > pi/2:
             if abs(angle) > pi/2.0:
                 # going back
-                print "going back"
                 if angle > 0.0:
                     self.move_turn = angle - pi
                 else:
@@ -430,25 +410,21 @@ class Strategy:
                 if self.speed >= 0.0:
                     self.move_speed_up = -1.0
                 elif zeroSpeed and dist/self.speed > self.speed / self.game.hockeyist_speed_up_factor:
-                    self.move_speed_up = 1.0
+                    self.move_speed_up = self.speed / self.game.hockeyist_speed_up_factor
                 else:
-                    self.move_speed_up = -1.0
-
-                print "self.move_turn="+str(self.move_turn)
-                print "self.move_speed_up="+str(self.move_speed_up)
+                    self.move_speed_up = -1.0 # TODO
 
             else:
                 # going front
-                print "going front"
 
                 self.move_turn = angle
 
                 if self.speed <= 0.0:
                     self.move_speed_up = 1.0
                 elif zeroSpeed and dist/self.speed < self.speed / self.game.hockeyist_speed_down_factor:
-                    self.move_speed_up = -1.0
+                    self.move_speed_up = - self.speed / self.game.hockeyist_speed_down_factor
                 else:
-                    self.move_speed_up = 1.0
+                    self.move_speed_up = 1.0 # TODO
 
 
             return True
