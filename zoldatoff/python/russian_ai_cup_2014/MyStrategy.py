@@ -38,10 +38,12 @@ def canPass(unit1, unit2, unit3): # unit3 is the point
     dist = sqrt(dx*dx + dy*dy)
     #print dist
 
-    if dist > 1.5 * unit3.radius:
+    if dist > 2.5 * unit3.radius:
         return True
     else:
         return False
+
+
 
 
 class Strategy:
@@ -156,9 +158,9 @@ class Strategy:
             puck_can_pass = puck_can_pass and canPass(self.me, unit, opponentUnit)
 
 
-        if ( dist0 < dist1
-             and
-             abs(self.me.x - self.opponentPlayer.net_front) - abs(unit.x - self.opponentPlayer.net_front) > self.game.world_width/10.0
+        if ( #dist0 < dist1
+             #and
+             abs(self.me.x - self.opponentPlayer.net_front) - abs(unit.x - self.opponentPlayer.net_front) > self.game.world_width/5.0
              and
              puck_can_pass
             ):
@@ -180,9 +182,15 @@ class Strategy:
             return False
 
 
+    def probTakePuck(self):
+        puck = self.world.puck
+        puck_speed = sqrt(puck.speed_x*puck.speed_x+puck.speed_y*puck.speed_y)
+        return 60.0 + max(self.me.dexterity, self.me.agility) - puck_speed * 5.0
 
 
     def setStrategyDefendNet(self):
+        if self.probTakePuck() < 100 and self.tryStrikePuck():
+            return True
 
         # if puck is close - let's catch it!
         if (self.me.get_distance_to_unit(self.world.puck) < #2.0*self.game.stick_length
@@ -229,6 +237,19 @@ class Strategy:
         return True
 
 
+    def tryStrikePuck(self):
+        unit = self.world.puck
+
+        if (self.me.get_distance_to_unit(unit) < self.game.stick_length
+            and
+            abs(self.me.get_angle_to_unit(unit)) < 0.5 * self.game.stick_sector
+            ):
+            self.move_action = ActionType.STRIKE
+            #print "strike puck"
+            return True
+        else:
+            return False
+
 
     def tryStrikeOpponent(self):
         unit = self.opponentUnits[0]
@@ -268,8 +289,18 @@ class Strategy:
             if gotoY < self.game.rink_top or gotoY > self.game.rink_bottom:
                 gotoY = self.me.y
 
-            self.move_speed_up = 1.0
             self.move_turn = self.me.get_angle_to(gotoX, gotoY)
+            #self.move_speed_up = 1.0
+            if abs(self.move_turn) < pi / 4.0:
+                self.move_speed_up = self.me.get_distance_to(gotoX, gotoY) / 30.0 #- 15.0 / 30.0
+            elif abs(self.move_turn) < pi / 2.0:
+                self.move_speed_up = self.me.get_distance_to(gotoX, gotoY) / 50.0 - 50.0 / 50.0
+            else:
+                self.move_speed_up =  - self.me.get_distance_to(gotoX, gotoY) / 50.0 + 60.0 / 50.0
+
+            if self.move_speed_up < - self.speed / self.game.hockeyist_speed_down_factor:
+                self.move_speed_up = - self.speed / self.game.hockeyist_speed_down_factor
+
             self.move_action = ActionType.TAKE_PUCK
 
         return True
