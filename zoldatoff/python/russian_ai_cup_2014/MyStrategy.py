@@ -113,7 +113,7 @@ class Strategy:
             self.position = "right"
 
 
-        self.defendCircle = Unit(9998, 1.0, 0.8*self.game.goal_net_height,
+        self.defendCircle = Unit(9998, 1.0, 1.0*self.game.goal_net_height,
                                  self.player.net_front, self.rink_center_y,
                                  0.0, 0.0, 0.0, 0.0)
 
@@ -189,11 +189,16 @@ class Strategy:
                 0.4*self.me.get_distance_to_unit(self.opponentUnits[0])
             and
             self.me.get_distance_to_unit(self.defendCircle) < self.defendCircle.radius
+            and
+            self.world.puck.owner_player_id != self.me.player_id
             ):
             self.setStrategyTakePuck()
             return True
 
-        if self.me.get_distance_to_unit(self.world.puck) < 2.0*self.me.radius:
+        if (self.me.get_distance_to_unit(self.world.puck) < 5.0*self.me.radius
+            and
+            self.world.puck.owner_player_id != self.me.player_id
+            ):
             self.setStrategyTakePuck()
             return True
 
@@ -209,9 +214,9 @@ class Strategy:
         skateY = self.rink_center_y
 
         if self.position == "left":
-            skateX = self.player.net_front + 3.5*self.me.radius
+            skateX = self.player.net_front + 3.1*self.me.radius
         else:
-            skateX = self.player.net_front - 3.5*self.me.radius
+            skateX = self.player.net_front - 3.1*self.me.radius
 
 
         # To stand or to move
@@ -246,9 +251,12 @@ class Strategy:
             return True
         else:
             speed = self.speed
-            if speed == 0.0: speed = 1.0
 
-            n_tick = self.me.get_distance_to_unit(self.world.puck) / speed
+            if speed == 0.0:
+                n_tick = 0
+            else:
+                n_tick = self.me.get_distance_to_unit(self.world.puck) / speed
+
             if n_tick > 40.0: n_tick = 40.0
             if n_tick < 7.0: n_tick = 0.0
 
