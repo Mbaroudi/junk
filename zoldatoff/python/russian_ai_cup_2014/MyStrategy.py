@@ -148,22 +148,27 @@ class Strategy:
             return True
 
 
-    def tryPass(self):
+    def tryPass(self, method='Forward'):
         unit = self.myUnits[-1]
-        dist0 = sum([self.me.get_distance_to_unit(opponentUnit) for opponentUnit in self.opponentUnits])
-        dist1 = sum([   unit.get_distance_to_unit(opponentUnit) for opponentUnit in self.opponentUnits])
+        #dist0 = sum([self.me.get_distance_to_unit(opponentUnit) for opponentUnit in self.opponentUnits])
+        #dist1 = sum([   unit.get_distance_to_unit(opponentUnit) for opponentUnit in self.opponentUnits])
 
         puck_can_pass = True
         for opponentUnit in self.opponentUnits:
             puck_can_pass = puck_can_pass and canPass(self.me, unit, opponentUnit)
 
 
-        if ( #dist0 < dist1
-             #and
+        if ((method == 'Forward'
+             and
              abs(self.me.x - self.opponentPlayer.net_front) - abs(unit.x - self.opponentPlayer.net_front) > self.game.world_width/5.0
              and
              puck_can_pass
-            ):
+            )
+            or (
+             method == 'Backward'
+             and
+             puck_can_pass
+            )):
 
             angle = self.me.get_angle_to_unit(unit)
 
@@ -171,12 +176,11 @@ class Strategy:
                 self.move_pass_angle = angle
                 self.move_pass_power = 0.8
                 self.move_action = ActionType.PASS
-                print "pass"
+                print "pass " + method
+                return True
             else:
-                self.move_turn = angle
-
-
-            return True
+                #self.move_turn = angle
+                return False
 
         else:
             return False
@@ -314,10 +318,10 @@ class Strategy:
             min_strike_dist_y = 0.0
             max_strike_dist_y = self.game.world_height
         else:
-            min_strike_dist_x = 0.1 * self.game.world_width
-            max_strike_dist_x = 0.4 * self.game.world_width
-            min_strike_dist_y = 0.2 * self.game.world_height
-            max_strike_dist_y = 0.4 * self.game.world_height
+            min_strike_dist_x = 0.15 * self.game.world_width
+            max_strike_dist_x = 0.35 * self.game.world_width
+            min_strike_dist_y = 0.15 * self.game.world_height
+            max_strike_dist_y = 0.45 * self.game.world_height
 
 
         # if the position is good or i am swinging >> let's strike!
@@ -385,13 +389,13 @@ class Strategy:
                   #and
                   #self.me.state != HockeyistState.SWINGING
                   ):
-                print "swing: " + str(self.me.swing_ticks)
+                #print "swing: " + str(self.me.swing_ticks)
                 self.move_action = ActionType.SWING
 
                 return True
 
         if (self.me.state == HockeyistState.SWINGING or abs(angle) < STRIKE_ACCURACY):
-            print "strike puck: " + str(self.me.swing_ticks)
+            #print "strike puck: " + str(self.me.swing_ticks)
             self.move_action = ActionType.STRIKE
 
             return True
@@ -406,24 +410,28 @@ class Strategy:
                               and abs(self.me.get_angle_to_unit(opponentUnit)) < pi/3.0 ]
 
             dangerAngles = [self.me.get_angle_to_unit(dangerUnit)
-                            for dangerUnit in dangerUnits
-                            if abs(self.me.get_angle_to_unit(dangerUnit)) < pi/3.0 ]
+                            for dangerUnit in dangerUnits ]
 
-            angle = self.me.get_angle_to(skateX, skateY)
-
+            angle1 = self.me.get_angle_to(skateX, skateY)
+            angle2 = self.me.get_angle_to_unit(self.myUnits[-1])
 
             if dangerAngles:
-                res1 = sum([deltaAngles(0.0, dangerAngle) for dangerAngle in dangerAngles])
-                res2 = sum([deltaAngles(-self.game.hockeyist_turn_angle_factor, dangerAngle) for dangerAngle in dangerAngles])
-                res3 = sum([deltaAngles(+self.game.hockeyist_turn_angle_factor, dangerAngle) for dangerAngle in dangerAngles])
-                if res2 > res1 and res2 > res3 and angle < 0.0:
-                    bestAngle = angle
-                elif res3 > res1 and res3 > res2 and angle > 0.0:
-                    bestAngle = angle
+                dAngle1 = copysign( min(abs(angle1), self.game.hockeyist_turn_angle_factor), angle1)
+                dAngle2 = copysign( min(abs(angle2), self.game.hockeyist_turn_angle_factor), angle2)
+
+                res0 = sum([deltaAngles(0.0, dangerAngle) for dangerAngle in dangerAngles])
+                res1 = sum([deltaAngles(dAngle1, dangerAngle) for dangerAngle in dangerAngles])
+                res2 = sum([deltaAngles(dAngle2, dangerAngle) for dangerAngle in dangerAngles])
+                if res1 >= res0:
+                    bestAngle = angle1
+                elif self.tryPass('Backward'):
+                    return True
+                elif res2 > res0:
+                    bestAngle = angle2
                 else:
-                    bestAngle = 0.0
+                    bestAngle = 0
             else:
-                bestAngle = angle
+                bestAngle = angle1
 
 
             self.move_turn = bestAngle
