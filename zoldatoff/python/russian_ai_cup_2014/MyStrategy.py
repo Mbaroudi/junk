@@ -174,9 +174,12 @@ class Strategy:
 
             if -pi/3.0 < angle < pi/3.0:
                 self.move_pass_angle = angle
-                self.move_pass_power = 0.8
+                if method == 'Forward':
+                    self.move_pass_power = 0.8
+                else:
+                    self.move_pass_power = 0.6
                 self.move_action = ActionType.PASS
-                print "pass " + method
+                if method == 'Backward': print "pass " + method
                 return True
             else:
                 #self.move_turn = angle
@@ -385,7 +388,7 @@ class Strategy:
         if abs(angle) < STRIKE_ACCURACY:
             if (self.me.swing_ticks < self.game.max_effective_swing_ticks
                   and
-                  self.me.get_distance_to_unit(self.opponentUnits[0]) > 3.0*self.me.radius
+                  self.me.get_distance_to_unit(self.opponentUnits[0]) > 2.0 * self.game.stick_length #3.0*self.me.radius
                   #and
                   #self.me.state != HockeyistState.SWINGING
                   ):
@@ -406,30 +409,59 @@ class Strategy:
             # i have a puck
             dangerUnits = [opponentUnit
                            for opponentUnit in self.opponentUnits
-                           if self.me.get_distance_to_unit(opponentUnit) < 3.0*self.me.radius
-                              and abs(self.me.get_angle_to_unit(opponentUnit)) < pi/3.0 ]
+                           if opponentUnit.get_distance_to_unit(self.me) < 2.0 * self.game.stick_length
+                              #and
+                              #abs(opponentUnit.get_angle_to_unit(self.me)) < 0.5 * self.game.stick_sector
+                              and
+                              opponentUnit.state != HockeyistState.KNOCKED_DOWN ]
 
-            dangerAngles = [self.me.get_angle_to_unit(dangerUnit)
-                            for dangerUnit in dangerUnits ]
 
             angle1 = self.me.get_angle_to(skateX, skateY)
-            angle2 = self.me.get_angle_to_unit(self.myUnits[-1])
+            angle2 = copysign(self.game.hockeyist_turn_angle_factor, -angle1)
 
-            if dangerAngles:
+
+            if dangerUnits:
                 dAngle1 = copysign( min(abs(angle1), self.game.hockeyist_turn_angle_factor), angle1)
                 dAngle2 = copysign( min(abs(angle2), self.game.hockeyist_turn_angle_factor), angle2)
+                accel = self.game.hockeyist_speed_up_factor
 
-                res0 = sum([deltaAngles(0.0, dangerAngle) for dangerAngle in dangerAngles])
-                res1 = sum([deltaAngles(dAngle1, dangerAngle) for dangerAngle in dangerAngles])
-                res2 = sum([deltaAngles(dAngle2, dangerAngle) for dangerAngle in dangerAngles])
-                if res1 >= res0:
+                speed_x1 = copysign(
+                             abs(self.me.speed_x) + accel * cos(self.me.angle + dAngle1),
+                             self.me.speed_x)
+                speed_y1 = copysign(
+                             abs(self.me.speed_y) + accel * sin(self.me.angle + dAngle1),
+                             self.me.speed_y)
+                x1 = self.me.x + speed_x1
+                y1 = self.me.y + speed_y1
+
+                speed_x2 = copysign(
+                             abs(self.me.speed_x) + accel * cos(self.me.angle + dAngle2),
+                             self.me.speed_x)
+                speed_y2 = copysign(
+                             abs(self.me.speed_y) + accel * sin(self.me.angle + dAngle2),
+                             self.me.speed_y)
+                x2 = self.me.x + speed_x2
+                y2 = self.me.y + speed_y2
+
+                res0 = sum([abs(unit.get_angle_to_unit(self.me))
+                              for unit in dangerUnits])
+                res1 = sum([abs(unit.get_angle_to(x1, y1))
+                              for unit in dangerUnits])
+                res2 = sum([abs(unit.get_angle_to(x2, y2))
+                              for unit in dangerUnits])
+
+                #print str(res0) + " " + str(res1) + " " + str(res2)
+
+                if res1 > res0:
                     bestAngle = angle1
-                elif self.tryPass('Backward'):
-                    return True
                 elif res2 > res0:
                     bestAngle = angle2
+                    print "turn from opponent"
+                elif self.tryPass('Backward'):
+                    return True
                 else:
-                    bestAngle = 0
+                    bestAngle = angle1
+                    #print "do not turn"
             else:
                 bestAngle = angle1
 
