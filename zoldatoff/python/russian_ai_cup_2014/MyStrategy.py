@@ -295,7 +295,7 @@ class Strategy:
 
             self.move_turn = self.me.get_angle_to(gotoX, gotoY)
 
-            if self.speed == 0:
+            if self.speed == 0.0:
                 self.move_speed_up = 1.0
             elif abs(self.move_turn)/self.game.hockeyist_turn_angle_factor > self.me.get_distance_to_unit(self.world.puck) / abs(self.speed):
                 speed = self.me.get_distance_to_unit(self.world.puck) / abs(self.move_turn) * self.game.hockeyist_turn_angle_factor
@@ -430,7 +430,7 @@ class Strategy:
             angle2 = copysign(self.game.hockeyist_turn_angle_factor, -angle1)
 
 
-            if dangerUnits:
+            if 1==2: #dangerUnits:
                 dAngle1 = copysign( min(abs(angle1), self.game.hockeyist_turn_angle_factor), angle1)
                 dAngle2 = copysign( min(abs(angle2), self.game.hockeyist_turn_angle_factor), angle2)
                 accel = self.game.hockeyist_speed_up_factor
