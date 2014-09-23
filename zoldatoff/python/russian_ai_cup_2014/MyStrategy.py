@@ -401,16 +401,16 @@ class Strategy:
             self.move_action = ActionType.STRIKE
             return True
 
-        if (abs(angle) < PASS_ACCURACY 
-            and self.me.get_distance_to_unit(self.opponentUnits[0]) < danger_dist
-            and self.me.state != HockeyistState.SWINGING
-            and self.opponentUnits[0].state != HockeyistState.KNOCKED_DOWN
-            ):
-            unit = Unit(9997, 1.0, 1.0,
-                            strikeX, strikeY,
-                            0.0, 0.0, 0.0, 0.0)
-            self.tryPass('Strike', unit)
-            return True
+        # if (abs(angle) < PASS_ACCURACY 
+        #     and self.me.get_distance_to_unit(self.opponentUnits[0]) < danger_dist
+        #     and self.me.state != HockeyistState.SWINGING
+        #     and self.opponentUnits[0].state != HockeyistState.KNOCKED_DOWN
+        #     ):
+        #     unit = Unit(9997, 1.0, 1.0,
+        #                     strikeX, strikeY,
+        #                     0.0, 0.0, 0.0, 0.0)
+        #     self.tryPass('Strike', unit)
+        #     return True
 
         return False
 
