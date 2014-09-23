@@ -227,9 +227,9 @@ class Strategy:
         skateY = self.rink_center_y
 
         if self.position == "left":
-            skateX = self.player.net_front + 3.0*self.me.radius
+            skateX = self.player.net_front + 3.1*self.me.radius
         else:
-            skateX = self.player.net_front - 3.0*self.me.radius
+            skateX = self.player.net_front - 3.1*self.me.radius
 
 
         # To stand or to move
@@ -250,7 +250,7 @@ class Strategy:
             abs(self.me.get_angle_to_unit(unit)) < 0.5 * self.game.stick_sector
             ):
             self.move_action = ActionType.STRIKE
-            #print "strike puck"
+            print "strike puck"
             return True
         else:
             return False
@@ -283,7 +283,7 @@ class Strategy:
                 n_tick = self.me.get_distance_to_unit(self.world.puck) / self.speed
 
             if n_tick > 40.0: n_tick = 40.0
-            if n_tick < 10.0: n_tick = 0.0
+            if n_tick < 7.0: n_tick = 0.0
 
             gotoX = self.world.puck.x + self.world.puck.speed_x * n_tick
             if gotoX < self.game.rink_left or gotoX > self.game.rink_right:
@@ -381,7 +381,7 @@ class Strategy:
 
         angle = self.me.get_angle_to(strikeX, strikeY)
 
-        danger_dist = 1.5 * self.game.stick_length
+        danger_dist = 1.1 * self.game.stick_length
 
         self.move_turn = angle
         self.move_speed_up = 0
@@ -404,6 +404,7 @@ class Strategy:
         if (abs(angle) < PASS_ACCURACY 
             and self.me.get_distance_to_unit(self.opponentUnits[0]) < danger_dist
             and self.me.state != HockeyistState.SWINGING
+            and self.opponentUnits[0].state != HockeyistState.KNOCKED_DOWN
             ):
             unit = Unit(9997, 1.0, 1.0,
                             strikeX, strikeY,
@@ -539,4 +540,11 @@ class MyStrategy:
         if s.move_action: move.action = s.move_action
         if s.move_pass_angle: move.pass_angle = s.move_pass_angle
         if s.move_pass_power: move.pass_power = s.move_pass_power
+
+        #if s.move_action == ActionType.STRIKE:
+        #    print ">> " + str(world.tick) + " STRIKE"
+        #if s.move_action == ActionType.CANCEL_STRIKE:
+        #    print ">> " + str(world.tick) + " CANCEL_STRIKE"
+        #if s.move_action == ActionType.SWING:
+        #    print ">> " + str(world.tick) + " SWING"
         return True
