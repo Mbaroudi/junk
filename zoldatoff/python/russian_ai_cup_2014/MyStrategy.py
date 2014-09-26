@@ -114,7 +114,7 @@ class Strategy:
             self.position = "right"
 
 
-        self.defendCircle = Unit(9998, 1.0, 1.0*self.game.goal_net_height,
+        self.defendCircle = Unit(9998, 1.0, 0.5*self.game.goal_net_height,
                                  self.player.net_front, self.rink_center_y,
                                  0.0, 0.0, 0.0, 0.0)
 
@@ -289,12 +289,16 @@ class Strategy:
             and
             self.me.get_distance_to_unit(self.defendCircle) < self.defendCircle.radius
             and
+            self.world.puck.owner_player_id == -1
+            and
             self.setStrategyTakePuck()
             ):
             #print "defence: setStrategyTakePuck"
             return True
 
         if (self.me.get_distance_to_unit(self.world.puck) < self.game.stick_length
+            and
+            self.world.puck.owner_player_id == -1
             and
             self.setStrategyTakePuck()
             ):
@@ -311,10 +315,10 @@ class Strategy:
         #     skateY = self.goalie.y - 0.5*(self.goalie.y - self.player.net_top)
 
         skateY = self.rink_center_y
-        if self.world.puck.y < self.player.net_top:
-            skateY -= self.me.radius
-        elif self.world.puck.y > self.player.net_bottom:
-            skateY += self.me.radius
+        # if self.world.puck.y < self.player.net_top:
+        #     skateY -= self.me.radius
+        # elif self.world.puck.y > self.player.net_bottom:
+        #     skateY += self.me.radius
 
         if self.position == "left":
             skateX = self.player.net_front + 3.1*self.me.radius            
@@ -404,7 +408,7 @@ class Strategy:
 
     def setStrategyAttackGate(self):
 
-        min_strike_dist = self.game.goal_net_height * 0.7
+        min_strike_dist = self.game.goal_net_height * 0.5
 
         if not(self.goalie): #self.world.tick > self.game.tick_count:
             min_strike_dist_x = 0.0
@@ -486,6 +490,7 @@ class Strategy:
     def tryStrike(self, strikeX, strikeY):
         PASS_ACCURACY = pi / 3.0
         STRIKE_ACCURACY = 1.0 * pi / 180.0
+        min_strike_dist = self.game.goal_net_height * 0.5
 
         angle = self.me.get_angle_to(strikeX, strikeY)
 
@@ -524,14 +529,15 @@ class Strategy:
 
             return True
 
-        # if (abs(angle) < PASS_ACCURACY 
-        #     and danger
-        #     and self.me.state != HockeyistState.SWINGING
-        #     ):
-        #     print "strike pass"
-        #     unit = Unit(997, 0.0, 0.0, strikeX, strikeY, 0.0, 0.0, 0.0, 0.0)
-        #     self.tryPass('Strike', unit)
-        #     return True
+        if (abs(angle) < PASS_ACCURACY 
+            and danger
+            and self.me.state != HockeyistState.SWINGING
+            and self.me.get_distance_to(self.opponentPlayer.net_front, self.rink_center_y) < min_strike_dist
+            ):
+            print "strike pass"
+            unit = Unit(997, 0.0, 0.0, strikeX, strikeY, 0.0, 0.0, 0.0, 0.0)
+            self.tryPass('Strike', unit)
+            return True
 
         return False
 
@@ -555,7 +561,7 @@ class Strategy:
             dist = self.me.get_distance_to(skateX, skateY)
 
             #if dist < 10.0*self.me.radius and abs(angle) > pi/2:
-            if abs(angle) > pi/2.0:
+            if abs(angle) > pi/2.0 + pi/8.0:
                 # going back
                 if angle > 0.0:
                     self.move_turn = angle - pi
