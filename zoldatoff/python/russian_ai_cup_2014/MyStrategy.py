@@ -248,7 +248,8 @@ class Strategy:
 
         puck_can_pass = True
         for opponentUnit in self.opponentUnits:
-            puck_can_pass = puck_can_pass and (dist2segment(self.me, unit, opponentUnit) > self.game.stick_length)
+            if dist2segment(self.me, unit, opponentUnit) < self.game.stick_length:
+                puck_can_pass = False
 
 
         if ((method == 'Forward'
@@ -387,18 +388,12 @@ class Strategy:
             if n_tick < 7.0: n_tick = 1.0
 
             gotoX = self.world.puck.x + self.world.puck.speed_x * n_tick
-            # if gotoX < self.game.rink_left:
-            #     gotoX = self.game.rink_left + (self.game.rink_left - gotoX)
-            # if gotoX > self.game.rink_right:
-            #     gotoX = self.game.rink_right - (gotoX - self.game.rink_right)
+
             if gotoX < self.game.rink_left or gotoX > self.game.rink_right:
                 gotoX = self.me.x
 
             gotoY = self.world.puck.y + self.world.puck.speed_y * n_tick
-            # if gotoY < self.game.rink_top:
-            #     gotoY = self.game.rink_top + (self.game.rink_top - gotoY)
-            # if gotoY > self.game.rink_bottom:
-            #     gotoY = self.game.rink_bottom - (gotoY - self.game.rink_bottom)
+
             if gotoY < self.game.rink_top or gotoY > self.game.rink_bottom:
                 gotoY = self.me.y
 
@@ -410,20 +405,6 @@ class Strategy:
 
 
     def setStrategyAttackGate(self):
-
-        # min_strike_dist = self.game.goal_net_height * 0.5
-
-        # if not(self.goalie): #self.world.tick > self.game.tick_count:
-        #     min_strike_dist_x = 0.0
-        #     max_strike_dist_x = self.game.world_width
-        #     min_strike_dist_y = 0.0
-        #     max_strike_dist_y = self.game.world_height
-        # else:
-        #     min_strike_dist_x = 0.15 * self.game.world_width
-        #     max_strike_dist_x = 0.35 * self.game.world_width
-        #     min_strike_dist_y = 0.15 * self.game.world_height
-        #     max_strike_dist_y = 0.45 * self.game.world_height
-
 
         # if the position is good or i am swinging >> let's strike!
         if (
