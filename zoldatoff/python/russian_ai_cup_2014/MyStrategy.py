@@ -137,11 +137,11 @@ class Strategy:
 
     def getStrategy(self):
         if self.world.puck.owner_hockeyist_id == self.me.id:
-            if self.tryPass('Forward'):
-                return True
-            else:
-                self.setStrategyAttackGate()
-                return True
+            # if self.tryPass('Forward'):
+            #     return True
+            # else:
+            self.setStrategyAttackGate()
+            return True
 
         elif self.me.state == HockeyistState.SWINGING:
             self.move_action = ActionType.CANCEL_STRIKE
@@ -260,7 +260,7 @@ class Strategy:
              and
              abs(unit.get_angle_to_unit(self.me)) < pi / 3.0
             )
-            or (method == 'Backward' and puck_can_pass)
+            #or (method == 'Backward' and puck_can_pass)
             or (method == 'Strike')
             ):
 
@@ -271,8 +271,8 @@ class Strategy:
 
                 if method == 'Forward':
                     self.move_pass_power = 0.8
-                elif method == 'Backward':
-                    self.move_pass_power = 0.6
+                #elif method == 'Backward':
+                #    self.move_pass_power = 0.6
                 elif method == 'Strike':
                     self.move_pass_power = 1.0
 
@@ -509,21 +509,22 @@ class Strategy:
             #print "trySkate: calcAcceleration1"
             self.calcAcceleration(skateX, skateY)
 
-            if self.speed < 0.1:
-                test = Unit(661, 0.0, 0.0, 
-                            self.me.x + 2.0 * self.me.radius * cos(self.me.angle + self.move_turn), 
-                            self.me.y + 2.0 * self.me.radius * sin(self.me.angle + self.move_turn), 
-                            0.0, 0.0, 0.0, 0.0)
+            #if self.speed < 0.1:
+            test = Unit(661, 0.0, 0.0, 
+                        self.me.x + 6.0 * self.me.radius * cos(self.me.angle + self.move_turn), 
+                        self.me.y + 6.0 * self.me.radius * sin(self.me.angle + self.move_turn), 
+                        0.0, 0.0, 0.0, 0.0)
 
-                dist = min([unit.get_distance_to_unit(test) for unit in self.opponentUnits])
-                if test.x < 0 or test.x > self.game.world_width or test.y < 0 or test.y > self.game.world_height:
-                    dist = 0.0
+            dangerUnits = [unit for unit in self.opponentUnits if unit.get_angle_to_unit(self.me) < pi / 3.0]
+            if dangerUnits:
+                dangerUnits.sort(key=lambda x: dist2segment(self.me, test, x))
+                dist = dist2segment(self.me, test, dangerUnits[0])
 
-                if dist < 2.0 and self.me.get_angle_to_unit(self.attackCircle) > 0.0:
-                    self.move_turn += self.game.hockeyist_turn_angle_factor
+                if dist < 10.0 and self.me.get_angle_to_unit(dangerUnits[0]) < 0.0:
+                    self.move_turn = self.game.hockeyist_turn_angle_factor
                     print "me+puck: angle +"
-                elif dist < 2.0:
-                    self.move_turn -= self.game.hockeyist_turn_angle_factor
+                elif dist < 10.0:
+                    self.move_turn = - self.game.hockeyist_turn_angle_factor
                     print "me+puck: angle -"
 
             return True
