@@ -99,19 +99,28 @@ class Strategy:
         forwards = [hockeyist
                          for hockeyist in self.world.hockeyists
                          if hockeyist.teammate and hockeyist.type == HockeyistType.FORWARD]
-        self.forward = forwards[0]
+        if forwards:
+            self.forward = forwards[0]
+        else:
+            self.forward = None
 
 
         versatiles = [hockeyist
                          for hockeyist in self.world.hockeyists
                          if hockeyist.teammate and hockeyist.type == HockeyistType.VERSATILE]
-        self.versatile = versatiles[0]
+        if versatiles:
+            self.versatile = versatiles[0]
+        else:
+            self.versatile = None
 
 
         defenders = [hockeyist
                          for hockeyist in self.world.hockeyists
                          if hockeyist.teammate and hockeyist.type == HockeyistType.DEFENCEMAN]
-        self.defender = defenders[0]
+        if defenders:
+            self.defender = defenders[0]
+        else:
+            self.defender = None
 
 
         self.opponentUnits = [hockeyist
@@ -239,7 +248,8 @@ class Strategy:
 
         if self.me.type == HockeyistType.VERSATILE:
             if (self.world.puck.owner_hockeyist_id == self.defender.id 
-                or self.defender.get_distance_to_unit(self.defendCircle) > 2.0 * self.game.stick_length):
+                or self.defender.get_distance_to_unit(self.defendCircle) > 2.0 * self.game.stick_length
+                or self.defender == None):
                 self.setStrategyDefendGate()
                 return True
             elif self.world.puck.owner_player_id == self.me.player_id:
