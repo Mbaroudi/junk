@@ -85,6 +85,7 @@ class Strategy:
                             and hockeyist.state != HockeyistState.RESTING
                          ]
         self.myUnits.sort(key=lambda x:self.me.get_distance_to_unit(x))
+        self.team_count = len(self.myUnits) + 1
 
         goalies = [hockeyist
                          for hockeyist in self.world.hockeyists
@@ -95,6 +96,22 @@ class Strategy:
             self.goalie = goalies[0]
         else:
             self.goalie = None
+
+
+        forwards = [hockeyist
+                         for hockeyist in self.world.hockeyists
+                         if hockeyist.teammate
+                            and hockeyist.type == HockeyistType.FORWARD
+                        ]
+        self.forward = forwards[0]
+
+
+        versatiles = [hockeyist
+                         for hockeyist in self.world.hockeyists
+                         if hockeyist.teammate
+                            and hockeyist.type == HockeyistType.VERSATILE
+                        ]
+        self.versatile = versatiles[0]
 
 
         self.opponentUnits = [hockeyist
@@ -110,8 +127,14 @@ class Strategy:
 
         if self.player.net_front < self.rink_center_x:
             self.position = "left"
+            self.forwardPlace = Unit(9991, 0.0, 0.0,
+                                 self.opponentPlayer.net_front - 3.0 * self.game.stick_length, self.rink_center_y,
+                                 0.0, 0.0, 0.0, 0.0)    
         else:
             self.position = "right"
+            self.forwardPlace = Unit(9991, 0.0, 0.0,
+                                 self.opponentPlayer.net_front + 3.0 * self.game.stick_length, self.rink_center_y,
+                                 0.0, 0.0, 0.0, 0.0)    
 
 
         self.defendCircle = Unit(9998, 1.0, 1.5*self.game.stick_length,
@@ -135,7 +158,7 @@ class Strategy:
 
 
 
-    def getStrategy(self):
+    def getStrategy2(self):
         if self.world.puck.owner_hockeyist_id == self.me.id:
             # if self.tryPass('Forward'):
             #     return True
@@ -159,6 +182,60 @@ class Strategy:
         else:
             self.setStrategyTakePuck()
             return True
+
+
+    def getStrategy3(self):
+        if self.world.puck.owner_hockeyist_id == self.me.id:
+            if self.me.state == HockeyistState.SWINGING or self.me.type == HockeyistType.FORWARD:
+                self.setStrategyAttackGate()
+                return True
+            elif self.me.type != HockeyistType.FORWARD and self.tryPass('Forward', self.forward):
+                print "Pass to forward"
+                return True
+            elif self.me.type == HockeyistType.DEFENCEMAN and self.tryPass('Forward', self.versatile):
+                print "Pass to versatile"
+                return True
+            else:
+                self.setStrategyAttackGate()
+                return True
+
+        elif self.me.state == HockeyistState.SWINGING:
+            self.move_action = ActionType.CANCEL_STRIKE
+            return True
+
+        if self.me.type == HockeyistType.DEFENCEMAN:
+            #print "DEFENCEMAN: Defend gate"
+            self.setStrategyDefendGate()
+            return True
+
+        if self.me.type == HockeyistType.FORWARD:
+            if (self.me.get_distance_to_unit(self.attackCircle) < self.attackCircle.radius
+                or abs(self.me.x - self.attackCircle.x) > abs(self.world.puck.x - self.attackCircle.x)
+                or self.me.get_distance_to_unit(self.world.puck) < self.game.stick_length
+                #or self.world.puck.owner_player_id == self.opponentPlayer.id
+                ):
+                #print "FORWARD: Take puck"
+                self.setStrategyTakePuck()
+                return True
+            elif self.me.get_distance_to_unit(self.forwardPlace) < 1.0*self.me.radius:
+                print "FORWARD: Stay near opponent gate"
+                self.move_turn = self.me.get_angle_to_unit(self.world.puck)
+            else:
+                self.trySkate(self.forwardPlace.x, self.forwardPlace.y, True)
+                return True
+
+        if self.me.type == HockeyistType.VERSATILE:
+            if self.world.puck.owner_player_id == self.me.player_id:
+                #print "VERSATILE: Strike opponent"
+                self.setStrategyStrikeOpponent()
+                return True
+            elif self.tryStrikeOpponent():
+                return True
+            else:
+                #print "VERSATILE: Take puck"
+                self.setStrategyTakePuck()
+                return True
+
 
 
     def calcAcceleration(self, skateX, skateY):
@@ -352,19 +429,29 @@ class Strategy:
 
 
     def tryStrikeOpponent(self):
-        unit = self.opponentUnits[0]
+        for unit in self.opponentUnits:
+            if (self.me.get_distance_to_unit(unit) < self.game.stick_length
+                and
+                abs(self.me.get_angle_to_unit(unit)) < 0.5 * self.game.stick_sector
+                and
+                unit.state != HockeyistState.KNOCKED_DOWN
+                ):
+                self.move_action = ActionType.STRIKE
+                #print "strike opponent"
+                return True
 
-        if (self.me.get_distance_to_unit(unit) < self.game.stick_length
-            and
-            abs(self.me.get_angle_to_unit(unit)) < 0.5 * self.game.stick_sector
-            and
-            unit.state != HockeyistState.KNOCKED_DOWN
-            ):
-            self.move_action = ActionType.STRIKE
-            #print "strike opponent"
+        return False
+
+
+    def setStrategyStrikeOpponent(self):
+        if self.tryStrikeOpponent():
             return True
+
         else:
-            return False
+            units = self.opponentUnits
+            units.sort(key=lambda x:self.me.get_distance_to_unit(self.attackCircle))
+            self.trySkate(units[0].x, units[0].y)
+            return True
 
 
     def setStrategyTakePuck(self):
@@ -522,10 +609,10 @@ class Strategy:
 
                 if dist < 10.0 and self.me.get_angle_to_unit(dangerUnits[0]) < 0.0:
                     self.move_turn = self.game.hockeyist_turn_angle_factor
-                    print "me+puck: angle +"
+                    #print "me+puck: angle +"
                 elif dist < 10.0:
                     self.move_turn = - self.game.hockeyist_turn_angle_factor
-                    print "me+puck: angle -"
+                    #print "me+puck: angle -"
 
             return True
 
@@ -586,10 +673,10 @@ class Strategy:
 
                 if dist < 2.0 and self.me.get_angle_to_unit(self.attackCircle) > 0.0:
                     self.move_turn += self.game.hockeyist_turn_angle_factor
-                    print "me-puck: angle +"
+                    #print "me-puck: angle +"
                 elif dist < 2.0:
                     self.move_turn -= self.game.hockeyist_turn_angle_factor
-                    print "me-puck: angle -"
+                    #print "me-puck: angle -"
 
             return True
 
@@ -605,7 +692,10 @@ class MyStrategy:
         @type move: Move
         """
 
+        s = Strategy(me, world, game)
+
         if world.tick == 0:
+            print "team_count = " + str(s.team_count)
             print "me.radius = " + str(me.radius)
             print "game.stick_length = " + str(game.stick_length)
             print "world.puck.radius = " + str(world.puck.radius)
@@ -616,8 +706,11 @@ class MyStrategy:
             print "game.world_height = " + str(game.world_height)
             print "game.goal_net_height = " + str(game.goal_net_height)
 
-        s = Strategy(me, world, game)
-        s.getStrategy()
+        if s.team_count == 2:
+            s.getStrategy2()
+        else:
+            s.getStrategy3()
+
         if s.move_turn: move.turn = s.move_turn
         if s.move_speed_up: move.speed_up = s.move_speed_up
         if s.move_action: move.action = s.move_action
