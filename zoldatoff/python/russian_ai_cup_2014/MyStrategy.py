@@ -492,8 +492,8 @@ class Strategy:
             return True
         else:
             puck = self.world.puck
-            puck_speed = sqrt(puck.speed_x*puck.speed_x+puck.speed_y*puck.speed_y)
-            max_speed = max(0.0, self.speed, puck_speed)
+            (max_speed_x, max_speed_y) = (puck.speed_x - self.me.speed_x, puck.speed_y - self.me.speed_y)
+            max_speed = sqrt(max_speed_x*max_speed_x+max_speed_y*max_speed_y)
 
             if max_speed == 0.0:
                 n_tick = 1.0
