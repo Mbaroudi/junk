@@ -1,3 +1,0 @@
-APPEND="video=vesafb:ywrap,pmipal,mtrr"
-MOVEIMAGES
-COMPACT

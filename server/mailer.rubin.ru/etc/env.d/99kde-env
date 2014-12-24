@@ -1,3 +1,0 @@
-KDEDIRS=/usr
-CONFIG_PROTECT=/usr/share/config
-#KDE_IS_PRELINKED=1

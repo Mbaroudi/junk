@@ -1,6 +1,0 @@
->net-www/apache-2.0
->dev-db/mysql-5.1
->dev-php/php-5
->dev-lang/php-5
->www-apps/wordpress-2
->net-dialup/rp-pppoe-3.8

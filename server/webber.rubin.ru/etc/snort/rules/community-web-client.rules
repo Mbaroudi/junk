@@ -1,7 +1,0 @@
-# Copyright 2005 Sourcefire, Inc. All Rights Reserved.
-# These rules are licensed under the GNU General Public License.
-# Please see the file LICENSE in this directory for more details. 
-# $Id: community-web-client.rules,v 1.7 2005/04/01 17:16:23 akirk Exp $
-
-alert tcp $EXTERNAL_NET 80 -> $HOME_NET any (msg:"COMMUNITY WEB-CLIENT Internet Explorer URLMON.DLL Content-Type Overflow Attempt"; flow:to_client,established; content:"Content-Type|3A|"; nocase; pcre:"/Content-Type\x3A[^\r\n]{300,}/i"; classtype:attempted-admin; reference:bugtraq,7419; reference:cve,2003-0113; reference:url,www.microsoft.com/technet/security/bulletin/MS03-015.mspx; sid:100000118; rev:1;)
-alert tcp $EXTERNAL_NET 80 -> $HOME_NET any (msg:"COMMUNITY WEB-CLIENT Internet Explorer URLMON.DLL Content-Encoding Overflow Attempt"; flow:to_client,established; content:"Content-Encoding|3A|"; nocase; pcre:"/Content-Encoding\x3A[^\r\n]{300,}/i"; classtype:attempted-admin; reference:bugtraq,7419; reference:cve,2003-0113; reference:url,www.microsoft.com/technet/security/bulletin/MS03-015.mspx; sid:100000119; rev:1;)

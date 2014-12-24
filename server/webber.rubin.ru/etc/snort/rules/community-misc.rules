@@ -1,7 +1,0 @@
-# Copyright 2005 Sourcefire, Inc. All Rights Reserved.
-# These rules are licensed under the GNU General Public License.
-# Please see the file LICENSE in this directory for more details. 
-# $Id: community-misc.rules,v 1.2 2005/04/01 17:11:59 akirk Exp $
-
-alert udp $EXTERNAL_NET any -> $HOME_NET 5093 (msg:"COMMUNITY MISC Sentinel License Manager overflow attempt"; dsize:>1000; reference:cve,CAN-2005-0353; reference:bugtraq,12742; classtype:attempted-user; sid:100000125; rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 2380 (msg:"COMMUNITY MISC GoodTech Telnet Server Buffer Overflow Attempt"; flow:to_server,established; pcre:"/[^\r\n]{1000,}/i"; reference:cve,2005-0768; reference:url,unsecure.altervista.org/security/goodtechtelnet.htm; classtype:attempted-dos; sid:100000126; rev:1;)

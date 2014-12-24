@@ -1,2 +1,0 @@
-include = /etc/prelude/default/global.conf
-include = /etc/prelude/default/client.conf

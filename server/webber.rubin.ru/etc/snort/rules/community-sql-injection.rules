@@ -1,9 +1,0 @@
-# Copyright 2005 Sourcefire, Inc. All Rights Reserved.
-# These rules are licensed under the GNU General Public License.
-# Please see the file LICENSE in this directory for more details. 
-# $Id: community-sql-injection.rules,v 1.7 2005/03/08 14:41:42 bmc Exp $
-
-alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"COMMUNITY SQL-INJECTION Microsoft BizTalk Server 2002 rawdocdata.asp"; flow:to_server,established; uricontent:"/rawdocdata.asp?"; nocase; pcre:"/rawdocdata.asp\x3F[^\r\n]*exec/Ui"; classtype:web-application-attack; reference:bugtraq,7470; reference:cve,2003-0118; reference:url,www.microsoft.com/technet/security/bulletin/MS03-016.mspx; sid:100000106; rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"COMMUNITY SQL-INJECTION Microsoft BizTalk Server 2002 RawCustomSearchField.asp"; flow:to_server,established; uricontent:"/rawdocdata.asp?"; nocase; pcre:"/RawCustomSearchField.asp\x3F[^\r\n]*exec/Ui"; classtype:web-application-attack; reference:bugtraq,7470; reference:cve,2003-0118; reference:url,www.microsoft.com/technet/security/bulletin/MS03-016.mspx; sid:100000107; rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"COMMUNITY SQL-INJECTION OpenBB board.php"; flow:to_server,established; uricontent:"/board.php"; pcre:"/board.php\x3F\w+\x3D[0-9]+\s/Ui"; classtype:web-application-attack; reference:bugtraq,7404; sid:100000108; rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"COMMUNITY SQL-INJECTION OpenBB member.php"; flow:to_server,established; uricontent:"/member.php"; pcre:"/member.php\x3F\w+\x3D[0-9]+\s/Ui"; classtype:web-application-attack; reference:bugtraq,7404; sid:100000109; rev:1;)
