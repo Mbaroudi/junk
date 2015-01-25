@@ -22,6 +22,8 @@ import matplotlib.pyplot as plt
 import scipy.cluster.hierarchy as hac
 import scipy.spatial.distance as dis
 
+from collections import Counter
+
 # Откуда и сколько траекторий берём
 DATA_PATH = '/Users/zoldatoff/Downloads/driver/data/'
 DRIVER_NUM = 2
@@ -124,8 +126,16 @@ def dataframe2analytics(n, dataframe):
 
 
 def analytics2clusters(analytics):
-    print analytics
+
+    analytics = analytics.sort('n')
+    analytics['v'] *= 0.5
+    analytics['a'] *= 15.0
+
+    print 'med(v) = ', analytics['v'].median(), 'med(a) = ', analytics['a'].median(), 'med(v_r) = ', analytics['v_r'].median()
+
     matr = analytics.as_matrix(columns=['a', 'v', 'v_r'])
+    result = analytics
+
     a = dis.squareform(dis.pdist(matr))
 
     fig, axes73 = plt.subplots(7, 3)
@@ -144,14 +154,25 @@ def analytics2clusters(analytics):
         knee[knee.argmax()] = 0
         num_clust2 = knee.argmax() + 2
 
-        print num_clust1, num_clust2
-
         axes[0].text(num_clust1, z[::-1, 2][num_clust1-1], 'possible\n<- knee point')
 
         part1 = hac.fcluster(z, num_clust1, 'maxclust')
+        #print method, Counter(part1).most_common(1)[0]
+
+        mc = Counter(part1).most_common(1)[0][0]
+        #print mc
+
+        if method == 'single':
+            result['probability'] = [1 if p1==mc else 0 for p1 in part1.tolist()]
+        #print result
         part2 = hac.fcluster(z, num_clust2, 'maxclust')
 
         clr = [ '#2200CC', '#D9007E', '#FF6600', '#FFCC00', '#ACE600', '#0099CC',
+                '#8900CC', '#FF0000', '#FF9900', '#FFFF00', '#00CC01', '#0055CC',
+                '#2288CC', '#D9887E', '#FF6688', '#FFCC88', '#ACE688', '#8899CC',
+                '#8988CC', '#FF8800', '#FF9988', '#FFFF88', '#88CC01', '#8855CC',
+                ##
+                '#2200CC', '#D9007E', '#FF6600', '#FFCC00', '#ACE600', '#0099CC',
                 '#8900CC', '#FF0000', '#FF9900', '#FFFF00', '#00CC01', '#0055CC',
                 '#2288CC', '#D9887E', '#FF6688', '#FFCC88', '#ACE688', '#8899CC',
                 '#8988CC', '#FF8800', '#FF9988', '#FFFF88', '#88CC01', '#8855CC',
@@ -176,6 +197,8 @@ def analytics2clusters(analytics):
     fig.set_size_inches(20,40)
     plt.savefig('analytics.png')
 
+    return result
+
 
 
 def plot_stats():
@@ -189,7 +212,7 @@ def plot_stats():
 
     analytics = pd.DataFrame(None, columns=['n', 'v', 'a', 'v_r'])
 
-    for file_name in files: # random.sample(files, NUM_CSV):
+    for file_name in files: #random.sample(files, NUM_CSV):
         n, e = ( x for x in os.path.splitext(file_name) )
 
         driver_data = csv2dataframe(path + file_name)
@@ -198,79 +221,27 @@ def plot_stats():
 
         accel_all = extract_accel(driver_data)
 
-        # accel_a = []
-
-        # for accel in accel_all:
-        #     plt.figure(4)
-        #     accel['v'].plot()
-
-        #     accel_a.append(accel['a'].mean())
-
-        # plt.figure(5)
-        # if accel_a:
-        #     plt.hist(accel_a, range=(0, 5), bins=40, normed=True)
-
-        # fig = plt.figure(1)
-        # driver_data.plot(x='x', y='y', ls='--', ax=fig.gca()) #color='red', markerfacecolor='red',
-
-        # plt.figure(2)
-        # driver_data['v'].hist(bins=40, normed=True)
-
-        # plt.figure(3)
-        # driver_data['a'].hist(bins=40, normed=True)
-
-        # fig = plt.figure(6)
-        # driver_data.plot(x='r', y='v', ls='', marker='.', ax=fig.gca())
-
-        # fig = plt.figure(8)
-        # driver_data.plot(x='t', y='v', ax=fig.gca())
-
         print 'driver =', DRIVER_NUM, 'file =', file_name, ' accel_cnt = ', len(accel_all)
 
-    analytics = analytics.sort('n')
-    analytics['a'] = 15.0 * analytics['a']
-    analytics2clusters(analytics)
 
-    # plt.figure(1)
-    # plt.autoscale()
-    # plt.legend().remove()
-    # plt.savefig(str(DRIVER_NUM) + '. trajectory.eps')
-
-    # plt.figure(2)
-    # plt.xlim([1, 45])
-    # plt.ylim([0, 0.5])
-    # plt.savefig(str(DRIVER_NUM) + '. v(hist).eps')
-
-    # plt.figure(3)
-    # plt.xlim([0.2, 6])
-    # plt.ylim([0, 1])
-    # plt.savefig(str(DRIVER_NUM) + '. a(hist).eps')
-
-    # plt.figure(4)
-    # plt.xlim([0, 45])
-    # plt.ylim([0, 30])
-    # plt.savefig(str(DRIVER_NUM) + '. accel v(t).eps')
-
-    # plt.figure(5)
-    # plt.xlim([0.01, 4])
-    # plt.ylim([0, 10])
-    # plt.savefig(str(DRIVER_NUM) + '. accel mean(a).eps')
-
-    # plt.figure(6)
-    # plt.legend().remove()
-    # plt.xlim([0, 50])
-    # plt.ylim([0, 15])
-    # plt.savefig(str(DRIVER_NUM) + '. v(r).eps')
-
-    # plt.figure(8)
-    # plt.legend().remove()
-    # plt.xlim([0, 500])
-    # plt.ylim([0, 50])
-    # plt.savefig(str(DRIVER_NUM) + '. v(t).eps')
+    analytics = analytics2clusters(analytics)
 
     plt.figure(9)
     analytics[['v', 'a', 'v_r']].hist(bins=50) #analytics.plot(x='n')
     plt.savefig(str(DRIVER_NUM) + '. analytics.eps')
 
+
+    colors = np.where(analytics['probability']==0, 'red', 'gray').tolist()
+
+
+    fig, axes = plt.subplots(3, 1)
+    analytics.plot(x='n', y='v', color=colors, kind='bar', ax=axes[0], title='v')
+    analytics.plot(x='n', y='a', color=colors, kind='bar', ax=axes[1], title='a')
+    analytics.plot(x='n', y='v_r', color=colors, kind='bar', ax=axes[2], title='vr')
+    axes[0].legend().remove()
+    axes[1].legend().remove()
+    axes[2].legend().remove()
+    fig.set_size_inches(30,15)
+    fig.savefig(str(DRIVER_NUM) + '. result.eps')
 
 plot_stats()
