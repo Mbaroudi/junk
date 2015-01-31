@@ -31,7 +31,7 @@ from pykalman import KalmanFilter
 
 # Откуда и сколько траекторий берём
 DATA_PATH = '/Users/zoldatoff/Downloads/driver/data/'
-DRIVER_NUM = 1
+DRIVER_NUM = 3
 NUM_CSV = 10
 DEBUG = 0
 EXPORT = '.png'
@@ -90,7 +90,8 @@ class Track(object):
             self.plot_velocity()
 
         if DEBUG >= 2:
-            print self.track_df[['t', 'x_', 'y_', 'x', 'y', 'v', 'a']]
+            print self.track_df[['t', 'x_', 'y_', 'vx_', 'vy_',
+                                 'x', 'y', 'v', 'a']]
             print self.kpi
 
 # =============================================================================
@@ -120,8 +121,9 @@ class Track(object):
         # Plot beginning
         if DEBUG >= 1:
             fig, axes = plt.subplots()
-            df.plot(x='x_', y='y_', ax=axes, ls='-', marker='.',
-                    color='k', title='original')
+            df[df.index < 100].plot(
+                x='x_', y='y_', ax=axes, ls='-', marker='.',
+                color='k', title='original')
 
         df['ds_'] = np.sqrt(
             np.square(df['x_'] - df['x_'].shift(1))
@@ -133,15 +135,26 @@ class Track(object):
         df['x_'] = np.where(df['ds_'] > DISTANCE_MAX, np.ma.masked, df['x_'])
         df['y_'] = np.where(df['ds_'] > DISTANCE_MAX, np.ma.masked, df['y_'])
 
-        initcovariance = 1.0e-4 * np.eye(2)
-        transistionCov = 1.0e-3 * np.eye(2)
+        df['vx_'] = df['x_'] - df['x_'].shift(1)
+        df['vy_'] = df['y_'] - df['y_'].shift(1)
+
+        transition_matrix = [[1, 0, 1, 0],
+                             [0, 1, 0, 1],
+                             [0, 0, 1, 0],
+                             [0, 0, 0, 1]]
+        observation_matrix = [[1, 0, 0, 0],
+                              [0, 1, 0, 0]]
+        vxinit = df['vx_'][1]
+        vyinit = df['vy_'][1]
+        initcovariance = 1.0e-4 * np.eye(4)
+        transistionCov = 1.0e-3 * np.eye(4)
         observationCov = 1.0e-2 * np.eye(2)
 
         # Фильтр Калмана
         kfilter = KalmanFilter(
-            transition_matrices=[[1, 0], [0, 1]],
-            observation_matrices=[[1, 0], [0, 1]],
-            initial_state_mean=[0, 0],
+            transition_matrices=transition_matrix,
+            observation_matrices=observation_matrix,
+            initial_state_mean=[0, 0, vxinit, vyinit],
             initial_state_covariance=initcovariance,
             transition_covariance=transistionCov,
             observation_covariance=observationCov
@@ -154,12 +167,13 @@ class Track(object):
         elif method == 'smooth':
             (state_means, state_covariances) = kfilter.smooth(measurements)
 
-        kalman_df = pd.DataFrame(state_means, columns=('x', 'y'))
+        kalman_df = pd.DataFrame(state_means, columns=('x', 'y', 'vx', 'vy'))
 
         # Plot continue
         if DEBUG >= 1:
-            kalman_df.plot(x='x', y='y', ax=axes, ls='-', marker='.',
-                           color='r', title='Kalman')
+            kalman_df[kalman_df.index < 100].plot(
+                x='x', y='y', ax=axes, ls='-', marker='.',
+                color='r', title='Kalman')
             axes.autoscale()
             axes.legend().remove()
             sns.despine()
@@ -169,6 +183,8 @@ class Track(object):
 
         self.track_df['x'] = kalman_df['x']
         self.track_df['y'] = kalman_df['y']
+        self.track_df['vx'] = kalman_df['vx']
+        self.track_df['vy'] = kalman_df['vy']
 
 # =============================================================================
     def df_physics(self):
@@ -197,7 +213,8 @@ class Track(object):
         )
 
         # скорость
-        df['v'] = df['ds'] / df['dt']
+        # df['v'] = df['ds'] / df['dt']
+        df['v'] = np.sqrt(np.square(df['vx']) + np.square(df['vy']))
 
         # ускорение
         df['a'] = (df['v'] - df['v'].shift(1)) / df['dt']
@@ -362,7 +379,7 @@ class Driver(object):
             track_file_path = DATA_PATH + '/' + str(self.driver_num) + '/'
             files = os.listdir(track_file_path)
 
-            for file_name in ['55.csv']+random.sample(files, NUM_CSV):
+            for file_name in files:
                 # ['55.csv', '121.csv']
                 # ['55.csv', '108.csv', '115.csv', '106.csv']:
                 # ['10.csv', '100.csv', '105.csv', '110.csv', '114.csv']:
@@ -372,7 +389,7 @@ class Driver(object):
                 self.tracks.append(track)
                 self.kpis = self.kpis.append(track.kpi, ignore_index=True)
 
-            self.kpis = self.kpis.sort(['driver_num', 'track_num'])
+            self.kpis.sort(['driver_num', 'track_num'], inplace=True)
             self.kpis.fillna(0, inplace=True)
 
             self.save()
@@ -440,6 +457,7 @@ class Driver(object):
         Makes a plot of clustering result
         """
         fig, axes = plt.subplots(1, 3)
+        sns.set_style("whitegrid")
 
         # Plot #1
         axes[0].plot(range(1, len(z)+1), z[::-1, 2])
@@ -582,6 +600,6 @@ class Driver(object):
         plt.close(fig)
 
 
-# dr=Driver(DRIVER_NUM, method='load')
+# Driver(DRIVER_NUM, method='load')
 # print dr.kpis[dr.kpis['a']> 10]
 Driver(DRIVER_NUM, method='csv')
