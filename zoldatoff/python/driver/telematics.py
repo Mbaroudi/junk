@@ -31,17 +31,19 @@ from pykalman import KalmanFilter
 
 # Откуда и сколько траекторий берём
 DATA_PATH = '/Users/zoldatoff/Downloads/driver/data/'
-DRIVER_NUM = 3
-NUM_CSV = 20
+DRIVER_NUM = 1
+NUM_CSV = 10
 DEBUG = 0
-EXPORT = '.eps'
+EXPORT = '.png'
 
 DS_MIN = 1.0          # Минимальное расстояние для расчёта радиус поворота
 VELOCITY_LOW = 5.0    # Участок ускорения отбирается для скоростей из диапазона
 VELOCITY_HIGH = 15.0  # между VELOCITY_LOW и VELOCITY_HIGH
 ACCEL_MINLEN = 10.0   # Длина участка разгона не менее ACCEL_MINLEN точек
 ACCEL_TAIL = 3        # В конце разгона ускорение снижается - отбрасываем
+
 DISTANCE_MAX = 40.0
+ACCELERATION_MAX = 12.0
 
 ANALYTICS_RADIUS = 30  # Измеряем максимальную скорость вхождения в этот радиус
 
@@ -88,7 +90,8 @@ class Track(object):
             self.plot_velocity()
 
         if DEBUG >= 2:
-            print self.track_df[['t', 'x_', 'y_', 'x', 'y', 'ds', 'v', 'a']]
+            print self.track_df[['t', 'x_', 'y_', 'x', 'y', 'v', 'a']]
+            print self.kpi
 
 # =============================================================================
     def cvs_to_df(self):
@@ -201,13 +204,20 @@ class Track(object):
 
         # направление движения
         df['ang'] = np.where(
-            df['ds'] > DS_MIN,
+            (df['ds'] > DS_MIN) & (df['ds'] < DISTANCE_MAX),
             np.arctan2(
                 df['y'] - df['y'].shift(1),
                 df['x'] - df['x'].shift(1)
             ),
             None
         )
+
+        # Исправляем ошибочные данные
+        # TODO: uncomment
+        df['x'] = np.where(df['ds'] > DISTANCE_MAX, None, df['x'])
+        df['y'] = np.where(df['ds'] > DISTANCE_MAX, None, df['y'])
+        df['ds'] = np.where(df['ds'] > DISTANCE_MAX, None, df['ds'])
+        df['a'] = np.where(df['a'] > ACCELERATION_MAX, None, df['a'])
 
         # смена направления движения
         df['dang'] = df['ang'] - df['ang'].shift(1)
@@ -287,7 +297,9 @@ class Track(object):
         kpi['v'] = self.decile(df, 'v')
         # print 'v=', kpi['v']
 
-        df = self.track_df[self.track_df['a'] > 0.0]
+        df = self.track_df[(self.track_df['a'] > 0.0)
+                           &
+                           (self.track_df['v'] > 5.0)]
         kpi['a'] = self.decile(df, 'a')
         # print 'a=', kpi['a']
 
@@ -350,7 +362,8 @@ class Driver(object):
             track_file_path = DATA_PATH + '/' + str(self.driver_num) + '/'
             files = os.listdir(track_file_path)
 
-            for file_name in files:
+            for file_name in ['55.csv']+random.sample(files, NUM_CSV):
+                # ['55.csv', '121.csv']
                 # ['55.csv', '108.csv', '115.csv', '106.csv']:
                 # ['10.csv', '100.csv', '105.csv', '110.csv', '114.csv']:
                 # random.sample(files, NUM_CSV):
@@ -398,7 +411,7 @@ class Driver(object):
         Scales and clusters KPI data
         http://stackoverflow.com/questions/21638130/tutorial-for-scipy-cluster-hierarchy
         """
-        kpis = self.kpis
+        kpis = self.kpis[['v', 'a', 'v_r', 'accel']].copy()
         med_v, med_a = kpis['v'].median(), kpis['a'].median()
         med_v_r, med_accel = kpis['v_r'].median(), kpis['accel'].median()
 
@@ -479,7 +492,7 @@ class Driver(object):
         for track, p in zip(self.tracks, self.kpis['probability']):
             if p == 1 and n_1 < 5:
                 n_1 += 1
-                track.track_df.plot(x='t', y='v', ax=axes, color='k')
+                track.track_df.plot(x='t', y='v', ax=axes, color='k', ls=':')
             elif p == 0 and n_0 < 5:
                 n_0 += 1
                 track.track_df.plot(x='t', y='v', ax=axes, color='r')
@@ -526,7 +539,7 @@ class Driver(object):
         fig, axes = plt.subplots()
         for track, p in zip(self.tracks, self.kpis['probability']):
             if p == 1:
-                track.track_df.plot(x='x', y='y', ax=axes, color='k')
+                track.track_df.plot(x='x', y='y', ax=axes, color='k', ls=':')
             else:
                 track.track_df.plot(x='x', y='y', ax=axes, color='r')
 
@@ -569,5 +582,6 @@ class Driver(object):
         plt.close(fig)
 
 
-# Driver(DRIVER_NUM, method='load')
+# dr=Driver(DRIVER_NUM, method='load')
+# print dr.kpis[dr.kpis['a']> 10]
 Driver(DRIVER_NUM, method='csv')
