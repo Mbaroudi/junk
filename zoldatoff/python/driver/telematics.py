@@ -31,10 +31,10 @@ from pykalman import KalmanFilter
 
 # Откуда и сколько траекторий берём
 DATA_PATH = '/Users/zoldatoff/Downloads/driver/data/'
-DRIVER_NUM = 3
-NUM_CSV = 10
-DEBUG = 0
-EXPORT = '.png'
+DRIVER_NUM = 1
+NUM_CSV = 20
+DEBUG = 2
+EXT = '.png'
 
 DS_MIN = 1.0          # Минимальное расстояние для расчёта радиус поворота
 VELOCITY_LOW = 5.0    # Участок ускорения отбирается для скоростей из диапазона
@@ -49,13 +49,50 @@ ANALYTICS_RADIUS = 30  # Измеряем максимальную скорос�
 
 METHOD = 'single'
 
+# COLORS = [
+#     '#2200CC', '#D9007E', '#FF6600', '#FFCC00', '#ACE600', '#0099CC',
+#     '#8900CC', '#FF0000', '#FF9900', '#FFFF00', '#00CC01', '#0055CC',
+#     ##
+#     '#2288CC', '#D9887E', '#FF6688', '#FFCC88', '#ACE688', '#8899CC',
+#     '#8988CC', '#FF8800', '#FF9988', '#FFFF88', '#88CC01', '#8855CC'
+# ]
+
 COLORS = [
+    '#FA4E9B', '#43AE18', '#1095BE', '#8C4104', '#6D42B0', '#084531',
+    '#DDB505', '#F3250D', '#B1B46F', '#691930', '#F15FFF', '#EF847F',
+    '#442757', '#276802', '#E693B8', '#25918D', '#B32323', '#0A3852',
+    '#F48FFB', '#DE26AA', '#4DA7EF', '#337236', '#86BB38', '#BC206E',
+    #
     '#2200CC', '#D9007E', '#FF6600', '#FFCC00', '#ACE600', '#0099CC',
     '#8900CC', '#FF0000', '#FF9900', '#FFFF00', '#00CC01', '#0055CC',
-    ##
+    #
     '#2288CC', '#D9887E', '#FF6688', '#FFCC88', '#ACE688', '#8899CC',
-    '#8988CC', '#FF8800', '#FF9988', '#FFFF88', '#88CC01', '#8855CC'
-]
+    '#8988CC', '#FF8800', '#FF9988', '#FFFF88', '#88CC01', '#8855CC',
+    #
+    '#FA4E9B', '#43AE18', '#1095BE', '#8C4104', '#6D42B0', '#084531',
+    '#DDB505', '#F3250D', '#B1B46F', '#691930', '#F15FFF', '#EF847F',
+    '#442757', '#276802', '#E693B8', '#25918D', '#B32323', '#0A3852',
+    '#F48FFB', '#DE26AA', '#4DA7EF', '#337236', '#86BB38', '#BC206E',
+    '#FA4E9B', '#43AE18', '#1095BE', '#8C4104', '#6D42B0', '#084531',
+    '#DDB505', '#F3250D', '#B1B46F', '#691930', '#F15FFF', '#EF847F',
+    '#442757', '#276802', '#E693B8', '#25918D', '#B32323', '#0A3852',
+    '#F48FFB', '#DE26AA', '#4DA7EF', '#337236', '#86BB38', '#BC206E',
+    '#FA4E9B', '#43AE18', '#1095BE', '#8C4104', '#6D42B0', '#084531',
+    '#DDB505', '#F3250D', '#B1B46F', '#691930', '#F15FFF', '#EF847F',
+    '#442757', '#276802', '#E693B8', '#25918D', '#B32323', '#0A3852',
+    '#F48FFB', '#DE26AA', '#4DA7EF', '#337236', '#86BB38', '#BC206E',
+    '#FA4E9B', '#43AE18', '#1095BE', '#8C4104', '#6D42B0', '#084531',
+    '#DDB505', '#F3250D', '#B1B46F', '#691930', '#F15FFF', '#EF847F',
+    '#442757', '#276802', '#E693B8', '#25918D', '#B32323', '#0A3852',
+    '#F48FFB', '#DE26AA', '#4DA7EF', '#337236', '#86BB38', '#BC206E',
+    '#FA4E9B', '#43AE18', '#1095BE', '#8C4104', '#6D42B0', '#084531',
+    '#DDB505', '#F3250D', '#B1B46F', '#691930', '#F15FFF', '#EF847F',
+    '#442757', '#276802', '#E693B8', '#25918D', '#B32323', '#0A3852',
+    '#F48FFB', '#DE26AA', '#4DA7EF', '#337236', '#86BB38', '#BC206E',
+    '#FA4E9B', '#43AE18', '#1095BE', '#8C4104', '#6D42B0', '#084531',
+    '#DDB505', '#F3250D', '#B1B46F', '#691930', '#F15FFF', '#EF847F',
+    '#442757', '#276802', '#E693B8', '#25918D', '#B32323', '#0A3852',
+    '#F48FFB', '#DE26AA', '#4DA7EF', '#337236', '#86BB38', '#BC206E']
 
 
 class Track(object):
@@ -73,6 +110,7 @@ class Track(object):
      * maximum acceleration on the accelerating parts of the track
 
     """
+    # @profile
     def __init__(self, driver_num=1, track_num=1):
         print 'Driver =', str(driver_num), ', track =', str(track_num)
 
@@ -88,6 +126,7 @@ class Track(object):
 
         if DEBUG >= 1:
             self.plot_velocity()
+            self.plot_ang()
 
         if DEBUG >= 2:
             print self.track_df[['t', 'x_', 'y_', 'vx_', 'vy_',
@@ -178,7 +217,7 @@ class Track(object):
             axes.legend().remove()
             sns.despine()
             fig.savefig(str(self.driver_num) + '_' + str(self.track_num)
-                        + '_' + method + EXPORT)
+                        + '_' + method + EXT)
             plt.close(fig)
 
         self.track_df['x'] = kalman_df['x']
@@ -226,15 +265,14 @@ class Track(object):
                 df['y'] - df['y'].shift(1),
                 df['x'] - df['x'].shift(1)
             ),
-            None
+            np.nan
         )
 
         # Исправляем ошибочные данные
-        # TODO: uncomment
-        df['x'] = np.where(df['ds'] > DISTANCE_MAX, None, df['x'])
-        df['y'] = np.where(df['ds'] > DISTANCE_MAX, None, df['y'])
-        df['ds'] = np.where(df['ds'] > DISTANCE_MAX, None, df['ds'])
-        df['a'] = np.where(df['a'] > ACCELERATION_MAX, None, df['a'])
+        df['x'] = np.where(df['ds'] > DISTANCE_MAX, np.nan, df['x'])
+        df['y'] = np.where(df['ds'] > DISTANCE_MAX, np.nan, df['y'])
+        df['ds'] = np.where(df['ds'] > DISTANCE_MAX, np.nan, df['ds'])
+        df['a'] = np.where(df['a'] > ACCELERATION_MAX, np.nan, df['a'])
 
         # смена направления движения
         df['dang'] = df['ang'] - df['ang'].shift(1)
@@ -308,25 +346,43 @@ class Track(object):
          * maximum velocity in turn with radius < ANALYTICS_RADIUS
          * maximum acceleration on the accelerating parts of the track
         """
-        kpi = {'driver_num': self.driver_num, 'track_num': self.track_num}
+        kpi = {'driver_num': self.driver_num,
+               'track_num': self.track_num,
+               'bad': False
+               }
 
         df = self.track_df[self.track_df['v'] > 0.0]
         kpi['v'] = self.decile(df, 'v')
-        # print 'v=', kpi['v']
 
         df = self.track_df[(self.track_df['a'] > 0.0)
                            &
                            (self.track_df['v'] > 5.0)]
         kpi['a'] = self.decile(df, 'a')
-        # print 'a=', kpi['a']
 
         df = self.track_df[self.track_df['r'] <= ANALYTICS_RADIUS]
         kpi['v_r'] = self.decile(df, 'v')
-        # print 'v_r=', kpi['v_r']
 
         df = self.track_df[self.track_df['accel'] > 0]
         kpi['accel'] = self.decile(df, 'a')
-        # print 'accel=', kpi['accel']
+
+        if abs(self.track_df['x_'] - self.track_df['x']).mean() > 1.0:
+            kpi['bad'] = True
+        elif abs(self.track_df['y_'] - self.track_df['y']).mean() > 1.0:
+            kpi['bad'] = True
+        elif self.track_df['x'].max() - self.track_df['x'].min() < 50.0:
+            kpi['bad'] = True
+        elif self.track_df['y'].max() - self.track_df['y'].min() < 50.0:
+            kpi['bad'] = True
+        elif kpi['v'] > DISTANCE_MAX or kpi['v_r'] > DISTANCE_MAX:
+            kpi['bad'] = True
+        elif kpi['a'] > ACCELERATION_MAX or kpi['accel'] > ACCELERATION_MAX:
+            kpi['bad'] = True
+        elif (kpi['v'] < 1.0 or kpi['v_r'] < 1.0
+              or kpi['a'] < 0.1 or kpi['accel'] < 0.1):
+            kpi['bad'] = True
+
+        if kpi['bad']:
+            kpi['a'] = kpi['v_r'] = kpi['accel'] = kpi['v'] = np.nan
 
         self.kpi = kpi
 
@@ -336,24 +392,44 @@ class Track(object):
         Makes a plot v(t) for one particuls track and shows acceleration parts
         """
         fig, axes = plt.subplots()
-        m = self.track_df['accel'].max()
 
-        for i in range(m+1):
-            df = self.track_df[self.track_df['accel'] == i]
-            if i == 0:
-                df.plot(x='t', y='v', ax=axes, ls='', marker='.', color='k')
-            else:
-                df.plot(x='t', y='v', ax=axes, ls='--', marker='.', color='r')
+        kpi_v = self.kpi['v']
+
+        df = self.track_df[self.track_df['v'] < kpi_v]
+        if not df.empty:
+            df.plot(x='t', y='v', ax=axes, ls='', marker='.', color='k')
+
+        df = self.track_df[self.track_df['v'] >= kpi_v]
+        if not df.empty:
+            df.plot(x='t', y='v', ax=axes, ls='', marker='.', color='r')
 
         axes.autoscale()
-        axes.legend().remove()
+        #axes.legend().remove()
         # axes.set_xlim([0, 100])
         sns.despine()
         fig.savefig(
-            str(self.driver_num) + '_' + str(self.track_num) + '_v(t)' + EXPORT
+            str(self.driver_num) + '_' + str(self.track_num) + '_v(t)' + EXT
         )
         plt.close(fig)
 
+# =============================================================================
+    def plot_ang(self):
+        """
+        Makes a plot v(t) for one particuls track and shows acceleration parts
+        """
+        fig, axes = plt.subplots()
+
+
+        self.track_df.plot(x='t', y='dang', ax=axes)
+
+        # axes.autoscale()
+        # axes.legend().remove()
+        # axes.set_xlim([0, 100])
+        sns.despine()
+        fig.savefig(
+            str(self.driver_num) + '_' + str(self.track_num) + '_ang(t)' + EXT
+        )
+        plt.close(fig)
 
 # =============================================================================
 # =============================================================================
@@ -365,6 +441,7 @@ class Driver(object):
      * method for clustering KPI's
      * methods for data visualization
     """
+    # @profile
     def __init__(self, driver_num=1, method='csv'):
         """
         Loads track (or KPI) data from files
@@ -379,10 +456,11 @@ class Driver(object):
             track_file_path = DATA_PATH + '/' + str(self.driver_num) + '/'
             files = os.listdir(track_file_path)
 
-            for file_name in files:
-                # ['55.csv', '121.csv']
+            for file_name in random.sample(files, NUM_CSV):
+                # ['121.csv', '124.csv', '151.csv', '159.csv']
                 # ['55.csv', '108.csv', '115.csv', '106.csv']:
                 # ['10.csv', '100.csv', '105.csv', '110.csv', '114.csv']:
+                # ['15.csv', '83.csv', '84.csv', '88.csv', '102.csv']
                 # random.sample(files, NUM_CSV):
                 track_num = int(os.path.splitext(file_name)[0])
                 track = Track(driver_num, track_num)
@@ -390,11 +468,10 @@ class Driver(object):
                 self.kpis = self.kpis.append(track.kpi, ignore_index=True)
 
             self.kpis.sort(['driver_num', 'track_num'], inplace=True)
-            self.kpis.fillna(0, inplace=True)
+            self.save_kpi()
 
-            self.save()
         else:
-            self.load()
+            self.load_kpi()
 
         if len(self.kpis) >= 4:
             self.cluster()
@@ -407,20 +484,67 @@ class Driver(object):
             self.plot_kpi()
             self.plot_hist()
 
+            file_list = []
+            for kpi in self.kpis[self.kpis['probability'] == 0]['track_num']:
+                file_list.append("'" + str(int(kpi)) + ".csv', ")
+            print ''.join(file_list)
+
 # =============================================================================
-    def save(self):
+    def save_kpi(self):
         """
         Saves KPI data to disk
         """
         self.kpis.to_csv(str(self.driver_num) + '.txt')
 
 # =============================================================================
-    def load(self):
+    def load_kpi(self):
         """
-        Loads KPI data to disk
+        Loads KPI data from disk
         """
         file_fullname = str(self.driver_num) + '.txt'
         self.kpis = pd.DataFrame.from_csv(file_fullname, index_col=False)
+
+# =============================================================================
+    def save_result(self):
+        """
+        Saves the result to a file for submission
+        """
+        file_name = 'submission.csv'
+        # df = pd.DataFrame.from_csv(file_name, index_col=False)
+        # df[['driver_num', 'track_num']] = pd.DataFrame(
+        #     df['driver_trip'].str.split('_').tolist(),
+        #     columns=['driver_num', 'track_num']
+        # )
+        # df = df[
+        #         df['driver_num'] != self.driver_num
+        #         ][['driver_num', 'track_num', 'prob']]
+
+        # df_kpi = self.kpis.copy()
+        # df_kpi['driver_trip'] = df_kpi.applymap(
+        #     lambda x: str(int(x['driver_num'])) + '_' + str(int(x['track_num']))
+        # )
+
+        # df_kpi['prob'] = int(df_kpi['probability'])
+
+        # df = df.append(df_kpi)
+        # df.sort(['driver_num', 'track_num'], inplace=True)
+
+        # df[['driver_trip', 'prob']].to_csv(file_name)
+
+
+
+
+# =============================================================================
+    @staticmethod
+    def normalize(df, column):
+        df_min, df_max = df[column].min(), df[column].max()
+        if df_min == df_max:
+            df[column] = 0.5,
+        else:
+            df[column] -= df_min
+            df[column] /= df_max - df_min
+
+        return df
 
 # =============================================================================
     def cluster(self):
@@ -428,17 +552,15 @@ class Driver(object):
         Scales and clusters KPI data
         http://stackoverflow.com/questions/21638130/tutorial-for-scipy-cluster-hierarchy
         """
-        kpis = self.kpis[['v', 'a', 'v_r', 'accel']].copy()
-        med_v, med_a = kpis['v'].median(), kpis['a'].median()
-        med_v_r, med_accel = kpis['v_r'].median(), kpis['accel'].median()
 
-        kpis['v'] *= med_v_r / med_v
-        kpis['a'] *= med_v_r / med_a
-        kpis['accel'] *= med_v_r / med_accel
+        columns = ['v', 'a', 'v_r', 'accel']
+        kpis = self.kpis[columns].copy()
+        for column in columns:
+            self.normalize(kpis, column)
+            kpis[column].fillna(0.5, inplace=True)
 
-        matr = kpis.as_matrix(columns=['v', 'a', 'v_r', 'accel'])
+        matr = kpis.as_matrix(columns=columns)
         a = dis.squareform(dis.pdist(matr))
-
         z = hac.linkage(a, method=METHOD)
         knee = np.diff(z[::-1, 2], 2)
         # num_clust = knee.argmax() + 2
@@ -456,6 +578,8 @@ class Driver(object):
         """
         Makes a plot of clustering result
         """
+        print 'Plotting cluster'
+
         fig, axes = plt.subplots(1, 3)
         sns.set_style("whitegrid")
 
@@ -474,7 +598,9 @@ class Driver(object):
 
         # Plot #2
         for cluster in set(part):
-            axes[1].scatter(a[part == cluster, 0], a[part == cluster, 1],
+            print cluster
+            axes[1].scatter(a[part == cluster, 0],
+                            a[part == cluster, 1],
                             color=COLORS[cluster])
         axes[1].grid()
 
@@ -494,7 +620,7 @@ class Driver(object):
         # plt.tight_layout()
         fig.set_size_inches(20, 5)
         sns.despine()
-        fig.savefig(str(self.driver_num) + '_cluster' + EXPORT)
+        fig.savefig(str(self.driver_num) + '_cluster' + EXT)
         plt.close(fig)
 
 # =============================================================================
@@ -504,22 +630,24 @@ class Driver(object):
         Makes a plot v(t)
         """
 
+        print 'Plotting v(t)'
+
         fig, axes = plt.subplots()
 
-        n_0, n_1 = 0, 0
+        n_0 = n_1 = 0
         for track, p in zip(self.tracks, self.kpis['probability']):
             if p == 1 and n_1 < 5:
                 n_1 += 1
                 track.track_df.plot(x='t', y='v', ax=axes, color='k', ls=':')
             elif p == 0 and n_0 < 5:
                 n_0 += 1
-                track.track_df.plot(x='t', y='v', ax=axes, color='r')
+                track.track_df.plot(x='t', y='v', ax=axes, color='r', ls=':')
 
         axes.set_xlim([0, 400])
         axes.set_ylim([0, 40])
         axes.legend().remove()
         sns.despine()
-        fig.savefig(str(self.driver_num) + '_v(t)' + EXPORT)
+        fig.savefig(str(self.driver_num) + '_v(t)' + EXT)
         plt.close(fig)
 
 
@@ -528,25 +656,21 @@ class Driver(object):
         """
         Makes a plot of KPI for every track
         """
+        print 'Plotting KPI'
+
         colors = \
             np.where(self.kpis['probability'] == 0, 'red', 'gray').tolist()
 
         fig, axes = plt.subplots(4, 1)
-        self.kpis.plot(x='track_num', y='v',
-                       color=colors, kind='bar', ax=axes[0], title='v')
-        self.kpis.plot(x='track_num', y='a',
-                       color=colors, kind='bar', ax=axes[1], title='a')
-        self.kpis.plot(x='track_num', y='v_r',
-                       color=colors, kind='bar', ax=axes[2], title='vr')
-        self.kpis.plot(x='track_num', y='accel',
-                       color=colors, kind='bar', ax=axes[3], title='accel')
-        axes[0].legend().remove()
-        axes[1].legend().remove()
-        axes[2].legend().remove()
-        axes[3].legend().remove()
+        for y, axis in zip(['v', 'a', 'v_r', 'accel'], axes):
+            self.kpis.plot(x='track_num', y=y,
+                           color=colors, kind='bar',
+                           ax=axis, title=y)
+            axis.legend().remove()
+
         fig.set_size_inches(20, 13)
         sns.despine()
-        fig.savefig(str(self.driver_num) + '_kpi' + EXPORT)
+        fig.savefig(str(self.driver_num) + '_kpi' + EXT)
         plt.close(fig)
 
 # =============================================================================
@@ -554,6 +678,8 @@ class Driver(object):
         """
         Plots all tracks of a driver
         """
+        print 'Plotting tracks'
+
         fig, axes = plt.subplots()
         for track, p in zip(self.tracks, self.kpis['probability']):
             if p == 1:
@@ -564,7 +690,7 @@ class Driver(object):
         axes.autoscale()
         axes.legend().remove()
         sns.despine()
-        fig.savefig(str(self.driver_num) + '_tracks' + EXPORT)
+        fig.savefig(str(self.driver_num) + '_tracks' + EXT)
         plt.close(fig)
 
 # =============================================================================
@@ -572,6 +698,8 @@ class Driver(object):
         """
         Plots v(r) for every turn of each track
         """
+        print 'Plotting v(r)'
+
         fig, axes = plt.subplots()
         for track, p in zip(self.tracks, self.kpis['probability']):
             if p == 1:
@@ -585,7 +713,7 @@ class Driver(object):
         axes.set_xlim([0, 50])
         axes.set_ylim([0, 15])
         sns.despine()
-        fig.savefig(str(self.driver_num) + '_turns' + EXPORT)
+        fig.savefig(str(self.driver_num) + '_turns' + EXT)
         plt.close(fig)
 
 # =============================================================================
@@ -593,13 +721,22 @@ class Driver(object):
         """
         Plots histograms of KPI's for all tracks
         """
+        print 'Plotting histograms'
+
         fig, axes = plt.subplots()
         self.kpis[['v', 'a', 'v_r', 'accel']].hist(ax=axes, bins=50)
         sns.despine()
-        fig.savefig(str(self.driver_num) + '_hist' + EXPORT)
+        fig.savefig(str(self.driver_num) + '_hist' + EXT)
         plt.close(fig)
 
 
-# Driver(DRIVER_NUM, method='load')
-# print dr.kpis[dr.kpis['a']> 10]
-Driver(DRIVER_NUM, method='csv')
+# dr = Driver(DRIVER_NUM, method='load')
+dr = Driver(DRIVER_NUM, method='csv')
+print 'Bad'
+print dr.kpis[dr.kpis['bad'] == True]['track_num']
+
+print 'Result'
+print dr.kpis[dr.kpis['probability'] == 0][['track_num', 'v', 'a', 'v_r']]
+
+print 'Save result to file'
+dr.save_result()
