@@ -1,20 +1,24 @@
 Driver Telematics Analysis:
- ✔ Отладить траектории 108, 115 @done (15-01-30 01:13)
- ✔ Отладить траекторию (1) 55, 106 @done (15-01-31 22:34)
- ✔ ошибки сглаживания (1) 10, 100, 105, 110, 114 @done (15-01-31 22:34)
- ✔ Закрывать графики после использования @done (15-01-30 00:56)
- ✔ Убрать масштабирование KPI на графике @done (15-01-30 00:56)
- ✔ Linter @done (15-01-30 01:23)
- ✔ Калман: установить параметры @done (15-01-31 22:34)
- ✔ применить Калмана для координат+скоростей @done (15-01-31 22:35)
- ✔ нормализация @done (15-02-01 23:36)
- ✔ bad data set @done (15-02-01 23:37)
- ☐ функция для записи в файл Submission.csv
+ ☐ кластеризация траекторий двух-трёх водителей
+   **надо объединить траектории в папку "0"**
+ ✔ функция для записи в файл .\Submission.csv\ @done (15-02-04 22:20)
  ☐ алгоритмы кластеризации
- ☐ сплайн для угла поворота
 
-
+--- ✄ -----------------------
 profiling:
   kernprof -v -l telematics.py
   python -m line_profiler telematics.py.lprof
 
+＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
+Archive:
+ ✘ сплайн для угла поворота @cancelled (15-02-04 00:34) @project(Driver Telematics Analysis)
+ ✔ bad data set @done (15-02-01 23:37) @project(Driver Telematics Analysis)
+ ✔ нормализация @done (15-02-01 23:36) @project(Driver Telematics Analysis)
+ ✔ применить Калмана для координат+скоростей @done (15-01-31 22:35) @project(Driver Telematics Analysis)
+ ✔ ошибки сглаживания (1) 10, 100, 105, 110, 114 @done (15-01-31 22:34) @project(Driver Telematics Analysis)
+ ✔ Отладить траекторию (1) 55, 106 @done (15-01-31 22:34) @project(Driver Telematics Analysis)
+ ✔ Калман: установить параметры @done (15-01-31 22:34) @project(Driver Telematics Analysis)
+ ✔ Linter @done (15-01-30 01:23) @project(Driver Telematics Analysis)
+ ✔ Отладить траектории 108, 115 @done (15-01-30 01:13) @project(Driver Telematics Analysis)
+ ✔ Убрать масштабирование KPI на графике @done (15-01-30 00:56) @project(Driver Telematics Analysis)
+ ✔ Закрывать графики после использования @done (15-01-30 00:56) @project(Driver Telematics Analysis)
