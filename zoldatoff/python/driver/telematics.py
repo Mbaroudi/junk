@@ -200,7 +200,7 @@ class Trip(object):
         (state_means, state_covariances) = kfilter.smooth(measurements)
 
         kdf = pd.DataFrame(state_means, columns=('x', 'y', 'vx', 'vy'))
-        kdf['v'] = np.sqrt( np.square(kdf['vx']) + np.square(kdf['vy']) )
+        kdf['v'] = np.sqrt(np.square(kdf['vx']) + np.square(kdf['vy']))
 
         self.trip_df[['x', 'y', 'v']] = kdf[['x', 'y', 'v']]
 
@@ -237,7 +237,7 @@ class Trip(object):
         df['ds'] = self.distance(df, 'x', 'y')
 
         # ускорение
-        df['a'] = (df['v'] - df['v'].shift(1)) # / df['dt']
+        df['a'] = (df['v'] - df['v'].shift(1))  # / df['dt']
 
         # направление движения
         df['ang'] = np.where(
@@ -263,8 +263,8 @@ class Trip(object):
         df['r'] = np.where(
             np.all(df['dang'].shift(i) > 0.1 for i in range(-2, 3)),
             sum([df['ds'].shift(i) for i in range(-2, 3)])
-            / abs( (df['ang'].shift(2) - df['ang'].shift(-2)
-                    ).apply(self.normalize_angle) + 0.00001
+            / abs((df['ang'].shift(2) - df['ang'].shift(-2)
+                   ).apply(self.normalize_angle) + 0.00001
                   ),
             np.nan
         )
@@ -374,7 +374,7 @@ class Trip(object):
             kpi['v_r'] = kpi['accel'] = np.nan
             # = kpi['v'] = kpi['a'] =
 
-        self.kpi = kpi # pd.DataFrame.from_dict(kpi)
+        self.kpi = kpi  # pd.DataFrame.from_dict(kpi)
 
 # =============================================================================
     def plot_velocity(self):
@@ -394,7 +394,7 @@ class Trip(object):
             df.plot(x='t', y='v', ax=axes, ls='', marker='.', color='r')
 
         axes.autoscale()
-        #axes.legend().remove()
+        # axes.legend().remove()
         # axes.set_xlim([0, 100])
         sns.despine()
         fig.savefig(
@@ -426,6 +426,7 @@ class Trip(object):
                     + '_smooth' + EXT)
         plt.close(fig)
 
+
 # =============================================================================
 # =============================================================================
 # =============================================================================
@@ -446,7 +447,7 @@ class Driver(object):
         if method == 'csv':
             self.trips = []
             self.kpis = pd.DataFrame(None, columns=[
-                'driver_num', 'trip_num', 'v_r', 'accel']) # 'v', 'a',
+                'driver_num', 'trip_num', 'v_r', 'accel'])  # 'v', 'a',
 
             trip_file_path = DATA_PATH + '/' + str(self.driver_num) + '/'
             files = os.listdir(trip_file_path)
@@ -512,7 +513,7 @@ class Driver(object):
         http://stackoverflow.com/questions/21638130/tutorial-for-scipy-cluster-hierarchy
         """
 
-        columns = ['v_r', 'accel'] # 'v', 'a',
+        columns = ['v_r', 'accel']  # 'v', 'a',
         kpis = self.kpis[columns].copy()
         for column in columns:
             self.normalize(kpis, column)
@@ -620,7 +621,7 @@ class Driver(object):
             np.where(self.kpis['prob'] == 0, 'red', 'gray').tolist()
 
         fig, axes = plt.subplots(2, 1)
-        for y, axis in zip(['v_r', 'accel'], axes): # 'v', 'a',
+        for y, axis in zip(['v_r', 'accel'], axes):  # 'v', 'a',
             self.kpis.plot(x='trip_num', y=y,
                            color=colors, kind='bar',
                            ax=axis, title=y)
@@ -682,10 +683,11 @@ class Driver(object):
         print 'Plotting histograms'
 
         fig, axes = plt.subplots()
-        self.kpis[['v_r', 'accel']].hist(ax=axes, bins=50) # 'v', 'a',
+        self.kpis[['v_r', 'accel']].hist(ax=axes, bins=50)  # 'v', 'a',
         sns.despine()
         fig.savefig(str(self.driver_num) + '_hist' + EXT)
         plt.close(fig)
+
 
 # =============================================================================
 # =============================================================================
