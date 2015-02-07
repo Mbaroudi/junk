@@ -34,11 +34,13 @@ PLOT_EXT = '.eps'
 NUM_TRIP = 10
 METHOD = 'single'
 
+# Google Chart Color List
+# http://there4development.com/blog/2012/05/02/google-chart-color-list/
 COLORS = [
-    '#FA4E9B', '#43AE18', '#1095BE', '#8C4104', '#6D42B0', '#084531',
-    '#DDB505', '#F3250D', '#B1B46F', '#691930', '#F15FFF', '#EF847F',
-    '#442757', '#276802', '#E693B8', '#25918D', '#B32323', '#0A3852',
-    '#F48FFB', '#DE26AA', '#4DA7EF', '#337236', '#86BB38', '#BC206E']
+    '#3366CC', '#DC3912', '#FF9900', '#109618', '#990099', '#3B3EAC',
+    '#0099C6', '#DD4477', '#66AA00', '#B82E2E', '#316395', '#994499',
+    '#22AA99', '#AAAA11', '#6633CC', '#E67300', '#8B0707', '#329262',
+    '#5574A6', '#3B3EAC']
 
 
 # =============================================================================
@@ -61,12 +63,12 @@ class Trip(object):
         self.set_flags()
         self.get_kpi()
 
+        # self.plot_trip()
         # self.plot_data()
-        self.plot_trip()
         # self.plot_rv()
 
         # print self.kpi
-        self.trip_data.to_csv(self.driver_trip + '_trip_data.csv', sep='\t')
+        # self.trip_data.to_csv(self.driver_trip + '_trip_data.csv', sep='\t')
 
     # =========================================================================
     def get_data(self):
@@ -162,6 +164,34 @@ class Trip(object):
             df['flag_accel'] + df['flag_decel']
             + df['flag_turn_left'] + df['flag_turn_right'] == 0, 1, 0)
 
+        df['flag_turn'] = 0
+        turn_points = set()
+        dff = df[(df.flag_turn_right == 1) | (df.flag_turn_left == 1)]
+        for k, row in dff.iterrows():
+            i = k
+            while True:
+                i += 1
+                if df.ix[i].flag_turn == 0 and (
+                        df.ix[i].flag_accel == 1
+                        or df.ix[i].flag_turn_left == 1
+                        or df.ix[i].flag_turn_right == 1):
+                    turn_points.add(i)
+                else:
+                    break
+
+            i = k
+            while True:
+                i -= 1
+                if df.ix[i].flag_turn == 0 and (
+                        df.ix[i].flag_decel == 1
+                        or df.ix[i].flag_turn_left == 1
+                        or df.ix[i].flag_turn_right == 1):
+                    turn_points.add(i)
+                else:
+                    break
+
+        df.ix[df['t'].isin(turn_points), 'flag_turn'] = 1
+
     # =========================================================================
     def get_kpi(self):
         df = self.trip_data
@@ -172,9 +202,18 @@ class Trip(object):
         kpi['trip_num'] = self.trip_num
 
         df_turn = df[(df.flag_turn_left == 1) | (df.flag_turn_right == 1)]
-        kpi['vR'] = df_turn[df_turn.r <= 70].v.max()
+        kpi['vR'] = df_turn[df_turn.r <= 10].v.max()
 
-        kpi['a'] = df[df.flag_accel == 1].a.max()
+        # kpi['a'] = df[df.flag_accel == 1].a.max()
+        kpi['accel'] = df[(df.flag_accel == 1) & (df.flag_turn == 1)].a.max()
+        kpi['decel'] = df[(df.flag_decel == 1) & (df.flag_turn == 1)].a.max()
+
+        n1 = len(df[(df.flag_calm == 1) & (df.v > 5.0)])
+        n2 = len(df[df.v > 5.0])
+        if n2 > 0:
+            kpi['calm'] = float(n1) / float(n2)
+        else:
+            kpi['calm'] = 0.5
 
         self.kpi = kpi
 
@@ -280,12 +319,29 @@ class Trip(object):
         df[df.index <= 10].plot(x='x', y='y', ax=axes, color='r',
                                          ls='', marker='x')
 
-        axes.legend(['', 'accel', 'decel', 'left', 'right', 'start'])
+        axes.legend(['trip', 'accel', 'decel', 'left', 'right', 'start'])
 
         axes.autoscale()
         plt.axis('equal')
 
         fig.savefig(self.driver_trip + '_trip' + PLOT_EXT)
+        plt.close(fig)
+
+        # --------------
+
+        fig, axes = plt.subplots()
+
+        df.plot(x='x', y='y', ax=axes, color='gray')
+
+        if not df[df.flag_turn == 1].empty:
+            df[df.flag_turn == 1].plot(x='x', y='y', ax=axes, color='red',
+                                       ls='', marker='.')
+
+        axes.autoscale()
+        plt.axis('equal')
+        axes.legend(['trip', 'turn'])
+
+        fig.savefig(self.driver_trip + '_turn' + PLOT_EXT)
         plt.close(fig)
 
     # =========================================================================
@@ -393,7 +449,7 @@ class Driver(object):
         """
         Saves KPI data to disk
         """
-        self.kpis.to_csv(str(self.driver_num) + '.txt', index=False)
+        self.kpis.to_csv(str(self.driver_num) + '.txt', index=False, sep='\t')
 
     # =========================================================================
     def load_kpi(self):
@@ -401,7 +457,8 @@ class Driver(object):
         Loads KPI data from disk
         """
         file_fullname = str(self.driver_num) + '.txt'
-        self.kpis = pd.DataFrame.from_csv(file_fullname, index_col=False)
+        self.kpis = pd.DataFrame.from_csv(file_fullname,
+                                          index_col=False, sep='\t')
 
     # =========================================================================
     @staticmethod
@@ -422,7 +479,7 @@ class Driver(object):
         http://stackoverflow.com/questions/21638130/tutorial-for-scipy-cluster-hierarchy
         """
 
-        columns = ['vR', 'a']
+        columns = ['vR', 'accel']  # , 'decel', 'calm']
         kpis = self.kpis[columns].copy()
         for column in columns:
             self.normalize(kpis, column)
@@ -433,9 +490,9 @@ class Driver(object):
         z = hac.linkage(a, method=METHOD)
         knee = np.diff(z[::-1, 2], 2)
         # num_clust = knee.argmax() + 2
-        # knee[knee.argmax()] = 0
-        # num_clust = knee.argmax() + 2
-        num_clust = 5
+        knee[knee.argmax()] = 0
+        num_clust = knee.argmax() + 2
+        # num_clust = 5
         part = hac.fcluster(z, num_clust, 'maxclust')
 
         mc = Counter(part).most_common(1)[0][0]
@@ -467,12 +524,12 @@ class Driver(object):
 
         # Plot #2
         # Раскраска по тестовым кластерам
-        part = [1 for i in range(1, 21)] \
-            + [2 for i in range(21, 41)] \
-            + [3 for i in range(41, 61)] \
-            + [4 for i in range(61, 81)] \
-            + [5 for i in range(81, 100)]
-        part = np.array(part)
+        # part = [1 for i in range(1, 21)] \
+        #     + [2 for i in range(21, 41)] \
+        #     + [3 for i in range(41, 61)] \
+        #     + [4 for i in range(61, 81)] \
+        #     + [5 for i in range(81, 100)]
+        # part = np.array(part)
 
         for cluster in set(part):
             axes[1].scatter(a[part == cluster, 0],
@@ -507,8 +564,8 @@ class Driver(object):
         colors = \
             np.where(self.kpis['prob'] == 0, 'orange', 'gray').tolist()
 
-        fig, axes = plt.subplots(2, 1)
-        for y, axis in zip(['vR', 'a'], axes):
+        fig, axes = plt.subplots(4, 1)
+        for y, axis in zip(['vR', 'accel', 'decel', 'calm'], axes):
             self.kpis.plot(x='trip_num', y=y,
                            color=colors, kind='bar',
                            ax=axis, title=y)
@@ -548,4 +605,6 @@ class Driver(object):
         plt.close(fig)
 
 
-dr = Driver(driver_num=0)
+# dr = Driver(driver_num=2)
+for i in [3, 10, 11, 12, 13, 14, 15, 16, 17, 18]:
+    Driver(driver_num=i)
