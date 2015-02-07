@@ -62,11 +62,11 @@ class Trip(object):
         self.get_kpi()
 
         # self.plot_data()
-        # self.plot_trip()
+        self.plot_trip()
         # self.plot_rv()
 
         # print self.kpi
-        # print self.trip_data[self.trip_data.t < 30]
+        self.trip_data.to_csv(self.driver_trip + '_trip_data.csv', sep='\t')
 
     # =========================================================================
     def get_data(self):
@@ -80,6 +80,7 @@ class Trip(object):
         # self.trip_data.columns = ['_x_', '_y_']
         self.trip_data.columns = ['x', 'y']
 
+        self.trip_data['trip_num'] = self.trip_num
         self.trip_data['t'] = self.trip_data.index
         # self.trip_data[['x', 'y'] = self.trip_data[['_x_', '_y_']
         self.trip_data['v'] = self.distance(self.trip_data, 'x', 'y')
@@ -88,42 +89,78 @@ class Trip(object):
         self.trip_data['ang'] = self.angle(self.trip_data, 'x', 'y')
 
     # =========================================================================
+    @staticmethod
+    def turn(trip_data, turn_direction):
+        df = trip_data.copy()
+
+        if turn_direction == 'left':
+            s = 1
+        elif turn_direction == 'right':
+            s = -1
+        else:
+            s = 0
+
+        n1 = 3
+        df['temp'] = df.apply(
+            lambda x: 1
+            if x.r < 100 and x.v > 1 and s * x.ang > 0.05
+            else 0,
+            axis=1)
+
+        df['flag1'] = pd.rolling_sum(df.temp, n1) \
+            .apply(lambda x: 1 if x == n1 else 0) \
+            .shift(-n1/2+1)
+
+        n2 = 6
+        df['temp'] = df.apply(
+            lambda x: x.ang
+            if x.r < 100 and x.v > 0.1  # and x.ang > 0.05
+            else - s * np.inf,
+            axis=1)
+
+        df['flag2'] = pd.rolling_sum(df.temp, n2) \
+            .apply(lambda x: 1 if s * x >= np.pi / 3.0 else 0) \
+            .shift(-n2/2+1)
+
+        return np.where(df.flag1 + df.flag2 > 0, 1, 0)
+
+    # =========================================================================
+    @staticmethod
+    def accel_decel(trip_data, acc_dec):
+        df = trip_data.copy()
+
+        if acc_dec == 'acc':
+            s = 1
+        elif acc_dec == 'dec':
+            s = -1
+        else:
+            s = 0
+
+        n = 3
+        df['temp'] = df.a.apply(lambda x: 1 if s * x > 0.01 else 0)
+
+        df['flag'] = pd.rolling_sum(df.temp, n) \
+            .apply(lambda x: 1 if x == n else 0) \
+            .shift(-n/2+1)
+
+        return df.flag
+
+    # =========================================================================
     def set_flags(self):
         """
         Sets flags for special parts of trip
         """
-
         df = self.trip_data
 
-        n = 5
+        df['flag_accel'] = self.accel_decel(df, 'acc')
+        df['flag_decel'] = self.accel_decel(df, 'dec')
 
-        df['flag_accel'] = \
-            pd.rolling_sum(df.a.apply(lambda x: 1 if x > 0 else 0), n) \
-            .apply(lambda x: 1 if x == n else 0) \
-            .shift(-n/2+1)
+        df['flag_turn_left'] = self.turn(df, 'left')
+        df['flag_turn_right'] = self.turn(df, 'right')
 
-        df['flag_decel'] = \
-            pd.rolling_sum(df.a.apply(lambda x: 1 if x < 0 else 0), n) \
-            .apply(lambda x: 1 if x == n else 0) \
-            .shift(-n/2+1)
-
-        n = 3
-
-        df_turn = df.apply(lambda x: 1
-                           if x.r < 80 and x.v > 2 and x.ang > 0.05
-                           else 0,
-                           axis=1)
-        df['flag_turn_left'] = pd.rolling_sum(df_turn, n) \
-            .apply(lambda x: 1 if x == n else 0) \
-            .shift(-n/2+1)
-
-        df_turn = df.apply(lambda x: 1
-                           if x.r < 80 and x.v > 2 and x.ang < -0.05
-                           else 0,
-                           axis=1)
-        df['flag_turn_right'] = pd.rolling_sum(df_turn, n) \
-            .apply(lambda x: 1 if x == n else 0) \
-            .shift(-n/2+1)
+        df['flag_calm'] = np.where(
+            df['flag_accel'] + df['flag_decel']
+            + df['flag_turn_left'] + df['flag_turn_right'] == 0, 1, 0)
 
     # =========================================================================
     def get_kpi(self):
@@ -223,13 +260,27 @@ class Trip(object):
         fig, axes = plt.subplots()
 
         df.plot(x='x', y='y', ax=axes, color='gray')
-        df[df.flag_turn_left == 1].plot(x='x', y='y', ax=axes, color='r',
+
+        if not df[df.flag_accel == 1].empty:
+            df[df.flag_accel == 1].plot(x='x', y='y', ax=axes, color='orange',
                                         ls='', marker='.')
-        df[df.flag_turn_right == 1].plot(x='x', y='y', ax=axes, color='b',
-                                         ls='', marker='.')
+
+        if not df[df.flag_decel == 1].empty:
+            df[df.flag_decel == 1].plot(x='x', y='y', ax=axes, color='green',
+                                        ls='', marker='.')
+
+        if not df[df.flag_turn_left == 1].empty:
+            df[df.flag_turn_left == 1].plot(x='x', y='y', ax=axes, color='r',
+                                            ls='', marker='o')
+
+        if not df[df.flag_turn_right == 1].empty:
+            df[df.flag_turn_right == 1].plot(x='x', y='y', ax=axes, color='b',
+                                             ls='', marker='o')
+
         df[df.index <= 10].plot(x='x', y='y', ax=axes, color='r',
                                          ls='', marker='x')
-        axes.legend(['', 'left', 'right'])
+
+        axes.legend(['', 'accel', 'decel', 'left', 'right', 'start'])
 
         axes.autoscale()
         plt.axis('equal')
@@ -286,8 +337,8 @@ class Trip(object):
         a2 = np.arctan2(y3-y2, x3-x2)
         ang = a2 - a1
 
-        np.where(ang > np.pi, ang - 2.0*np.pi, ang)
-        np.where(ang < -np.pi, ang + 2.0*np.pi, ang)
+        ang = np.where(ang > np.pi, ang - 2.0*np.pi, ang)
+        ang = np.where(ang < -np.pi, ang + 2.0*np.pi, ang)
 
         return ang
 
@@ -318,7 +369,7 @@ class Driver(object):
             self.load_kpi()
 
         self.plot_kpi()
-        print self.kpis
+        # print self.kpis
 
     # =========================================================================
     def get_data(self):

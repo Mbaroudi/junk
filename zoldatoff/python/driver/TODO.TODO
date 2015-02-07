@@ -1,8 +1,8 @@
 Driver Telematics Analysis:
- ✔ кластеризация траекторий двух-трёх водителей @done (15-02-05 21:48)
-   **надо объединить траектории в папку "0"**
- ✔ функция для записи в файл .\Submission.csv\ @done (15-02-04 22:20)
- ☐ алгоритмы кластеризации
+  ☐ длина спокойных участков
+  ☐ длина торможения перед поворотом
+  ☐ длина разгона после поворота
+  ☐ частота чередования участков разгона и торможения
 
 --- ✄ -----------------------
 profiling:
@@ -11,6 +11,10 @@ profiling:
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+ ✔ кластеризация траекторий двух-трёх водителей @done (15-02-05 21:48) @project(Driver Telematics Analysis)
+  **надо объединить траектории в папку "0"**
+ ✔ функция для записи в файл .\Submission.csv\ @done (15-02-04 22:20) @project(Driver Telematics Analysis)
+ ✘ алгоритмы кластеризации @cancelled (15-02-07 21:08) @project(Driver Telematics Analysis)
  ✘ сплайн для угла поворота @cancelled (15-02-04 00:34) @project(Driver Telematics Analysis)
  ✔ bad data set @done (15-02-01 23:37) @project(Driver Telematics Analysis)
  ✔ нормализация @done (15-02-01 23:36) @project(Driver Telematics Analysis)
