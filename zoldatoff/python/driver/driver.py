@@ -13,7 +13,7 @@ of driving type.
 """
 
 import os
-import random
+# import random
 
 import numpy as np
 import pandas as pd
@@ -25,6 +25,9 @@ import matplotlib.font_manager as fm
 import scipy.cluster.hierarchy as hac
 import scipy.spatial.distance as dis
 
+from sklearn.cluster import MeanShift, estimate_bandwidth
+from sklearn.decomposition import PCA
+from itertools import cycle
 from collections import Counter
 # from pykalman import KalmanFilter
 
@@ -89,6 +92,18 @@ class Trip(object):
         self.trip_data['a'] = self.trip_data.v.diff()
         self.trip_data['r'] = self.radius(self.trip_data, 'x', 'y')
         self.trip_data['ang'] = self.angle(self.trip_data, 'x', 'y')
+
+        self.trip_data['v'] = np.where(
+            abs(self.trip_data.a) < 10, self.trip_data.v, np.nan)
+
+        self.trip_data['r'] = np.where(
+            abs(self.trip_data.a) < 10, self.trip_data.r, np.nan)
+
+        self.trip_data['ang'] = np.where(
+            abs(self.trip_data.a) < 10, self.trip_data.ang, np.nan)
+
+        self.trip_data['a'] = np.where(
+            abs(self.trip_data.a) < 10, self.trip_data.a, np.nan)
 
     # =========================================================================
     @staticmethod
@@ -201,19 +216,37 @@ class Trip(object):
         kpi['driver_num'] = self.driver_num
         kpi['trip_num'] = self.trip_num
 
+        # vR = наибольшая скорость вхождения в поворот с радиусом 15 м.
         df_turn = df[(df.flag_turn_left == 1) | (df.flag_turn_right == 1)]
-        kpi['vR'] = df_turn[df_turn.r <= 10].v.max()
+        # kpi['vR'] = df_turn[df_turn.r <= 10].v.max()
+        kpi['vR'] = self.decile(df_turn[df_turn.r <= 15], 'v')
 
         # kpi['a'] = df[df.flag_accel == 1].a.max()
-        kpi['accel'] = df[(df.flag_accel == 1) & (df.flag_turn == 1)].a.max()
-        kpi['decel'] = df[(df.flag_decel == 1) & (df.flag_turn == 1)].a.max()
 
+        # accel = наибольшее ускорение после прохождения поворота
+        # decel = наибольшее замедление перед прохождением поворота
+        # kpi['accel'] = df[(df.flag_accel == 1) & (df.flag_turn == 1)].a.max()
+        # kpi['decel'] = df[(df.flag_decel == 1) & (df.flag_turn == 1)].a.max()
+        kpi['accel'] = self.decile(
+            df[(df.flag_accel == 1) & (df.flag_turn == 1)], 'a')
+        kpi['decel'] = self.decile(
+            df[(df.flag_decel == 1) & (df.flag_turn == 1)], 'a')
+
+        # calm = доля участков пути, на которых нет ускорений и поворотов
+        # в общей длине пути (только там, где скорость больше 5 м/с)
         n1 = len(df[(df.flag_calm == 1) & (df.v > 5.0)])
         n2 = len(df[df.v > 5.0])
         if n2 > 0:
             kpi['calm'] = float(n1) / float(n2)
         else:
             kpi['calm'] = 0.5
+
+        # nerv_a = количество кратковременных нажатий на педаль газа
+        # nerv_ang = количество небольших поворотов руля
+        kpi['nerv_a'] = abs(df.flag_calm.diff()).sum() / \
+            float(len(df[df.flag_calm == 1]))
+        kpi['nerv_ang'] = abs(df[df['flag_turn'] == 0].ang).sum() / \
+            float(len(df[df.flag_turn == 0]))
 
         self.kpi = kpi
 
@@ -398,6 +431,19 @@ class Trip(object):
 
         return ang
 
+    # =========================================================================
+    @staticmethod
+    def decile(df, x):
+        """
+        Returns minimum value in upper decile
+        """
+        d = df[x].sort(x, inplace=False).tolist()
+        l = len(d)
+        if l == 0:
+            return 0
+        else:
+            return d[int(0.9*l)]
+
 
 # =============================================================================
 # =============================================================================
@@ -418,11 +464,14 @@ class Driver(object):
         if method == 'csv':
             self.get_data()
             self.cluster()
+            # self.mean_shift()
+            # self.pca()
             self.save_kpi()
-            self.plot_rv()
+            # self.plot_rv()
 
         else:
             self.load_kpi()
+            self.pca()
 
         self.plot_kpi()
         # print self.kpis
@@ -479,7 +528,7 @@ class Driver(object):
         http://stackoverflow.com/questions/21638130/tutorial-for-scipy-cluster-hierarchy
         """
 
-        columns = ['vR', 'accel']  # , 'decel', 'calm']
+        columns = ['vR', 'accel', 'calm', 'nerv_a', 'nerv_ang']  # 'decel'
         kpis = self.kpis[columns].copy()
         for column in columns:
             self.normalize(kpis, column)
@@ -492,13 +541,75 @@ class Driver(object):
         # num_clust = knee.argmax() + 2
         knee[knee.argmax()] = 0
         num_clust = knee.argmax() + 2
-        # num_clust = 5
         part = hac.fcluster(z, num_clust, 'maxclust')
 
+        # The biggest cluster
         mc = Counter(part).most_common(1)[0][0]
         self.kpis['prob'] = [1 if p == mc else 0 for p in part.tolist()]
 
         self.plot_cluster(a, z, knee, num_clust, part)
+
+    # =========================================================================
+    def pca(self):
+        """
+        Principal component analysis
+        """
+
+        columns = ['vR', 'accel', 'decel', 'calm', 'nerv_a', 'nerv_ang']
+        kpis = self.kpis[columns].copy()
+        for column in columns:
+            self.normalize(kpis, column)
+            kpis[column].fillna(0.5, inplace=True)
+
+        print kpis.columns
+        X = kpis.as_matrix(columns=columns)
+        pca = PCA()  # n_components=3)
+        pca.fit(X)
+        print(pca.explained_variance_ratio_)
+
+    # =========================================================================
+    def mean_shift(self):
+        #######################################################################
+        # Compute clustering with MeanShift
+
+        # The following bandwidth can be automatically detected using
+        columns = ['vR', 'accel']  # , 'decel', 'calm']
+        kpis = self.kpis[columns].copy()
+        for column in columns:
+            self.normalize(kpis, column)
+            kpis[column].fillna(0.5, inplace=True)
+
+        X = kpis.as_matrix(columns=columns)
+
+        bandwidth = estimate_bandwidth(X, quantile=0.2, n_samples=500)
+
+        ms = MeanShift(bandwidth=bandwidth, bin_seeding=True)
+        ms.fit(X)
+        labels = ms.labels_
+        cluster_centers = ms.cluster_centers_
+
+        labels_unique = np.unique(labels)
+        n_clusters_ = len(labels_unique)
+
+        print("number of estimated clusters : %d" % n_clusters_)
+
+        #######################################################################
+        # Plot result
+
+        fig = plt.figure()
+        plt.clf()
+
+        colors = cycle('bgrcmykbgrcmykbgrcmykbgrcmyk')
+        for k, col in zip(range(n_clusters_), colors):
+            my_members = labels == k
+            cluster_center = cluster_centers[k]
+            plt.plot(X[my_members, 0], X[my_members, 1], col + '.')
+            plt.plot(cluster_center[0], cluster_center[1], 'o',
+                     markerfacecolor=col,
+                     markeredgecolor='k', markersize=14)
+        plt.title('Estimated number of clusters: %d' % n_clusters_)
+        fig.savefig(str(self.driver_num) + '_mean_shift' + PLOT_EXT)
+        plt.close(fig)
 
     # =========================================================================
     def plot_cluster(self, a, z, knee, num_clust, part):
@@ -524,12 +635,13 @@ class Driver(object):
 
         # Plot #2
         # Раскраска по тестовым кластерам
-        # part = [1 for i in range(1, 21)] \
-        #     + [2 for i in range(21, 41)] \
-        #     + [3 for i in range(41, 61)] \
-        #     + [4 for i in range(61, 81)] \
-        #     + [5 for i in range(81, 100)]
-        # part = np.array(part)
+        if self.driver_num == 0:
+            part = [1 for i in range(1, 21)] \
+                + [2 for i in range(21, 41)] \
+                + [3 for i in range(41, 61)] \
+                + [4 for i in range(61, 81)] \
+                + [5 for i in range(81, 100)]
+            part = np.array(part)
 
         for cluster in set(part):
             axes[1].scatter(a[part == cluster, 0],
@@ -564,14 +676,16 @@ class Driver(object):
         colors = \
             np.where(self.kpis['prob'] == 0, 'orange', 'gray').tolist()
 
-        fig, axes = plt.subplots(4, 1)
-        for y, axis in zip(['vR', 'accel', 'decel', 'calm'], axes):
+        fig, axes = plt.subplots(6, 1)
+        for y, axis in zip(
+                ['vR', 'accel', 'decel', 'calm', 'nerv_a', 'nerv_ang'],
+                axes):
             self.kpis.plot(x='trip_num', y=y,
                            color=colors, kind='bar',
                            ax=axis, title=y)
             axis.legend().remove()
 
-        fig.set_size_inches(15, 8)
+        fig.set_size_inches(15, 10)
         fig.savefig(str(self.driver_num) + '_kpi' + PLOT_EXT)
         plt.close(fig)
 
@@ -605,6 +719,35 @@ class Driver(object):
         plt.close(fig)
 
 
-# dr = Driver(driver_num=2)
-for i in [3, 10, 11, 12, 13, 14, 15, 16, 17, 18]:
+# =============================================================================
+# =============================================================================
+# =============================================================================
+def save_result():
+    """
+    Saves the result to a file for submission
+    """
+    result_file_name = 'submission.csv'
+    result_df = pd.DataFrame(None, columns=['driver_trip', 'prob'])
+
+    for file_name in os.listdir('./'):
+        file_ext = os.path.splitext(file_name)[1]
+        if file_ext == '.txt':
+            df = pd.DataFrame.from_csv(file_name)
+            df['driver_trip'] = df.driver_trip
+            df.prob = df.prob.map(int).map(str)
+            result_df = result_df.append(df[['driver_trip', 'prob']])
+
+    result_df.to_csv(result_file_name, sep=',', index=False)
+
+# =============================================================================
+# =============================================================================
+# =============================================================================
+
+# dr = Driver(driver_num=0, method='csv')
+
+dirs = os.listdir(DRIVER_PATH)
+dirs = [x for x in dirs if not x.startswith('.')]
+dirs = map(int, dirs)
+dirs.sort()
+for i in dirs:
     Driver(driver_num=i)
