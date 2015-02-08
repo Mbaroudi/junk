@@ -20,16 +20,13 @@ import pandas as pd
 
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
-# import seaborn as sns
 
 import scipy.cluster.hierarchy as hac
 import scipy.spatial.distance as dis
 
-from sklearn.cluster import MeanShift, estimate_bandwidth
 from sklearn.decomposition import PCA
 from itertools import cycle
 from collections import Counter
-# from pykalman import KalmanFilter
 
 # Откуда и сколько траекторий берём
 DRIVER_PATH = '/Users/zoldatoff/Downloads/driver/data/'
@@ -82,12 +79,10 @@ class Trip(object):
         trip_path = DRIVER_PATH + '/' + str(self.driver_num) + '/'
         self.trip_data = pd.DataFrame.from_csv(
             trip_path + trip_filename, index_col=False)
-        # self.trip_data.columns = ['_x_', '_y_']
         self.trip_data.columns = ['x', 'y']
 
         self.trip_data['trip_num'] = self.trip_num
         self.trip_data['t'] = self.trip_data.index
-        # self.trip_data[['x', 'y'] = self.trip_data[['_x_', '_y_']
         self.trip_data['v'] = self.distance(self.trip_data, 'x', 'y')
         self.trip_data['a'] = self.trip_data.v.diff()
         self.trip_data['r'] = self.radius(self.trip_data, 'x', 'y')
@@ -131,7 +126,7 @@ class Trip(object):
         n2 = 6
         df['temp'] = df.apply(
             lambda x: x.ang
-            if x.r < 100 and x.v > 0.1  # and x.ang > 0.05
+            if x.r < 100 and x.v > 0.1
             else - s * np.inf,
             axis=1)
 
@@ -316,8 +311,6 @@ class Trip(object):
         ax.set_ylim([-0.5, 0.5])
         ax.set_xbound(lower=0.0, upper=df.t.max())
 
-        # sns.despine()
-
         fig.set_size_inches(15, 10)
         fig.savefig(self.driver_trip + '_data' + PLOT_EXT)
         plt.close(fig)
@@ -325,10 +318,15 @@ class Trip(object):
     # =========================================================================
     def plot_trip(self):
         """
-        Makes an x-y plot
+        Сторит 2 графика:
+        * график поворотов / разгонов / торможений
+        * график поворотов с примыкающими к ним разгонами и торможениями
         """
-
         df = self.trip_data
+
+        # График, на котором выделены повороты и
+        # участки разгона / торможения
+
         fig, axes = plt.subplots()
 
         df.plot(x='x', y='y', ax=axes, color='gray')
@@ -360,7 +358,8 @@ class Trip(object):
         fig.savefig(self.driver_trip + '_trip' + PLOT_EXT)
         plt.close(fig)
 
-        # --------------
+        # График, на котором выделены повороты =
+        # замедление до поворота + поворот + ускорение после поворота
 
         fig, axes = plt.subplots()
 
@@ -380,7 +379,8 @@ class Trip(object):
     # =========================================================================
     def plot_rv(self):
         """
-        Makes an x-y plot
+        Строит график зависимости скорости от радиуса поворота
+        Для графика выбираются только точки, размеченные как повороты
         """
 
         df = self.trip_data
@@ -397,7 +397,7 @@ class Trip(object):
         fig.savefig(self.driver_trip + '_rv' + PLOT_EXT)
         plt.close(fig)
 
-    # ------------------------------------------------------------------
+    # =========================================================================
     @staticmethod
     def distance(df, x, y):
         return np.sqrt(df.x.diff()**2 + df.y.diff()**2)
@@ -431,7 +431,6 @@ class Trip(object):
 
         return ang
 
-    # =========================================================================
     @staticmethod
     def decile(df, x):
         """
@@ -454,7 +453,6 @@ class Driver(object):
      * method for clustering KPI's
      * methods for data visualization
     """
-    # @profile
     def __init__(self, driver_num=1, method='csv'):
         """
         Loads trip (or KPI) data from files
@@ -464,7 +462,6 @@ class Driver(object):
         if method == 'csv':
             self.get_data()
             self.cluster()
-            # self.mean_shift()
             # self.pca()
             self.save_kpi()
             # self.plot_rv()
@@ -538,8 +535,7 @@ class Driver(object):
         a = dis.squareform(dis.pdist(matr))
         z = hac.linkage(a, method=METHOD)
         knee = np.diff(z[::-1, 2], 2)
-        # num_clust = knee.argmax() + 2
-        knee[knee.argmax()] = 0
+        # knee[knee.argmax()] = 0
         num_clust = knee.argmax() + 2
         part = hac.fcluster(z, num_clust, 'maxclust')
 
@@ -553,6 +549,7 @@ class Driver(object):
     def pca(self):
         """
         Principal component analysis
+        # http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html
         """
 
         columns = ['vR', 'accel', 'decel', 'calm', 'nerv_a', 'nerv_ang']
@@ -563,53 +560,9 @@ class Driver(object):
 
         print kpis.columns
         X = kpis.as_matrix(columns=columns)
-        pca = PCA()  # n_components=3)
+        pca = PCA()
         pca.fit(X)
         print(pca.explained_variance_ratio_)
-
-    # =========================================================================
-    def mean_shift(self):
-        #######################################################################
-        # Compute clustering with MeanShift
-
-        # The following bandwidth can be automatically detected using
-        columns = ['vR', 'accel']  # , 'decel', 'calm']
-        kpis = self.kpis[columns].copy()
-        for column in columns:
-            self.normalize(kpis, column)
-            kpis[column].fillna(0.5, inplace=True)
-
-        X = kpis.as_matrix(columns=columns)
-
-        bandwidth = estimate_bandwidth(X, quantile=0.2, n_samples=500)
-
-        ms = MeanShift(bandwidth=bandwidth, bin_seeding=True)
-        ms.fit(X)
-        labels = ms.labels_
-        cluster_centers = ms.cluster_centers_
-
-        labels_unique = np.unique(labels)
-        n_clusters_ = len(labels_unique)
-
-        print("number of estimated clusters : %d" % n_clusters_)
-
-        #######################################################################
-        # Plot result
-
-        fig = plt.figure()
-        plt.clf()
-
-        colors = cycle('bgrcmykbgrcmykbgrcmykbgrcmyk')
-        for k, col in zip(range(n_clusters_), colors):
-            my_members = labels == k
-            cluster_center = cluster_centers[k]
-            plt.plot(X[my_members, 0], X[my_members, 1], col + '.')
-            plt.plot(cluster_center[0], cluster_center[1], 'o',
-                     markerfacecolor=col,
-                     markeredgecolor='k', markersize=14)
-        plt.title('Estimated number of clusters: %d' % n_clusters_)
-        fig.savefig(str(self.driver_num) + '_mean_shift' + PLOT_EXT)
-        plt.close(fig)
 
     # =========================================================================
     def plot_cluster(self, a, z, knee, num_clust, part):
@@ -634,8 +587,8 @@ class Driver(object):
             fontproperties=font)
 
         # Plot #2
-        # Раскраска по тестовым кластерам
         if self.driver_num == 0:
+            # Раскраска по тестовым кластерам
             part = [1 for i in range(1, 21)] \
                 + [2 for i in range(21, 41)] \
                 + [3 for i in range(41, 61)] \
@@ -732,8 +685,7 @@ def save_result():
     for file_name in os.listdir('./'):
         file_ext = os.path.splitext(file_name)[1]
         if file_ext == '.txt':
-            df = pd.DataFrame.from_csv(file_name)
-            df['driver_trip'] = df.driver_trip
+            df = pd.DataFrame.from_csv(file_name, index_col=False, sep='\t')
             df.prob = df.prob.map(int).map(str)
             result_df = result_df.append(df[['driver_trip', 'prob']])
 
@@ -751,3 +703,5 @@ dirs = map(int, dirs)
 dirs.sort()
 for i in dirs:
     Driver(driver_num=i)
+
+save_result()
