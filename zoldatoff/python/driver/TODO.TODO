@@ -9,8 +9,6 @@ profiling:
   kernprof -v -l telematics.py
   python -m line_profiler telematics.py.lprof
 
-  [ 0.36980323  0.28974881  0.12515596  0.0992019   0.06260397  0.05348613]
-
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
  ✔ кластеризация траекторий двух-трёх водителей @done (15-02-05 21:48) @project(Driver Telematics Analysis)

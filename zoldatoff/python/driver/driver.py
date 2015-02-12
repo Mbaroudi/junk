@@ -25,7 +25,7 @@ import scipy.cluster.hierarchy as hac
 import scipy.spatial.distance as dis
 
 from sklearn.decomposition import PCA
-from itertools import cycle
+# from itertools import cycle
 from collections import Counter
 
 # Откуда и сколько траекторий берём
@@ -40,7 +40,7 @@ COLORS = [
     '#3366CC', '#DC3912', '#FF9900', '#109618', '#990099', '#3B3EAC',
     '#0099C6', '#DD4477', '#66AA00', '#B82E2E', '#316395', '#994499',
     '#22AA99', '#AAAA11', '#6633CC', '#E67300', '#8B0707', '#329262',
-    '#5574A6', '#3B3EAC']
+    '#5574A6', '#3B3EAC'] * 20
 
 
 # =============================================================================
@@ -89,16 +89,20 @@ class Trip(object):
         self.trip_data['ang'] = self.angle(self.trip_data, 'x', 'y')
 
         self.trip_data['v'] = np.where(
-            abs(self.trip_data.a) < 10, self.trip_data.v, np.nan)
+            (self.trip_data.a > -1) & (self.trip_data.a < 3),
+            self.trip_data.v, np.nan)
 
         self.trip_data['r'] = np.where(
-            abs(self.trip_data.a) < 10, self.trip_data.r, np.nan)
+            (self.trip_data.a > -1) & (self.trip_data.a < 3),
+            self.trip_data.r, np.nan)
 
         self.trip_data['ang'] = np.where(
-            abs(self.trip_data.a) < 10, self.trip_data.ang, np.nan)
+            (self.trip_data.a > -1) & (self.trip_data.a < 3),
+            self.trip_data.ang, np.nan)
 
         self.trip_data['a'] = np.where(
-            abs(self.trip_data.a) < 10, self.trip_data.a, np.nan)
+            (self.trip_data.a > -1) & (self.trip_data.a < 3),
+            self.trip_data.a, np.nan)
 
     # =========================================================================
     @staticmethod
@@ -216,7 +220,7 @@ class Trip(object):
         # kpi['vR'] = df_turn[df_turn.r <= 10].v.max()
         kpi['vR'] = self.decile(df_turn[df_turn.r <= 15], 'v')
 
-        # kpi['a'] = df[df.flag_accel == 1].a.max()
+        kpi['a'] = self.decile(df[df.flag_accel == 1], 'a')
 
         # accel = наибольшее ускорение после прохождения поворота
         # decel = наибольшее замедление перед прохождением поворота
@@ -242,6 +246,8 @@ class Trip(object):
             float(len(df[df.flag_calm == 1]))
         kpi['nerv_ang'] = abs(df[df['flag_turn'] == 0].ang).sum() / \
             float(len(df[df.flag_turn == 0]))
+
+        kpi['s'] = df.v.sum()
 
         self.kpi = kpi
 
@@ -468,9 +474,10 @@ class Driver(object):
 
         else:
             self.load_kpi()
-            self.pca()
+            # self.pca()
 
-        self.plot_kpi()
+        # self.plot_kpi()
+        # self.plot_trips()
         # print self.kpis
 
     # =========================================================================
@@ -525,7 +532,8 @@ class Driver(object):
         http://stackoverflow.com/questions/21638130/tutorial-for-scipy-cluster-hierarchy
         """
 
-        columns = ['vR', 'accel', 'calm', 'nerv_a', 'nerv_ang']  # 'decel'
+        # columns = ['vR', 's', 'a', 'accel', 'calm', 'nerv_a', 'nerv_ang']  # 'decel'
+        columns = ['vR', 's']
         kpis = self.kpis[columns].copy()
         for column in columns:
             self.normalize(kpis, column)
@@ -552,7 +560,7 @@ class Driver(object):
         # http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html
         """
 
-        columns = ['vR', 'accel', 'decel', 'calm', 'nerv_a', 'nerv_ang']
+        columns = ['vR', 's', 'a', 'accel', 'decel', 'calm', 'nerv_a', 'nerv_ang']
         kpis = self.kpis[columns].copy()
         for column in columns:
             self.normalize(kpis, column)
@@ -629,9 +637,9 @@ class Driver(object):
         colors = \
             np.where(self.kpis['prob'] == 0, 'orange', 'gray').tolist()
 
-        fig, axes = plt.subplots(6, 1)
+        fig, axes = plt.subplots(8, 1)
         for y, axis in zip(
-                ['vR', 'accel', 'decel', 'calm', 'nerv_a', 'nerv_ang'],
+                ['vR', 's', 'a', 'accel', 'decel', 'calm', 'nerv_a', 'nerv_ang'],
                 axes):
             self.kpis.plot(x='trip_num', y=y,
                            color=colors, kind='bar',
@@ -671,6 +679,38 @@ class Driver(object):
         fig.savefig(str(self.driver_num) + '_vR' + PLOT_EXT)
         plt.close(fig)
 
+    # =========================================================================
+    def plot_trips(self):
+        """
+        Plots all trips of a driver
+        """
+        print 'Plotting trips'
+
+        if self.driver_num == 0:
+            color_num  = [1 for i in range(1, 21)] \
+                + [2 for i in range(21, 41)] \
+                + [3 for i in range(41, 61)] \
+                + [4 for i in range(61, 81)] \
+                + [5 for i in range(81, 101)]
+
+        fig, axes = plt.subplots()
+        for trip, p in zip(self.trips, self.kpis['prob']):
+            if self.driver_num == 0:
+                trip.trip_data.plot(x='x', y='y', ax=axes, ls='--',
+                                    color=COLORS[color_num[trip.trip_num-1]])
+
+            elif p == 1:
+                trip.trip_data.plot(x='x', y='y', ax=axes,
+                                    color=COLORS[trip.trip_num], ls=':')
+            else:
+                trip.trip_data.plot(x='x', y='y', ax=axes, color='r')
+
+        axes.autoscale()
+        plt.axis('equal')
+        axes.legend().remove()
+        fig.savefig(str(self.driver_num) + '_trips' + PLOT_EXT)
+        plt.close(fig)
+
 
 # =============================================================================
 # =============================================================================
@@ -679,6 +719,8 @@ def save_result():
     """
     Saves the result to a file for submission
     """
+    print 'Saving results'
+
     result_file_name = 'submission.csv'
     result_df = pd.DataFrame(None, columns=['driver_trip', 'prob'])
 
