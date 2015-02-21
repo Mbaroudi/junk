@@ -21,12 +21,20 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 
+# import scipy
 import scipy.cluster.hierarchy as hac
 import scipy.spatial.distance as dis
 
 from sklearn.decomposition import PCA
+from sklearn import preprocessing
 # from itertools import cycle
 from collections import Counter
+
+from sklearn import svm
+from nolearn.dbn import DBN
+
+from sklearn.metrics import classification_report
+from sklearn.metrics import zero_one_loss
 
 # Откуда и сколько траекторий берём
 DRIVER_PATH = '/Users/zoldatoff/Downloads/driver/data/'
@@ -244,10 +252,18 @@ class Trip(object):
         # nerv_ang = количество небольших поворотов руля
         kpi['nerv_a'] = abs(df.flag_calm.diff()).sum() / \
             float(len(df[df.flag_calm == 1]))
-        kpi['nerv_ang'] = abs(df[df['flag_turn'] == 0].ang).sum() / \
+        kpi['nerv_ang'] = abs(df[df.flag_turn == 0].ang).sum() / \
             float(len(df[df.flag_turn == 0]))
 
         kpi['s'] = df.v.sum()
+
+        # part = [1 for i in range(1, 21)] \
+        #     + [2 for i in range(21, 41)] \
+        #     + [3 for i in range(41, 61)] \
+        #     + [4 for i in range(61, 81)] \
+        #     + [5 for i in range(81, 100)] \
+        #     + [5 for i in range(101, 200)]
+        # kpi['n'] = part[self.trip_num]
 
         self.kpi = kpi
 
@@ -474,6 +490,7 @@ class Driver(object):
 
         else:
             self.load_kpi()
+            self.cluster()
             # self.pca()
 
         # self.plot_kpi()
@@ -514,34 +531,24 @@ class Driver(object):
                                           index_col=False, sep='\t')
 
     # =========================================================================
-    @staticmethod
-    def normalize(df, column):
-        df_min, df_max = df[column].min(), df[column].max()
-        if df_min == df_max:
-            df[column] = 0.5,
-        else:
-            df[column] -= df_min
-            df[column] /= df_max - df_min
-
-        return df
-
-    # =========================================================================
     def cluster(self):
         """
         Scales and clusters KPI data
         http://stackoverflow.com/questions/21638130/tutorial-for-scipy-cluster-hierarchy
         """
 
-        # columns = ['vR', 's', 'a', 'accel', 'calm', 'nerv_a', 'nerv_ang']  # 'decel'
-        columns = ['vR', 's']
-        kpis = self.kpis[columns].copy()
-        for column in columns:
-            self.normalize(kpis, column)
-            kpis[column].fillna(0.5, inplace=True)
+        # 'vR', 's', 'a', 'accel', 'decel', 'calm', 'nerv_a', 'nerv_ang'
+        columns = ['accel', 'nerv_a']
+        kpis = self.kpis[columns] #.copy()
+        a = kpis.as_matrix(columns=columns)
 
-        matr = kpis.as_matrix(columns=columns)
-        a = dis.squareform(dis.pdist(matr))
-        z = hac.linkage(a, method=METHOD)
+        min_max_scaler = preprocessing.MinMaxScaler()
+        a = min_max_scaler.fit_transform(a)
+        # a = preprocessing.scale(a)
+        # kpis[columns].fillna(0.5, inplace=True)
+
+        print a
+        z = hac.linkage(dis.pdist(a), method=METHOD)
         knee = np.diff(z[::-1, 2], 2)
         # knee[knee.argmax()] = 0
         num_clust = knee.argmax() + 2
@@ -560,7 +567,8 @@ class Driver(object):
         # http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html
         """
 
-        columns = ['vR', 's', 'a', 'accel', 'decel', 'calm', 'nerv_a', 'nerv_ang']
+        columns = ['vR', 's', 'a', 'accel', 'decel',
+                   'calm', 'nerv_a', 'nerv_ang']
         kpis = self.kpis[columns].copy()
         for column in columns:
             self.normalize(kpis, column)
@@ -637,9 +645,10 @@ class Driver(object):
         colors = \
             np.where(self.kpis['prob'] == 0, 'orange', 'gray').tolist()
 
-        fig, axes = plt.subplots(8, 1)
+        fig, axes = plt.subplots(9, 1)
         for y, axis in zip(
-                ['vR', 's', 'a', 'accel', 'decel', 'calm', 'nerv_a', 'nerv_ang'],
+                ['vR', 's', 'a', 'accel', 'decel',
+                 'calm', 'nerv_a', 'nerv_ang'],
                 axes):
             self.kpis.plot(x='trip_num', y=y,
                            color=colors, kind='bar',
@@ -687,7 +696,7 @@ class Driver(object):
         print 'Plotting trips'
 
         if self.driver_num == 0:
-            color_num  = [1 for i in range(1, 21)] \
+            color_num = [1 for i in range(1, 21)] \
                 + [2 for i in range(21, 41)] \
                 + [3 for i in range(41, 61)] \
                 + [4 for i in range(61, 81)] \
@@ -733,17 +742,92 @@ def save_result():
 
     result_df.to_csv(result_file_name, sep=',', index=False)
 
+
+# col1 = ['accel', 'decel', 'calm', 'nerv_a', 'nerv_ang', 's', 'vR']
+col1 = ['accel', 'decel', 'calm', 'nerv_a', 'nerv_ang', 'vR']
+
+
+def read_kpi(train_driver=1):
+    """
+    Saves the result to a file for submission
+    """
+    print 'Reading KPI'
+
+    # a accel   calm    decel   driver_num  nerv_a  nerv_ang
+    # s   trip_num    vR  prob
+    col2 = col1+['prob']
+    train_df = pd.DataFrame(None, columns=col1)
+    result_df = pd.DataFrame(None, columns=col2)
+
+    n = 0
+    for file_name in os.listdir('./'):
+        file_num, file_ext = os.path.splitext(file_name)
+        if file_ext == '.txt' \
+           and train_driver - 5 < int(file_num) < train_driver + 5:
+            df = pd.DataFrame.from_csv(file_name, index_col=False, sep='\t')
+            n += 1
+            if int(file_num) == train_driver:
+                train_df = train_df.append(
+                    df[df.driver_num == train_driver][col1])
+            else:
+                df['prob'] = 0
+                result_df = result_df.append(df[col2])
+
+    df = train_df.copy()
+    for i in range(n):
+        df['prob'] = 1
+        result_df = result_df.append(df)
+
+    return (train_df, result_df)
+
 # =============================================================================
 # =============================================================================
 # =============================================================================
 
-# dr = Driver(driver_num=0, method='csv')
+# dr = Driver(driver_num=0, method='csv1')
 
-dirs = os.listdir(DRIVER_PATH)
-dirs = [x for x in dirs if not x.startswith('.')]
-dirs = map(int, dirs)
-dirs.sort()
-for i in dirs:
-    Driver(driver_num=i)
+# dirs = os.listdir(DRIVER_PATH)
+# dirs = [x for x in dirs if not x.startswith('.')]
+# dirs = map(int, dirs)
+# dirs.sort()
+# for i in dirs:
+#     Driver(driver_num=i)
 
-save_result()
+# save_result()
+
+(train_df, df) = read_kpi(2000)
+X = df.as_matrix(col1)
+Y = df.prob.tolist()
+Z = train_df.as_matrix(col1)
+
+print 'SVM'
+clf = svm.SVC(kernel='rbf', shrinking=True, verbose=False)
+clf.fit(X, Y)   # preprocessing.scale(X)
+#print clf.get_params()
+print 'Score:', clf.score(X, Y)
+
+n = 0
+for data in Z:
+    n += clf.predict(data)[0]
+print 'Result:', n
+
+print '========='
+
+print 'DBN'
+net = DBN([len(col1), 10, 2], learn_rates=0.3,
+          learn_rate_decays=0.9, epochs=10, verbose=0)
+X = preprocessing.scale(X)
+net.fit(X, Y)
+
+preds = net.predict(X)
+
+print "Accuracy:", 1-zero_one_loss(Y, preds)
+print "Classification report:"
+print classification_report(Y, preds)
+
+
+Z = preprocessing.scale(Z)
+preds = net.predict(Z)
+print 'Result:', preds.size, preds.sum()
+
+print preds

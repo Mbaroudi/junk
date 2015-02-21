@@ -26,3 +26,6 @@ Archive:
  ✔ Отладить траектории 108, 115 @done (15-01-30 01:13) @project(Driver Telematics Analysis)
  ✔ Убрать масштабирование KPI на графике @done (15-01-30 00:56) @project(Driver Telematics Analysis)
  ✔ Закрывать графики после использования @done (15-01-30 00:56) @project(Driver Telematics Analysis)
+
+[ 1.05856927  0.93683781  1.07130566 ...,  1.03077749  0.95410177
+  0.74032005]
