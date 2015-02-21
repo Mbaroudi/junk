@@ -1,21 +1,21 @@
 \section{Lecture 4: Pattern Evaluation}
 
-\subsection{Interestingness Measures: Lift and $\chi ^2$}
+\subsection{Interestingness Measures: Lift and $\mathbf{\chi ^2}$}
 
 \subsubsection{Interestingness Measure: Lift}
 
-Lift - measure of dependent/correlated events:
+\textbf{Lift} - measure of dependent/correlated events:
 \begin{equation*}
-lift(B,C) = \frac{c(B \to C)}{s(C)} = \frac{s(B \cup C)}{s(B) \times s(C)}
+\mathrm{lift}(B,C) = \frac{c(B \to C)}{s(C)} = \frac{s(B \cup C)}{s(B) \times s(C)}
 \end{equation*}
 
 Lift(B, C) may tell how B and C are correlated:
 \begin{itemize}
-\item $Lift(B, C) = 1$: B and C are independent\item $Lift(B, C) > 1$: positively correlated\item $Lift(B, C) < 1$: negatively correlated
+\item $\mathrm{Lift}(B, C) = 1$: B and C are independent\item $\mathrm{Lift}(B, C) > 1$: positively correlated\item $\mathrm{Lift}(B, C) < 1$: negatively correlated
 \end{itemize}
 
 %--
-\subsubsection{Interestingness Measure: $\chi ^2$}
+\subsubsection{Interestingness Measure: $\mathbf{\chi ^2}$}
 \begin{equation*}
 \chi^2=\sum\frac{(Observed-Expected)^2}{Expected}
 \end{equation*}

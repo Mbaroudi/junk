@@ -6,7 +6,7 @@ Items often form hierarchies. How to set min-support thresholds? \textbf{Level-r
 
 Efficient mining: \textbf{shared} multi-level mining. Use the lowest min-support to pass down the set of candidates.\\
 
-Redundancy filtering: some rules may be redundant due to <<ancestor\footnote{Ancestor -- предок}>> relationships between items. A rule is \textbf{redundant} if:
+Redundancy\footnote{Redundancy - избыточность} filtering: some rules may be redundant due to <<ancestor>>\footnote{Ancestor -- предок} relationships between items. A rule is \textbf{redundant} if:
 \begin{itemize}
 \item its support is close to the <<expected>> value, according to its <<ancestor>> rule
 \item it has a similar confidence as its <<ancestor>>.
@@ -56,7 +56,7 @@ Pattern distance measure:
 Dist(P_1, P_2)=1-\frac{\abs{T(P_1) \cap T(P_2)}}{\abs{T(P_1) \cup T(P_2)}}
 \end{equation*}
 
-\textbf{$\delta$-clustering}. For each pattern P, find all patterns which can be expressed by P and whose distance to P is within $\delta$ ($\delta$-cover). All patterns in the cluster can be represented by P = compressed patterns.\\
+\textbf{$\mathbf{\delta}$-clustering}. For each pattern P, find all patterns which can be expressed by P and whose distance to P is within $\delta$ ($\delta$-cover). All patterns in the cluster can be represented by P = compressed patterns.\\
 
 Method for efficient, direct mining of compressed frequent patterns: Xin et al., VLDB’05.\\
 
@@ -67,7 +67,7 @@ Method for efficient, direct mining of compressed frequent patterns: Xin et al.,
     \caption{Desired patterns: high significance \& low redundancy}
 \end{figure}
 
-Use \textbf{MMS (Maximal Marginal Significance)} for measuring the combined significance of a pattern set: Xin et al., Extracting Redundancy\footnote{Redundancy - избыточность}-Aware Top-K Patterns, KDD’06.
+Use \textbf{MMS (Maximal Marginal Significance)} for measuring the combined significance of a pattern set: Xin et al., Extracting Redundancy-Aware Top-K Patterns, KDD’06.
 
 %--
 \subsection{Mining Colossal Patterns}
@@ -81,9 +81,9 @@ For a frequent pattern $\alpha$, a subpattern $\beta$ is a $\tau$-core pattern o
 \begin{equation*}
 \frac{\abs{D_\alpha}}{\abs{D_\beta}} \geqslant \tau, 0 < \tau \leqslant 1, 
 \end{equation*}
-where \tau is called the \textbf{core ratio}.\\
+where $\tau$ is called the \textbf{core ratio}.\\
 
-\textbf{$(d, \tau)$-robustness}\footnote{Robustness - прочность}: a pattern $\alpha$ is $(d, \tau)$-robust if d is the maximum number of items that can be removed from $\alpha$ for the resulting pattern to remain a $\tau$-core pattern of $\alpha$. For a $(d, \tau)$-robust pattern $\alpha$, it has $\Omega (2^d)$ core patterns.\\
+\textbf{$\mathbf{(d, \tau)}$-robustness}\footnote{Robustness - прочность}: a pattern $\alpha$ is $(d, \tau)$-robust if d is the maximum number of items that can be removed from $\alpha$ for the resulting pattern to remain a $\tau$-core pattern of $\alpha$. For a $(d, \tau)$-robust pattern $\alpha$, it has $\Omega (2^d)$ core patterns.\\
 
 \textbf{Robustness of Colossal Patterns}: a colossal pattern tends to havemuch more core patterns than small patterns. Such core patterns can be clustered together to form <<dense balls>> based on pattern distance defined by 
 \begin{equation*}

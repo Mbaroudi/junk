@@ -20,4 +20,22 @@ Method to find meta-rules:
 \end{itemize}
 \end{itemize}
 
-Constraint c is \textbf{anti-monotone}: if an itemset S violates constraint c, so does any of its superset. That is, mining on itemset S can be terminated. For example, constraint $\sup(S) \geqslant \sigma$ is anti-monotone.
+Anti-monotonic constraints have more pruning power than monotonic constraints.
+
+\subsubsection{Pattern space pruning constraints}
+Constraint c is \textbf{anti-monotone}: if an itemset S violates constraint \textbf{c}, so does any of its superset. That is, mining on itemset S can be terminated. For example, constraint $\sup(S) \geqslant \sigma$ is anti-monotone.\\
+
+A constraint c is \textbf{monotone}: if an itemset S satisfies the constraint \textbf{c}, so does any of its superset. That is, we do not need to check \textbf{c} in subsequent mining. For example, constraints $\sum(S.price) \geqslant v$ or $\min(S.price) \leqslant v$ are monotone.
+
+\subsubsection{Data space pruning constraints}
+A constraint \textbf{c} is \textbf{data anti-monotone}: if a data entry \textbf{t} cannot satisfy a pattern \textbf{p} under constraint \textbf{c}, \textbf{t} cannot satisfy \textbf{p}’s superset either. That's why, data entry \textbf{t} can be pruned.\\
+
+\textbf{Succinctness}: if the constraint \textbf{c} can be enforced by directly manipulating the data.\\
+
+\textbf{Convertible constraints}: convert tough\footnote{Tough - жесткий} constraints into (anti-)monotone by proper ordering of items in transactions. For example, ordering items in value-descending order makes the constraint $avg(S.profit) > 20$ anti-monotone \textit{if the patterns grow in the right order}.
+
+%--
+\subsection{Recommended Readings}
+\begin{itemize}
+\item R. Srikant, Q. Vu, and R. Agrawal, <<Mining association rules with item constraints>>, KDD'97\item R. Ng, L.V.S. Lakshmanan, J. Han \& A. Pang, Exploratory mining and pruning optimizations of constrained association rules>>, SIGMOD’98\item G. Grahne, L. Lakshmanan, and X. Wang, <<Efficient mining of constrained correlated sets>>, ICDE'00\item J. Pei, J. Han, and L. V. S. Lakshmanan, <<Mining Frequent Itemsets with Convertible Constraints>>, ICDE'01\item J. Pei, J. Han, and W. Wang, <<Mining Sequential Patterns with Constraints in Large Databases>>, CIKM'02\item F. Bonchi, F. Giannotti, A. Mazzanti, and D. Pedreschi, <<ExAnte: Anticipated Data Reduction in Constrained Pattern Mining>>, PKDD'03\item F. Zhu, X. Yan, J. Han, and P. S. Yu, <<gPrune: A Constraint Pushing Framework for Graph Pattern Mining>>, PAKDD'07
+\end{itemize}
