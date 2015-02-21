@@ -1,0 +1,32 @@
+\section{Lecture 2: Pattern Discovery Basic Concepts}
+\subsection{Frequent Itemsets (Patterns)}
+
+X = itemset
+
+\begin{itemize}
+\item \textbf{(absolute) support (count) of X:} Frequency or the number of occurrences of an itemset X\item \textbf{(relative) support, s:} The fraction of transactions that contains X (i.e., the probability that a transaction contains X)\item An itemset X is \textbf{frequent} if the support of X is no less than a $minsup$ threshold (denoted as $\sigma$)
+\end{itemize}
+
+%--
+\subsection{Association Rules}
+Association rules: $X \to Y (s, c)$:
+\begin{itemize}\item \textbf{Support}, s: The probability that a transaction contains $X \cup Y$\item \textbf{Confidence}, c: The conditional probability that a transaction containing X also contains Y: 
+\begin{equation*}
+c = \frac{sup(X \cup Y)}{sup(X)}
+\end{equation*}
+\end{itemize}
+
+%--
+\subsection{Expressing Patterns in Compressed Form}
+Solution 1: \textbf{Closed patterns:} \textit{A pattern (itemset) X is closed if X is frequent, and there exists no super-pattern $Y \supset X$, with the same support as X}.\\
+    
+Closed pattern is a lossless compression of frequent patterns.\\
+
+Solution 2: \textbf{Max-patterns:} \textit{A pattern X is a max-pattern if X is frequent and there exists no frequent super-pattern $Y \supset X$}.\\
+
+Max-pattern is a lossy compression!
+
+%--
+\subsection{Recommended readings}
+\begin{itemize}\item R. Agrawal, T. Imielinski, and A. Swami, <<Mining association rules between sets of items in large databases>>, in Proc. of SIGMOD'93\item R. J. Bayardo, <<Efficiently mining long patterns from databases>>, in Proc. of SIGMOD'98\item N. Pasquier, Y. Bastide, R. Taouil, and L. Lakhal, <<Discovering frequent closed itemsetsfor association rules>>, in Proc. of ICDT'99\item J. Han, H. Cheng, D. Xin, and X. Yan, <<Frequent Pattern Mining: Current Status and Future Directions>>, Data Mining and Knowledge Discovery, 15(1): 55-86, 2007
+\end{itemize}

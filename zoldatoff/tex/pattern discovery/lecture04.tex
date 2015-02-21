@@ -1,0 +1,50 @@
+\section{Lecture 4: Pattern Evaluation}
+
+\subsection{Interestingness Measures: Lift and $\chi ^2$}
+
+\subsubsection{Interestingness Measure: Lift}
+
+Lift - measure of dependent/correlated events:
+\begin{equation*}
+lift(B,C) = \frac{c(B \to C)}{s(C)} = \frac{s(B \cup C)}{s(B) \times s(C)}
+\end{equation*}
+
+Lift(B, C) may tell how B and C are correlated:
+\begin{itemize}
+\item $Lift(B, C) = 1$: B and C are independent\item $Lift(B, C) > 1$: positively correlated\item $Lift(B, C) < 1$: negatively correlated
+\end{itemize}
+
+%--
+\subsubsection{Interestingness Measure: $\chi ^2$}
+\begin{equation*}
+\chi^2=\sum\frac{(Observed-Expected)^2}{Expected}
+\end{equation*}
+
+General rules:
+\begin{itemize}\item $\chi^2 = 0$: independent\item $\chi^2 > 0$: correlated, either positive or negative, so it needs additional test
+\end{itemize}
+
+Too many null transactions may lead to invalid correlation result!
+
+\subsection{Null Invariance Measures}
+
+\begin{gather*}
+AllConf(A, B) = \frac{s(A \cup B)}{\max\{s(A), s(B)\}} \\
+Jaccard(A, B) = \frac{s(A \cup B)}{s(A) + s(B) - s(A \cup B)} \\
+Cosine(A, B) = \frac{s(A \cup B)}{\sqrt{s(A) \times s(B)}} \\
+Kulczynsky(A, B) = \frac{1}{2}\left(\frac{s(A \cup B)}{s(A)} + \frac{s(A \cup B)}{s(B)}\right)\\
+MacConf(A, B)=\max\left\{\frac{s(A)}{s(A \cup B)}, \frac{s(B)}{s(A \cup B)}\right\}
+\end{gather*}
+
+\subsection{Imbalance Ratio}
+IR (Imbalance Ratio): measure the imbalance of two itemsets A and B in rule implications:
+\begin{equation*}
+IR(A, B)=\frac{\abs{s(A)-s(B)}}{s(A) + s(B) - s(A \cup B)}
+\end{equation*}
+
+Kulczynski and Imbalance Ratio (IR) together present a clear picture
+
+\subsection{Recommended Readings}
+\begin{itemize}
+\item C. C. Aggarwal and P. S. Yu. A New Framework for Itemset Generation. PODS’98\item S. Brin, R. Motwani, and C. Silverstein. Beyond market basket: Generalizingassociation rules to correlations. SIGMOD'97\item M. Klemettinen, H. Mannila, P. Ronkainen, H. Toivonen, and A. I. Verkamo. Finding interesting rules from large sets of discovered association rules. CIKM'94\item E. Omiecinski. Alternative Interest Measures for Mining Associations. TKDE’03\item P.-N. Tan, V. Kumar, and J. Srivastava. Selecting the Right Interestingness Measure forAssociation Patterns. KDD'02\item T. Wu, Y. Chen and J. Han, Re-Examination of Interestingness Measures in Pattern Mining: A Unified Framework, Data Mining and Knowledge Discovery, 21(3):371-397, 2010
+\end{itemize}

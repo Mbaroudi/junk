@@ -1,0 +1,23 @@
+\section{Constraint-Based Pattern Mining}
+\subsection{Meta-Rule Guided Mining}
+In general, (meta) rules can be in the form of
+\begin{equation*}
+P_1 \wedge P_2 \wedge ... \wedge P_l \Rightarrow Q_1 \wedge Q_2 \wedge ... \wedge Q_r
+\end{equation*}
+
+Method to find meta-rules:
+\begin{itemize}\item Find frequent (l + r) predicates (based on min-support)\item Push constants deeply when possible into the mining process\item Also, push min\_conf, min\_correlation, and other measures as early as possible (measures acting as constraints)
+\end{itemize}
+
+%--
+\subsection{Kinds of Constraints}
+\begin{itemize}
+\item Pattern space pruning constraints
+\begin{itemize}\item Anti-monotonic: If constraint c is violated, its further mining can be terminated\item Monotonic: If c is satisfied, no need to check c again
+\item Succinct\footnote{Succinct - краткий}: if the constraint c can be enforced by directly manipulating the data\item Convertible: c can be converted to monotonic or anti-monotonic if items can be properly ordered in processing
+\end{itemize}\item Data space pruning constraints
+\begin{itemize}\item Data succinct: Data space can be pruned at the initial pattern mining process\item Data anti-monotonic: If a transaction t does not satisfy c, then t can be pruned to reduce data processing effort
+\end{itemize}
+\end{itemize}
+
+Constraint c is \textbf{anti-monotone}: if an itemset S violates constraint c, so does any of its superset. That is, mining on itemset S can be terminated. For example, constraint $\sup(S) \geqslant \sigma$ is anti-monotone.
