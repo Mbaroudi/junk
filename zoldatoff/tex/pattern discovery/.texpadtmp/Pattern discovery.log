@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99991 (TeX Live 2014) (preloaded format=xelatex 2014.7.31)  22 FEB 2015 00:39
+This is XeTeX, Version 3.14159265-2.6-0.99991 (TeX Live 2014) (preloaded format=xelatex 2014.7.31)  22 FEB 2015 22:53
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -902,17 +902,17 @@ LaTeX Font Info:    Font shape `EU1/LatinModernMath(2)/m/n' will be
 LaTeX Font Info:    Font shape `EU1/LatinModernMath(2)/m/n' will be
 (Font)              scaled to size 5.99991pt on input line 9.
 
-Underfull \hbox (badness 10000) in paragraph at lines 25--26
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 27--28
-
- []
-
-
 Underfull \hbox (badness 10000) in paragraph at lines 29--30
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 31--32
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 33--34
 
  []
 
@@ -989,56 +989,30 @@ s for different kinds of items: group-
  []
 
 
-Overfull \hbox (58.68137pt too wide) in paragraph at lines 22--22
-[]\EU1/Georgia(0)/m/n/12 Inter-dimension association rule: $[][][][][][] [][] [
-] [][][][][][][][][][][][][] [][] [] [][][][][][][] [][]$ 
- []
-
-
-Overfull \hbox (45.48764pt too wide) in paragraph at lines 22--23
-[]\EU1/Georgia(0)/m/n/12 Hybrid-dimension association rules: $[][][][][][] [][]
- [] [][][][][][][] [][] [] [][][][][][][] [][]$ 
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 46--47
+Underfull \hbox (badness 10000) in paragraph at lines 56--57
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 48--49
+Underfull \hbox (badness 10000) in paragraph at lines 58--59
 
  []
 
 
-Overfull \hbox (8.63446pt too wide) in paragraph at lines 50--51
+Overfull \hbox (8.63446pt too wide) in paragraph at lines 60--61
 []\EU1/Georgia(0)/m/n/12 A Kulczynski measure-based definition: if itemsets A a
 nd B are frequent but $[] []
  []
 
 [7]
-Underfull \hbox (badness 10000) in paragraph at lines 60--61
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 62--63
-
- []
-
 File: desired_patterns.png Graphic file (type QTm)
-<use  "desired_patterns.png" >
-Underfull \hbox (badness 10000) in paragraph at lines 76--77
+ <use  "desired_patterns.png" >
+Underfull \hbox (badness 10000) in paragraph at lines 84--85
 
  []
 
 [8]
-Underfull \hbox (badness 10000) in paragraph at lines 84--86
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 87--88
+Underfull \hbox (badness 10000) in paragraph at lines 92--94
 
  []
 
@@ -1047,12 +1021,12 @@ Underfull \hbox (badness 10000) in paragraph at lines 35--36
 
  []
 
-
+[10]
 Underfull \hbox (badness 10000) in paragraph at lines 40--41
 
  []
 
-[10]
+
 Underfull \hbox (badness 10000) in paragraph at lines 42--43
 
  []

@@ -29,17 +29,17 @@ Too many null transactions may lead to invalid correlation result!
 \subsection{Null Invariance Measures}
 
 \begin{gather*}
-AllConf(A, B) = \frac{s(A \cup B)}{\max\{s(A), s(B)\}} \\
-Jaccard(A, B) = \frac{s(A \cup B)}{s(A) + s(B) - s(A \cup B)} \\
-Cosine(A, B) = \frac{s(A \cup B)}{\sqrt{s(A) \times s(B)}} \\
-Kulczynsky(A, B) = \frac{1}{2}\left(\frac{s(A \cup B)}{s(A)} + \frac{s(A \cup B)}{s(B)}\right)\\
-MacConf(A, B)=\max\left\{\frac{s(A)}{s(A \cup B)}, \frac{s(B)}{s(A \cup B)}\right\}
+\mathrm{AllConf}(A, B) = \frac{s(A \cup B)}{\max\{s(A), s(B)\}} \\
+\mathrm{Jaccard}(A, B) = \frac{s(A \cup B)}{s(A) + s(B) - s(A \cup B)} \\
+\mathrm{Cosine}(A, B) = \frac{s(A \cup B)}{\sqrt{s(A) \times s(B)}} \\
+\mathrm{Kulczynsky}(A, B) = \frac{1}{2}\left(\frac{s(A \cup B)}{s(A)} + \frac{s(A \cup B)}{s(B)}\right)\\
+\mathrm{MacConf}(A, B)=\max\left\{\frac{s(A)}{s(A \cup B)}, \frac{s(B)}{s(A \cup B)}\right\}
 \end{gather*}
 
 \subsection{Imbalance Ratio}
 IR (Imbalance Ratio): measure the imbalance of two itemsets A and B in rule implications:
 \begin{equation*}
-IR(A, B)=\frac{\abs{s(A)-s(B)}}{s(A) + s(B) - s(A \cup B)}
+\mathrm{IR}(A, B)=\frac{\abs{s(A)-s(B)}}{s(A) + s(B) - s(A \cup B)}
 \end{equation*}
 
 Kulczynski and Imbalance Ratio (IR) together present a clear picture

@@ -10,9 +10,13 @@ X = itemset
 %--
 \subsection{Association Rules}
 Association rules: $X \to Y (s, c)$:
-\begin{itemize}\item \textbf{Support}, s: The probability that a transaction contains $X \cup Y$\item \textbf{Confidence}, c: The conditional probability that a transaction containing X also contains Y: 
+\begin{itemize}\item \textbf{Support} (s): the probability that a transaction contains $X \cup Y$:
 \begin{equation*}
-c = \frac{sup(X \cup Y)}{sup(X)}
+\mathrm{sup}(X \to Y) = \mathrm{P}(X \cup Y)
+\end{equation*}
+\item \textbf{Confidence} (c): the conditional probability that a transaction containing X also contains Y: 
+\begin{equation*}
+c = \mathrm{P}(Y \mid X) = \frac{sup(X \cup Y)}{sup(X)}
 \end{equation*}
 \end{itemize}
 
