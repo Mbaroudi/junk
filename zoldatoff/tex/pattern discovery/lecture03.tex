@@ -68,7 +68,9 @@ TDB = transactional database\\
 
 %--
 \subsubsection{Partitioning}
-Theorem: \textit{Any itemset that is potentially frequent in TDB must be frequent in at least one of the partitions of TDB}\\
+\begin{theorem}
+\textit{Any itemset that is potentially frequent in TDB must be frequent in at least one of the partitions of TDB}
+\end{theorem}
 
 Method: Scan Database Only Twice:
 \begin{itemize}\item Scan 1: Partition database (how?) and find local frequent patterns

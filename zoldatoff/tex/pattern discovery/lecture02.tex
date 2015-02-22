@@ -22,12 +22,14 @@ c = \mathrm{P}(Y \mid X) = \frac{sup(X \cup Y)}{sup(X)}
 
 %--
 \subsection{Expressing Patterns in Compressed Form}
-Solution 1: \textbf{Closed patterns:} \textit{A pattern (itemset) X is closed if X is frequent, and there exists no super-pattern $Y \supset X$, with the same support as X}.\\
-    
-Closed pattern is a lossless compression of frequent patterns.\\
+\begin{definition}
+\textbf{Closed patterns:} \textit{A pattern (itemset) X is closed if X is frequent, and there exists no super-pattern $Y \supset X$, with the same support as X}.
+\end{definition}
+Closed pattern is a lossless compression of frequent patterns.
 
-Solution 2: \textbf{Max-patterns:} \textit{A pattern X is a max-pattern if X is frequent and there exists no frequent super-pattern $Y \supset X$}.\\
-
+\begin{definition}
+\textbf{Max-patterns:} \textit{A pattern X is a max-pattern if X is frequent and there exists no frequent super-pattern $Y \supset X$}.
+\end{definition}
 Max-pattern is a lossy compression!
 
 %--
