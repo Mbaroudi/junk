@@ -23,12 +23,13 @@ import matplotlib.font_manager as fm
 
 import scipy.cluster.hierarchy as hac
 import scipy.spatial.distance as dis
+from scipy import stats
 
 from sklearn.decomposition import PCA
 from sklearn import preprocessing
-from collections import Counter
-
 from sklearn import svm
+
+from collections import Counter
 
 # Откуда и сколько траекторий берём
 DRIVER_PATH = '/Users/zoldatoff/Downloads/driver/data/'
@@ -787,6 +788,84 @@ def apply_svm(files, main_driver=1):
 
     return a
 
+
+def classify(files, main_driver=1):
+    """
+    http://habrahabr.ru/post/251225/
+    """
+    main_file = [f for f in files
+                 if int(os.path.splitext(f)[0]) == main_driver][0]
+    df = pd.DataFrame.from_csv(main_file, index_col=False, sep='\t')
+    driver_kpi = df.as_matrix(columns=col)
+    driver_kpi = preprocessing.scale(driver_kpi)
+    driver_trip_array = df.as_matrix(columns=['driver_trip'])
+
+    pca = PCA(n_components=4)
+    X = pca.fit_transform(driver_kpi)
+    # print col
+    # print pca.explained_variance_ratio_
+
+    clf = svm.OneClassSVM(kernel="rbf")
+    clf.fit(X)
+
+    dist_to_border = clf.decision_function(X).ravel()
+
+    # plt.hist(dist_to_border, bins=50)
+    # plt.show()
+
+    # a = np.array(dist_to_border)
+    # a = np.sort(a[a < 0])
+    # d = np.diff(a)
+    # n = np.argmax(d)
+    # while n < 5:
+    #     d[n] = 0
+    #     n = np.argmax(d)
+
+    threshold = -10.0
+    is_inlier = dist_to_border > threshold
+    n_inliers = sum([1 for i in is_inlier if i])
+    n_outliers = sum([1 for i in is_inlier if ~i])
+    print main_driver, ':', n_inliers, '/', n_outliers
+    # plot_classify(clf, X, dist_to_border, threshold)
+
+    a = np.empty(shape=[0, 2])
+    i = 0
+    for x in X:
+        driver_trip = driver_trip_array[i][0]
+        prob = str(int(is_inlier[i] and 1 or 0))
+        a = np.append(a, np.array([[driver_trip, prob]]), axis=0)
+        i = i + 1
+
+    return a
+
+
+def plot_classify(clf, X, dist_to_border, threshold):
+    is_inlier = dist_to_border > threshold
+    xx, yy = np.meshgrid(np.linspace(-7, 7, 500), np.linspace(-7, 7, 500))
+
+    Z = clf.decision_function(np.c_[xx.ravel(), yy.ravel()])
+    Z = Z.reshape(xx.shape)
+
+    plt.title("Outlier detection")
+    plt.contourf(xx, yy, Z,
+                 levels=np.linspace(Z.min(), threshold, 7),
+                 cmap=plt.cm.Blues_r)
+    a = plt.contour(xx, yy, Z,
+                    levels=[threshold],
+                    linewidths=2,
+                    colors='red')
+    plt.contourf(xx, yy, Z, levels=[threshold, Z.max()], colors='orange')
+    b = plt.scatter(X[is_inlier == 0, 0], X[is_inlier == 0, 1], c='white')
+    c = plt.scatter(X[is_inlier == 1, 0], X[is_inlier == 1, 1], c='black')
+    plt.axis('tight')
+    plt.legend([a.collections[0], b, c],
+               ['learned decision function', 'outliers', 'inliers'],
+               prop=fm.FontProperties(size=11))
+    plt.xlim((-7, 7))
+    plt.ylim((-7, 7))
+    plt.show()
+
+
 # =============================================================================
 # =============================================================================
 # =============================================================================
@@ -803,12 +882,25 @@ def apply_svm(files, main_driver=1):
 # for i in dirs:
 #     Driver(driver_num=i)
 
+#############################################
+# files = [f for f in os.listdir('./') if os.path.splitext(f)[1] == '.txt']
+# submission = np.array([['driver_trip', 'prob']])
+# driver_list = [int(os.path.splitext(f)[0]) for f in files]
+
+# for n in sorted(driver_list):
+#     a = apply_svm(files, n)
+#     submission = np.append(submission, a, axis=0)
+
+# np.savetxt('submission.csv', submission, fmt='%s', delimiter=',')
+
+#############################################
+
 files = [f for f in os.listdir('./') if os.path.splitext(f)[1] == '.txt']
 submission = np.array([['driver_trip', 'prob']])
 driver_list = [int(os.path.splitext(f)[0]) for f in files]
 
 for n in sorted(driver_list):
-    a = apply_svm(files, n)
+    a = classify(files, n)
     submission = np.append(submission, a, axis=0)
 
 np.savetxt('submission.csv', submission, fmt='%s', delimiter=',')
