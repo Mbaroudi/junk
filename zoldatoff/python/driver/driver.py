@@ -21,13 +21,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 
-# import scipy
 import scipy.cluster.hierarchy as hac
 import scipy.spatial.distance as dis
 
 from sklearn.decomposition import PCA
 from sklearn import preprocessing
-# from itertools import cycle
 from collections import Counter
 
 from sklearn import svm
@@ -728,9 +726,9 @@ def get_data(files, main_driver=1):
     """
     Reads data for training
     """
-    # print 'Reading Data'
+    # print 'Reading Data for driver', main_driver
 
-    min_max_scaler = preprocessing.MinMaxScaler((-5, 5))
+    scaler = preprocessing.StandardScaler()
 
     N = 5
     main_file = [f for f in files
@@ -758,7 +756,7 @@ def get_data(files, main_driver=1):
         X_train = np.append(X_train, array_train, axis=0)
         Y_train = np.append(Y_train, np.zeros(len_train))
 
-    X_train = min_max_scaler.fit_transform(X_train)
+    X_train = scaler.fit_transform(X_train)
     X_train[np.isnan(X_train)] = 0.0
     X = X_train[0:len_main]
 
@@ -769,6 +767,7 @@ def apply_svm(files, main_driver=1):
     """
     Applies SVM for identifying trips which are not from the driver of interest
     """
+    print '-- SVM for driver --', main_driver
 
     (X_train, Y_train, X, driver_trip_array) = get_data(files, main_driver)
     a = np.empty(shape=[0, 2])
@@ -776,7 +775,7 @@ def apply_svm(files, main_driver=1):
     clf = svm.SVC(kernel='rbf', shrinking=True, verbose=False)
     clf.fit(X_train, Y_train)
     # print clf.get_params()
-    print main_driver, ':',  clf.score(X_train, Y_train)
+    print 'Score for driver', main_driver, ':',  clf.score(X_train, Y_train)
 
     i = 0
     for x in X:
@@ -784,6 +783,8 @@ def apply_svm(files, main_driver=1):
         prob = str(int(clf.predict(x)[0]))
         a = np.append(a, np.array([[driver_trip, prob]]), axis=0)
         i = i + 1
+
+    print 'Number of own tracks: ', sum([1 for p in a if p[1] == '1'])
 
     return a
 
@@ -805,13 +806,13 @@ def apply_svm(files, main_driver=1):
 
 files = [f for f in os.listdir('./') if os.path.splitext(f)[1] == '.txt']
 submission = np.array([['driver_trip', 'prob']])
+driver_list = [int(os.path.splitext(f)[0]) for f in files]
 
-for n in [int(os.path.splitext(f)[0]) for f in files]:
+for n in sorted(driver_list):
     a = apply_svm(files, n)
     submission = np.append(submission, a, axis=0)
 
-np.savetxt('submission.csv', submission,
-           fmt='%s', delimiter=',')
+np.savetxt('submission.csv', submission, fmt='%s', delimiter=',')
 
 # ###########################################
 
