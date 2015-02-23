@@ -23,11 +23,14 @@ import matplotlib.font_manager as fm
 
 import scipy.cluster.hierarchy as hac
 import scipy.spatial.distance as dis
-from scipy import stats
 
 from sklearn.decomposition import PCA
 from sklearn import preprocessing
 from sklearn import svm
+
+from nolearn.dbn import DBN
+from sklearn.metrics import zero_one_loss
+# from sklearn.metrics import classification_report
 
 from collections import Counter
 
@@ -534,7 +537,7 @@ class Driver(object):
 
         # 'vR', 's', 'a', 'accel', 'decel', 'calm', 'nerv_a', 'nerv_ang'
         columns = ['accel', 'nerv_a']
-        kpis = self.kpis[columns] #.copy()
+        kpis = self.kpis[columns]
         a = kpis.as_matrix(columns=columns)
 
         min_max_scaler = preprocessing.MinMaxScaler()
@@ -723,7 +726,7 @@ class Driver(object):
 col = ['accel', 'decel', 'calm', 'nerv_a', 'nerv_ang', 's', 'vR']
 
 
-def get_data(files, main_driver=1):
+def get_train_data(files, main_driver=1):
     """
     Reads data for training
     http://scikit-learn.org/stable/auto_examples/svm/plot_rbf_parameters.html
@@ -768,7 +771,7 @@ def apply_svm(files, main_driver=1):
     Applies SVM for identifying trips which are not from the driver of interest
     """
 
-    (X_train, Y_train, X, driver_trip_array) = get_data(files, main_driver)
+    (X_train, Y_train, X, driver_trip_arr) = get_train_data(files, main_driver)
     a = np.empty(shape=[0, 2])
 
     clf = svm.SVC(kernel='rbf', shrinking=True, verbose=False)
@@ -778,7 +781,7 @@ def apply_svm(files, main_driver=1):
 
     i = 0
     for x in X:
-        driver_trip = driver_trip_array[i][0]
+        driver_trip = driver_trip_arr[i][0]
         prob = str(int(clf.predict(x)[0]))
         a = np.append(a, np.array([[driver_trip, prob]]), axis=0)
         i = i + 1
@@ -788,7 +791,35 @@ def apply_svm(files, main_driver=1):
     return a
 
 
-def classify(files, main_driver=1):
+def apply_dbn(files, main_driver=1):
+    """
+    Applies DBN for identifying trips which are not from the driver of interest
+    """
+    (X_train, Y_train, X, driver_trip_arr) = get_train_data(files, main_driver)
+    a = np.empty(shape=[0, 2])
+
+    net = DBN([len(col), 10, 2],
+              learn_rates=0.3,
+              learn_rate_decays=0.9,
+              epochs=10,
+              verbose=0)
+    net.fit(X_train, Y_train)
+
+    Y_dbn = net.predict(X_train)
+    print main_driver, ':', 1 - zero_one_loss(Y_train, Y_dbn)
+    # print "Classification report:"
+    # print classification_report(Y_train, preds)
+
+    i = 0
+    Y = net.predict(X)
+    for y in Y:
+        driver_trip = driver_trip_arr[i][0]
+        prob = str(int(Y[i]))
+        a = np.append(a, np.array([[driver_trip, prob]]), axis=0)
+        i = i + 1
+
+
+def apply_oneclasssvm(files, main_driver=1):
     """
     http://habrahabr.ru/post/251225/
     """
@@ -802,7 +833,7 @@ def classify(files, main_driver=1):
 
     driver_trip_array = df.as_matrix(columns=['driver_trip'])
 
-    pca = PCA(n_components=7)
+    pca = PCA(n_components=2)
     X = pca.fit_transform(driver_kpi)
     # print col
     # print pca.explained_variance_ratio_
@@ -825,7 +856,7 @@ def classify(files, main_driver=1):
     #     n = np.argmax(d)
 
     threshold = -10.0
-    # plot_classify(clf, X, dist_to_border, threshold)
+    plot_oneclasssvm(main_driver, clf, X, dist_to_border, threshold)
 
     a = np.empty(shape=[0, 2])
     i = 0
@@ -840,7 +871,10 @@ def classify(files, main_driver=1):
     return a
 
 
-def plot_classify(clf, X, dist_to_border, threshold):
+def plot_oneclasssvm(main_driver, clf, X, dist_to_border, threshold):
+    """
+    http://scikit-learn.org/stable/auto_examples/covariance/plot_outlier_detection.html
+    """
     is_inlier = dist_to_border > threshold
     xx, yy = np.meshgrid(np.linspace(-7, 7, 500), np.linspace(-7, 7, 500))
 
@@ -864,7 +898,8 @@ def plot_classify(clf, X, dist_to_border, threshold):
                prop=fm.FontProperties(size=11))
     plt.xlim((-7, 7))
     plt.ylim((-7, 7))
-    plt.show()
+    plt.savefig(str(main_driver) + '_svm' + PLOT_EXT)
+    plt.close()
 
 
 # =============================================================================
@@ -885,28 +920,15 @@ def plot_classify(clf, X, dist_to_border, threshold):
 
 #############################################
 
-files = [f for f in os.listdir('./') if os.path.splitext(f)[1] == '.txt']
+files = [f for f in os.listdir('./kpi/') if os.path.splitext(f)[1] == '.txt']
 submission = np.array([['driver_trip', 'prob']])
 driver_list = [int(os.path.splitext(f)[0]) for f in files]
 
 for n in sorted(driver_list):
-    a = classify(files, n) # classify apply_svm
+    # apply_oneclasssvm
+    # apply_svm
+    # apply_dbn
+    a = apply_dbn(files, n)
     submission = np.append(submission, a, axis=0)
 
 np.savetxt('submission.csv', submission, fmt='%s', delimiter=',')
-
-# ###########################################
-
-# print '====== DBN ======'
-# from nolearn.dbn import DBN
-# from sklearn.metrics import classification_report
-# from sklearn.metrics import zero_one_loss
-
-# net = DBN([len(col), 10, 2], learn_rates=0.3,
-#           learn_rate_decays=0.9, epochs=10, verbose=0)
-# net.fit(X_train, Y_train)
-# preds = net.predict(X_train)
-
-# print "Score:", 1-zero_one_loss(Y_train, preds)
-# print "Classification report:"
-# print classification_report(Y_train, preds)
