@@ -802,13 +802,14 @@ def classify(files, main_driver=1):
 
     driver_trip_array = df.as_matrix(columns=['driver_trip'])
 
-    pca = PCA(n_components=3)
+    pca = PCA(n_components=7)
     X = pca.fit_transform(driver_kpi)
     # print col
     # print pca.explained_variance_ratio_
 
     clf = svm.OneClassSVM(kernel="rbf")
     clf.fit(X)
+    # print main_driver, 'predict:', sum([p for p in clf.predict(X) if p == 1])
 
     dist_to_border = clf.decision_function(X).ravel()
 
@@ -823,7 +824,7 @@ def classify(files, main_driver=1):
     #     d[n] = 0
     #     n = np.argmax(d)
 
-    threshold = -5.0
+    threshold = -10.0
     # plot_classify(clf, X, dist_to_border, threshold)
 
     a = np.empty(shape=[0, 2])
