@@ -13,7 +13,7 @@ of driving type.
 """
 
 import os
-# import random
+import random
 
 import numpy as np
 import pandas as pd
@@ -31,10 +31,6 @@ from sklearn import preprocessing
 from collections import Counter
 
 from sklearn import svm
-from nolearn.dbn import DBN
-
-from sklearn.metrics import classification_report
-from sklearn.metrics import zero_one_loss
 
 # Откуда и сколько траекторий берём
 DRIVER_PATH = '/Users/zoldatoff/Downloads/driver/data/'
@@ -723,69 +719,83 @@ class Driver(object):
 
 # =============================================================================
 # =============================================================================
-# =============================================================================
-def save_result():
+
+# col = ['accel', 'decel', 'calm', 'nerv_a', 'nerv_ang', 's', 'vR']
+col = ['accel', 'decel', 'calm', 'nerv_a', 'nerv_ang', 'vR']
+
+
+def get_data(files, main_driver=1):
     """
-    Saves the result to a file for submission
+    Reads data for training
     """
-    print 'Saving results'
+    # print 'Reading Data'
 
-    result_file_name = 'submission.csv'
-    result_df = pd.DataFrame(None, columns=['driver_trip', 'prob'])
+    min_max_scaler = preprocessing.MinMaxScaler((-5, 5))
 
-    for file_name in os.listdir('./'):
-        file_ext = os.path.splitext(file_name)[1]
-        if file_ext == '.txt':
-            df = pd.DataFrame.from_csv(file_name, index_col=False, sep='\t')
-            df.prob = df.prob.map(int).map(str)
-            result_df = result_df.append(df[['driver_trip', 'prob']])
+    N = 5
+    main_file = [f for f in files
+                 if int(os.path.splitext(f)[0]) == main_driver][0]
+    train_files = [f for f in random.sample(files, N) if f != main_file]
 
-    result_df.to_csv(result_file_name, sep=',', index=False)
+    # print 'Reading main_file "', main_file, '"'
+    df = pd.DataFrame.from_csv(main_file, index_col=False, sep='\t')
+    array_main = df.as_matrix(columns=col)
+    driver_trip = df.as_matrix(columns=['driver_trip'])
+
+    X_train = array_main
+    len_main = np.shape(array_main)[0]
+    Y_train = np.ones(len_main)
+
+    for i in range(N-1):
+        X_train = np.append(X_train, array_main, axis=0)
+        Y_train = np.append(Y_train, np.ones(len_main))
+
+    for train_file in train_files:
+        # print 'Reading train_file "', train_file, '"'
+        df = pd.DataFrame.from_csv(train_file, index_col=False, sep='\t')
+        array_train = df.as_matrix(columns=col)
+        len_train = np.shape(array_train)[0]
+        X_train = np.append(X_train, array_train, axis=0)
+        Y_train = np.append(Y_train, np.zeros(len_train))
+
+    X_train = min_max_scaler.fit_transform(X_train)
+    X_train[np.isnan(X_train)] = 0.0
+    X = X_train[0:len_main]
+
+    return (X_train, Y_train, X, driver_trip)
 
 
-# col1 = ['accel', 'decel', 'calm', 'nerv_a', 'nerv_ang', 's', 'vR']
-col1 = ['accel', 'decel', 'calm', 'nerv_a', 'nerv_ang', 'vR']
-
-
-def read_kpi(train_driver=1):
+def apply_svm(files, main_driver=1):
     """
-    Saves the result to a file for submission
+    Applies SVM for identifying trips which are not from the driver of interest
     """
-    print 'Reading KPI'
 
-    # a accel   calm    decel   driver_num  nerv_a  nerv_ang
-    # s   trip_num    vR  prob
-    col2 = col1+['prob']
-    train_df = pd.DataFrame(None, columns=col1)
-    result_df = pd.DataFrame(None, columns=col2)
+    (X_train, Y_train, X, driver_trip_array) = get_data(files, main_driver)
+    a = np.empty(shape=[0, 2])
 
-    n = 0
-    for file_name in os.listdir('./'):
-        file_num, file_ext = os.path.splitext(file_name)
-        if file_ext == '.txt' \
-           and train_driver - 5 < int(file_num) < train_driver + 5:
-            df = pd.DataFrame.from_csv(file_name, index_col=False, sep='\t')
-            n += 1
-            if int(file_num) == train_driver:
-                train_df = train_df.append(
-                    df[df.driver_num == train_driver][col1])
-            else:
-                df['prob'] = 0
-                result_df = result_df.append(df[col2])
+    clf = svm.SVC(kernel='rbf', shrinking=True, verbose=False)
+    clf.fit(X_train, Y_train)
+    # print clf.get_params()
+    print main_driver, ':',  clf.score(X_train, Y_train)
 
-    df = train_df.copy()
-    for i in range(n):
-        df['prob'] = 1
-        result_df = result_df.append(df)
+    i = 0
+    for x in X:
+        driver_trip = driver_trip_array[i][0]
+        prob = str(int(clf.predict(x)[0]))
+        a = np.append(a, np.array([[driver_trip, prob]]), axis=0)
+        i = i + 1
 
-    return (train_df, result_df)
+    return a
 
 # =============================================================================
 # =============================================================================
 # =============================================================================
 
+############################################
 # dr = Driver(driver_num=0, method='csv1')
 
+
+############################################
 # dirs = os.listdir(DRIVER_PATH)
 # dirs = [x for x in dirs if not x.startswith('.')]
 # dirs = map(int, dirs)
@@ -793,41 +803,28 @@ def read_kpi(train_driver=1):
 # for i in dirs:
 #     Driver(driver_num=i)
 
-# save_result()
+files = [f for f in os.listdir('./') if os.path.splitext(f)[1] == '.txt']
+submission = np.array([['driver_trip', 'prob']])
 
-(train_df, df) = read_kpi(2000)
-X = df.as_matrix(col1)
-Y = df.prob.tolist()
-Z = train_df.as_matrix(col1)
+for n in [int(os.path.splitext(f)[0]) for f in files]:
+    a = apply_svm(files, n)
+    submission = np.append(submission, a, axis=0)
 
-print 'SVM'
-clf = svm.SVC(kernel='rbf', shrinking=True, verbose=False)
-clf.fit(X, Y)   # preprocessing.scale(X)
-#print clf.get_params()
-print 'Score:', clf.score(X, Y)
+np.savetxt('submission.csv', submission,
+           fmt='%s', delimiter=',')
 
-n = 0
-for data in Z:
-    n += clf.predict(data)[0]
-print 'Result:', n
+# ###########################################
 
-print '========='
+# print '====== DBN ======'
+# from nolearn.dbn import DBN
+# from sklearn.metrics import classification_report
+# from sklearn.metrics import zero_one_loss
 
-print 'DBN'
-net = DBN([len(col1), 10, 2], learn_rates=0.3,
-          learn_rate_decays=0.9, epochs=10, verbose=0)
-X = preprocessing.scale(X)
-net.fit(X, Y)
+# net = DBN([len(col), 10, 2], learn_rates=0.3,
+#           learn_rate_decays=0.9, epochs=10, verbose=0)
+# net.fit(X_train, Y_train)
+# preds = net.predict(X_train)
 
-preds = net.predict(X)
-
-print "Accuracy:", 1-zero_one_loss(Y, preds)
-print "Classification report:"
-print classification_report(Y, preds)
-
-
-Z = preprocessing.scale(Z)
-preds = net.predict(Z)
-print 'Result:', preds.size, preds.sum()
-
-print preds
+# print "Score:", 1-zero_one_loss(Y_train, preds)
+# print "Classification report:"
+# print classification_report(Y_train, preds)
