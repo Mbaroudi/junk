@@ -767,7 +767,6 @@ def apply_svm(files, main_driver=1):
     """
     Applies SVM for identifying trips which are not from the driver of interest
     """
-    print '-- SVM for driver --', main_driver
 
     (X_train, Y_train, X, driver_trip_array) = get_data(files, main_driver)
     a = np.empty(shape=[0, 2])
@@ -775,7 +774,7 @@ def apply_svm(files, main_driver=1):
     clf = svm.SVC(kernel='rbf', shrinking=True, verbose=False)
     clf.fit(X_train, Y_train)
     # print clf.get_params()
-    print 'Score for driver', main_driver, ':',  clf.score(X_train, Y_train)
+    print main_driver, ':',  clf.score(X_train, Y_train)
 
     i = 0
     for x in X:
@@ -784,7 +783,7 @@ def apply_svm(files, main_driver=1):
         a = np.append(a, np.array([[driver_trip, prob]]), axis=0)
         i = i + 1
 
-    print 'Number of own tracks: ', sum([1 for p in a if p[1] == '1'])
+    print main_driver, ': ', sum([1 for p in a if p[1] == '1'])
 
     return a
 
@@ -796,11 +795,14 @@ def classify(files, main_driver=1):
     main_file = [f for f in files
                  if int(os.path.splitext(f)[0]) == main_driver][0]
     df = pd.DataFrame.from_csv(main_file, index_col=False, sep='\t')
+
     driver_kpi = df.as_matrix(columns=col)
     driver_kpi = preprocessing.scale(driver_kpi)
+    driver_kpi[np.isnan(driver_kpi)] = 0.0
+
     driver_trip_array = df.as_matrix(columns=['driver_trip'])
 
-    pca = PCA(n_components=4)
+    pca = PCA(n_components=3)
     X = pca.fit_transform(driver_kpi)
     # print col
     # print pca.explained_variance_ratio_
@@ -821,20 +823,18 @@ def classify(files, main_driver=1):
     #     d[n] = 0
     #     n = np.argmax(d)
 
-    threshold = -10.0
-    is_inlier = dist_to_border > threshold
-    n_inliers = sum([1 for i in is_inlier if i])
-    n_outliers = sum([1 for i in is_inlier if ~i])
-    print main_driver, ':', n_inliers, '/', n_outliers
+    threshold = -5.0
     # plot_classify(clf, X, dist_to_border, threshold)
 
     a = np.empty(shape=[0, 2])
     i = 0
     for x in X:
         driver_trip = driver_trip_array[i][0]
-        prob = str(int(is_inlier[i] and 1 or 0))
+        prob = str(int(dist_to_border[i] > threshold and 1 or 0))
         a = np.append(a, np.array([[driver_trip, prob]]), axis=0)
         i = i + 1
+
+    print main_driver, ': ', sum([1 for p in a if p[1] == '1'])
 
     return a
 
@@ -855,8 +855,8 @@ def plot_classify(clf, X, dist_to_border, threshold):
                     linewidths=2,
                     colors='red')
     plt.contourf(xx, yy, Z, levels=[threshold, Z.max()], colors='orange')
-    b = plt.scatter(X[is_inlier == 0, 0], X[is_inlier == 0, 1], c='white')
-    c = plt.scatter(X[is_inlier == 1, 0], X[is_inlier == 1, 1], c='black')
+    b = plt.scatter(X[is_inlier == 0, 0], X[is_inlier == 0, 1], c='red')
+    c = plt.scatter(X[is_inlier == 1, 0], X[is_inlier == 1, 1], c='yellow')
     plt.axis('tight')
     plt.legend([a.collections[0], b, c],
                ['learned decision function', 'outliers', 'inliers'],
@@ -883,24 +883,13 @@ def plot_classify(clf, X, dist_to_border, threshold):
 #     Driver(driver_num=i)
 
 #############################################
-# files = [f for f in os.listdir('./') if os.path.splitext(f)[1] == '.txt']
-# submission = np.array([['driver_trip', 'prob']])
-# driver_list = [int(os.path.splitext(f)[0]) for f in files]
-
-# for n in sorted(driver_list):
-#     a = apply_svm(files, n)
-#     submission = np.append(submission, a, axis=0)
-
-# np.savetxt('submission.csv', submission, fmt='%s', delimiter=',')
-
-#############################################
 
 files = [f for f in os.listdir('./') if os.path.splitext(f)[1] == '.txt']
 submission = np.array([['driver_trip', 'prob']])
 driver_list = [int(os.path.splitext(f)[0]) for f in files]
 
 for n in sorted(driver_list):
-    a = classify(files, n)
+    a = classify(files, n) # classify apply_svm
     submission = np.append(submission, a, axis=0)
 
 np.savetxt('submission.csv', submission, fmt='%s', delimiter=',')
