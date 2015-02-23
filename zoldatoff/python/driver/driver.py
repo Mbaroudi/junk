@@ -719,16 +719,15 @@ class Driver(object):
 # =============================================================================
 
 # col = ['accel', 'decel', 'calm', 'nerv_a', 'nerv_ang', 's', 'vR']
-col = ['accel', 'decel', 'calm', 'nerv_a', 'nerv_ang', 'vR']
+col = ['accel', 'decel', 'calm', 'nerv_a', 'nerv_ang', 's', 'vR']
 
 
 def get_data(files, main_driver=1):
     """
     Reads data for training
+    http://scikit-learn.org/stable/auto_examples/svm/plot_rbf_parameters.html
     """
     # print 'Reading Data for driver', main_driver
-
-    scaler = preprocessing.StandardScaler()
 
     N = 5
     main_file = [f for f in files
@@ -756,7 +755,7 @@ def get_data(files, main_driver=1):
         X_train = np.append(X_train, array_train, axis=0)
         Y_train = np.append(Y_train, np.zeros(len_train))
 
-    X_train = scaler.fit_transform(X_train)
+    X_train = preprocessing.scale(X_train)
     X_train[np.isnan(X_train)] = 0.0
     X = X_train[0:len_main]
 
