@@ -1,0 +1,29 @@
+\section{Sequential Pattern Mining}
+
+\subsection{Sequential Pattern}
+Sequence $\to$ Element $\to$ Item or Event (items within an element are unordered)
+
+The Apriori property still holds: if a subsequence $s_1$ is infrequent, none of $s_1$’s super-sequences can be frequent.\\
+
+Algorithms:
+\begin{itemize}\item Generalized Sequential Patterns: \textbf{GSP}
+\item Vertical format-based mining: \textbf{SPADE}\item Pattern-growth methods: \textbf{PrefixSpan}\item Mining closed sequential patterns: \textbf{CloSpan}
+\end{itemize}
+
+
+%--
+\subsection{GSP: Apriori- Based Sequential Pattern Mining}
+
+\begin{algorithm}
+\caption{GSP}
+\begin{algorithmic}
+\State k = 1
+\Repeat
+    \State find length=k frequent sequences
+    \State Apriori: remove candidates with sup < min\_sup    \State length=k frequent sequences $\Rightarrow$ length=(k+1) candidate sequences    \State k = k + 1
+\Until{no frequent sequences or candidates}
+\end{algorithmic}
+\end{algorithm}
+
+
+%--

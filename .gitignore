@@ -8,3 +8,17 @@
 *.zip
 
 *.csv
+
+*.aux
+
+zoldatoff/tex/pattern discovery/.texpadtmp/Pattern discovery.aux
+
+*.log
+
+zoldatoff/tex/pattern discovery/.texpadtmp/Pattern discovery.log
+
+zoldatoff/tex/pattern discovery/.texpadtmp/Pattern discovery.synctex (Конфликтующая копия с компьютера MacBook Pro 2015-02-24).gz(busy)
+
+*.gz
+
+zoldatoff/tex/pattern discovery/.texpadtmp/Pattern discovery.synctex.gz
