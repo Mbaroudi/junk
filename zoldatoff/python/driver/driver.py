@@ -67,7 +67,7 @@ def get_train_data(files, main_driver=1):
     Y_train = np.ones(len_main)
 
     # for i in range(TRAIN_SIZE - 1):
-    for i in range(TRAIN_SIZE + 1):  # для нейросети
+    for i in range(TRAIN_SIZE + 2):  # для нейросети
         X_train = np.append(X_train, array_main, axis=0)
         Y_train = np.append(Y_train, np.ones(len_main))
 
@@ -122,8 +122,6 @@ def apply_dbn(files, main_driver=1):
               learn_rates=0.3,
               learn_rate_decays=0.9,
               epochs=10,
-              # Softmax Sigmoid Tanh
-              output_act_funct=activationFunctions.Sigmoid(),
               verbose=0)
     net.fit(X_train, Y_train)
 
