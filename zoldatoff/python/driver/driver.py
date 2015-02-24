@@ -27,10 +27,12 @@ import matplotlib.font_manager as fm
 from sklearn.decomposition import PCA
 from sklearn import preprocessing
 from sklearn import svm
-
-from nolearn.dbn import DBN
 from sklearn.metrics import zero_one_loss
 # from sklearn.metrics import classification_report
+
+from nolearn.dbn import DBN
+from gdbn import activationFunctions
+
 
 # Откуда и сколько траекторий берём
 DRIVER_PATH = '/Users/zoldatoff/Downloads/driver/data/'
@@ -120,6 +122,8 @@ def apply_dbn(files, main_driver=1):
               learn_rates=0.3,
               learn_rate_decays=0.9,
               epochs=10,
+              # Softmax Sigmoid Tanh
+              output_act_funct=activationFunctions.Sigmoid(),
               verbose=0)
     net.fit(X_train, Y_train)
 
