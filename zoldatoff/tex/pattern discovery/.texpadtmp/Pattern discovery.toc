@@ -1,0 +1,52 @@
+\contentsline {section}{\numberline {1}Lecture 2: Pattern Discovery Basic Concepts}{3}
+\contentsline {subsection}{\numberline {1.1}Frequent Itemsets (Patterns)}{3}
+\contentsline {subsection}{\numberline {1.2}Association Rules}{3}
+\contentsline {subsection}{\numberline {1.3}Expressing Patterns in Compressed Form}{3}
+\contentsline {subsection}{\numberline {1.4}Recommended readings}{3}
+\contentsline {section}{\numberline {2}Lecture 3. Efficient Pattern Mining Methods}{4}
+\contentsline {subsection}{\numberline {2.1}The Downward Closure Property of Frequent Patterns}{4}
+\contentsline {subsection}{\numberline {2.2}The Apriori Algorithm}{4}
+\contentsline {subsubsection}{\numberline {2.2.1}Algorithm pseudocode}{4}
+\contentsline {subsubsection}{\numberline {2.2.2}How to generate candidates?}{4}
+\contentsline {subsection}{\numberline {2.3}Extensions or Improvements of Apriori}{5}
+\contentsline {subsubsection}{\numberline {2.3.1}Partitioning}{5}
+\contentsline {subsubsection}{\numberline {2.3.2}Direct Hashing and Pruning (DHP)}{5}
+\contentsline {subsection}{\numberline {2.4}Vertical Data Format}{5}
+\contentsline {subsection}{\numberline {2.5}A Pattern Growth Approach}{6}
+\contentsline {subsection}{\numberline {2.6}CLOSET+: Mining Closed Itemsets by Pattern-Growth}{6}
+\contentsline {subsection}{\numberline {2.7}Recommended readings}{6}
+\contentsline {section}{\numberline {3}Lecture 4: Pattern Evaluation}{7}
+\contentsline {subsection}{\numberline {3.1}Interestingness Measures: Lift and $\mathbf {\mitchi ^2}$}{7}
+\contentsline {subsubsection}{\numberline {3.1.1}Interestingness Measure: Lift}{7}
+\contentsline {subsubsection}{\numberline {3.1.2}Interestingness Measure: $\mathbf {\mitchi ^2}$}{7}
+\contentsline {subsection}{\numberline {3.2}Null Invariance Measures}{8}
+\contentsline {subsection}{\numberline {3.3}Imbalance Ratio}{8}
+\contentsline {subsection}{\numberline {3.4}Recommended Readings}{8}
+\contentsline {section}{\numberline {4}Lecture 4: Mining Diverse Patterns}{8}
+\contentsline {subsection}{\numberline {4.1}Mining Multi- Level Associations}{8}
+\contentsline {subsection}{\numberline {4.2}Mining Multi-Dimensional Associations}{9}
+\contentsline {subsection}{\numberline {4.3}Mining Quantitative Associations}{9}
+\contentsline {subsection}{\numberline {4.4}Mining Negative Correlations}{9}
+\contentsline {subsection}{\numberline {4.5}Mining Compressed Patterns}{10}
+\contentsline {subsubsection}{\numberline {4.5.1}Mining Compressed Patterns}{10}
+\contentsline {subsubsection}{\numberline {4.5.2}Redundancy-Aware Top-k Patterns}{10}
+\contentsline {subsection}{\numberline {4.6}Mining Colossal Patterns}{10}
+\contentsline {subsubsection}{\numberline {4.6.1}Pattern-Fusion}{10}
+\contentsline {subsubsection}{\numberline {4.6.2}Robustness of Colossal Patterns}{11}
+\contentsline {subsubsection}{\numberline {4.6.3}The Pattern-Fusion Algorithm}{11}
+\contentsline {subsection}{\numberline {4.7}Recommended Readings}{12}
+\contentsline {section}{\numberline {5}Constraint-Based Pattern Mining}{12}
+\contentsline {subsection}{\numberline {5.1}Meta-Rule Guided Mining}{12}
+\contentsline {subsection}{\numberline {5.2}Kinds of Constraints}{12}
+\contentsline {subsubsection}{\numberline {5.2.1}Pattern space pruning constraints}{13}
+\contentsline {subsubsection}{\numberline {5.2.2}Data space pruning constraints}{13}
+\contentsline {subsection}{\numberline {5.3}Recommended Readings}{13}
+\contentsline {section}{\numberline {6}Sequential Pattern Mining}{13}
+\contentsline {subsection}{\numberline {6.1}Sequential Pattern}{13}
+\contentsline {subsection}{\numberline {6.2}GSP: Apriori-Based Sequential Pattern Mining}{14}
+\contentsline {subsection}{\numberline {6.3}Sequential Pattern Mining in Vertical Data Format: The SPADE Algorithm}{14}
+\contentsline {subsection}{\numberline {6.4}PrefixSpan: A Pattern-Growth Approach}{15}
+\contentsline {subsection}{\numberline {6.5}CloSpan: Mining Closed Sequential Patterns}{15}
+\contentsline {subsection}{\numberline {6.6}Constraint-Based Sequential-Pattern Mining}{16}
+\contentsline {subsubsection}{\numberline {6.6.1}Timing-Based Constraints}{16}
+\contentsline {subsection}{\numberline {6.7}Recommended Readings}{16}
