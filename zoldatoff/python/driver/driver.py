@@ -66,8 +66,8 @@ def get_train_data(files, main_driver=1):
     len_main = np.shape(array_main)[0]
     Y_train = np.ones(len_main)
 
-    # for i in range(TRAIN_SIZE - 1):
-    for i in range(TRAIN_SIZE + 2):  # для нейросети
+    # for i in range(TRAIN_SIZE + 2):  # для нейросети
+    for i in range(TRAIN_SIZE - 1):
         X_train = np.append(X_train, array_main, axis=0)
         Y_train = np.append(Y_train, np.ones(len_main))
 
