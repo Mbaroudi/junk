@@ -28,3 +28,7 @@ zoldatoff/tex/pattern discovery/.texpadtmp/Pattern discovery.aux
 zoldatoff/tex/pattern discovery/.texpadtmp/Pattern discovery.log
 
 *.gz
+
+*.toc
+
+zoldatoff/tex/pattern discovery/.texpadtmp/Pattern discovery.synctex.gz

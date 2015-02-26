@@ -23,7 +23,7 @@
 \contentsline {subsection}{\numberline {3.3}Imbalance Ratio}{8}
 \contentsline {subsection}{\numberline {3.4}Recommended Readings}{8}
 \contentsline {section}{\numberline {4}Lecture 4: Mining Diverse Patterns}{8}
-\contentsline {subsection}{\numberline {4.1}Mining Multi- Level Associations}{8}
+\contentsline {subsection}{\numberline {4.1}Mining Multi-Level Associations}{8}
 \contentsline {subsection}{\numberline {4.2}Mining Multi-Dimensional Associations}{9}
 \contentsline {subsection}{\numberline {4.3}Mining Quantitative Associations}{9}
 \contentsline {subsection}{\numberline {4.4}Mining Negative Correlations}{9}
@@ -44,7 +44,7 @@
 \contentsline {section}{\numberline {6}Sequential Pattern Mining}{13}
 \contentsline {subsection}{\numberline {6.1}Sequential Pattern}{13}
 \contentsline {subsection}{\numberline {6.2}GSP: Apriori-Based Sequential Pattern Mining}{14}
-\contentsline {subsection}{\numberline {6.3}Sequential Pattern Mining in Vertical Data Format: The SPADE Algorithm}{14}
+\contentsline {subsection}{\numberline {6.3}SPADE: Sequential Pattern Mining in Vertical Data Format}{14}
 \contentsline {subsection}{\numberline {6.4}PrefixSpan: A Pattern-Growth Approach}{15}
 \contentsline {subsection}{\numberline {6.5}CloSpan: Mining Closed Sequential Patterns}{15}
 \contentsline {subsection}{\numberline {6.6}Constraint-Based Sequential-Pattern Mining}{16}
