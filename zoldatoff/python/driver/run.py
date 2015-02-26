@@ -12,8 +12,8 @@ The intent of this competition is to develop an algorithmic signature
 of driving type.
 """
 
-# from Trip import Trip
-# from Driver import Driver
+import Trip
+# import Driver
 
 import os
 import random
@@ -31,7 +31,6 @@ from sklearn.metrics import zero_one_loss
 # from sklearn.metrics import classification_report
 
 from nolearn.dbn import DBN
-from gdbn import activationFunctions
 
 
 # Откуда и сколько траекторий берём
@@ -44,6 +43,7 @@ TRAIN_SIZE = 5
 col = ['accel', 'decel', 'calm', 'nerv_a', 'nerv_ang', 's', 'vR']
 
 
+# =============================================================================
 def get_train_data(files, main_driver=1):
     """
     Reads data for training
@@ -231,6 +231,12 @@ def plot_oneclasssvm(main_driver, clf, X, dist_to_border, threshold):
 # =============================================================================
 
 ############################################
+tr = Trip.Trip(1, 29)
+tr = Trip.Trip(1, 30)
+tr = Trip.Trip(1, 31)
+tr = Trip.Trip(1, 32)
+
+############################################
 # dr = Driver(driver_num=0, method='csv1')
 
 
@@ -244,15 +250,15 @@ def plot_oneclasssvm(main_driver, clf, X, dist_to_border, threshold):
 
 #############################################
 
-files = [f for f in os.listdir(KPI_PATH) if os.path.splitext(f)[1] == '.txt']
-submission = np.array([['driver_trip', 'prob']])
-driver_list = [int(os.path.splitext(f)[0]) for f in files]
+# files = [f for f in os.listdir(KPI_PATH) if os.path.splitext(f)[1] == '.txt']
+# submission = np.array([['driver_trip', 'prob']])
+# driver_list = [int(os.path.splitext(f)[0]) for f in files]
 
-for n in sorted(driver_list):
-    # apply_oneclasssvm
-    # apply_svm
-    # apply_dbn
-    a = apply_dbn(files, n)
-    submission = np.append(submission, a, axis=0)
+# for n in sorted(driver_list):
+#     # apply_oneclasssvm
+#     # apply_svm
+#     # apply_dbn
+#     a = apply_dbn(files, n)
+#     submission = np.append(submission, a, axis=0)
 
-np.savetxt('submission.csv', submission, fmt='%s', delimiter=',')
+# np.savetxt('submission.csv', submission, fmt='%s', delimiter=',')

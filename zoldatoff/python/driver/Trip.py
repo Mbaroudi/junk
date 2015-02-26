@@ -3,22 +3,32 @@
 
 import numpy as np
 import pandas as pd
-
 import matplotlib.pyplot as plt
+from pykalman import KalmanFilter
 
 # Откуда и сколько траекторий берём
 DRIVER_PATH = '/Users/zoldatoff/Downloads/driver/data/'
+PLOT_PATH = './plot/'
 PLOT_EXT = '.eps'
+
+# Допустимый дипапазон ускорений
+MIN_A = -5
+MAX_A = 10
+
+DEBUG = 1
 
 
 class Trip(object):
     """
-    This class:
-     * reads trip data from csv file
+    Класс для обработки одной траектории (trip):
+    * чтение из csv-файла
+    * разметка параметров и участков траектории
+    * выделение характерных статистических признаков траектории (KPI)
     """
 
     def __init__(self, driver_num=1, trip_num=1):
-        print 'Driver = ' + str(driver_num) + ', trip = ' + str(trip_num)
+        if DEBUG >= 1:
+            print 'Driver = ' + str(driver_num) + ', trip = ' + str(trip_num)
 
         self.driver_num = driver_num
         self.trip_num = trip_num
@@ -28,12 +38,16 @@ class Trip(object):
         self.set_flags()
         self.get_kpi()
 
-        # self.plot_trip()
-        # self.plot_data()
-        # self.plot_rv()
+        if DEBUG >= 1:
+            self.plot_trip()
 
-        # print self.kpi
-        # self.trip_data.to_csv(self.driver_trip + '_trip_data.csv', sep='\t')
+        if DEBUG >= 2:
+            self.plot_data()
+            self.plot_rv()
+            print self.kpi
+            self.trip_data.to_csv(
+                PLOT_PATH + self.driver_trip + '_trip_data.csv',
+                sep='\t')
 
     # =========================================================================
     def get_data(self):
@@ -44,34 +58,99 @@ class Trip(object):
         trip_path = DRIVER_PATH + '/' + str(self.driver_num) + '/'
         self.trip_data = pd.DataFrame.from_csv(
             trip_path + trip_filename, index_col=False)
-        self.trip_data.columns = ['x', 'y']
+
+        # Вариант без фильтра Калмана
+        # self.trip_data.columns = ['x', 'y']
+        # self.trip_data['v'] = self.distance(self.trip_data, 'x', 'y')
+
+        # Вариант с фильтром Калмана
+        self.trip_data.columns = ['_x_', '_y_']
+        self.df_kalman()
 
         self.trip_data['trip_num'] = self.trip_num
         self.trip_data['t'] = self.trip_data.index
-        self.trip_data['v'] = self.distance(self.trip_data, 'x', 'y')
         self.trip_data['a'] = self.trip_data.v.diff()
         self.trip_data['r'] = self.radius(self.trip_data, 'x', 'y')
         self.trip_data['ang'] = self.angle(self.trip_data, 'x', 'y')
 
-        self.trip_data['v'] = np.where(
-            (self.trip_data.a > -1) & (self.trip_data.a < 3),
-            self.trip_data.v, np.nan)
+        # Вариант без фильтра Калмана
+        # self.trip_data['v'] = np.where(
+        #     (self.trip_data.a > -MIN_A) & (self.trip_data.a < MAX_A),
+        #     self.trip_data.v, np.nan)
 
-        self.trip_data['r'] = np.where(
-            (self.trip_data.a > -1) & (self.trip_data.a < 3),
-            self.trip_data.r, np.nan)
+        # self.trip_data['r'] = np.where(
+        #     (self.trip_data.a > -MIN_A) & (self.trip_data.a < MAX_A),
+        #     self.trip_data.r, np.nan)
 
-        self.trip_data['ang'] = np.where(
-            (self.trip_data.a > -1) & (self.trip_data.a < 3),
-            self.trip_data.ang, np.nan)
+        # self.trip_data['ang'] = np.where(
+        #     (self.trip_data.a > -MIN_A) & (self.trip_data.a < MAX_A),
+        #     self.trip_data.ang, np.nan)
 
-        self.trip_data['a'] = np.where(
-            (self.trip_data.a > -1) & (self.trip_data.a < 3),
-            self.trip_data.a, np.nan)
+        # self.trip_data['a'] = np.where(
+        #     (self.trip_data.a > -MIN_A) & (self.trip_data.a < MAX_A),
+        #     self.trip_data.a, np.nan)
+
+    # =========================================================================
+    def df_kalman(self):
+        """
+        Smooths trip using Kalman method
+         * https://github.com/pykalman/pykalman
+         * http://pykalman.github.io
+         * https://ru.wikipedia.org/wiki/Фильтр_Калмана
+         * http://bit.ly/1Dd1bhn
+        """
+        df = self.trip_data.copy()
+        df['_v_'] = self.distance(self.trip_data, '_x_', '_y_')
+        df['_a_'] = df._v_.diff()
+
+        # Маскируем ошибочные точки
+        df._x_ = np.where(
+            (df._a_ > MIN_A) & (df._a_ < MAX_A),
+            df._x_, np.ma.masked)
+        df._y_ = np.where(
+            (df._a_ > MIN_A) & (df._a_ < MAX_A),
+            df._y_, np.ma.masked)
+
+        df['_vx_'] = df._x_.diff()
+        df['_vy_'] = df._y_.diff()
+
+        # Параметры физической модели dx = v * dt
+        transition_matrix = [[1, 0, 1, 0],
+                             [0, 1, 0, 1],
+                             [0, 0, 1, 0],
+                             [0, 0, 0, 1]]
+        observation_matrix = [[1, 0, 0, 0],
+                              [0, 1, 0, 0]]
+        xinit, yinit = df._x_[0], df._y_[0]
+        vxinit, vyinit = df._vx_[1], df._vy_[1]
+        initcovariance = 1.0e-4 * np.eye(4)
+        transistionCov = 1.0e-3 * np.eye(4)
+        observationCov = 1.0e-2 * np.eye(2)
+
+        # Фильтр Калмана
+        kfilter = KalmanFilter(
+            transition_matrices=transition_matrix,
+            observation_matrices=observation_matrix,
+            initial_state_mean=[xinit, yinit, vxinit, vyinit],
+            initial_state_covariance=initcovariance,
+            transition_covariance=transistionCov,
+            observation_covariance=observationCov
+        )
+        measurements = df[['_x_', '_y_']].values
+        kfilter = kfilter.em(measurements, n_iter=5)
+        (state_means, state_covariances) = kfilter.smooth(measurements)
+
+        kdf = pd.DataFrame(state_means, columns=('x', 'y', 'vx', 'vy'))
+        kdf['v'] = np.sqrt(np.square(kdf.vx) + np.square(kdf.vy))
+
+        self.trip_data[['x', 'y', 'v']] = kdf[['x', 'y', 'v']]
 
     # =========================================================================
     @staticmethod
     def turn(trip_data, turn_direction):
+        """
+        Алгоритм выделения левых и правых поворотов
+        """
         df = trip_data.copy()
 
         if turn_direction == 'left':
@@ -81,6 +160,7 @@ class Trip(object):
         else:
             s = 0
 
+        # n1 секунд подряд водитель поворачивает в одну и ту же сторону
         n1 = 3
         df['temp'] = df.apply(
             lambda x: 1
@@ -92,6 +172,7 @@ class Trip(object):
             .apply(lambda x: 1 if x == n1 else 0) \
             .shift(-n1/2+1)
 
+        # за n2 секунд водитель повернул на угол > pi/3
         n2 = 6
         df['temp'] = df.apply(
             lambda x: x.ang
@@ -108,6 +189,9 @@ class Trip(object):
     # =========================================================================
     @staticmethod
     def accel_decel(trip_data, acc_dec):
+        """
+        Алгоритм выделения разгонов и торможений
+        """
         df = trip_data.copy()
 
         if acc_dec == 'acc':
@@ -117,6 +201,7 @@ class Trip(object):
         else:
             s = 0
 
+        # n секунд подряд водитель ускорялся или замедлялся
         n = 3
         df['temp'] = df.a.apply(lambda x: 1 if s * x > 0.01 else 0)
 
@@ -129,7 +214,11 @@ class Trip(object):
     # =========================================================================
     def set_flags(self):
         """
-        Sets flags for special parts of trip
+        Расстановка флагов:
+        * флаги ускорения и торможения
+        * флаги левых и правых поворотов
+        * флаг спокойного движения (без ускорений и поворотов)
+        * флаг манёвра "поворот" = торможение + поворот + разгон
         """
         df = self.trip_data
 
@@ -143,6 +232,7 @@ class Trip(object):
             df['flag_accel'] + df['flag_decel']
             + df['flag_turn_left'] + df['flag_turn_right'] == 0, 1, 0)
 
+        # ищем паттерн: торможение >> поворот >> разгон
         df['flag_turn'] = 0
         turn_points = set()
         dff = df[(df.flag_turn_right == 1) | (df.flag_turn_left == 1)]
@@ -182,15 +272,12 @@ class Trip(object):
 
         # vR = наибольшая скорость вхождения в поворот с радиусом 15 м.
         df_turn = df[(df.flag_turn_left == 1) | (df.flag_turn_right == 1)]
-        # kpi['vR'] = df_turn[df_turn.r <= 10].v.max()
         kpi['vR'] = self.decile(df_turn[df_turn.r <= 15], 'v')
 
         kpi['a'] = self.decile(df[df.flag_accel == 1], 'a')
 
         # accel = наибольшее ускорение после прохождения поворота
         # decel = наибольшее замедление перед прохождением поворота
-        # kpi['accel'] = df[(df.flag_accel == 1) & (df.flag_turn == 1)].a.max()
-        # kpi['decel'] = df[(df.flag_decel == 1) & (df.flag_turn == 1)].a.max()
         kpi['accel'] = self.decile(
             df[(df.flag_accel == 1) & (df.flag_turn == 1)], 'a')
         kpi['decel'] = self.decile(
@@ -212,22 +299,19 @@ class Trip(object):
         kpi['nerv_ang'] = abs(df[df.flag_turn == 0].ang).sum() / \
             float(len(df[df.flag_turn == 0]))
 
+        # Длина трактории
         kpi['s'] = df.v.sum()
-
-        # part = [1 for i in range(1, 21)] \
-        #     + [2 for i in range(21, 41)] \
-        #     + [3 for i in range(41, 61)] \
-        #     + [4 for i in range(61, 81)] \
-        #     + [5 for i in range(81, 100)] \
-        #     + [5 for i in range(101, 200)]
-        # kpi['n'] = part[self.trip_num]
 
         self.kpi = kpi
 
     # =========================================================================
     def plot_data(self):
         """
-        Draws a plot of trip data
+        Строит динамику следующих показателей от времени:
+        * скорость
+        * ускорение
+        * радиус поворота
+        * угол поворота
         """
 
         df = self.trip_data
@@ -267,10 +351,12 @@ class Trip(object):
         # Radius
         ax = axes[1, 0]
         # df.plot(x='t', y='r', ax=axes[1], ls='--', color='k')
-        df[df.flag_turn_left == 1].plot(x='t', y='r', ax=ax,
-                                        ls='', marker='.', color='r')
-        df[df.flag_turn_right == 1].plot(x='t', y='r', ax=ax,
-                                         ls='', marker='.', color='b')
+        if not df[df.flag_turn_left == 1].empty:
+            df[df.flag_turn_left == 1].plot(x='t', y='r', ax=ax,
+                                            ls='', marker='.', color='r')
+        if not df[df.flag_turn_right == 1].empty:
+            df[df.flag_turn_right == 1].plot(x='t', y='r', ax=ax,
+                                             ls='', marker='.', color='b')
         ax.set_ylabel('Radius')
         ax.legend(['left', 'right'], loc='upper right')
         ax.set_xlabel('time (s)')
@@ -280,10 +366,12 @@ class Trip(object):
         # Angle
         ax = axes[1, 1]
         # df.plot(x='t', y='ang', ax=ax2, ls='--', color='k')
-        df[df.flag_turn_left == 1].plot(x='t', y='ang', ax=ax,
-                                        ls='', marker='.', color='r')
-        df[df.flag_turn_right == 1].plot(x='t', y='ang', ax=ax,
-                                         ls='', marker='.', color='b')
+        if not df[df.flag_turn_left == 1].empty:
+            df[df.flag_turn_left == 1].plot(x='t', y='ang', ax=ax,
+                                            ls='', marker='.', color='r')
+        if not df[df.flag_turn_right == 1].empty:
+            df[df.flag_turn_right == 1].plot(x='t', y='ang', ax=ax,
+                                             ls='', marker='.', color='b')
         ax.set_ylabel('Angle')
         ax.legend(['left', 'right'], loc='upper left')
         ax.set_xlabel('time (s)')
@@ -291,13 +379,13 @@ class Trip(object):
         ax.set_xbound(lower=0.0, upper=df.t.max())
 
         fig.set_size_inches(15, 10)
-        fig.savefig(self.driver_trip + '_data' + PLOT_EXT)
+        fig.savefig(PLOT_PATH + self.driver_trip + '_data' + PLOT_EXT)
         plt.close(fig)
 
     # =========================================================================
     def plot_trip(self):
         """
-        Сторит 2 графика:
+        Строит 2 графика:
         * график поворотов / разгонов / торможений
         * график поворотов с примыкающими к ним разгонами и торможениями
         """
@@ -306,54 +394,55 @@ class Trip(object):
         # График, на котором выделены повороты и
         # участки разгона / торможения
 
-        fig, axes = plt.subplots()
+        fig1, axes1 = plt.subplots()
 
-        df.plot(x='x', y='y', ax=axes, color='gray')
+        df.plot(x='x', y='y', ax=axes1, color='gray')
 
         if not df[df.flag_accel == 1].empty:
-            df[df.flag_accel == 1].plot(x='x', y='y', ax=axes, color='orange',
+            df[df.flag_accel == 1].plot(x='x', y='y', ax=axes1, color='orange',
                                         ls='', marker='.')
 
         if not df[df.flag_decel == 1].empty:
-            df[df.flag_decel == 1].plot(x='x', y='y', ax=axes, color='green',
+            df[df.flag_decel == 1].plot(x='x', y='y', ax=axes1, color='green',
                                         ls='', marker='.')
 
         if not df[df.flag_turn_left == 1].empty:
-            df[df.flag_turn_left == 1].plot(x='x', y='y', ax=axes, color='r',
+            df[df.flag_turn_left == 1].plot(x='x', y='y', ax=axes1, color='r',
                                             ls='', marker='o')
 
         if not df[df.flag_turn_right == 1].empty:
-            df[df.flag_turn_right == 1].plot(x='x', y='y', ax=axes, color='b',
+            df[df.flag_turn_right == 1].plot(x='x', y='y', ax=axes1, color='b',
                                              ls='', marker='o')
 
-        df[df.index <= 10].plot(x='x', y='y', ax=axes, color='r',
+        df[df.index <= 10].plot(x='x', y='y', ax=axes1, color='r',
                                          ls='', marker='x')
 
-        axes.legend(['trip', 'accel', 'decel', 'left', 'right', 'start'])
+        axes1.legend(['trip', 'accel', 'decel', 'left', 'right', 'start'])
 
-        axes.autoscale()
+        axes1.autoscale()
         plt.axis('equal')
 
-        fig.savefig(self.driver_trip + '_trip' + PLOT_EXT)
-        plt.close(fig)
+        fig1.savefig(PLOT_PATH + self.driver_trip + '_trip' + PLOT_EXT)
+        plt.close(fig1)
 
-        # График, на котором выделены повороты =
+        # График, на котором выделены манёвры "поворота"" =
         # замедление до поворота + поворот + ускорение после поворота
 
-        fig, axes = plt.subplots()
+        fig2, axes2 = plt.subplots()
 
-        df.plot(x='x', y='y', ax=axes, color='gray')
+        df.plot(x='x', y='y', ax=axes2, color='blue')
+        df.plot(x='_x_', y='_y_', ax=axes2, color='gray')
 
         if not df[df.flag_turn == 1].empty:
-            df[df.flag_turn == 1].plot(x='x', y='y', ax=axes, color='red',
+            df[df.flag_turn == 1].plot(x='x', y='y', ax=axes2, color='red',
                                        ls='', marker='.')
 
-        axes.autoscale()
+        axes2.autoscale()
         plt.axis('equal')
-        axes.legend(['trip', 'turn'])
+        axes2.legend(['trip smoothed', 'trip', 'turn'])
 
-        fig.savefig(self.driver_trip + '_turn' + PLOT_EXT)
-        plt.close(fig)
+        fig2.savefig(PLOT_PATH + self.driver_trip + '_turn' + PLOT_EXT)
+        plt.close(fig2)
 
     # =========================================================================
     def plot_rv(self):
@@ -365,21 +454,22 @@ class Trip(object):
         df = self.trip_data
         fig, axes = plt.subplots()
 
-        df[df.flag_turn_left == 1].plot(
-            x='r', y='v', ax=axes, ls='', marker='.', color='g')
-        df[df.flag_turn_right == 1].plot(
-            x='r', y='v', ax=axes, ls='', marker='.', color='b')
+        if not df[df.flag_turn_left == 1].empty:
+            df[df.flag_turn_left == 1].plot(
+                x='r', y='v', ax=axes, ls='', marker='.', color='g')
+        if not df[df.flag_turn_right == 1].empty:
+            df[df.flag_turn_right == 1].plot(
+                x='r', y='v', ax=axes, ls='', marker='.', color='b')
 
         axes.set_xlim([0, 100])
-        axes.legend().remove()
-        # sns.despine()
-        fig.savefig(self.driver_trip + '_rv' + PLOT_EXT)
+        axes.legend(['left', 'right'])
+        fig.savefig(PLOT_PATH + self.driver_trip + '_rv' + PLOT_EXT)
         plt.close(fig)
 
     # =========================================================================
     @staticmethod
     def distance(df, x, y):
-        return np.sqrt(df.x.diff()**2 + df.y.diff()**2)
+        return np.sqrt(df[x].diff()**2 + df[y].diff()**2)
 
     @staticmethod
     def radius(df, x, y):
