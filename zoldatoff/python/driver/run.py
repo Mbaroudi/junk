@@ -12,8 +12,9 @@ The intent of this competition is to develop an algorithmic signature
 of driving type.
 """
 
-import Trip
-# import Driver
+# import Trip
+import Driver
+from Const import *
 
 import os
 import random
@@ -32,15 +33,7 @@ from sklearn.metrics import zero_one_loss
 
 from nolearn.dbn import DBN
 
-
-# Откуда и сколько траекторий берём
-DRIVER_PATH = '/Users/zoldatoff/Downloads/driver/data/'
-KPI_PATH = './kpi/'
-PLOT_EXT = '.eps'
 TRAIN_SIZE = 5
-
-# ['accel', 'decel', 'calm', 'nerv_a', 'nerv_ang', 's', 'vR']
-col = ['accel', 'decel', 'calm', 'nerv_a', 'nerv_ang', 's', 'vR']
 
 
 # =============================================================================
@@ -59,7 +52,7 @@ def get_train_data(files, main_driver=1):
 
     # print 'Reading main_file "', main_file, '"'
     df = pd.DataFrame.from_csv(main_file, index_col=False, sep='\t')
-    array_main = df.as_matrix(columns=col)
+    array_main = df.as_matrix(columns=COL)
     driver_trip = df.as_matrix(columns=['driver_trip'])
 
     X_train = array_main
@@ -74,7 +67,7 @@ def get_train_data(files, main_driver=1):
     for train_file in train_files:
         # print 'Reading train_file "', train_file, '"'
         df = pd.DataFrame.from_csv(train_file, index_col=False, sep='\t')
-        array_train = df.as_matrix(columns=col)
+        array_train = df.as_matrix(columns=COL)
         len_train = np.shape(array_train)[0]
         X_train = np.append(X_train, array_train, axis=0)
         Y_train = np.append(Y_train, np.zeros(len_train))
@@ -118,7 +111,7 @@ def apply_dbn(files, main_driver=1):
     (X_train, Y_train, X, driver_trip_arr) = get_train_data(files, main_driver)
     a = np.empty(shape=[0, 2])
 
-    net = DBN([len(col), 10, 2],
+    net = DBN([len(COL), 10, 2],
               learn_rates=0.3,
               learn_rate_decays=0.9,
               epochs=10,
@@ -151,7 +144,7 @@ def apply_oneclasssvm(files, main_driver=1):
                  if int(os.path.splitext(f)[0]) == main_driver][0]
     df = pd.DataFrame.from_csv(main_file, index_col=False, sep='\t')
 
-    driver_kpi = df.as_matrix(columns=col)
+    driver_kpi = df.as_matrix(columns=COL)
     driver_kpi = preprocessing.scale(driver_kpi)
     driver_kpi[np.isnan(driver_kpi)] = 0.0
 
@@ -231,22 +224,18 @@ def plot_oneclasssvm(main_driver, clf, X, dist_to_border, threshold):
 # =============================================================================
 
 ############################################
-tr = Trip.Trip(1, 29)
-tr = Trip.Trip(1, 30)
-tr = Trip.Trip(1, 31)
-tr = Trip.Trip(1, 32)
+# tr = Trip.Trip(1, 29)
 
 ############################################
-# dr = Driver(driver_num=0, method='csv1')
-
+# dr = Driver.Driver(driver_num=1)
 
 ############################################
-# dirs = os.listdir(DRIVER_PATH)
-# dirs = [x for x in dirs if not x.startswith('.')]
-# dirs = map(int, dirs)
-# dirs.sort()
-# for i in dirs:
-#     Driver(driver_num=i)
+dirs = os.listdir(DRIVER_PATH)
+dirs = [x for x in dirs if not x.startswith('.')]
+dirs = map(int, dirs)
+dirs.sort()
+for i in dirs:
+    Driver(driver_num=i)
 
 #############################################
 

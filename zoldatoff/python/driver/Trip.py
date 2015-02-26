@@ -6,16 +6,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from pykalman import KalmanFilter
 
-# Откуда и сколько траекторий берём
-DRIVER_PATH = '/Users/zoldatoff/Downloads/driver/data/'
-PLOT_PATH = './plot/'
-PLOT_EXT = '.eps'
+from Const import *
 
 # Допустимый дипапазон ускорений
-MIN_A = -5
-MAX_A = 10
-
-DEBUG = 1
+MIN_A = -20
+MAX_A = 20
 
 
 class Trip(object):
@@ -27,8 +22,7 @@ class Trip(object):
     """
 
     def __init__(self, driver_num=1, trip_num=1):
-        if DEBUG >= 1:
-            print 'Driver = ' + str(driver_num) + ', trip = ' + str(trip_num)
+        print 'Driver = ' + str(driver_num) + ', trip = ' + str(trip_num)
 
         self.driver_num = driver_num
         self.trip_num = trip_num
