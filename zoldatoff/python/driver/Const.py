@@ -7,6 +7,6 @@ PLOT_PATH = './plot/'
 
 PLOT_EXT = '.png'
 
-DEBUG = 1
+DEBUG = 0
 
 COL = ['vR', 's', 'a', 'accel', 'decel', 'calm', 'nerv_a', 'nerv_ang']

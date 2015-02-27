@@ -12,26 +12,23 @@ The intent of this competition is to develop an algorithmic signature
 of driving type.
 """
 
-# import Trip
-import Driver
-from Const import *
-
 import os
 import random
 
 import numpy as np
 import pandas as pd
-
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
-
-from sklearn.decomposition import PCA
 from sklearn import preprocessing
 from sklearn import svm
 from sklearn.metrics import zero_one_loss
+from sklearn.decomposition import PCA
 # from sklearn.metrics import classification_report
-
 from nolearn.dbn import DBN
+
+# import Trip
+import Driver
+from Const import *
 
 TRAIN_SIZE = 5
 
@@ -235,7 +232,16 @@ dirs = [x for x in dirs if not x.startswith('.')]
 dirs = map(int, dirs)
 dirs.sort()
 for i in dirs:
-    Driver(driver_num=i)
+    file_name = KPI_PATH + str(i)
+    if os.path.exists(file_name + '.txt'):
+        print 'Driver', i, 'was calculated'
+    elif os.path.exists(file_name + '.lock'):
+        print 'Driver', i, 'is being calculated'
+    else:
+        with open(file_name + '.lock', 'a'):
+            os.utime(file_name + '.lock', None)
+        Driver.Driver(driver_num=i)
+        os.remove(file_name + '.lock')
 
 #############################################
 
