@@ -26,7 +26,7 @@ from sklearn.decomposition import PCA
 # from sklearn.metrics import classification_report
 from nolearn.dbn import DBN
 
-# import Trip
+import Trip
 import Driver
 from Const import *
 
@@ -221,39 +221,39 @@ def plot_oneclasssvm(main_driver, clf, X, dist_to_border, threshold):
 # =============================================================================
 
 ############################################
-# tr = Trip.Trip(1, 29)
+# tr = Trip.Trip(1, 19)
 
 ############################################
 # dr = Driver.Driver(driver_num=1)
 
 ############################################
-dirs = os.listdir(DRIVER_PATH)
-dirs = [x for x in dirs if not x.startswith('.')]
-dirs = map(int, dirs)
-dirs.sort()
-for i in dirs:
-    file_name = KPI_PATH + str(i)
-    if os.path.exists(file_name + '.txt'):
-        print 'Driver', i, 'was calculated'
-    elif os.path.exists(file_name + '.lock'):
-        print 'Driver', i, 'is being calculated'
-    else:
-        with open(file_name + '.lock', 'a'):
-            os.utime(file_name + '.lock', None)
-        Driver.Driver(driver_num=i)
-        os.remove(file_name + '.lock')
+# dirs = os.listdir(DRIVER_PATH)
+# dirs = [x for x in dirs if not x.startswith('.')]
+# dirs = map(int, dirs)
+# dirs.sort()
+# for i in dirs:
+#     file_name = KPI_PATH + str(i)
+#     if os.path.exists(file_name + '.txt'):
+#         print 'Driver', i, 'was calculated'
+#     elif os.path.exists(file_name + '.lock'):
+#         print 'Driver', i, 'is being calculated'
+#     else:
+#         with open(file_name + '.lock', 'a'):
+#             os.utime(file_name + '.lock', None)
+#         Driver.Driver(driver_num=i)
+#         os.remove(file_name + '.lock')
 
 #############################################
 
-# files = [f for f in os.listdir(KPI_PATH) if os.path.splitext(f)[1] == '.txt']
-# submission = np.array([['driver_trip', 'prob']])
-# driver_list = [int(os.path.splitext(f)[0]) for f in files]
+files = [f for f in os.listdir(KPI_PATH) if os.path.splitext(f)[1] == '.txt']
+submission = np.array([['driver_trip', 'prob']])
+driver_list = [int(os.path.splitext(f)[0]) for f in files]
 
-# for n in sorted(driver_list):
-#     # apply_oneclasssvm
-#     # apply_svm
-#     # apply_dbn
-#     a = apply_dbn(files, n)
-#     submission = np.append(submission, a, axis=0)
+for n in sorted(driver_list):
+    # apply_oneclasssvm
+    # apply_svm
+    # apply_dbn
+    a = apply_dbn(files, n)
+    submission = np.append(submission, a, axis=0)
 
-# np.savetxt('submission.csv', submission, fmt='%s', delimiter=',')
+np.savetxt('submission.csv', submission, fmt='%s', delimiter=',')

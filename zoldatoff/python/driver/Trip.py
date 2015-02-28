@@ -54,12 +54,12 @@ class Trip(object):
             trip_path + trip_filename, index_col=False)
 
         # Вариант без фильтра Калмана
-        # self.trip_data.columns = ['x', 'y']
-        # self.trip_data['v'] = self.distance(self.trip_data, 'x', 'y')
+        self.trip_data.columns = ['x', 'y']
+        self.trip_data['v'] = self.distance(self.trip_data, 'x', 'y')
 
         # Вариант с фильтром Калмана
-        self.trip_data.columns = ['_x_', '_y_']
-        self.df_kalman()
+        # self.trip_data.columns = ['_x_', '_y_']
+        # self.df_kalman()
 
         self.trip_data['trip_num'] = self.trip_num
         self.trip_data['t'] = self.trip_data.index
@@ -68,21 +68,21 @@ class Trip(object):
         self.trip_data['ang'] = self.angle(self.trip_data, 'x', 'y')
 
         # Вариант без фильтра Калмана
-        # self.trip_data['v'] = np.where(
-        #     (self.trip_data.a > -MIN_A) & (self.trip_data.a < MAX_A),
-        #     self.trip_data.v, np.nan)
+        self.trip_data['v'] = np.where(
+            (self.trip_data.a > MIN_A) & (self.trip_data.a < MAX_A),
+            self.trip_data.v, np.nan)
 
-        # self.trip_data['r'] = np.where(
-        #     (self.trip_data.a > -MIN_A) & (self.trip_data.a < MAX_A),
-        #     self.trip_data.r, np.nan)
+        self.trip_data['r'] = np.where(
+            (self.trip_data.a > MIN_A) & (self.trip_data.a < MAX_A),
+            self.trip_data.r, np.nan)
 
-        # self.trip_data['ang'] = np.where(
-        #     (self.trip_data.a > -MIN_A) & (self.trip_data.a < MAX_A),
-        #     self.trip_data.ang, np.nan)
+        self.trip_data['ang'] = np.where(
+            (self.trip_data.a > MIN_A) & (self.trip_data.a < MAX_A),
+            self.trip_data.ang, np.nan)
 
-        # self.trip_data['a'] = np.where(
-        #     (self.trip_data.a > -MIN_A) & (self.trip_data.a < MAX_A),
-        #     self.trip_data.a, np.nan)
+        self.trip_data['a'] = np.where(
+            (self.trip_data.a > MIN_A) & (self.trip_data.a < MAX_A),
+            self.trip_data.a, np.nan)
 
     # =========================================================================
     def df_kalman(self):
@@ -138,6 +138,26 @@ class Trip(object):
         kdf['v'] = np.sqrt(np.square(kdf.vx) + np.square(kdf.vy))
 
         self.trip_data[['x', 'y', 'v']] = kdf[['x', 'y', 'v']]
+
+    # =========================================================================
+    @staticmethod
+    def stop(trip_data):
+        """
+        Алгоритм выделения остановок
+        """
+        df = trip_data.copy()
+
+        n = 10
+
+        df['temp'] = df.apply(
+            lambda x: 1 if x.v < 0.5 else 0,
+            axis=1)
+
+        df['flag'] = pd.rolling_sum(df.temp, n) \
+            .apply(lambda x: 1 if x == n else 0) \
+            .shift(-n/2+1)
+
+        return np.where(df.flag > 0, 1, 0)
 
     # =========================================================================
     @staticmethod
@@ -222,9 +242,12 @@ class Trip(object):
         df['flag_turn_left'] = self.turn(df, 'left')
         df['flag_turn_right'] = self.turn(df, 'right')
 
+        df['flag_stop'] = self.stop(df)
+
         df['flag_calm'] = np.where(
             df['flag_accel'] + df['flag_decel']
-            + df['flag_turn_left'] + df['flag_turn_right'] == 0, 1, 0)
+            + df['flag_turn_left'] + df['flag_turn_right']
+            + df['flag_stop'] == 0, 1, 0)
 
         # ищем паттерн: торможение >> поворот >> разгон
         df['flag_turn'] = 0
@@ -295,6 +318,9 @@ class Trip(object):
 
         # Длина трактории
         kpi['s'] = df.v.sum()
+
+        # Длительность остановок
+        kpi['stop'] = df.flag_stop.sum() / float(kpi['s'])
 
         self.kpi = kpi
 
@@ -393,25 +419,38 @@ class Trip(object):
         df.plot(x='x', y='y', ax=axes1, color='gray')
 
         if not df[df.flag_accel == 1].empty:
-            df[df.flag_accel == 1].plot(x='x', y='y', ax=axes1, color='orange',
+            df[df.flag_accel == 1].plot(x='x', y='y', ax=axes1,
+                                        color=COLORS[0],  # 'orange',
                                         ls='', marker='.')
 
         if not df[df.flag_decel == 1].empty:
-            df[df.flag_decel == 1].plot(x='x', y='y', ax=axes1, color='green',
+            df[df.flag_decel == 1].plot(x='x', y='y', ax=axes1,
+                                        color=COLORS[1],  # 'green',
                                         ls='', marker='.')
 
         if not df[df.flag_turn_left == 1].empty:
-            df[df.flag_turn_left == 1].plot(x='x', y='y', ax=axes1, color='r',
+            df[df.flag_turn_left == 1].plot(x='x', y='y', ax=axes1,
+                                            color=COLORS[2],  # 'r',
                                             ls='', marker='o')
 
         if not df[df.flag_turn_right == 1].empty:
-            df[df.flag_turn_right == 1].plot(x='x', y='y', ax=axes1, color='b',
+            df[df.flag_turn_right == 1].plot(x='x', y='y', ax=axes1,
+                                             color=COLORS[3],  # 'b',
                                              ls='', marker='o')
 
-        df[df.index <= 10].plot(x='x', y='y', ax=axes1, color='r',
-                                         ls='', marker='x')
+        df[df.index <= 10].plot(x='x', y='y', ax=axes1,
+                                color=COLORS[4],  # 'r',
+                                ls='', marker='x')
 
-        axes1.legend(['trip', 'accel', 'decel', 'left', 'right', 'start'])
+        if not df[df.flag_stop == 1].empty:
+            df[df.flag_stop == 1].plot(x='x', y='y', ax=axes1,
+                                       color=COLORS[5],  # 'b',
+                                       ls='', marker='o')
+
+        axes1.legend(['trip',
+                      'accel', 'decel',
+                      'left', 'right',
+                      'start', 'stop'])
 
         axes1.autoscale()
         plt.axis('equal')
@@ -424,16 +463,22 @@ class Trip(object):
 
         fig2, axes2 = plt.subplots()
 
-        df.plot(x='x', y='y', ax=axes2, color='blue')
-        df.plot(x='_x_', y='_y_', ax=axes2, color='gray')
+        df.plot(x='x', y='y', ax=axes2, color='gray')
+        # df.plot(x='_x_', y='_y_', ax=axes2, color='gray')
 
         if not df[df.flag_turn == 1].empty:
-            df[df.flag_turn == 1].plot(x='x', y='y', ax=axes2, color='red',
+            df[df.flag_turn == 1].plot(x='x', y='y', ax=axes2,
+                                       color=COLORS[2],  # 'red',
                                        ls='', marker='.')
+
+        if not df[df.flag_stop == 1].empty:
+            df[df.flag_stop == 1].plot(x='x', y='y', ax=axes2,
+                                       color=COLORS[5],  # 'b',
+                                       ls='', marker='o')
 
         axes2.autoscale()
         plt.axis('equal')
-        axes2.legend(['trip smoothed', 'trip', 'turn'])
+        axes2.legend(['trip', 'turn', 'stop'])
 
         fig2.savefig(PLOT_PATH + self.driver_trip + '_turn' + PLOT_EXT)
         plt.close(fig2)
