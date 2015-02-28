@@ -1,13 +1,24 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-import Trip
-from Const import *
+"""
+Driver Telematics Analysis
+==========================
+
+Класс Driver обрабатывает траектории одного водителя:
+* агрегирует данные о характерных показателях всех траекторий водителя
+* сохраняет полученные данные в файл
+* строит графики траекторий и водителя их характерных признаков
+"""
 
 import random
 import os
+
 import pandas as pd
 import matplotlib.pyplot as plt
+
+import Trip
+from Const import *
 
 NUM_TRIP = 200
 

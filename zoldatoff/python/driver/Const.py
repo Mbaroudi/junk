@@ -1,6 +1,13 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+"""
+Driver Telematics Analysis
+==========================
+
+Константы и параметры расчёта.
+"""
+
 DRIVER_PATH = '/Users/zoldatoff/Downloads/driver/data/'
 KPI_PATH = './kpi/'
 PLOT_PATH = './plot/'

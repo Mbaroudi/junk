@@ -26,10 +26,9 @@ from sklearn.decomposition import PCA
 # from sklearn.metrics import classification_report
 from nolearn.dbn import DBN
 
-import Trip
-import Driver
 from Const import *
 
+# Объем обучающей выборки будет включать траектории 2*TRAIN_SIZE водителей
 TRAIN_SIZE = 5
 
 
@@ -41,13 +40,12 @@ def get_train_data(files, main_driver=1):
     """
     # print 'Reading Data for driver', main_driver
 
-    TRAIN_SIZE = 5
     main_file = [KPI_PATH + f for f in files
                  if int(os.path.splitext(f)[0]) == main_driver][0]
     train_files = [KPI_PATH + f for f in random.sample(files, TRAIN_SIZE)
                    if f != main_file]
 
-    # print 'Reading main_file "', main_file, '"'
+    # TRAIN_SIZE раз записываем в X_train данные искомого водителя
     df = pd.DataFrame.from_csv(main_file, index_col=False, sep='\t')
     array_main = df.as_matrix(columns=COL)
     driver_trip = df.as_matrix(columns=['driver_trip'])
@@ -56,11 +54,11 @@ def get_train_data(files, main_driver=1):
     len_main = np.shape(array_main)[0]
     Y_train = np.ones(len_main)
 
-    # for i in range(TRAIN_SIZE + 2):  # для нейросети
     for i in range(TRAIN_SIZE - 1):
         X_train = np.append(X_train, array_main, axis=0)
         Y_train = np.append(Y_train, np.ones(len_main))
 
+    # TRAIN_SIZE раз записываем в X_train данные других водителей
     for train_file in train_files:
         # print 'Reading train_file "', train_file, '"'
         df = pd.DataFrame.from_csv(train_file, index_col=False, sep='\t')
@@ -135,6 +133,7 @@ def apply_dbn(files, main_driver=1):
 
 def apply_oneclasssvm(files, main_driver=1):
     """
+    Алгоритм SVM для поиска вылетов
     http://habrahabr.ru/post/251225/
     """
     main_file = [KPI_PATH + f for f in files
@@ -147,6 +146,7 @@ def apply_oneclasssvm(files, main_driver=1):
 
     driver_trip_array = df.as_matrix(columns=['driver_trip'])
 
+    # Уменьшаем количество измерений
     pca = PCA(n_components=2)
     X = pca.fit_transform(driver_kpi)
     # print col
@@ -187,6 +187,7 @@ def apply_oneclasssvm(files, main_driver=1):
 
 def plot_oneclasssvm(main_driver, clf, X, dist_to_border, threshold):
     """
+    Визуализация результатов алгоритма OneClassSVM для двумерных входных данных
     http://scikit-learn.org/stable/auto_examples/covariance/plot_outlier_detection.html
     """
     is_inlier = dist_to_border > threshold
@@ -221,12 +222,16 @@ def plot_oneclasssvm(main_driver, clf, X, dist_to_border, threshold):
 # =============================================================================
 
 ############################################
+# Тестирование класса Trip
+# import Trip
 # tr = Trip.Trip(1, 19)
 
-############################################
+# Тестирование класса Driver
+# import Driver
 # dr = Driver.Driver(driver_num=1)
 
 ############################################
+# Расчёт параметров (KPI) для кажой траектории каждого водителя
 # dirs = os.listdir(DRIVER_PATH)
 # dirs = [x for x in dirs if not x.startswith('.')]
 # dirs = map(int, dirs)
@@ -244,6 +249,7 @@ def plot_oneclasssvm(main_driver, clf, X, dist_to_border, threshold):
 #         os.remove(file_name + '.lock')
 
 #############################################
+# Выделение "чужих" траекторий на основании анализа параметров KPI
 
 files = [f for f in os.listdir(KPI_PATH) if os.path.splitext(f)[1] == '.txt']
 submission = np.array([['driver_trip', 'prob']])
