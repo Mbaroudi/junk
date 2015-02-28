@@ -147,7 +147,7 @@ def apply_oneclasssvm(files, main_driver=1):
     driver_trip_array = df.as_matrix(columns=['driver_trip'])
 
     # Уменьшаем количество измерений
-    pca = PCA(n_components=2)
+    pca = PCA(n_components=len(COL)-2)
     X = pca.fit_transform(driver_kpi)
     # print col
     # print pca.explained_variance_ratio_
@@ -170,7 +170,7 @@ def apply_oneclasssvm(files, main_driver=1):
     #     n = np.argmax(d)
 
     threshold = -10.0
-    plot_oneclasssvm(main_driver, clf, X, dist_to_border, threshold)
+    # plot_oneclasssvm(main_driver, clf, X, dist_to_border, threshold)
 
     a = np.empty(shape=[0, 2])
     i = 0
@@ -259,7 +259,7 @@ for n in sorted(driver_list):
     # apply_oneclasssvm
     # apply_svm
     # apply_dbn
-    a = apply_dbn(files, n)
+    a = apply_oneclasssvm(files, n)
     submission = np.append(submission, a, axis=0)
 
 np.savetxt('submission.csv', submission, fmt='%s', delimiter=',')
