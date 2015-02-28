@@ -34,3 +34,5 @@ zoldatoff/tex/pattern discovery/.texpadtmp/Pattern discovery.log
 zoldatoff/tex/pattern discovery/.texpadtmp/Pattern discovery.synctex.gz
 
 *.lock
+
+*.toc

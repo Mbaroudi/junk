@@ -50,3 +50,11 @@
 \contentsline {subsection}{\numberline {6.6}Constraint-Based Sequential-Pattern Mining}{16}
 \contentsline {subsubsection}{\numberline {6.6.1}Timing-Based Constraints}{16}
 \contentsline {subsection}{\numberline {6.7}Recommended Readings}{16}
+\contentsline {section}{\numberline {7}Lecture 8. Graph Pattern Mining}{17}
+\contentsline {subsection}{\numberline {7.1}Frequent (Sub)Graph Patterns}{17}
+\contentsline {subsection}{\numberline {7.2}Apriori-Based Approach}{18}
+\contentsline {subsection}{\numberline {7.3}gSPAN: Graph Pattern Growth}{18}
+\contentsline {subsection}{\numberline {7.4}Mining Closed Graph Patterns}{18}
+\contentsline {subsection}{\numberline {7.5}gIndex: A Graph Indexing Method}{19}
+\contentsline {subsection}{\numberline {7.6}SpiderMine: Mining Top-K Large Structural Patterns in a Massive Network}{19}
+\contentsline {subsection}{\numberline {7.7}Recommended Readings}{20}
