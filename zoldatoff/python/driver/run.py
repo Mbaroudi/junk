@@ -29,7 +29,7 @@ from nolearn.dbn import DBN
 from Const import *
 
 # Объем обучающей выборки будет включать траектории 2*TRAIN_SIZE водителей
-TRAIN_SIZE = 5
+TRAIN_SIZE = 3
 
 
 # =============================================================================
@@ -259,7 +259,7 @@ for n in sorted(driver_list):
     # apply_oneclasssvm
     # apply_svm
     # apply_dbn
-    a = apply_svm(files, n)
+    a = apply_dbn(files, n)
     submission = np.append(submission, a, axis=0)
 
 np.savetxt('submission.csv', submission, fmt='%s', delimiter=',')
