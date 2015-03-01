@@ -259,7 +259,7 @@ for n in sorted(driver_list):
     # apply_oneclasssvm
     # apply_svm
     # apply_dbn
-    a = apply_oneclasssvm(files, n)
+    a = apply_svm(files, n)
     submission = np.append(submission, a, axis=0)
 
 np.savetxt('submission.csv', submission, fmt='%s', delimiter=',')
