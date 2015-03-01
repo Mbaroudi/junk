@@ -58,3 +58,13 @@
 \contentsline {subsection}{\numberline {7.5}gIndex: A Graph Indexing Method}{19}
 \contentsline {subsection}{\numberline {7.6}SpiderMine: Mining Top-K Large Structural Patterns in a Massive Network}{19}
 \contentsline {subsection}{\numberline {7.7}Recommended Readings}{20}
+\contentsline {section}{\numberline {8}Lecture 9. Pattern-Based Classification}{21}
+\contentsline {subsection}{\numberline {8.1}Classification: Basic Concepts}{21}
+\contentsline {subsection}{\numberline {8.2}Pattern-based classification methods}{21}
+\contentsline {subsection}{\numberline {8.3}CBA: Classification Based on Associations}{22}
+\contentsline {subsection}{\numberline {8.4}CMAR: Classification Based on Multiple Association Rules}{22}
+\contentsline {subsection}{\numberline {8.5}Discriminative Pattern-Based Classification}{22}
+\contentsline {subsubsection}{\numberline {8.5.1}On the Power of Discriminative Patterns}{23}
+\contentsline {subsection}{\numberline {8.6}DDPMine: Direct Mining of Discriminative Patterns}{23}
+\contentsline {subsubsection}{\numberline {8.6.1}Branch-and-Bound Search}{23}
+\contentsline {subsection}{\numberline {8.7}Recommended Readings}{24}
