@@ -68,3 +68,23 @@
 \contentsline {subsection}{\numberline {8.6}DDPMine: Direct Mining of Discriminative Patterns}{23}
 \contentsline {subsubsection}{\numberline {8.6.1}Branch-and-Bound Search}{23}
 \contentsline {subsection}{\numberline {8.7}Recommended Readings}{24}
+\contentsline {section}{\numberline {9}Lecture 10. Exploring Pattern Mining Applications}{24}
+\contentsline {subsection}{\numberline {9.1}Strategy 1: Simultaneously Inferring Phrases and Topics}{25}
+\contentsline {subsection}{\numberline {9.2}Strategy 2: Post Topic Modeling Phrase Construction}{25}
+\contentsline {subsubsection}{\numberline {9.2.1}TurboTopics}{25}
+\contentsline {subsubsection}{\numberline {9.2.2}KERT}{25}
+\contentsline {subsection}{\numberline {9.3}Strategy 3: First Phrase Mining then Topic Modeling}{26}
+\contentsline {subsubsection}{\numberline {9.3.1}Phrase Mining: Frequent Pattern Mining + Statistical Analysis}{26}
+\contentsline {subsection}{\numberline {9.4}Recommended Readings}{27}
+\contentsline {section}{\numberline {10}Lecture 11: Advanced Topics on Pattern Discovery}{27}
+\contentsline {subsection}{\numberline {10.1}Frequent Pattern Mining in Data Streams}{27}
+\contentsline {subsubsection}{\numberline {10.1.1}Lossy Counting Algorithm}{27}
+\contentsline {subsubsection}{\numberline {10.1.2}Recommended Readings}{28}
+\contentsline {subsection}{\numberline {10.2}Spatiotemporal and Trajectory Pattern Mining}{28}
+\contentsline {subsubsection}{\numberline {10.2.1}Mining Relative Movement Patterns}{28}
+\contentsline {subsubsection}{\numberline {10.2.2}Recommended Readings}{28}
+\contentsline {subsection}{\numberline {10.3}Pattern Discovery for Software Bug Mining}{29}
+\contentsline {subsubsection}{\numberline {10.3.1}Typical Software Bug Detection Methods}{29}
+\contentsline {subsubsection}{\numberline {10.3.2}Mining Copy-and-Paste Bugs}{29}
+\contentsline {subsection}{\numberline {10.4}Pattern Discovery for Image Analysis}{30}
+\contentsline {subsubsection}{\numberline {10.4.1}Recommended Readings}{30}
