@@ -16,8 +16,7 @@ PLOT_EXT = '.png'
 
 DEBUG = 0
 
-# COL = ['vR', 's', 'a', 'accel', 'decel', 'stop', 'calm', 'nerv_a', 'nerv_ang']
-COL = ['vR', 'accel', 'decel']
+COL = ['vR', 's', 'a', 'accel', 'decel', 'stop', 'calm', 'nerv_a', 'nerv_ang']
 
 # Google Chart Color List
 # http://there4development.com/blog/2012/05/02/google-chart-color-list/

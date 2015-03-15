@@ -519,7 +519,7 @@ class Trip(object):
     # =========================================================================
     @staticmethod
     def distance(df, x, y):
-        return np.sqrt(df[x].diff()**2 + df[y].diff()**2)
+        return np.sqrt(df[x].diff()**2.0 + df[y].diff()**2.0)
 
     @staticmethod
     def radius(df, x, y):
