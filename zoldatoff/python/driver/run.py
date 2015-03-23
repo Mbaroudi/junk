@@ -23,6 +23,7 @@ from sklearn import preprocessing
 from sklearn import svm
 from sklearn.metrics import zero_one_loss
 from sklearn.decomposition import PCA
+from sklearn.ensemble import RandomForestClassifier
 # from sklearn.metrics import classification_report
 from nolearn.dbn import DBN
 
@@ -91,6 +92,37 @@ def apply_svm(files, main_driver=1):
     for x in X:
         driver_trip = driver_trip_arr[i][0]
         prob = str(int(clf.predict(x)[0]))
+        a = np.append(a, np.array([[driver_trip, prob]]), axis=0)
+        i = i + 1
+
+    print main_driver, ': ', sum([1 for p in a if p[1] == '1'])
+
+    return a
+
+
+def apply_rfc(files, main_driver=1):
+    """
+    Applies RandomForest Classifier for identifying trips
+    which are not from the driver of interest
+
+    http://habrahabr.ru/post/171759/
+    """
+
+    (X_train, Y_train, X, driver_trip_arr) = get_train_data(files, main_driver)
+    a = np.empty(shape=[0, 2])
+
+    rfc = RandomForestClassifier(n_estimators=50)
+    # в параметре передаем кол-во деревьев
+
+    rfc.fit(X_train, Y_train)
+
+    # print rfc.get_params()
+    print main_driver, ':',  rfc.score(X_train, Y_train)
+
+    i = 0
+    for x in X:
+        driver_trip = driver_trip_arr[i][0]
+        prob = str(int(rfc.predict(x)[0]))
         a = np.append(a, np.array([[driver_trip, prob]]), axis=0)
         i = i + 1
 
@@ -259,7 +291,8 @@ for n in sorted(driver_list):
     # apply_oneclasssvm
     # apply_svm
     # apply_dbn
-    a = apply_dbn(files, n)
+    # apply_rfc
+    a = apply_rfc(files, n)
     submission = np.append(submission, a, axis=0)
 
 np.savetxt('submission.csv', submission, fmt='%s', delimiter=',')
