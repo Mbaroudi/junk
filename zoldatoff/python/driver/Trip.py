@@ -370,10 +370,12 @@ class Trip(object):
         # Acceleration
         ax = axes[0, 1]
         df.plot(x='t', y='a', ax=ax, ls='--', color='gray')
-        df[df.flag_accel == 1].plot(x='t', y='a', ax=ax,
-                                    ls='', marker='.', color='r')
-        df[df.flag_decel == 1].plot(x='t', y='a', ax=ax,
-                                    ls='', marker='.', color='g')
+        if not df[df.flag_accel == 1].empty:
+            df[df.flag_accel == 1].plot(x='t', y='a', ax=ax,
+                                        ls='', marker='.', color='r')
+        if not df[df.flag_decel == 1].empty:
+            df[df.flag_decel == 1].plot(x='t', y='a', ax=ax,
+                                        ls='', marker='.', color='g')
         ax.set_ylabel('Acceleration')
         ax.legend(['', 'acceleration', 'deceleration'], loc='upper left')
         ax.set_xlabel('time (s)')

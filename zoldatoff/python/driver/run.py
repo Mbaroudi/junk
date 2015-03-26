@@ -19,18 +19,18 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
-from sklearn import preprocessing
+# from nolearn.dbn import DBN
+# from sklearn import ensemble
 from sklearn import svm
+from sklearn import preprocessing
 from sklearn.metrics import zero_one_loss
 from sklearn.decomposition import PCA
-from sklearn.ensemble import RandomForestClassifier
 # from sklearn.metrics import classification_report
-from nolearn.dbn import DBN
 
 from Const import *
 
 # Объем обучающей выборки будет включать траектории 2*TRAIN_SIZE водителей
-TRAIN_SIZE = 3
+TRAIN_SIZE = 20
 
 
 # =============================================================================
@@ -49,15 +49,12 @@ def get_train_data(files, main_driver=1):
     # TRAIN_SIZE раз записываем в X_train данные искомого водителя
     df = pd.DataFrame.from_csv(main_file, index_col=False, sep='\t')
     array_main = df.as_matrix(columns=COL)
-    driver_trip = df.as_matrix(columns=['driver_trip'])
+    driver_trip = df.as_matrix(columns=['driver_trip']).ravel()
 
-    X_train = array_main
     len_main = np.shape(array_main)[0]
+    X_train = array_main
     Y_train = np.ones(len_main)
-
-    for i in range(TRAIN_SIZE - 1):
-        X_train = np.append(X_train, array_main, axis=0)
-        Y_train = np.append(Y_train, np.ones(len_main))
+    weight = np.ones(len_main) * TRAIN_SIZE
 
     # TRAIN_SIZE раз записываем в X_train данные других водителей
     for train_file in train_files:
@@ -67,75 +64,58 @@ def get_train_data(files, main_driver=1):
         len_train = np.shape(array_train)[0]
         X_train = np.append(X_train, array_train, axis=0)
         Y_train = np.append(Y_train, np.zeros(len_train))
+        weight = np.append(weight, np.ones(len_train))
 
     X_train = preprocessing.scale(X_train)
     X_train[np.isnan(X_train)] = 0.0
     X = X_train[0:len_main]
 
-    return (X_train, Y_train, X, driver_trip)
+    return (X_train, Y_train, weight, X, driver_trip)
 
 
-def apply_svm(files, main_driver=1):
+def apply_clf(files, main_driver=1, classify='SVM'):
     """
-    Applies SVM for identifying trips which are not from the driver of interest
-    """
-
-    (X_train, Y_train, X, driver_trip_arr) = get_train_data(files, main_driver)
-    a = np.empty(shape=[0, 2])
-
-    clf = svm.SVC(kernel='rbf', shrinking=True, verbose=False)
-    clf.fit(X_train, Y_train)
-    # print clf.get_params()
-    print main_driver, ':',  clf.score(X_train, Y_train)
-
-    i = 0
-    for x in X:
-        driver_trip = driver_trip_arr[i][0]
-        prob = str(int(clf.predict(x)[0]))
-        a = np.append(a, np.array([[driver_trip, prob]]), axis=0)
-        i = i + 1
-
-    print main_driver, ': ', sum([1 for p in a if p[1] == '1'])
-
-    return a
-
-
-def apply_rfc(files, main_driver=1):
-    """
-    Applies RandomForest Classifier for identifying trips
-    which are not from the driver of interest
+    Classification algorithm:
+     * SVM = svm.SVC
+     * RFC = RandomForestClassifier
 
     http://habrahabr.ru/post/171759/
+    http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
     """
 
-    (X_train, Y_train, X, driver_trip_arr) = get_train_data(files, main_driver)
+    (X_train, Y_train, weight, X, driver_trip_arr) = \
+        get_train_data(files, main_driver)
     a = np.empty(shape=[0, 2])
 
-    rfc = RandomForestClassifier(n_estimators=50)
-    # в параметре передаем кол-во деревьев
+    if classify == 'SVM':
+        clf = svm.SVC(kernel='rbf', shrinking=True, verbose=False)
+    elif classify == 'RFC':
+        clf = ensemble.RandomForestClassifier(
+            n_estimators=10, n_jobs=-1, verbose=0)
+        # n_estimators = The number of trees in the forest.
+        # n_jobs = The number of jobs to run in parallel for both fit and
+        # predict. If -1, then the number of jobs is set to the number of
+        # cores.
 
-    rfc.fit(X_train, Y_train)
+    clf.fit(X_train, Y_train, sample_weight=weight)
 
-    # print rfc.get_params()
-    print main_driver, ':',  rfc.score(X_train, Y_train)
+    a = driver_trip_arr.tolist()
+    b = clf.predict(X).astype(int).tolist()
+    c = np.asarray(zip(a, b))
 
-    i = 0
-    for x in X:
-        driver_trip = driver_trip_arr[i][0]
-        prob = str(int(rfc.predict(x)[0]))
-        a = np.append(a, np.array([[driver_trip, prob]]), axis=0)
-        i = i + 1
+    # print clf.get_params()
+    print main_driver, ':',  clf.score(X_train, Y_train)
+    print main_driver, ': ', sum([1 for p in c if p[1] == '1'])
 
-    print main_driver, ': ', sum([1 for p in a if p[1] == '1'])
-
-    return a
+    return c
 
 
 def apply_dbn(files, main_driver=1):
     """
     Applies DBN for identifying trips which are not from the driver of interest
     """
-    (X_train, Y_train, X, driver_trip_arr) = get_train_data(files, main_driver)
+    (X_train, Y_train, weight, X, driver_trip_arr) = \
+        get_train_data(files, main_driver)
     a = np.empty(shape=[0, 2])
 
     net = DBN([len(COL), 10, 2],
@@ -258,9 +238,35 @@ def plot_oneclasssvm(main_driver, clf, X, dist_to_border, threshold):
 # import Trip
 # tr = Trip.Trip(1, 19)
 
+
 # Тестирование класса Driver
 # import Driver
 # dr = Driver.Driver(driver_num=1)
+
+
+# Тестирование классификатора на одном водителе
+# n = 2
+# files = [f for f in os.listdir(KPI_PATH) if os.path.splitext(f)[1] == '.txt']
+# kpis = pd.DataFrame.from_csv(KPI_PATH+str(n)+'.txt',
+#                              index_col=False, sep='\t')
+
+# a = apply_clf(files, n, 'SVM')
+# print [i[0] for i in a if i[1] == '0']
+
+# p = a[:, 1].astype(int).tolist()
+# colors = ['gray' if i == 1 else 'orange' for i in p]
+
+# fig, axes = plt.subplots(len(COL), 1)
+# for y, axis in zip(COL, axes):
+#     kpis.plot(x='trip_num', y=y,
+#               color=colors, kind='bar',
+#               ax=axis, title=y)
+#     axis.legend().remove()
+
+# fig.set_size_inches(15, 15)
+# fig.savefig(PLOT_PATH + str(n) + '_kpi' + PLOT_EXT)
+# plt.close(fig)
+
 
 ############################################
 # Расчёт параметров (KPI) для кажой траектории каждого водителя
@@ -280,19 +286,19 @@ def plot_oneclasssvm(main_driver, clf, X, dist_to_border, threshold):
 #         Driver.Driver(driver_num=i)
 #         os.remove(file_name + '.lock')
 
+
 #############################################
 # Выделение "чужих" траекторий на основании анализа параметров KPI
-
 files = [f for f in os.listdir(KPI_PATH) if os.path.splitext(f)[1] == '.txt']
 submission = np.array([['driver_trip', 'prob']])
 driver_list = [int(os.path.splitext(f)[0]) for f in files]
 
 for n in sorted(driver_list):
     # apply_oneclasssvm
-    # apply_svm
+    # apply_clf(SVM)
+    # apply_clf(RFC)
     # apply_dbn
-    # apply_rfc
-    a = apply_rfc(files, n)
+    a = apply_clf(files, n, 'SVM')
     submission = np.append(submission, a, axis=0)
 
 np.savetxt('submission.csv', submission, fmt='%s', delimiter=',')
