@@ -88,7 +88,7 @@ def apply_clf(files, main_driver=1, classify='SVM'):
     a = np.empty(shape=[0, 2])
 
     if classify == 'SVM':
-        clf = svm.SVC(kernel='rbf', shrinking=True, verbose=False)
+        clf = svm.SVC(kernel='rbf', gamma=0.2, shrinking=True, verbose=False)
     elif classify == 'RFC':
         clf = ensemble.RandomForestClassifier(
             n_estimators=10, n_jobs=-1, verbose=0)
@@ -98,6 +98,10 @@ def apply_clf(files, main_driver=1, classify='SVM'):
         # cores.
 
     clf.fit(X_train, Y_train, sample_weight=weight)
+
+    # Z = X_train[len(X):]
+    # b = clf.predict(Z).tolist()
+    # print 'Error = ', int(100.0*sum(b)/float(len(Z))), '% '
 
     a = driver_trip_arr.tolist()
     b = clf.predict(X).astype(int).tolist()
@@ -232,20 +236,21 @@ def plot_oneclasssvm(main_driver, clf, X, dist_to_border, threshold):
 # =============================================================================
 # =============================================================================
 # =============================================================================
-
+############################################
+# ############ Тестирование ############## #
 ############################################
 # Тестирование класса Trip
 # import Trip
 # tr = Trip.Trip(1, 19)
 
-
+############################################
 # Тестирование класса Driver
 # import Driver
 # dr = Driver.Driver(driver_num=1)
 
-
+############################################
 # Тестирование классификатора на одном водителе
-# n = 2
+# n = 1
 # files = [f for f in os.listdir(KPI_PATH) if os.path.splitext(f)[1] == '.txt']
 # kpis = pd.DataFrame.from_csv(KPI_PATH+str(n)+'.txt',
 #                              index_col=False, sep='\t')
@@ -253,6 +258,7 @@ def plot_oneclasssvm(main_driver, clf, X, dist_to_border, threshold):
 # a = apply_clf(files, n, 'SVM')
 # print [i[0] for i in a if i[1] == '0']
 
+# Plot
 # p = a[:, 1].astype(int).tolist()
 # colors = ['gray' if i == 1 else 'orange' for i in p]
 
@@ -268,6 +274,8 @@ def plot_oneclasssvm(main_driver, clf, X, dist_to_border, threshold):
 # plt.close(fig)
 
 
+############################################
+# ############ Боевой расчёт ############# #
 ############################################
 # Расчёт параметров (KPI) для кажой траектории каждого водителя
 # dirs = os.listdir(DRIVER_PATH)
