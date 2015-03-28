@@ -1,0 +1,47 @@
+\section{Text Retrieval Problem}
+
+\subsection{What Is Text Retrieval?}
+TR = Text Retrieval\footnote{Retrieval - поиск}
+
+\begin{itemize}
+\item Collection of text documents exists\item User gives a query to express the information need\item Search engine system returns relevant documents to users\item Often called “information retrieval” (IR), but IR is actually much broader\item Known as <<search technology>> in industry
+\end{itemize}
+
+TR is an empirically defined problem:
+\begin{itemize}\item Can’t mathematically prove one method is better than another
+\item Must rely on empirical evaluation involving users!
+\end{itemize}
+
+
+
+\subsection{Formal Formulation of TR}
+\begin{itemize}\item \textbf{Vocabulary}: $V=\{w_1, w_2, \dots , w_N\}$ of language
+\item \textbf{Query}: $q = q_1,\dots ,q_m$, where $q_i \in V$\item \textbf{Document}: $d_i=d_{i1},\dots ,d_{im_i}$, where $d_{ij} \in V$\item \textbf{Collection}: $C=\{d_1,\dots , d_M\}$\item \textbf{Set of relevant documents}: $R(q) \subseteq C$
+    \begin{itemize}    \item Generally unknown and user-dependent 
+    \item Query is a <<hint>> on which doc is in $R(q)$
+    \end{itemize}    \item \textbf{Task}: compute $R^\prime(q)$, an approximation of $R(q)$
+\end{itemize}
+
+
+\subsection{How to Compute $R^\prime(q)$}
+\begin{itemize}
+\item Strategy 1: Document selection
+    \begin{itemize}    \item $R^\prime(q)=\{d \in C \mid f(d,q)=1\}$, where $f(d,q) \in \{0,1\}$ is an indicator function or binary classifier    \item System must decide if a doc is relevant or not (absolute relevance)
+    \end{itemize}\item Strategy 2 (generally preferred): Document ranking
+    \begin{itemize}    \item $R^\prime(q)=\{d \in C \mid f(d,q)>\theta\}$, where $f(d,q) \in \Re$ is a relevance measure function; $\theta$ is a cutoff determined by the user    \item System only needs to decide if one doc is more likely relevant than another (relative relevance)
+    \end{itemize}
+\end{itemize}
+
+
+\subsection{Theoretical Justification for Ranking}
+\textbf{Probability Ranking Principle [Robertson 77]}: Returning a ranked list of documents in descending order of probability that a document is relevant to the query is the optimal strategy under the following two assumptions:
+\begin{itemize}\item The utility of a document (to a user) is independent of the utility of any other document\item A user would browse the results sequentially
+\end{itemize}
+
+
+\subsection{Recommended reading}
+\begin{itemize}
+\item S.E. Robertson, <<The probability ranking principle in IR>>. Journal of Documentation 33, 294-304, 1977\item \textbf{C. J. van Rijsbergen, <<Information Retrieval>>, 2nd Edition}, Butterworth-Heinemann, Newton, MA, USA, 1979
+\end{itemize}
+
+

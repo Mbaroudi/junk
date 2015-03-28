@@ -1,0 +1,54 @@
+\documentclass[12pt]{article}
+
+\usepackage[a4paper,margin=2cm,footskip=.5cm]{geometry}
+\usepackage{amsmath}
+\usepackage{commath}
+
+\usepackage{indentfirst}
+\usepackage{subscript}
+\usepackage{float}
+\usepackage{subfigure}
+
+\usepackage{graphicx}
+\graphicspath{{./img/}}
+
+\usepackage{fontspec}	
+\usepackage{unicode-math}
+
+\setmainfont[Ligatures=TeX]{Georgia} % Palatino Georgia
+%\setmathfont[Ligatures=TeX]{xits-math.otf} % Cambria Math
+\setmathfont[Ligatures=TeX]{Latin Modern Math} %Computer Modern
+
+\usepackage{algorithm, algpseudocode}
+\newfontfamily\codefont{Consolas} % Inconsolata
+\newfontfamily\commentfont[Color={888888}]{Consolas}
+\makeatletter
+\renewcommand{\ALG@beginalgorithmic}{\codefont}
+\makeatother
+\algrenewcommand{\algorithmiccomment}[1]{\hfill \commentfont \# #1 \codefont}
+
+\usepackage{amsthm}
+\newtheorem*{theorem}{Theorem}
+\theoremstyle{definition}
+\newtheorem*{definition}{Definition}
+
+%\usepackage[unicode,xetex]{hyperref}
+
+%----------------------------------------------------
+
+\begin{document}
+
+\input{title.tex}
+\input{lecture01.tex}
+\input{lecture02.tex}
+\input{lecture03.tex}
+\input{lecture04.tex}
+\input{lecture05.tex}
+%\input{lecture06.tex}
+%\input{lecture07.tex}
+%\input{lecture08.tex}
+%\input{lecture09.tex}
+%\input{lecture10.tex}
+%\input{lecture11.tex}
+
+\end{document}
