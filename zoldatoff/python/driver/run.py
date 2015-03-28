@@ -88,10 +88,16 @@ def apply_clf(files, main_driver=1, classify='SVM'):
     a = np.empty(shape=[0, 2])
 
     if classify == 'SVM':
-        clf = svm.SVC(kernel='rbf', gamma=0.05, shrinking=True, verbose=False)
+        clf = svm.SVC(C=0.75,
+                      kernel='rbf',
+                      gamma=0.05,
+                      shrinking=True,
+                      verbose=False)
     elif classify == 'RFC':
         clf = ensemble.RandomForestClassifier(
-            n_estimators=10, n_jobs=-1, verbose=0)
+            n_estimators=10,
+            n_jobs=-1,
+            verbose=0)
         # n_estimators = The number of trees in the forest.
         # n_jobs = The number of jobs to run in parallel for both fit and
         # predict. If -1, then the number of jobs is set to the number of
