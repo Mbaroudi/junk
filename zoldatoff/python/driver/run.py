@@ -88,7 +88,7 @@ def apply_clf(files, main_driver=1, classify='SVM'):
     a = np.empty(shape=[0, 2])
 
     if classify == 'SVM':
-        clf = svm.SVC(C=0.75,
+        clf = svm.SVC(C=0.25,
                       kernel='rbf',
                       gamma=0.05,
                       shrinking=True,
