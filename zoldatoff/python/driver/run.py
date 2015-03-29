@@ -90,7 +90,7 @@ def apply_clf(files, main_driver=1, classify='SVM'):
     if classify == 'SVM':
         clf = svm.SVC(C=0.1,
                       kernel='rbf',
-                      gamma=0.05,
+                      gamma=0.025,
                       shrinking=True,
                       verbose=False)
     elif classify == 'RFC':
