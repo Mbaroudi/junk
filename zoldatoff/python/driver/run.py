@@ -52,7 +52,7 @@ def get_train_data(files, main_driver=1):
     driver_trip = df.as_matrix(columns=['driver_trip']).ravel()
 
     len_main = np.shape(array_main)[0]
-    X_train = array_main
+    X, X_train = array_main, array_main
     Y_train = np.ones(len_main)
     weight = np.ones(len_main) * TRAIN_SIZE
 
@@ -66,9 +66,10 @@ def get_train_data(files, main_driver=1):
         Y_train = np.append(Y_train, np.zeros(len_train))
         weight = np.append(weight, np.ones(len_train))
 
-    X_train = preprocessing.scale(X_train)
+    scaler = preprocessing.StandardScaler()
+    X_train = scaler.fit_transform(X_train)
     X_train[np.isnan(X_train)] = 0.0
-    X = X_train[0:len_main]
+    X = scaler.transform(X)
 
     return (X_train, Y_train, weight, X, driver_trip)
 
