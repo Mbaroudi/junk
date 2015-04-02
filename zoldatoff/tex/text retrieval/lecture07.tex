@@ -1,27 +1,49 @@
-\section{Vector Space Retrieval Model: Improved Instantiation}
+\newpage
+\section{Evaluation of Text Retrieval Systems}
 
-Improved VSM:
-\begin{itemize}\item Dimension = word\item Vector = TF-IDF weight vector\item Similarity = dot product
+%----------------------------------------
+\subsection{The Cranfield Evaluation Methodology}
+
+A methodology for laboratory testing of system components developed in 1960s. General idea is to build reusable test collections and define measures. A test collection can then be reused many times to compare different systems.
+\begin{itemize}
+\item A sample collection of documents (simulate real document collection)\item A sample set of queries/topics (simulate user queries)\item Relevance judgments (ideally made by users who formulated the queries) => Ideal ranked list\item  Measures to quantify how well a system’s result matches the ideal ranked list
 \end{itemize}
 
-\subsection{Improved VSM with Term Frequency (TF) Weighting}
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\linewidth]{VSM_TF.png}
-\end{figure}
+
+%----------------------------------------
+\subsection{Evaluating a Set of Retrieved Docs}
+
+\begin{center}
+  \begin{tabular}{ | l | c | c | }
+    \hline
+    & \textbf{Retrieved} & \textbf{Not Retrieved} \\    
+    \hline    
+    \textbf{Relevant}     & a & b \\ 
+    \textbf{Not Relevant} & c & d \\
+    \hline  
+  \end{tabular}
+\end{center}
+
+\begin{itemize}
+\item Precision: are the retrieved results all relevant?
+\begin{equation*}
+Precision = \frac{a}{a+c}
+\end{equation*}\item Recall: have all the relevant documents been retrieved?
+\begin{equation*}
+Recall = \frac{a}{a+b}
+\end{equation*}
+\item In reality, high recall tends to be associated with low precision
+\end{itemize}
 
 
-\subsection{IDF Weighting: Penalizing Popular Terms}
-IDF — inverse document frequency
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.65\linewidth]{IDF.png}
-\end{figure}
+%----------------------------------------
+\subsection{Combine Precision and Recall: F-Measure}
 
+\begin{equation*}
+F_\beta = \frac{1}{\dfrac{\beta^2}{\beta^2+1}\dfrac{1}{R} + \dfrac{1}{\beta^2+1}\dfrac{1}{P}} = \frac{(\beta^2+1)\cdot P \cdot R}{\beta^2 \cdot P + R}
+\end{equation*}
 
-\subsection{Adding Inverse Document Frequency (IDF)}
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.65\linewidth]{VSM_IDF.png}
-\end{figure}
-
+\begin{itemize}
+\item $P$ - precision\item $R$ - recall
+\item $\beta$ - parameter, often set to 1: $F_1 = \dfrac{2 \cdot P \cdot R}{P+R}$
+\end{itemize}
