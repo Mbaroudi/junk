@@ -26,9 +26,9 @@ TR is an empirically defined problem:
 \subsection{How to Compute $R^\prime(q)$}
 \begin{itemize}
 \item Strategy 1: Document selection
-    \begin{itemize}    \item $R^\prime(q)=\{d \in C \mid f(d,q)=1\}$, where $f(d,q) \in \{0,1\}$ is an indicator function or binary classifier    \item System must decide if a doc is relevant or not (absolute relevance)
+    \begin{itemize}    \item $R^\prime(q)=\{d \in C \:\big|\: f(d,q)=1\}$, where $f(d,q) \in \{0,1\}$ is an indicator function or binary classifier    \item System must decide if a doc is relevant or not (absolute relevance)
     \end{itemize}\item Strategy 2 (generally preferred): Document ranking
-    \begin{itemize}    \item $R^\prime(q)=\{d \in C \mid f(d,q)>\theta\}$, where $f(d,q) \in \Re$ is a relevance measure function; $\theta$ is a cutoff determined by the user    \item System only needs to decide if one doc is more likely relevant than another (relative relevance)
+    \begin{itemize}    \item $R^\prime(q)=\{d \in C \:\big|\: f(d,q)>\theta\}$, where $f(d,q) \in \Re$ is a relevance measure function; $\theta$ is a cutoff determined by the user    \item System only needs to decide if one doc is more likely relevant than another (relative relevance)
     \end{itemize}
 \end{itemize}
 

@@ -3,16 +3,23 @@
 \usepackage[a4paper,margin=2cm,footskip=.5cm]{geometry}
 \usepackage{amsmath}
 \usepackage{commath}
+\DeclareMathOperator{\sign}{sign}
 
 \usepackage{indentfirst}
 \usepackage{subscript}
 \usepackage{float}
 \usepackage{subfigure}
 
+\usepackage{microtype} % better management of overfulls
+
 \usepackage{graphicx}
 \graphicspath{{./img/}}
 
-\usepackage{fontspec}	
+\usepackage{polyglossia} % пакет для включения переносов (вместо babel)
+\setdefaultlanguage{english}
+\setotherlanguages{russian}
+
+%\usepackage[quiet]{fontspec}	
 \usepackage{unicode-math}
 
 \setmainfont[Ligatures=TeX]{Georgia} % Palatino Georgia
@@ -27,6 +34,12 @@
 \makeatother
 \algrenewcommand{\algorithmiccomment}[1]{\hfill \commentfont \# #1 \codefont}
 
+\Umathchardef\xnot="3 \symoperators "0338
+\AtBeginDocument{
+  \renewcommand\not[1]{#1\mathrel{\mkern1mu}\xnot}
+  \renewcommand{\notin}{\not\in}
+}
+
 \usepackage{amsthm}
 \newtheorem*{theorem}{Theorem}
 \theoremstyle{definition}
@@ -37,9 +50,12 @@
     xetex,
     bookmarks,
     colorlinks=true,
-    linkcolor=red,
-    urlcolor=blue,
+    linkcolor=blue,
+    urlcolor=red,
     citecolor=gray]{hyperref}
+      
+\usepackage{multicol}
+
 
 %----------------------------------------------------
 
@@ -53,9 +69,11 @@
 \input{lecture05.tex}
 \input{lecture06.tex}
 \input{lecture07.tex}
-\input{lecture08.tex}
-\input{lecture09.tex}
+%\input{lecture08.tex}
+%\input{lecture09.tex}
 %\input{lecture10.tex}
 %\input{lecture11.tex}
+%\input{lecture12.tex}
+%\input{lecture13.tex}
 
 \end{document}
