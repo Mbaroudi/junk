@@ -2,14 +2,15 @@
 # -*- coding: utf-8 -*-
 
 import os
+import sys
 import codecs
 
 decode = 'cp1251'
-# decode = 'utf-8'
 encode = 'utf-8'
 
 accounts = {'7390': {'name': u'БвК Green', 'type': 'CCard'},
             '3542': {'name': u'Зарплатка', 'type': 'CCard'},
+            '9092': {'name': u'Женька Travel', 'type': 'CCard'},
             '3749': {'name': u'БвК Gold', 'type': 'CCard'},
             '3763': {'name': u'Travel', 'type': 'CCard'},
             '3709': {'name': u'Transport', 'type': 'CCard'}}
@@ -50,27 +51,41 @@ def genattr(instr, amount_sign):
         ret = {'category': 'Электроника: Другое', 'contragent': 'Paypal'}
 
     elif str.find(u'MCDONALDS') >= 0:
-        ret = {'category': 'Питание: Питание вне дома', 'contragent': 'Макдоналдс'}
+        ret = {'category': 'Питание: Питание вне дома',
+               'contragent': 'Макдоналдс'}
     elif str.find(u'TANUKI') >= 0:
-        ret = {'category': 'Питание: Питание вне дома', 'contragent': 'Тануки'}
+        ret = {'category': 'Питание: Питание вне дома',
+               'contragent': 'Тануки'}
     elif str.find(u'TEMPL BAR') >= 0:
-        ret = {'category': 'Питание: Питание вне дома', 'contragent': 'Темпл-бар'}
+        ret = {'category': 'Питание: Питание вне дома',
+               'contragent': 'Темпл-бар'}
     elif str.find(u'TORRO GRILL') >= 0:
-        ret = {'category': 'Питание: Питание вне дома', 'contragent': 'Торро-гриль'}
+        ret = {'category': 'Питание: Питание вне дома',
+               'contragent': 'Торро-гриль'}
     elif str.find(u'KFC') >= 0:
-        ret = {'category': 'Питание: Питание вне дома', 'contragent': 'Ростикс'}
+        ret = {'category': 'Питание: Питание вне дома',
+               'contragent': 'Ростикс'}
     elif str.find(u'STARBUCKS') >= 0:
-        ret = {'category': 'Питание: Питание вне дома', 'contragent': 'Старбакс'}
+        ret = {'category': 'Питание: Питание вне дома',
+               'contragent': 'Старбакс'}
     elif str.find(u'COFFEE HOUSE') >= 0:
-        ret = {'category': 'Питание: Питание вне дома', 'contragent': 'Кофе-хаус'}
+        ret = {'category': 'Питание: Питание вне дома',
+               'contragent': 'Кофе-хаус'}
+    elif str.find(u'KAFE STUDII LEBEDEVA') >= 0:
+        ret = {'category': 'Питание: Питание вне дома',
+               'contragent': 'Кофе-хаус'}
     elif str.find(u'DVE PALOCHKI') >= 0:
-        ret = {'category': 'Питание: Питание вне дома', 'contragent': ''}
+        ret = {'category': 'Питание: Питание вне дома',
+               'contragent': ''}
     elif str.find(u'SHOKOLADNITSA') >= 0:
-        ret = {'category': 'Питание: Питание вне дома', 'contragent': 'Шоколадница'}
+        ret = {'category': 'Питание: Питание вне дома',
+               'contragent': 'Шоколадница'}
     elif str.find(u'GALEREYA ALEKS') >= 0:
-        ret = {'category': 'Питание: Питание вне дома', 'contragent': 'Шоколадница'}
+        ret = {'category': 'Питание: Питание вне дома',
+               'contragent': 'Шоколадница'}
     elif str.find(u'TERRITORIYA') >= 0:
-        ret = {'category': 'Питание: Питание вне дома', 'contragent': 'Территория'}
+        ret = {'category': 'Питание: Питание вне дома',
+               'contragent': 'Территория'}
 
     elif str.find(u'BILLA') >= 0:
         ret = {'category': 'Питание: Бакалея', 'contragent': 'Билла'}
@@ -81,7 +96,8 @@ def genattr(instr, amount_sign):
     elif str.find(u'STANEM DRUZYAMI') >= 0:
         ret = {'category': 'Питание: Бакалея', 'contragent': 'Станем друзьями'}
     elif str.find(u'SEDMOY KONTINENT') >= 0:
-        ret = {'category': 'Питание: Бакалея', 'contragent': 'Седьмой континент'}
+        ret = {'category': 'Питание: Бакалея',
+               'contragent': 'Седьмой континент'}
     elif str.find(u'KVARTAL') >= 0:
         ret = {'category': 'Питание: Бакалея', 'contragent': 'Квартал'}
     elif str.find(u'MAGNOLIYA') >= 0:
@@ -107,10 +123,12 @@ def genattr(instr, amount_sign):
     elif str.find(u'KASSA.RAMBLER') >= 0:
         ret = {'category': 'Досуг: Развлечения', 'contragent': 'Кинотеатр'}
     elif str.find(u'STAFF STUDIO') >= 0:
-        ret = {'category': 'Досуг:Забота о себе', 'contragent': 'Парикмахерская'}
+        ret = {'category': 'Досуг:Забота о себе',
+               'contragent': 'Парикмахерская'}
 
     elif str.find(u'HAWES & CURTIS') >= 0:
-        ret = {'category': 'Одежда и обувь: Одежда', 'contragent': 'Hawes & Curtis'}
+        ret = {'category': 'Одежда и обувь: Одежда',
+               'contragent': 'Hawes & Curtis'}
     elif str.find(u'KHIMCHISTKA') >= 0:
         ret = {'category': 'Одежда и обувь:Другое', 'contragent': 'Химчистка'}
 
@@ -174,7 +192,9 @@ def gentrans(colnames, values):
 
 
 def writeacc(accnum, outfile, translist=1):
+    print 'accnum = ', accnum
     acc = accounts[accnum]
+    print 'acc = ', acc
 
     data = ''
     if translist == 1:
@@ -203,35 +223,34 @@ def writetrans(trans, outfile):
 
 def csv2qif(infile, outfile):
     infile = codecs.open(infile, 'r', decode)
-    # outfile = codecs.open('output.qif', 'a+', encode)
-
-    # Write all accounts data
-    # outfile.write('!Account\n')
-    # for accnum in accounts.keys():
-    #   writeacc(accnum, outfile, 0)
 
     # Read transactions
     data = infile.readlines()
-    lines = [line for line in data]
+    lines = [line for line in data if line.strip()]
     colnames = lines[0].strip().split(',')
     accnum = lines[1][2:6]
 
+    # Write transactions
     writeacc(accnum, outfile)
-
-    # Начинаем писать транзакции для нового счета
-    # writeacc(accnum, outfile)
     for line in lines[1:]:
         values = line.strip().split(',')
         trans = gentrans(colnames, values)
         writetrans(trans, outfile)
 
+#####################################################
 
-CSV_PATH = './201502/'
+if sys.argv[1]:
+    CSV_PATH = './' + sys.argv[1] + '/'
+else:
+    CSV_PATH = './201503/'
+
 files = [os.path.splitext(f)[0]
          for f in os.listdir(CSV_PATH)
          if os.path.splitext(f)[1] == '.csv']
 
 for file_name in files:
+    print "------------------------"
+    print "File name: ", file_name
     outfile = codecs.open(CSV_PATH + file_name + '.qif', 'w', encode)
     csv2qif(CSV_PATH + file_name + '.csv', outfile)
     outfile.close()
