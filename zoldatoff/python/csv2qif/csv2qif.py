@@ -5,8 +5,10 @@ import os
 import sys
 import codecs
 
-decode = 'cp1251'
-encode = 'utf-8'
+DECODE_FILTER = 'utf-8'
+DECODE_CSV = 'cp1251'
+ENCODE_QIF = 'utf-8'
+DEBUG = 0
 
 accounts = {'7390': {'name': u'БвК Green', 'type': 'CCard'},
             '3542': {'name': u'Зарплатка', 'type': 'CCard'},
@@ -16,185 +18,42 @@ accounts = {'7390': {'name': u'БвК Green', 'type': 'CCard'},
             '3709': {'name': u'Transport', 'type': 'CCard'}}
 
 
-def ts2date(ts):
-    year = ts[0:4]
-    month = ts[5:7]
-    day = ts[8:10]
-    return month + '/' + day + '/' + year
+def csv2qif(infile, outfile, filter_data):
+    """
+    Читает данные транзакций из csv-файла и вызывает создание qif-файла
+    """
+    infile = codecs.open(infile, 'r', DECODE_CSV)
 
+    if DEBUG >= 1:
+        print '...Reading transactions from file...'
+    data = infile.readlines()
+    lines = [line for line in data if line.strip()]
+    colnames = lines[0].strip().split(',')
+    accnum = lines[1][2:6]
 
-def genattr(instr, amount_sign):
-    str = instr.upper()
-    ret = {'category': 'Другое', 'contragent': ''}
+    if DEBUG >= 1:
+        print '...Writing qif header...'
+    writeacc(accnum, outfile)
 
-    if str.find(u'APPLE') >= 0:
-        ret = {'category': 'Электроника: Другое', 'contragent': 'Apple'}
-    elif str.find('ITUNES') >= 0:
-        ret = {'category': 'Электроника: Музыка', 'contragent': 'Apple'}
-    elif str.find(u'OZON') >= 0:
-        ret = {'category': 'Электроника', 'contragent': 'Озон'}
-
-    elif str.find('MEGAFON') >= 0:
-        ret = {'category': 'Счета: Сотовая связь', 'contragent': 'Megafon'}
-    elif str.find('MTS') >= 0:
-        ret = {'category': 'Счета: Сотовая связь', 'contragent': 'MTS'}
-    elif str.find('BEELINE') >= 0:
-        ret = {'category': 'Счета: Интернет', 'contragent': 'Beeline'}
-    elif str.find('DIGITALOCEAN.COM') >= 0:
-        ret = {'category': 'Счета: Другое', 'contragent': 'Digitalocean'}
-    elif str.find('MGTS') >= 0:
-        ret = {'category': 'Счета: Телефон', 'contragent': 'МГТС'}
-
-    elif str.find('AMAZON') >= 0:
-        ret = {'category': 'Электроника: Другое', 'contragent': 'Amazon'}
-    elif str.find('PAYPAL') >= 0:
-        ret = {'category': 'Электроника: Другое', 'contragent': 'Paypal'}
-
-    elif str.find(u'MCDONALDS') >= 0:
-        ret = {'category': 'Питание: Питание вне дома',
-               'contragent': 'Макдоналдс'}
-    elif str.find(u'TANUKI') >= 0:
-        ret = {'category': 'Питание: Питание вне дома',
-               'contragent': 'Тануки'}
-    elif str.find(u'TEMPL BAR') >= 0:
-        ret = {'category': 'Питание: Питание вне дома',
-               'contragent': 'Темпл-бар'}
-    elif str.find(u'TORRO GRILL') >= 0:
-        ret = {'category': 'Питание: Питание вне дома',
-               'contragent': 'Торро-гриль'}
-    elif str.find(u'KFC') >= 0:
-        ret = {'category': 'Питание: Питание вне дома',
-               'contragent': 'Ростикс'}
-    elif str.find(u'STARBUCKS') >= 0:
-        ret = {'category': 'Питание: Питание вне дома',
-               'contragent': 'Старбакс'}
-    elif str.find(u'COFFEE HOUSE') >= 0:
-        ret = {'category': 'Питание: Питание вне дома',
-               'contragent': 'Кофе-хаус'}
-    elif str.find(u'KAFE STUDII LEBEDEVA') >= 0:
-        ret = {'category': 'Питание: Питание вне дома',
-               'contragent': 'Кофе-хаус'}
-    elif str.find(u'DVE PALOCHKI') >= 0:
-        ret = {'category': 'Питание: Питание вне дома',
-               'contragent': ''}
-    elif str.find(u'SHOKOLADNITSA') >= 0:
-        ret = {'category': 'Питание: Питание вне дома',
-               'contragent': 'Шоколадница'}
-    elif str.find(u'GALEREYA ALEKS') >= 0:
-        ret = {'category': 'Питание: Питание вне дома',
-               'contragent': 'Шоколадница'}
-    elif str.find(u'TERRITORIYA') >= 0:
-        ret = {'category': 'Питание: Питание вне дома',
-               'contragent': 'Территория'}
-
-    elif str.find(u'BILLA') >= 0:
-        ret = {'category': 'Питание: Бакалея', 'contragent': 'Билла'}
-    elif str.find(u'AUCHAN') >= 0:
-        ret = {'category': 'Питание: Бакалея', 'contragent': 'Ашан'}
-    elif str.find(u'PEREKRESTOK') >= 0:
-        ret = {'category': 'Питание: Бакалея', 'contragent': 'Перекресток'}
-    elif str.find(u'STANEM DRUZYAMI') >= 0:
-        ret = {'category': 'Питание: Бакалея', 'contragent': 'Станем друзьями'}
-    elif str.find(u'SEDMOY KONTINENT') >= 0:
-        ret = {'category': 'Питание: Бакалея',
-               'contragent': 'Седьмой континент'}
-    elif str.find(u'KVARTAL') >= 0:
-        ret = {'category': 'Питание: Бакалея', 'contragent': 'Квартал'}
-    elif str.find(u'MAGNOLIYA') >= 0:
-        ret = {'category': 'Питание: Бакалея', 'contragent': 'Магнолия'}
-    elif str.find(u'SHOP.AV.RU') >= 0:
-        ret = {'category': 'Питание: Бакалея', 'contragent': 'Азбука вкуса'}
-    elif str.find(u'AROMATNYI MIR') >= 0:
-        ret = {'category': 'Питание: Бакалея', 'contragent': 'Ароматный мир'}
-
-    elif str.find(u'ROSNEFT') >= 0:
-        ret = {'category': 'Автомобиль: Топливо', 'contragent': ''}
-
-    elif str.find(u'KOSMIK') >= 0:
-        ret = {'category': 'Досуг: Развлечения', 'contragent': 'Космик'}
-    elif str.find(u'EVROPARTNER') >= 0:
-        ret = {'category': 'Досуг: Развлечения', 'contragent': 'Черепаха'}
-    elif str.find(u'RHYTHM AND BLUES') >= 0:
-        ret = {'category': 'Досуг: Развлечения', 'contragent': 'Дом у дороги'}
-    elif str.find(u'FORMULA KINO') >= 0:
-        ret = {'category': 'Досуг: Развлечения', 'contragent': 'Кинотеатр'}
-    elif str.find(u'KF OCTOBER CINEMA') >= 0:
-        ret = {'category': 'Досуг: Развлечения', 'contragent': 'Кинотеатр'}
-    elif str.find(u'KASSA.RAMBLER') >= 0:
-        ret = {'category': 'Досуг: Развлечения', 'contragent': 'Кинотеатр'}
-    elif str.find(u'STAFF STUDIO') >= 0:
-        ret = {'category': 'Досуг:Забота о себе',
-               'contragent': 'Парикмахерская'}
-
-    elif str.find(u'HAWES & CURTIS') >= 0:
-        ret = {'category': 'Одежда и обувь: Одежда',
-               'contragent': 'Hawes & Curtis'}
-    elif str.find(u'KHIMCHISTKA') >= 0:
-        ret = {'category': 'Одежда и обувь:Другое', 'contragent': 'Химчистка'}
-
-    elif str.find(u'APTEKA') >= 0:
-        ret = {'category': 'Здоровье: Аптека', 'contragent': 'Аптека'}
-    elif str.find(u'STARYY LEKAR') >= 0:
-        ret = {'category': 'Здоровье: Аптека', 'contragent': 'Аптека'}
-    elif str.find(u'LINZMASTER') >= 0:
-        ret = {'category': 'Здоровье: Уход за глазами', 'contragent': ''}
-
-    elif str.find(u'RZD') >= 0:
-        ret = {'category': 'Путешествия', 'contragent': 'РЖД'}
-    elif str.find(u'МЕТРОПОЛИТЕН') >= 0:
-        ret = {'category': 'Транспорт', 'contragent': 'Метро'}
-
-    elif str.find(u'ATM') >= 0:
-        ret = {'category': 'Перевод (-)', 'contragent': 'Zoldatoff'}
-    elif str.find(u'Снято наличными') >= 0:
-        ret = {'category': 'Перевод (-)', 'contragent': 'Zoldatoff'}
-    elif str.find(u'ПЕРЕВОД') >= 0 and amount_sign == '-':
-        ret = {'category': 'Перевод (-)', 'contragent': ''}
-    elif str.find(u'ПЕРЕВОД') >= 0:
-        ret = {'category': 'Перевод (+)', 'contragent': ''}
-    elif str.find(u'КОМИССИ') >= 0:
-        ret = {'category': 'Сборы', 'contragent': 'RSB'}
-    elif str.find(u'COMISSION') >= 0:
-        ret = {'category': 'Сборы', 'contragent': 'RSB'}
-    elif str.find(u'НАЧИСЛЕНИЕ ПРОЦЕНТОВ') >= 0:
-        ret = {'category': 'Инвестиции', 'contragent': 'RSB'}
-    elif str.find(u'ПРОЦЕНТЫ') >= 0:
-        ret = {'category': 'Ссуды', 'contragent': 'RSB'}
-
-    elif str.find(u'З/ПЛАТЫ') >= 0:
-        ret = {'category': 'Зарплата', 'contragent': 'RSB'}
-    elif str.find(u'АВАНС') >= 0:
-        ret = {'category': 'Зарплата', 'contragent': 'RSB'}
-
-    elif str.find(u'МАТЕРИАЛЬНАЯ') >= 0:
-        ret = {'category': 'Другое', 'contragent': ''}
-
-    # ret.setdefault('type', 'Bank')
-
-    return {k: unicode(v, encode) for k, v in ret.items()}
-
-
-def gentrans(colnames, values):
-    trans = dict(zip(colnames, values))
-
-    # incoming or outcoming transaction
-    if trans.pop('type') == '0':
-        trans['amount'] = '-' + trans['amount']
-
-    # date format
-    trans['date'] = ts2date(trans.pop('timestamp'))
-
-    # add category and contragent
-    a = genattr(trans['description'], trans['amount'][0])
-    trans.update(a)
-
-    return trans
+    if DEBUG >= 1:
+        print '...Parsing transactions...'
+    for line in lines[1:]:
+        values = line.strip().split(',')
+        trans = gentrans(colnames, values, filter_data)
+        writetrans(trans, outfile)
 
 
 def writeacc(accnum, outfile, translist=1):
-    print 'accnum = ', accnum
+    """
+    Пишет заголовок qif-файла с данными о счёте
+    """
+    if DEBUG >= 2:
+        print '......accnum =', accnum
+
     acc = accounts[accnum]
-    print 'acc = ', acc
+
+    if DEBUG >= 0:
+        print 'Account name:', acc['name']
 
     data = ''
     if translist == 1:
@@ -208,7 +67,42 @@ def writeacc(accnum, outfile, translist=1):
     outfile.write(data)
 
 
+def gentrans(colnames, values, filter_data):
+    """
+    Преобразует строку csv-файла в список
+    """
+    if DEBUG >= 2:
+        '......Converting csv data to qif data......'
+
+    trans = dict(zip(colnames, values))
+
+    # incoming or outcoming transaction
+    if trans.pop('type') == '0':
+        trans['amount'] = '-' + trans['amount']
+
+    # date format
+    trans['date'] = ts2date(trans.pop('timestamp'))
+
+    # add category and contragent
+    a = classify_transaction(
+        trans['description'], trans['amount'][0], filter_data)
+    trans.update(a)
+
+    return trans
+
+
 def writetrans(trans, outfile):
+    """
+    Записывает в файл данные одной транзакции
+    """
+    if DEBUG >= 2:
+        print '......Writing transaction to file...'
+        print '         Date =', trans['date']
+        print '         Amount =', trans['amount']
+        print '         Description =', trans['description']
+        print '         Category =', trans['category']
+        print '         Contragent =', trans['contragent']
+
     data = ''
     # data = '!Type:' + trans['type'] + '\n'
     data += 'D' + trans['date'] + '\n'
@@ -221,23 +115,55 @@ def writetrans(trans, outfile):
     outfile.write(data)
 
 
-def csv2qif(infile, outfile):
-    infile = codecs.open(infile, 'r', decode)
+def classify_transaction(transaction_name, transaction_sign, filter_data):
+    """
+    Классифицирует транзакции, сопоставляя ключевые слова с фильтром
+    """
+    if DEBUG >= 2:
+        print '......Classification: ', transaction_name
 
-    # Read transactions
-    data = infile.readlines()
-    lines = [line for line in data if line.strip()]
-    colnames = lines[0].strip().split(',')
-    accnum = lines[1][2:6]
+    tr_name_upper = transaction_name.upper()
 
-    # Write transactions
-    writeacc(accnum, outfile)
-    for line in lines[1:]:
-        values = line.strip().split(',')
-        trans = gentrans(colnames, values)
-        writetrans(trans, outfile)
+    if tr_name_upper.find(u'ПЕРЕВОД') >= 0 and transaction_sign == '-':
+        return {'category': u'Перевод (-)', 'contragent': ''}
+
+    lines = [line for line in filter_data if line.strip() and line[0] != '#']
+    for line in lines:
+        values = line.strip().split('\t')
+        if len(values) < 2:
+            print '!!! Check filter file:', values
+            values.extend([u'Другое', ''])
+        elif len(values) < 3:
+            if DEBUG > 2:
+                print '........Generating null contragent:', values
+            values.append('')
+        if tr_name_upper.find(values[0].upper()) >= 0:
+            result = {'category': values[1], 'contragent': values[2]}
+            if DEBUG >= 2:
+                print '......Classification succeeded:', \
+                      'category =', values[1], \
+                      ', contragent =', values[2]
+            return result
+
+    if DEBUG >= 0:
+        print '!Cannot classify:', transaction_name
+    return {'category': u'Другое', 'contragent': ''}
+
+
+def ts2date(ts):
+    """
+    Преобразует timestamp в дату
+    """
+    year = ts[0:4]
+    month = ts[5:7]
+    day = ts[8:10]
+    return month + '/' + day + '/' + year
 
 #####################################################
+#####################################################
+
+filter_file = codecs.open('filters.txt', 'r', DECODE_FILTER)
+filter_data = filter_file.readlines()
 
 if sys.argv[1]:
     CSV_PATH = './' + sys.argv[1] + '/'
@@ -249,8 +175,11 @@ files = [os.path.splitext(f)[0]
          if os.path.splitext(f)[1] == '.csv']
 
 for file_name in files:
-    print "------------------------"
-    print "File name: ", file_name
-    outfile = codecs.open(CSV_PATH + file_name + '.qif', 'w', encode)
-    csv2qif(CSV_PATH + file_name + '.csv', outfile)
-    outfile.close()
+    print '*************************************************'
+    print 'File name:', file_name
+    if os.path.exists(file_name + '.qif'):
+        print 'File already exists:', file_name + '.qif'
+    else:
+        outfile = codecs.open(CSV_PATH + file_name + '.qif', 'w', ENCODE_QIF)
+        csv2qif(CSV_PATH + file_name + '.csv', outfile, filter_data)
+        outfile.close()
