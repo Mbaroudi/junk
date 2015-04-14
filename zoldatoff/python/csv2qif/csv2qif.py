@@ -4,18 +4,52 @@
 import os
 import sys
 import codecs
+import logging
 
-DECODE_FILTER = 'utf-8'
-DECODE_CSV = 'cp1251'
-ENCODE_QIF = 'utf-8'
-DEBUG = 0
 
-accounts = {'7390': {'name': u'БвК Green', 'type': 'CCard'},
-            '3542': {'name': u'Зарплатка', 'type': 'CCard'},
-            '9092': {'name': u'Женька Travel', 'type': 'CCard'},
-            '3749': {'name': u'БвК Gold', 'type': 'CCard'},
-            '3763': {'name': u'Travel', 'type': 'CCard'},
-            '3709': {'name': u'Transport', 'type': 'CCard'}}
+class ColorFormatter(logging.Formatter):
+    """
+    http://stackoverflow.com/questions/384076/how-can-i-color-python-logging-output
+    """
+    FORMAT = "[$BOLD%(levelname)-18s$RESET] %(message)s"
+
+    BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(8)
+
+    RESET_SEQ = "\033[0m"
+    COLOR_SEQ = "\033[1;%dm"
+    BOLD_SEQ = "\033[1m"
+
+    COLORS = {
+        'WARNING': YELLOW,
+        'INFO': WHITE,
+        'DEBUG': BLUE,
+        'CRITICAL': YELLOW,
+        'ERROR': RED
+    }
+
+    def formatter_msg(self, msg, use_color = True):
+        if use_color:
+            msg = msg.replace("$RESET", self.RESET_SEQ) \
+                     .replace("$BOLD", self.BOLD_SEQ)
+        else:
+            msg = msg.replace("$RESET", "").replace("$BOLD", "")
+        return msg
+
+    def __init__(self, use_color=True):
+        msg = self.formatter_msg(self.FORMAT, use_color)
+        logging.Formatter.__init__(self, msg)
+        self.use_color = use_color
+
+    def format(self, record):
+        levelname = record.levelname
+        if self.use_color and levelname in self.COLORS:
+            fore_color = 30 + self.COLORS[levelname]
+            levelname_color = self.COLOR_SEQ % fore_color \
+                + levelname + self.RESET_SEQ
+            record.levelname = levelname_color
+        return logging.Formatter.format(self, record)
+
+########################################################################
 
 
 def csv2qif(infile, outfile, filter_data):
@@ -24,19 +58,16 @@ def csv2qif(infile, outfile, filter_data):
     """
     infile = codecs.open(infile, 'r', DECODE_CSV)
 
-    if DEBUG >= 1:
-        print '...Reading transactions from file...'
+    logger.info('Reading transactions from file')
     data = infile.readlines()
     lines = [line for line in data if line.strip()]
     colnames = lines[0].strip().split(',')
     accnum = lines[1][2:6]
 
-    if DEBUG >= 1:
-        print '...Writing qif header...'
+    logger.info('Writing qif header')
     writeacc(accnum, outfile)
 
-    if DEBUG >= 1:
-        print '...Parsing transactions...'
+    logger.info('Parsing transactions')
     for line in lines[1:]:
         values = line.strip().split(',')
         trans = gentrans(colnames, values, filter_data)
@@ -47,13 +78,11 @@ def writeacc(accnum, outfile, translist=1):
     """
     Пишет заголовок qif-файла с данными о счёте
     """
-    if DEBUG >= 2:
-        print '......accnum =', accnum
+    logger.debug('accnum = ' + str(accnum))
 
     acc = accounts[accnum]
 
-    if DEBUG >= 0:
-        print 'Account name:', acc['name']
+    logger.info('Account name: ' + acc['name'])
 
     data = ''
     if translist == 1:
@@ -71,8 +100,7 @@ def gentrans(colnames, values, filter_data):
     """
     Преобразует строку csv-файла в список
     """
-    if DEBUG >= 2:
-        '......Converting csv data to qif data......'
+    logger.debug('Converting csv data to qif data')
 
     trans = dict(zip(colnames, values))
 
@@ -95,13 +123,12 @@ def writetrans(trans, outfile):
     """
     Записывает в файл данные одной транзакции
     """
-    if DEBUG >= 2:
-        print '......Writing transaction to file...'
-        print '         Date =', trans['date']
-        print '         Amount =', trans['amount']
-        print '         Description =', trans['description']
-        print '         Category =', trans['category']
-        print '         Contragent =', trans['contragent']
+    logger.debug('Writing transaction to file')
+    logger.debug('* date = ' + trans['date'])
+    logger.debug('* amount = ' + trans['amount'])
+    logger.debug('* description = ' + trans['description'])
+    logger.debug('* category = ' + trans['category'])
+    logger.debug('* contragent =' + trans['contragent'])
 
     data = ''
     # data = '!Type:' + trans['type'] + '\n'
@@ -119,8 +146,7 @@ def classify_transaction(transaction_name, transaction_sign, filter_data):
     """
     Классифицирует транзакции, сопоставляя ключевые слова с фильтром
     """
-    if DEBUG >= 2:
-        print '......Classification: ', transaction_name
+    logger.debug('Classification: ' + transaction_name)
 
     tr_name_upper = transaction_name.upper()
 
@@ -131,22 +157,19 @@ def classify_transaction(transaction_name, transaction_sign, filter_data):
     for line in lines:
         values = line.strip().split('\t')
         if len(values) < 2:
-            print '!!! Check filter file:', values
+            logger.error('Check filter file: ' + line.strip())
             values.extend([u'Другое', ''])
         elif len(values) < 3:
-            if DEBUG > 2:
-                print '........Generating null contragent:', values
+            logger.debug('Generating null contragent: ' + line.strip())
             values.append('')
         if tr_name_upper.find(values[0].upper()) >= 0:
             result = {'category': values[1], 'contragent': values[2]}
-            if DEBUG >= 2:
-                print '......Classification succeeded:', \
-                      'category =', values[1], \
-                      ', contragent =', values[2]
+            logger.debug('Classification succeeded: ' +
+                         'category = ' + values[1] +
+                         ', contragent = ' + values[2])
             return result
 
-    if DEBUG >= 0:
-        print '!Cannot classify:', transaction_name
+    logger.error('Cannot classify: ' + transaction_name)
     return {'category': u'Другое', 'contragent': ''}
 
 
@@ -162,24 +185,46 @@ def ts2date(ts):
 #####################################################
 #####################################################
 
-filter_file = codecs.open('filters.txt', 'r', DECODE_FILTER)
-filter_data = filter_file.readlines()
+# logging.basicConfig(level=logging.INFO, format="%(levelname)-8s %(message)s")
+handler = logging.StreamHandler()
+handler.setFormatter(ColorFormatter())
+logger = logging.getLogger(__name__)
+logger.addHandler(handler)
 
-if sys.argv[1]:
-    CSV_PATH = './' + sys.argv[1] + '/'
-else:
-    CSV_PATH = './201503/'
+DECODE_FILTER = 'utf-8'
+DECODE_CSV = 'cp1251'
+ENCODE_QIF = 'utf-8'
 
-files = [os.path.splitext(f)[0]
-         for f in os.listdir(CSV_PATH)
-         if os.path.splitext(f)[1] == '.csv']
+accounts = {'7390': {'name': u'БвК Green', 'type': 'CCard'},
+            '3542': {'name': u'Зарплатка', 'type': 'CCard'},
+            '9092': {'name': u'Женька Travel', 'type': 'CCard'},
+            '3749': {'name': u'БвК Gold', 'type': 'CCard'},
+            '3763': {'name': u'Travel', 'type': 'CCard'},
+            '3709': {'name': u'Transport', 'type': 'CCard'}}
 
-for file_name in files:
-    print '*************************************************'
-    print 'File name:', file_name
-    if os.path.exists(file_name + '.qif'):
-        print 'File already exists:', file_name + '.qif'
+try:
+    filter_file = codecs.open('filters.txt', 'r', DECODE_FILTER)
+    filter_data = filter_file.readlines()
+
+    if sys.argv[1]:
+        CSV_PATH = './' + sys.argv[1] + '/'
     else:
+        CSV_PATH = './201503/'
+
+    files = [os.path.splitext(f)[0]
+             for f in os.listdir(CSV_PATH)
+             if os.path.splitext(f)[1] == '.csv']
+
+    for file_name in files:
+        logger.info('------------------------------------')
+        logger.info('File name: ' + CSV_PATH + file_name)
+        if os.path.exists(CSV_PATH + file_name + '.qif'):
+            logger.warning('File already exists: ' +
+                           CSV_PATH + file_name + '.qif')
+        # else:
         outfile = codecs.open(CSV_PATH + file_name + '.qif', 'w', ENCODE_QIF)
         csv2qif(CSV_PATH + file_name + '.csv', outfile, filter_data)
         outfile.close()
+
+except Exception, e:
+    logger.error('Exception. ', exc_info=True)
