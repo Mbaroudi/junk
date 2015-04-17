@@ -3,8 +3,9 @@
 
 VSM - Vector Space Model
 
+\subsection{Basic Idea}
 %----------------------------------------
-\subsection{Vector Space Model (VSM): Illustration}
+\subsubsection{Vector Space Model (VSM): Illustration}
 
 \begin{figure}[H]
     \centering
@@ -12,7 +13,7 @@ VSM - Vector Space Model
 \end{figure}
 
 %----------------------------------------
-\subsection{VSM Is a Framework}
+\subsubsection{VSM Is a Framework}
 \begin{itemize}
 \item Represent a doc/query by a term vector
 \begin{itemize}\item \textbf{Term}: basic concept, e.g., word or phrase\item Each term defines one dimension\item N terms define an \textbf{N-dimensional space}\item \textbf{Query vector}: $q=(x_1, \dots x_N), x_i \in \Re$ is query term weight 
@@ -22,7 +23,7 @@ VSM - Vector Space Model
 
 
 %----------------------------------------
-\subsection{What VSM Doesn’t Say}
+\subsubsection{What VSM Doesn’t Say}
 \begin{itemize}
 \item How to define/select the “basic concept” – Concepts are assumed to be orthogonal\item How to place docs and query in the space (= how to assign term weights)
 
@@ -35,7 +36,7 @@ VSM - Vector Space Model
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{vsm_questions.png}
+    \includegraphics[width=0.7\linewidth]{vsm_questions.png}
 \end{figure}
 
 
@@ -43,7 +44,7 @@ VSM - Vector Space Model
 \subsection{Simplest VSM = Bit-Vector + Dot-Product + BOW}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{simplest_vsm.png}
+    \includegraphics[width=0.6\linewidth]{simplest_vsm.png}
 \end{figure}
 
 Simplest VSM:
@@ -59,14 +60,14 @@ Improved VSM:
 \end{itemize}
 
 %----------------------------------------
-\subsection{Improved VSM with Term Frequency (TF) Weighting}
+\subsubsection{Improved VSM with Term Frequency (TF) Weighting}
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\linewidth]{VSM_TF.png}
 \end{figure}
 
 %----------------------------------------
-\subsection{IDF Weighting: Penalizing Popular Terms}
+\subsubsection{IDF Weighting: Penalizing Popular Terms}
 IDF — inverse document frequency
 \begin{figure}[H]
     \centering
@@ -74,15 +75,16 @@ IDF — inverse document frequency
 \end{figure}
 
 %----------------------------------------
-\subsection{Adding Inverse Document Frequency (IDF)}
+\subsubsection{Adding Inverse Document Frequency (IDF)}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\linewidth]{VSM_IDF.png}
+    \includegraphics[width=0.8\linewidth]{VSM_IDF.png}
 \end{figure}
 
 
 %----------------------------------------
-\subsection{Ranking Function with TF-IDF Weighting}
+\subsection{TF Transformation}
+\subsubsection{Ranking Function with TF-IDF Weighting}
 
 \begin{equation*}
 f(q, d) = \sum_{i=1}^N x_i \, y_i = \sum_{w \in q \cap d} c(w, q) \: c(w, d) \log \frac{M+1}{df(w)}
@@ -102,18 +104,18 @@ f(q, d) = \sum_{i=1}^N x_i \, y_i = \sum_{w \in q \cap d} c(w, q) \: c(w, d) \lo
 
 
 %----------------------------------------
-\subsection{TF Transformation: BM25 Transformation}
+\subsubsection{TF Transformation: BM25 Transformation}
 BM = Best Matching
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\linewidth]{BM25_transformation.png}
+    \includegraphics[width=0.65\linewidth]{BM25_transformation.png}
 \end{figure}
 
 
 
 %----------------------------------------
-\subsection{TF Transformation: summary}
+\subsubsection{Summary}
 \begin{itemize}\item Sublinear TF Transformation is needed to
 \begin{itemize}\item capture the intuition of <<diminishing return>> from higher TF 
 \item avoid dominance by one single term over all others
@@ -123,26 +125,26 @@ BM = Best Matching
 \item has an upper bound\item is robust and effective
 \end{itemize}
 \item Ranking function with BM25 TF ($k \geqslant 0$):
-\end{itemize}
-
 \begin{equation*}
 f(q, d) = \sum_{i=1}^N x_i y_i = \sum_{w \in q \cap d} c(w, q) \frac{(k+1) c(w, d)}{c(w, d) + k} \log \frac{M+1}{df(w)}
 \end{equation*}
+\end{itemize}
 
 
 %----------------------------------------
-\subsection{Pivoted Length Normalization}
+\subsection{Doc Length Normalization}
+\subsubsection{Pivoted Length Normalization}
 
 \textbf{Pivoted length normalizer}: use average doc length as <<pivot>>\footnote{Pivot - стержень; точка опоры, вращения}. Normalizer = 1 if $\abs{d}$ = average doc length (avdl).
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\linewidth]{pivoted_length_norm.png}
+    \includegraphics[width=0.65\linewidth]{pivoted_length_norm.png}
 \end{figure}
 
 
 %----------------------------------------
-\subsection{State of the Art VSM Ranking Functions}
+\subsubsection{State of the Art VSM Ranking Functions}
 
 Pivoted Length Normalization VSM [Singhal et al 96]:
 \begin{equation*}
@@ -193,11 +195,11 @@ f(q, d) = \sum_{w \in q \cap d} c(w, q) \: \frac{(k+1) \: c(w, d)}{c(w, d) + k\l
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{pivoted_length_normalization_vsm.png}
+    \includegraphics[width=0.9\linewidth]{pivoted_length_normalization_vsm.png}
 \end{figure}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{BM25_Okapi.png}
+    \includegraphics[width=0.9\linewidth]{BM25_Okapi.png}
 \end{figure}
 
 

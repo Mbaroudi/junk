@@ -11,7 +11,8 @@ A methodology for laboratory testing of system components developed in 1960s. Ge
 
 
 %----------------------------------------
-\subsection{Evaluating a Set of Retrieved Docs}
+\subsection{Basic Measures}
+\subsubsection{Evaluating a Set of Retrieved Docs}
 
 \begin{center}
   \begin{tabular}{ | l | c | c | }
@@ -37,7 +38,7 @@ Recall = \frac{a}{a+b}
 
 
 %----------------------------------------
-\subsection{Combine Precision and Recall: F-Measure}
+\subsubsection{Combine Precision and Recall: F-Measure}
 
 \begin{equation*}
 F_\beta = \frac{1}{\dfrac{\beta^2}{\beta^2+1}\dfrac{1}{R} + \dfrac{1}{\beta^2+1}\dfrac{1}{P}} = \frac{(\beta^2+1)\cdot P \cdot R}{\beta^2 \cdot P + R}
@@ -53,9 +54,10 @@ F_1 = \dfrac{2 \cdot P \cdot R}{P+R}
 \end{equation*}
 
 
-%\pagebreak
 %----------------------------------------
-\subsection{Evaluating Ranking: Precision-Recall (PR) Curve}
+\newpage
+\subsection{Evaluating a Ranked List}
+\subsubsection{Evaluating Ranking: Precision-Recall (PR) Curve}
 \begin{itemize}
 \item Total number of relevant documents in collection: $a+b = 10$
 \item Number of retrieved documents: $a+c = 10$
@@ -83,6 +85,8 @@ F_1 = \dfrac{2 \cdot P \cdot R}{P+R}
   }
 \end{center}
 
+\columnbreak
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{PR.png}
@@ -91,7 +95,7 @@ F_1 = \dfrac{2 \cdot P \cdot R}{P+R}
 
 
 %----------------------------------------
-\subsection{How to Summarize a Ranking}
+\subsubsection{How to Summarize a Ranking}
 \href{http://en.wikipedia.org/wiki/Information_retrieval#Average_precision}{Average Precision} is sensitive to the rank of each relevant document:
 \begin{equation*}
 AveP = \dfrac{\sum\limits_{k=1}^{a+c} P(k) \cdot rel(k)}{a+b} = \sum\limits_{k=1}^{a+c} P(k) \cdot \Delta r(k)
@@ -110,12 +114,12 @@ In special case, when there’s only one relevant document in the collection (e.
 \end{itemize}
 
 %----------------------------------------
-\subsection{Mean Average Precision (MAP)}
+\subsubsection{Mean Average Precision (MAP)}
 In case of multiple queries:
 \begin{itemize}
 \item MAP = arithmetic mean of average precision over a set of queries 
 \begin{equation*}
-MAP = \frac{\sum\limits_{q=1}^{N}AveP(q)}{N}\textit{,\; where N is the number of queries}
+MAP = \frac{\sum\limits_{q=1}^{N}AveP(q)}{N}\text{,\; where $N$ is the number of queries}
 \end{equation*}
 
 \item \href{http://trec.nist.gov/pubs/trec15/appendices/CE.MEASURES06.pdf}{gMAP} = geometric mean of average precision over a set of queries
@@ -125,7 +129,7 @@ gMAP = \sqrt[N]{\prod_{q=1}^{N}AveP(q)} = \exp \frac{\sum\limits_{q=1}^{N} \log 
 \end{itemize}
 
 %----------------------------------------
-\subsection{Summary on Average Precision}
+\subsubsection{Summary}
 \begin{itemize}\item Precision-Recall curve characterizes the overall accuracy of a ranked list\item The \textbf{actual} utility of a ranked list depends on how many top-ranked results a user would examine\item Average Precision is the standard measure for comparing two ranking methods
 \begin{itemize}\item Combines precision and recall\item Sensitive to the rank of \textbf{every} relevant document\end{itemize}
 \end{itemize}
