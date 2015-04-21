@@ -133,26 +133,23 @@ CF assumptions
 \newpage
 \subsubsection{Memory-based Approaches to Collaboration Filtering Problem}
 
-\begin{multicols}{2}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{collaborative_problem.png}
-\end{figure}
-
-\columnbreak
+%\begin{multicols}{2}
+%\begin{figure}[H]
+%    \centering
+%    \includegraphics[width=\linewidth]{collaborative_problem.png}
+%\end{figure}
+%\columnbreak
+%\end{multicols}
 
 \begin{itemize}
 \item Assume we have $m$ users ($u_i$) and $n$ objects $o_j$
 \item $x_{ij}$: rating of object $o_j$ by user $u_i$\item $n_i$: average rating of all objects by user $u_i$ 
 \item Normalized ratings: $v_{ij} = x_{ij} - n_i$
-\end{itemize}
-\end{multicols}
-
-Prediction of rating of object $o_j$ by user $u_a$:
+\item Prediction of rating of object $o_j$ by user $u_a$:
 \begin{equation*}
-\hat{v_{aj}} = \frac{\sum\limits_{i=1}^m v_{a,i} v_{ij}}{\sum\limits_{i=1}^m v_{a,i}}, \;\hat{x_{aj}} = \hat{v_{aj}} + n_a
+\hat{v}_{aj} = \frac{\sum\limits_{i=1}^m v_{a,i} v_{ij}}{\sum\limits_{i=1}^m v_{a,i}}, \;\hat{x}_{aj} = \hat{v}_{aj} + n_a
 \end{equation*}
+\end{itemize}
 
 
 
