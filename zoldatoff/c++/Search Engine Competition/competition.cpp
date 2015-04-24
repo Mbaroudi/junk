@@ -17,14 +17,17 @@
 #include "index/score_data.h"
 #include <random>
 
+#include "index/forward_index.h"
+#include "index/postings_data.h"
+
 using namespace meta;
 
-/*
-class new_ranker: public index::ranker 
+
+class new_ranker: public index::ranker
 {
 private: // Change the parameters to suit your ranking function
-    double param1_ = 0;
-    double param2_ = 0;
+    double param1_ = 0.5;
+    double param2_ = 0.5;
 
 public:
     const static std::string id;
@@ -38,11 +41,35 @@ const std::string new_ranker::id = "newranker"; // Used to identify the ranker i
 new_ranker::new_ranker(){}
 new_ranker::new_ranker(double param1, double param2) : param1_{param1}, param2_{param2} {}
 
-double new_ranker::score_one(const index::score_data& sd) 
+double new_ranker::score_one(const index::score_data& sd)
 {
     // Implement your scoring function here
 
-   return 0;
+    const double k1_ = 1.2;
+    const double b_ = 0.75;
+    const double k3_ = 500.0;
+    const double mu_ = 2000;
+    // alpha = 0.83
+
+    double doc_len = sd.idx.doc_size(sd.d_id);
+
+    // add 1.0 to the IDF to ensure that the result is positive
+    double IDF = std::log(
+        1.0 + (sd.num_docs - sd.doc_count + 0.5) / (sd.doc_count + 0.5));
+
+    double TF = ((k1_ + 1.0) * sd.doc_term_count)
+                / ((k1_ * ((1.0 - b_) + b_ * doc_len / sd.avg_dl))
+                   + sd.doc_term_count);
+
+    double QTF = ((k3_ + 1.0) * sd.query_term_count)
+                 / (k3_ + sd.query_term_count);
+
+
+    double pc = static_cast<double>(sd.corpus_term_count) / sd.total_terms;
+    double numerator = sd.doc_term_count + mu_ * pc;
+    double denominator = sd.doc_size + mu_;
+
+    return param1_ * TF * IDF * QTF + (1-param1_) * numerator / denominator;
 
 }
 
@@ -53,11 +80,11 @@ template <>
 std::unique_ptr<ranker>make_ranker<new_ranker>(
         const cpptoml::table & config) // Used by new_ranker to read the parameters param1 and param2 from config.toml
 {
-    double param1 = 0; // Change to the default parameter value
+    double param1 = 0.5; // Change to the default parameter value
     if (auto param1_file = config.get_as<double>("param1"))
         param1 = *param1_file;
 
-    double param2 = 0; // Change to the default parameter value
+    double param2 = 0.5; // Change to the default parameter value
     if (auto param2_file = config.get_as<double>("param2"))
         param2 = *param2_file;
 
@@ -67,16 +94,104 @@ std::unique_ptr<ranker>make_ranker<new_ranker>(
 }
 }
 
-*/
 
 
 
+
+corpus::document Rocchio(corpus::document query, std::vector <std::pair<doc_id, double>> ranking, const std::shared_ptr<index::dblru_inverted_index> & idx, const std::shared_ptr<index::memory_forward_index> & fidx)
+{
+    const double alpha = 1.0;
+    const double beta = 0.22;
+    const double gamma = -0.05;
+    const double n_relevant = 8.0;
+    const double n_nonrelevant = 2.0;
+    const double freq_threshold = 8.0;
+    const double k1_ = 1.2;
+    const double b_ = 0.75;
+
+
+    corpus::document new_query; // Declare the new query
+
+    /*std::cout << "-------------------------------------------" << std::endl;*/
+
+    // Add the terms of the original query to the new query
+    for (auto& qpair : query.counts()) {
+    // Loop over the original query's pairs
+        if (qpair.first[0]!='<') {
+            new_query.increment(qpair.first, alpha*qpair.second);
+            // qpair.first is the term name and qpair.second is the term frequency
+            /*std::cout << qpair.first << alpha*qpair.second << std::endl;*/
+        }
+    }
+
+    auto M = fidx->num_docs();
+    auto avg_dl = idx->avg_doc_length();
+    /*std::cout << "M = " << M << " avg_dl = " << avg_dl << std::endl;*/
+
+    for (int i=0; i<n_relevant+n_nonrelevant; i++) {
+        auto postings_list = fidx->search_primary(ranking[i].first);
+        // Return the postings list of the top document in ranking
+
+        auto term_freq = postings_list->counts();
+        // term_freq contains the pairs of the form <term_id, term_freq>
+
+        double doc_len = idx->doc_size(ranking[i].first);
+
+        // Add the term of the top ranked document to the new query
+        for (auto& tfpair : term_freq) { // Loop over the document's  pairs
+            auto term_text = idx->term_text(tfpair.first); // idx->term_text converts a term id to the corresponding term name
+            auto doc_freq = idx->doc_freq(tfpair.first);
+
+            auto doc_term_freq = tfpair.second;
+
+            // add 1.0 to the IDF to ensure that the result is positive
+            double IDF = std::log(
+                1.0 + (M - doc_freq + 0.5) / (doc_freq + 0.5));
+
+            double TF = ((k1_ + 1.0) * doc_term_freq)
+                        / ((k1_ * ((1.0 - b_) + b_ * doc_len / avg_dl))
+                           + doc_term_freq);
+
+            if (tfpair.second > freq_threshold
+                and term_text[0] != '<'
+                and term_text != "cours" and term_text != "learn"
+                and i<n_relevant) {
+                new_query.increment(term_text, beta/n_relevant*TF*IDF);
+                /*std::cout << "+ " << term_text
+                        << " doc_freq = " << doc_freq
+                        << " TF-IDF = "<< TF*IDF
+                        << " vector = " << beta/n_relevant*TF*IDF
+                        << std::endl;*/
+            }
+
+            if (tfpair.second > freq_threshold
+                and term_text[0] != '<'
+                and term_text != "cours" and term_text != "learn"
+                and i>=n_relevant) {
+                new_query.increment(term_text, gamma/n_nonrelevant*TF*IDF);
+                /*std::cout << "- " << term_text
+                        << " doc_freq = " << doc_freq
+                        << " TF-IDF = "<< TF*IDF
+                        << " vector = " << gamma/n_nonrelevant*TF*IDF
+                        << std::endl;*/
+            }
+        }
+    }
+
+    for (auto& qpair : new_query.counts()) {
+    // Loop over the original query's pairs
+        std::cout << qpair.first << " " << alpha*qpair.second << std::endl;
+    }
+
+    return new_query;
+}
 
 
 
 int main(int argc, char* argv[])
 {
-    //index::register_ranker<new_ranker>();
+    index::register_ranker<new_ranker>();
+
     if (argc != 2 && argc != 3)
     {
         std::cerr << "Usage:\t" << argv[0] << " configFile" << std::endl;
@@ -113,6 +228,8 @@ int main(int argc, char* argv[])
     //  Create an inverted index using a DBLRU cache.
     auto idx = index::make_index<index::dblru_inverted_index>(argv[1], 30000);
 
+    auto fidx = index::make_index<index::memory_forward_index>(argv[1]); // fidx is a pointer to the forward index
+
     // Create a ranking class based on the config file.
     auto config = cpptoml::parse_file(argv[1]);
     auto group = config.get_table("ranker");
@@ -125,16 +242,24 @@ int main(int argc, char* argv[])
     if (!query_path)
         throw std::runtime_error{"config file needs a \"querypath\" parameter"};
 
-    std::ifstream queries{*query_path + *config.get_as<std::string>("dataset")
-                          + "-queries.txt"};
+
+
+
+
+    /*double par[30] = {100, 200, 300, 400, 500, 600, 700, 800, 900, 1000,
+                1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000,
+                2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800, 2900, 3000};
+    for (int j=0; j<30; j++) {*/
 
     // Create an instance of ir_eval to evaluate the MAP and Precision@10 for the training queries
     auto eval = index::ir_eval(argv[1]);
-
-    
-    // Print the precision@10 and the MAP for the training queries
     size_t i = 1;
     std::string content;
+
+    std::ifstream queries{*query_path + *config.get_as<std::string>("dataset")
+                          + "-queries.txt"};
+
+    // Print the precision@10 and the MAP for the training queries
     while (i<=100 && queries.good())
     {
         std::getline(queries, content); // Read the content of the current training query from file
@@ -143,26 +268,40 @@ int main(int argc, char* argv[])
 
         query.content(content); // Set the content of the query
 
-        std::cout << "Ranking query " << i++ << ": " << content<< std::endl;
+        idx->tokenize(query);
 
-        auto ranking = ranker->score(*idx, query, 50); // ranking is a vector of pairs of the form <docID,docScore>
+        //std::cout << "=======================================" << std::endl;
+        //std::cout << "Ranking query " << i++ << ": " << content << std::endl;
+        i++;
+
+        // ranking is a vector of pairs of the form <docID,docScore>
         // You can access the ith document's ID using ranking[i].first and its score using ranking[i].second
-        
-        std::cout<< "Precision@10 for this query: "<< eval.precision(ranking,query.id(),10) << std::endl;
+        auto ranker = make_unique<new_ranker>();
+        ranker->set_param(0.83, 2000);
+        auto ranking = ranker->score(*idx, query, 50);
+        /*std::cout<< "Precision@10 for this query: "<< eval.precision(ranking,query.id(),10) << std::endl;*/
 
-        eval.avg_p(ranking,query.id(),50); // Store the average precision at 50 documents for the current query
+        //auto new_query = Rocchio(query, ranking, idx, fidx);
+        //ranking = ranker->score(*idx, new_query, 50);
 
-        std::cout << "Showing top 10 of " << ranking.size() << " results."<< std::endl;
+        //std::cout<< "Precision@10 for this query: "<< eval.precision(ranking,query.id(),10) << std::endl;
 
-        for (size_t i = 0; i < ranking.size() && i < 10; ++i) // Loop over the top 10 documents in ranking
-            std::cout << (i + 1) << ". " << " " << idx->doc_path(ranking[i].first)
-                      << " " << ranking[i].second << std::endl;
+        eval.avg_p(ranking, query.id(), 50); // Store the average precision at 50 documents for the current query
 
-        std::cout << std::endl;
+        /*std::cout << "Showing top 10 of " << ranking.size() << " results."<< std::endl;
+
+        for (size_t i = 0; i < ranking.size() && i < 10; ++i)
+        // Loop over the top 10 documents in ranking
+            std::cout << (i + 1) << ". " << " "
+                      << idx->doc_path(ranking[i].first) << " "
+                      << ranking[i].second << std::endl;
+
+        std::cout << std::endl;*/
 
     }
 
-    std::cout<< "The MAP for the training queries is: " << eval.map() << std::endl;
+    std::cout << /*"par = " << par[j] << */" The MAP for the training queries is: " << eval.map() << std::endl;
+
 
     // Write the top 50 documents of each test query to the submission file
     while (queries.good())
@@ -173,7 +312,12 @@ int main(int argc, char* argv[])
 
         query.content(content);
 
+        auto ranker = make_unique<new_ranker>();
+        ranker->set_param(0.83, 2000);
         auto ranking = ranker->score(*idx, query, 50);
+        //auto ranking = ranker->score(*idx, query, 50);
+        //auto new_query = Rocchio(query, ranking, idx, fidx);
+        //ranking = ranker->score(*idx, new_query, 50);
 
         for (size_t i=0; i < ranking.size() && i<50; i++) // Loop over the top 50 documents
         {
