@@ -282,8 +282,8 @@ int main(int argc, char* argv[])
 
         // ranking is a vector of pairs of the form <docID,docScore>
         // You can access the ith document's ID using ranking[i].first and its score using ranking[i].second
-        auto ranker = make_unique<new_ranker>();
-        ranker->set_param(1.0, 0);
+        //auto ranker = make_unique<new_ranker>();
+        //ranker->set_param(0.52, 0);
         auto ranking = ranker->score(*idx, query, 50);
         std::cout << "Precision@10 for this query: "
                   << eval.precision(ranking,query.id(),10) << std::endl;
@@ -320,8 +320,8 @@ int main(int argc, char* argv[])
 
         query.content(content);
 
-        auto ranker = make_unique<new_ranker>();
-        ranker->set_param(1.0, 0);
+        //auto ranker = make_unique<new_ranker>();
+        //ranker->set_param(0.52, 0);
         auto ranking = ranker->score(*idx, query, 50);
         //auto ranking = ranker->score(*idx, query, 50);
         //auto new_query = Rocchio(query, ranking, idx, fidx);
