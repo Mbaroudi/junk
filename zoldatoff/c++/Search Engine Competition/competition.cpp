@@ -45,11 +45,11 @@ double new_ranker::score_one(const index::score_data& sd)
 {
     // Implement your scoring function here
 
-    const double k1_ = 1.2;
-    const double b_ = 0.75;
+    const double k1_ = 1.65;
+    const double b_ = 0.82;
     const double k3_ = 500.0;
-    const double mu_ = 2000;
-    // alpha = 0.83
+    const double mu_ = 228.0;
+    // alpha = 1.0
 
     double doc_len = sd.idx.doc_size(sd.d_id);
 
@@ -64,12 +64,20 @@ double new_ranker::score_one(const index::score_data& sd)
     double QTF = ((k3_ + 1.0) * sd.query_term_count)
                  / (k3_ + sd.query_term_count);
 
+    double rank_bm25 = TF * IDF * QTF;
+
+
 
     double pc = static_cast<double>(sd.corpus_term_count) / sd.total_terms;
-    double numerator = sd.doc_term_count + mu_ * pc;
-    double denominator = sd.doc_size + mu_;
 
-    return param1_ * TF * IDF * QTF + (1-param1_) * numerator / denominator;
+    double rank_dir = std::log(mu_/(mu_+sd.doc_size));
+
+    if (sd.doc_term_count > 0.0)
+        rank_dir += std::log(1 + sd.doc_term_count/mu_/pc);
+
+
+
+    return param1_ * rank_bm25 + (1.0-param1_) * rank_dir;
 
 }
 
@@ -246,10 +254,8 @@ int main(int argc, char* argv[])
 
 
 
-    /*double par[30] = {100, 200, 300, 400, 500, 600, 700, 800, 900, 1000,
-                1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000,
-                2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800, 2900, 3000};
-    for (int j=0; j<30; j++) {*/
+    /*double par[10] = {0.9, 0.91, 0.92, 0.93, 0.94, 0.95, 0.96, 0.97, 0.98, 0.99};
+    for (int j=0; j<10; j++) {*/
 
     // Create an instance of ir_eval to evaluate the MAP and Precision@10 for the training queries
     auto eval = index::ir_eval(argv[1]);
@@ -270,16 +276,17 @@ int main(int argc, char* argv[])
 
         idx->tokenize(query);
 
-        //std::cout << "=======================================" << std::endl;
-        //std::cout << "Ranking query " << i++ << ": " << content << std::endl;
-        i++;
+        std::cout << "=======================================" << std::endl;
+        std::cout << "Ranking query " << i++ << ": " << content << std::endl;
+        //i++;
 
         // ranking is a vector of pairs of the form <docID,docScore>
         // You can access the ith document's ID using ranking[i].first and its score using ranking[i].second
         auto ranker = make_unique<new_ranker>();
-        ranker->set_param(0.83, 2000);
+        ranker->set_param(1.0, 0);
         auto ranking = ranker->score(*idx, query, 50);
-        /*std::cout<< "Precision@10 for this query: "<< eval.precision(ranking,query.id(),10) << std::endl;*/
+        std::cout << "Precision@10 for this query: "
+                  << eval.precision(ranking,query.id(),10) << std::endl;
 
         //auto new_query = Rocchio(query, ranking, idx, fidx);
         //ranking = ranker->score(*idx, new_query, 50);
@@ -288,7 +295,7 @@ int main(int argc, char* argv[])
 
         eval.avg_p(ranking, query.id(), 50); // Store the average precision at 50 documents for the current query
 
-        /*std::cout << "Showing top 10 of " << ranking.size() << " results."<< std::endl;
+        std::cout << "Showing top 10 of " << ranking.size() << " results."<< std::endl;
 
         for (size_t i = 0; i < ranking.size() && i < 10; ++i)
         // Loop over the top 10 documents in ranking
@@ -296,11 +303,12 @@ int main(int argc, char* argv[])
                       << idx->doc_path(ranking[i].first) << " "
                       << ranking[i].second << std::endl;
 
-        std::cout << std::endl;*/
+        std::cout << std::endl;
 
     }
 
     std::cout << /*"par = " << par[j] << */" The MAP for the training queries is: " << eval.map() << std::endl;
+
 
 
     // Write the top 50 documents of each test query to the submission file
@@ -313,7 +321,7 @@ int main(int argc, char* argv[])
         query.content(content);
 
         auto ranker = make_unique<new_ranker>();
-        ranker->set_param(0.83, 2000);
+        ranker->set_param(1.0, 0);
         auto ranking = ranker->score(*idx, query, 50);
         //auto ranking = ranker->score(*idx, query, 50);
         //auto new_query = Rocchio(query, ranking, idx, fidx);
